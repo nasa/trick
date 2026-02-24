@@ -1,6 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "trick/ChkPtParseContext.hh"
+#include "trick/MemoryManager.hh"
+#include <cstdlib>
+#include <iostream>
+#include <istream>
 
 /**
  Constructor
@@ -31,4 +33,3 @@ ChkPtParseContext::~ChkPtParseContext() {
     destroy_scanner();
     free( this->buf );
 }
-

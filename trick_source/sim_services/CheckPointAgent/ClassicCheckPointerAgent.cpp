@@ -1,21 +1,22 @@
+#include "trick/CheckPointAgent.hh"
+#include "trick/ChkPtParseContext.hh"
+#include "trick/ClassicCheckPointAgent.hh"
 #include "trick/MemoryManager.hh"
-#include "trick/parameter_types.h"
-#include "trick/io_alloc.h"
-#include "trick/wcs_ext.h"
+#include "trick/attributes.h"
 #include "trick/bitfield_proto.h"
+#include "trick/io_alloc.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
-
-#include "trick/ClassicCheckPointAgent.hh"
-#include "trick/ChkPtParseContext.hh"
-
-#include <string>
-#include <iostream>
+#include "trick/parameter_types.h"
+#include <cctype>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <string>
 
 const int Trick::ClassicCheckPointAgent::array_elements_per_line[TRICK_NUMBER_OF_TYPES] = {
      5, /** TRICK_VOID (for pointers) */
@@ -150,9 +151,9 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
 
 
 // STATIC FUNCTION
-/* 
+/*
    Given an offset, that is within the bounds of a composite
-   object (i.e., a struct or class instance), return the corresponding 
+   object (i.e., a struct or class instance), return the corresponding
    ATTRIBUTES pointer (singular).
 
    Helper function for getCompositeSubReference.
@@ -254,7 +255,7 @@ static int getCompositeSubReference(
     }
 
     // Find the structure member that corresponds to the reference address.
-    // If name is empty, we have failed. 
+    // If name is empty, we have failed.
     Ai = findMember(A, referenceOffset);
 
 /******If failed to find member, set reference_name to offset only and return ****/
@@ -275,7 +276,7 @@ static int getCompositeSubReference(
     }
 
 /******************************************************************************/
-    
+
 /* We found a member corresponding to the reference address, so print it's name. */
     snprintf(reference_name, (size_t)256, ".%s", Ai->name);
 
@@ -287,7 +288,7 @@ static int getCompositeSubReference(
             return 0;
         }
 
-/* else, rAddr is pointing to an array, determine its dimensions and determine 
+/* else, rAddr is pointing to an array, determine its dimensions and determine
    the element pointed to by rAddr. Then print the index and return */
 
         offset = (long) rAddr - ((long) sAddr + Ai->offset);
@@ -350,7 +351,7 @@ static int getCompositeSubReference(
         return 0;
     }
 
-/*********** Member is an arrayed struct **************************************/ 
+/*********** Member is an arrayed struct **************************************/
 
     offset = (long) rAddr - ((long) sAddr + Ai->offset);
     size = last_size = Ai->size;
@@ -375,7 +376,7 @@ static int getCompositeSubReference(
     /* if left_type specifies the current member, stop here */
     if ( (left_type != NULL) && (*left_type != NULL) && (Ai->attr == (*left_type)->attr)) {
         return 0;
-    } 
+    }
 
 /**** Go find the subreference for the arrayed struct member and append *********/
 
@@ -1049,7 +1050,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
                 // empty array, causing a segfault when the checkpoint is reloaded.
                 if (attr->index[curr_dim + 1].size == 0 && ((curr_dim + 1) != attr->num_index)) {
                     use_quoted_string = 0;
-                } 
+                }
 
 
                 if ((attr->type == TRICK_CHARACTER) && use_quoted_string)  {
@@ -1189,7 +1190,7 @@ void Trick::ClassicCheckPointAgent::assign_rvalue(std::ostream& chkpnt_os, void*
             std::istringstream iss(decimal_str);
             std::string line;
             bool first_line = true;
-            
+
             while (std::getline(iss, line)) {
                 if (first_line) {
                     chkpnt_os << std::endl << "// " << lname << " = " << line;
