@@ -260,8 +260,9 @@
 
     t->ref.attr->type_name  = strdup("$1_basetype") ;
     t->ref.attr->num_index  = 1 ;
-    t->ref.attr->index[0].size  = get_truncated_size((char *)t->ref.address) ;
-    t->ref.attr->index[0].start  = 0 ;
+    ATTRIBUTES attr = {};
+    trick_MM->get_attributes_for_address((void *)$1, attr);
+    memcpy(t->ref.attr->index, attr.index, sizeof(attr.index));
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;

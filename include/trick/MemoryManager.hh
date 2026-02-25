@@ -657,6 +657,8 @@ namespace Trick {
              */
             std::string make_decl_string(TRICK_TYPE type, std::string class_name, int n_stars, std::string var_name, int n_cdims, int *cdims);
 
+            void get_attributes_for_address(void *address, ATTRIBUTES &attrOut);
+
             /**
              Return the size of the specified user-defined type.
              @param user_type_name The name of a user-defined type.
