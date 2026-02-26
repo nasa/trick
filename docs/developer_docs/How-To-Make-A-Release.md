@@ -68,7 +68,7 @@ Go through recently updated issues/pull requests and make sure that any open iss
 ### macOS
 
 - open a PR that updates `Formula/trick.rb`
-  - with new url to trick source tarball located at `https://github.com/nasa/trick/releases/download/<tag>/trick-<X.Y.Z>.tar.gz`, and
+  - with new url to trick source tarball located at `https://github.com/nasa/trick/archive/refs/tags/<tag>.tar.gz`, and
   - with new sha256 hash of the tarball (`sha256 trick-<X.Y.Z>.tar.gz`)
 - after `brew_test` github action runs on the PR and passes, label the PR as `pr-pull`
   - `publish_commit` will then attach the bottles to the release at `https://github.com/nasa/trick/releases/` and merge in the updated formula
