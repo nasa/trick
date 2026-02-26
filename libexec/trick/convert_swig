@@ -17,7 +17,6 @@ use html ;
 use get_paths ;
 use verbose_build ;
 use parse_s_define 'index_comments' ;
-use Fcntl qw(:flock) ;
 
 ##
 ## ================================================================================
@@ -60,27 +59,8 @@ my %out_of_date ;
 my ($version, $thread, $year) ;
 my %processed_templates ;
 
-# Cache file for storing processed templates across convert_swig invocations
-my $template_cache_file = "build/.trick_template_cache" ;
-
 # Prefix for template instantiation guards
 my $template_guard_prefix = "TRICK_SWIG_TEMPLATE_" ;
-
-# Load previously processed templates from cache file with file locking
-if ( -e $template_cache_file ) {
-    # Open cache file and get exclusive lock
-    if ( open my $cache_fh, '+<', $template_cache_file ) {
-        flock($cache_fh, LOCK_EX) or die "Cannot lock cache file: $!";
-
-        while ( my $line = <$cache_fh> ) {
-            chomp $line ;
-            $processed_templates{$line} = 1 if $line ne '' ;
-        }
-
-        flock($cache_fh, LOCK_UN);
-        close $cache_fh ;
-    }
-}
 
 my $typedef_def = qr/typedef\s+                            # the word typedef
                (?:[_A-Za-z][\s\w]*\s*)                     # resolved type
@@ -308,7 +288,9 @@ sub process_file() {
             }
         }
 
-##      Scan for user defined %template directives and wrap in #ifndef guards
+##      Scan for user defined %template directives and wrap in #ifndef guards if not already in a #ifndef block.  
+##      The guard is based on the normalized template type to prevent duplicate template instantiations across SWIG interface files.  
+##      Also check that the template is not within a %define block, as SWIG does not allow preprocessor directives within macro definitions.
         my @templates_to_wrap;
         while ( $contents =~ /^(.*?)(\%template\s*\(([^)]+)\)\s*([^;]+)\s*;)/gm ) {
             my $leading_text = $1;
@@ -334,9 +316,22 @@ sub process_file() {
                 my $guard_name = $template_guard_prefix . $template_type_no_sp;
                 $guard_name =~ s/[^a-zA-Z0-9_]/_/g;  # Make it a valid C identifier
 
+                # Generate deterministic canonical name from type (same across all files)
+                my $canonical_name = $template_type_no_sp;
+                $canonical_name =~ s/[^a-zA-Z0-9_]/_/g;  # Replace all special chars with _
+                $canonical_name =~ s/_+/_/g;             # Collapse multiple underscores
+                $canonical_name =~ s/_$//;               # Remove trailing underscore
+                # Add _ptr suffix if template contains pointer types
+                if ($template_type =~ /\*/) {
+                    $canonical_name .= "_ptr";
+                }
+
                 push @templates_to_wrap, {
                     leading => $leading_text,
                     template => $full_match,
+                    user_name => $template_name,
+                    canonical_name => $canonical_name,
+                    template_type => $template_type,
                     guard => $guard_name,
                     type => $template_type_no_sp
                 };
@@ -350,10 +345,19 @@ sub process_file() {
         foreach my $tpl (reverse @templates_to_wrap) {
             my $leading = $tpl->{leading};
             my $template = $tpl->{template};
+            my $user_name = $tpl->{user_name};
+            my $template_type = $tpl->{template_type};
             my $guard = $tpl->{guard};
             my $escaped = quotemeta($template);
 
-            my $wrapped = "$leading#ifndef $guard\n$leading#define $guard\n$leading$template\n$leading#endif";
+            # Just wrap user's template in guard - no canonical names or aliases
+            # Guard prevents duplicate C++ instantiation
+            # Each Python module keeps its own user-defined name
+            my $wrapped = "$leading#ifndef $guard\n";
+            $wrapped   .= "$leading#define $guard\n";
+            $wrapped   .= "$leading$template\n";
+            $wrapped   .= "$leading#endif\n";
+
             $contents =~ s/(\Q$leading\E)$escaped/$wrapped/;
         }
 
@@ -433,30 +437,6 @@ sub process_file() {
         close OUT ;
 
         print "[34mWriting[0m    $out_file\n" if not verbose_build() ;
-    }
-
-    # Save processed templates to cache file with file locking
-    # Open cache file for read/write, create if doesn't exist
-    if ( open my $cache_fh, '+>>', $template_cache_file ) {
-        flock($cache_fh, LOCK_EX) or die "Cannot lock cache file: $!";
-
-        # Re-read cache to merge with any updates from parallel processes
-        seek($cache_fh, 0, 0);  # Rewind to beginning
-        my %merged_templates = %processed_templates;
-        while ( my $line = <$cache_fh> ) {
-            chomp $line;
-            $merged_templates{$line} = 1 if $line ne '';
-        }
-
-        # Truncate and write merged cache
-        seek($cache_fh, 0, 0);  # Rewind to beginning
-        truncate($cache_fh, 0); # Clear file
-        foreach my $template_type ( keys %merged_templates ) {
-            print $cache_fh "$template_type\n";
-        }
-
-        flock($cache_fh, LOCK_UN);
-        close $cache_fh;
     }
 }
 
@@ -781,38 +761,34 @@ sub process_class($$$$$) {
                     #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( ! exists $processed_templates{$template_type_no_sp} ) {
 
-                        # Generate identifier and guard name
-                        my $identifier;
+                        # Auto-generated templates always use deterministic type-based names
+                        my $canonical_name;
                         my $trick_swig_template;
 
-                        if ( exists $all_stl_names{$template_type} ) {
-                            # For STL types, use type based naming to match across files
-                            $identifier = $template_type_no_sp;
-                            $identifier =~ s/std:://g;           # Remove std:: prefix
-                            $identifier =~ s/::/\_/g;            # Replace :: with _
-                            $identifier =~ s/</\_/g;             # Replace < with _
-                            $identifier =~ s/>//g;               # Remove >
-                            $identifier =~ s/\*/_ptrs/g;         # Replace * with _ptrs
-                            $identifier =~ s/,/_/g;              # Replace , with _
-                            $identifier =~ s/\s+//g;             # Remove any remaining whitespace
-
-                            # Use type based guard (same as user defined templates)
-                            $trick_swig_template = $template_guard_prefix . $template_type_no_sp;
-                            $trick_swig_template =~ s/[^a-zA-Z0-9_]/_/g;
-                        } else {
-                            # For user defined types, use location based naming as it contains
-                            # namespace and class information to reduce chances of name collision
-                            my $sanitized_namespace = $curr_namespace =~ s/:/_/gr ;
-                            $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
-                            $trick_swig_template = $template_guard_prefix . $identifier ;
+                        # Generate deterministic canonical name from type
+                        $canonical_name = $template_type_no_sp;
+                        $canonical_name =~ s/[^a-zA-Z0-9_]/_/g;  # Replace all special chars with _
+                        $canonical_name =~ s/_+/_/g;             # Collapse multiple underscores
+                        $canonical_name =~ s/_$//;               # Remove trailing underscore
+                        # Add _ptr suffix if template contains pointer types
+                        if ($template_full_type =~ /\*/) {
+                            $canonical_name .= "_ptr";
                         }
+
+                        # Use type based guard
+                        $trick_swig_template = $template_guard_prefix . $template_type_no_sp;
+                        $trick_swig_template =~ s/[^a-zA-Z0-9_]/_/g;
+
+                        # Mark as processed in this file
+                        $processed_templates{$template_type_no_sp} = 1;
 
                         # Insert template directive immediately before instance
                         # This is required as of SWIG 4
                         my $typedef = "\n#ifndef $trick_swig_template\n" ;
                         $typedef   .= "#define $trick_swig_template\n" ;
-                        $typedef   .= "\%template($identifier) $template_full_type;\n" ;
+                        $typedef   .= "\%template($canonical_name) $template_full_type;\n" ;
                         $typedef   .= "#endif\n" ;
+                        # Auto-generated templates just use canonical name, no aliases
 
                         # A SWIG %template directive must:
                         # 1. Appear before each template instantiation
