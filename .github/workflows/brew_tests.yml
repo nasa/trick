@@ -1,0 +1,90 @@
+name: test and build bottles
+
+on:
+  pull_request:
+    paths:
+      - "Formula/**"
+
+env:
+  REPO_OWNER: ${{ github.repository_owner }}
+  REPO_NAME: ${{ github.event.repository.name }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      pull-requests: read
+
+    steps:
+      # ── Setup ────────────────────────────────────────────────────────────────
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+
+      - name: Cache Homebrew Bundler RubyGems
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ${{ matrix.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ matrix.os }}-rubygems-
+
+      - name: Compute shared paths
+        run: |
+          TAP_REF="${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}"
+          TAP_DIR="$(brew --repository)/Library/Taps/${{ env.REPO_OWNER }}/homebrew-${{ env.REPO_NAME }}"
+          FORMULA="${TAP_REF}/${{ env.REPO_NAME }}"
+          echo "TAP_REF=${TAP_REF}" >> "$GITHUB_ENV"
+          echo "TAP_DIR=${TAP_DIR}" >> "$GITHUB_ENV"
+          echo "FORMULA=${FORMULA}" >> "$GITHUB_ENV"
+
+      - name: Tap and checkout PR branch
+        run: |
+          brew tap ${{ env.TAP_REF }} https://github.com/${{ env.TAP_REF }}
+          cd "$TAP_DIR"
+          git fetch origin "+refs/pull/${{ env.PR_NUMBER }}/head:refs/remotes/origin/pr-${{ env.PR_NUMBER }}"
+          git checkout -b "pr-${{ env.PR_NUMBER }}" "origin/pr-${{ env.PR_NUMBER }}"
+
+      # ── Test ─────────────────────────────────────────────────────────────────
+
+      - name: Install dependencies
+        run: brew install --only-dependencies --build-from-source ${{ env.FORMULA }}
+
+      - name: Install formula
+        run: brew install --build-bottle ${{ env.FORMULA }}
+
+      - name: Run brew test
+        run: brew test ${{ env.FORMULA }}
+
+      - name: Run brew audit
+        run: brew audit --formula --strict ${{ env.FORMULA }}
+
+      - name: Run brew style
+        run: brew style ${{ env.FORMULA }}
+
+      # ── Build and upload bottles ──────────────────────────────────────────────
+
+      - name: Build bottle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_TAG="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)"
+          brew bottle \
+            --json \
+            --root-url "https://github.com/${{ env.TAP_REF }}/releases/download/${RELEASE_TAG}" \
+            ${{ env.FORMULA }}
+
+      - name: Upload bottles as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bottles_${{ matrix.os }}
+          path: "*.bottle.*"
