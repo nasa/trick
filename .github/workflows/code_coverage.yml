@@ -72,3 +72,4 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: "./coverage.info"
+        fail-on-error: false  # Add this to allow tests to pass while the service is down
