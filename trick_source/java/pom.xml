@@ -6,7 +6,7 @@
 
   <groupId>trick-java</groupId>
   <artifactId>trick-java</artifactId>
-  <version>19.8.0-beta</version>
+  <version>25.0.3-beta</version>
 
   <name>trick-java</name>
 
@@ -152,6 +152,22 @@
                 </transformer>
               </transformers>
               <finalName>SimControl</finalName>
+            </configuration>
+            </execution>
+
+          <execution>
+            <id>trickify</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>trick.trickify.TrickifyApplication</mainClass>
+                </transformer>
+              </transformers>
+              <finalName>Trickify</finalName>
             </configuration>
             </execution>
             

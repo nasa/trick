@@ -14,8 +14,9 @@ typedef enum {
     VS_LIST_SIZE = 3 ,
     VS_STDIO = 4,
     VS_SEND_ONCE = 5,
+    VS_GET_STL_SIZE = 6,
     VS_MIN_CODE = VS_IP_ERROR,
-    VS_MAX_CODE = VS_SEND_ONCE
+    VS_MAX_CODE = VS_GET_STL_SIZE
 } VS_MESSAGE_TYPE ;
 
 #endif

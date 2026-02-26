@@ -9,7 +9,6 @@ TRICK_LIB := $(TRICK_LIB_DIR)/libtrick_connection_handlers.a
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 -include Makefile_deps
 
-TRICK_CXXFLAGS += -std=c++11
 
 # make the comm library when called by the master makefile.
 trick: ${TRICK_LIB}

@@ -342,6 +342,7 @@ int var_add(std::string in_name, std::string units_name) ;
 int var_remove(std::string in_name) ;
 int var_units(std::string var_name , std::string units_name) ;
 int var_exists(std::string in_name) ;
+int var_get_stl_size(std::string in_name) ;
 int var_send_once(std::string in_name) ;
 int var_send_once(std::string in_name, int numArgs) ;
 int var_send() ;

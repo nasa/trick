@@ -2,25 +2,21 @@ name: 'Report macOS'
 
 on:
   workflow_run:
-    workflows: ['macOS']                     # runs after CI workflow
+    workflows: ['macOS']                  # runs after CI workflow
     types:
       - completed
 jobs:
   report:
-    strategy:
-      fail-fast: false
-      
     runs-on: ubuntu-latest
+    permissions:
+      actions: read                       # Allow reading actions
+      checks: write                       # Allow creating check runs
     steps:
-    - name: Download artifact from latest attempt
-      uses: dawidd6/action-download-artifact@v6     # This action downloads + extracts
-      with:
-        workflow: macOS                   # The workflow that creates the artifact
-        name: Trick_macos                 # Name of the artifact
-
     - name: Publish Test Report
       uses: dorny/test-reporter@v1
       with:
+        # Match artifact from the specific attempt that triggered this report
+        artifact: Trick_macos_attempt_${{ github.event.workflow_run.run_attempt }}
         name: Results_Trick_macos         # Name of the check run which will be created
-        path: '*.xml'                     # Path to test results (inside artifact .zip)
+        path: '*.xml'                     # Path to test results (inside the artifact .zip)
         reporter: java-junit              # Format of test results

@@ -1,0 +1,18 @@
+#include "sim_objects/default_trick_sys.sm"
+##include "trick_publisher/include/PubNode.hh"
+
+class TrickPublisherSimObject : public Trick::SimObject
+{
+    public:
+        PubNode publish_node;
+
+        TrickPublisherSimObject()
+        {
+            ("default_data")   publish_node.defaults();
+            ("initialization") publish_node.init_ros();
+            (1.0, "scheduled") publish_node.yellIntoTheVoid();
+            ("shutdown")       publish_node.shutItDown(); 
+        }
+};
+
+TrickPublisherSimObject TrickPublisher;
