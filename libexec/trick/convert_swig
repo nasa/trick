@@ -351,8 +351,8 @@ sub process_file() {
             my $escaped = quotemeta($template);
 
             # Just wrap user's template in guard - no canonical names or aliases
-            # Guard prevents duplicate C++ instantiation
-            # Each Python module keeps its own user-defined name
+            # Guard prevents duplicate %template instantiations across SWIG interface files
+            # User defined name is preserved in the SWIG interface file
             my $wrapped = "$leading#ifndef $guard\n";
             $wrapped   .= "$leading#define $guard\n";
             $wrapped   .= "$leading$template\n";
