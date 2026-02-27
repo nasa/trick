@@ -69,7 +69,7 @@ jobs:
         make code-coverage
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@master
+      continue-on-error: true
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: "./coverage.info"
-        fail-on-error: false  # Add this to allow tests to pass while the service is down
