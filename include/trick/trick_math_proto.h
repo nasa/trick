@@ -75,6 +75,12 @@ int dLU_solver(double **A, double **L, double *y, int n, double *b,
 /**
  * @ingroup TRICK_MATH
  */
+int dLDLt_solver(double **A, double **L, double *D, double *y, int n, double *b,
+                 double *x, int mode);
+
+/**
+ * @ingroup TRICK_MATH
+ */
 double dS_function(double x, double zero_point, double mid_point,
                    double one_point, double sign);
 
