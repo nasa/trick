@@ -20,6 +20,13 @@ use Text::Balanced qw(extract_bracketed);
 use html ;
 use get_paths ;
 
+BEGIN {
+    if($ENV{'TRICK_PERL_DEBUG'} eq 1) {
+        require re;
+        re->import('debug');
+    }
+}
+
 my ($integ_loop_def , $collect_def , $vcollect_def);
 my ($job_class_order_def ) ;
 my ($sim_class_def , $sim_class_job_def , $instantiation_def , $create_connections_def) ;
