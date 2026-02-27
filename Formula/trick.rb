@@ -41,7 +41,11 @@ class Trick < Formula
     libexec.install Dir["libexec/*"] if File.directory?("libexec")
 
     # Install trick_source/er7_utils
-    (prefix/"trick_source").install "trick_source/er7_utils/**/*.hh"
+    Dir["trick_source/er7_utils/*/include/*.hh"].each do |f|
+      dest = prefix/Pathname(f).dirname
+      dest.mkpath
+      cp f, dest
+    end
 
     # Clean up build artifacts
     rm_r(Dir[prefix/"trick_source/**/object_*"])
