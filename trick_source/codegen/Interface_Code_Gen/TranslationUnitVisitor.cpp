@@ -102,12 +102,7 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
                 // llvm believed this to be a bug, so now we call TraverseType
                 // in addition to TraverseDecl.
                 evis.TraverseDecl(ed) ;
-                #if (LIBCLANG_MAJOR >= 22)
-                // Since llvm 22, getTypeForDecl has been marked as deleted:
-                //   const Type *getTypeForDecl() const = delete;
-                // Clang 22+: manual traversal type required plus use explicit cast to void deleted TagDecl overload
-                evis.TraverseType(ed->getASTContext().getTypeDeclType(static_cast<const clang::TypeDecl *>(ed)));
-                #elif (LIBCLANG_MAJOR >= 14)
+                #if (LIBCLANG_MAJOR >= 14)
                 evis.TraverseType(clang::QualType(ed->getTypeForDecl(), 0));
                 #endif
                 //if ( evis.get_enum_data() != NULL ) {

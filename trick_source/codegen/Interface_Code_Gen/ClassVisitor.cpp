@@ -98,13 +98,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                 // llvm believed this to be a bug, so now we call TraverseType
                 // in addition to TraverseDecl.
                 evis.TraverseDecl(ed) ;
-                // Since llvm 22, getTypeForDecl has been marked as deleted:
-                //   const Type *getTypeForDecl() const = delete;
-                #if (LIBCLANG_MAJOR >= 22)
-                // Clang 22+: manual traversal type required plus use explicit cast to void deleted TagDecl overload
-                evis.TraverseType(ed->getASTContext().getTypeDeclType(static_cast<const clang::TypeDecl *>(ed)));
-                #elif (LIBCLANG_MAJOR >= 14)
-                // Clang 14-21: manual traversal type required
+                #if (LIBCLANG_MAJOR >= 14)
                 evis.TraverseType(clang::QualType(ed->getTypeForDecl(), 0));
                 #endif
                 pa.printEnum(evis.get_enum_data()) ;
@@ -178,34 +172,10 @@ bool CXXRecordVisitor::VisitType(clang::Type *t) {
 static bool isTypeTemplateSpecialization(const clang::Type * type_ptr) {
     if ( type_ptr->getTypeClass() == clang::Type::TemplateSpecialization ) {
         return true ;
-    } else {
-    // Elaborated is gone in clang 22, so need to check template specialization in a different way.
-    #if (LIBCLANG_MAJOR >= 22)
-    if (const auto *tt = type_ptr->getAs<clang::TagType>()) {
-        const clang::TagDecl *d = tt->getDecl();
-
-        // Safety: ensure we aren't in the middle of defining it
-        if (d->isBeingDefined()) return false;
-
-        // Check if the declaration itself or its definition is a specialization
-        if (clang::isa<clang::ClassTemplateSpecializationDecl>(d)) {
-            return true;
-        }
-
-        // If 'd' is just a forward decl, check the actual definition
-        if (const auto *def = d->getDefinition()) {
-            if (clang::isa<clang::ClassTemplateSpecializationDecl>(def)) {
-                return true;
-            }
-        }
-    }
-    #else
-    if ( type_ptr->getTypeClass() == clang::Type::Elaborated ) {
+    } else if ( type_ptr->getTypeClass() == clang::Type::Elaborated ) {
         const clang::ElaboratedType * et = type_ptr->getAs<clang::ElaboratedType>() ;
         //std::cout << "\n[32minherited Type = " << et->getNamedType().getTypePtr()->getTypeClassName() << "[00m" << std::endl ;
         return et->getNamedType().getTypePtr()->getTypeClass() == clang::Type::TemplateSpecialization ;
-    }
-    #endif
     }
     return false ;
 }

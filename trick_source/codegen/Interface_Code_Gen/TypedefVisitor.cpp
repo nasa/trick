@@ -37,8 +37,7 @@ bool TypedefVisitor::VisitConstantArrayType(clang::ConstantArrayType *ct) {
     return true;
 }
 
-// Commented out as it doesn't seem to be called and now causing issue with clang 22 since ElaboratedType is gone.
-/*bool TypedefVisitor::VisitElaboratedType(clang::ElaboratedType *et) {
+bool TypedefVisitor::VisitElaboratedType(clang::ElaboratedType *et) {
     // Test if this typedef is based on a forward declaration.  If it is then we do not
     // need to print out attributes for the type.
     std::string source_type = et->desugar().getAsString() ;
@@ -56,7 +55,7 @@ bool TypedefVisitor::VisitConstantArrayType(clang::ConstantArrayType *ct) {
     }
 
     return true;
-}*/
+}
 
 bool TypedefVisitor::VisitPointerType(clang::PointerType *pt) {
     has_dims = true ;
