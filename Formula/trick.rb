@@ -6,6 +6,8 @@ class Trick < Formula
   license "NASA-1.3"
   head "https://github.com/nasa/trick.git", branch: "master"
 
+  LLVM_VERSION = "21"
+
   depends_on "pkgconf" => :build
   depends_on "bison"
   depends_on "flex"
@@ -14,7 +16,7 @@ class Trick < Formula
   depends_on "libaec"
   depends_on "libx11"
   depends_on "libxt"
-  depends_on "llvm@21"
+  depends_on "llvm@#{LLVM_VERSION}"
   depends_on :macos
   depends_on "maven"
   depends_on "openjdk"
@@ -28,13 +30,13 @@ class Trick < Formula
   uses_from_macos "libxml2"
 
   def install
-    ENV.prepend_path "PATH", Formula["llvm@21"].opt_bin
-
+    llvm = Formula["llvm@#{LLVM_VERSION}"]
+    ENV.prepend_path "PATH", llvm.opt_bin
     args = [
-      "--with-gsl=#{Formula["gsl"].opt_prefix}",
-      "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
-      "--with-udunits=#{Formula["udunits"].opt_prefix}",
-      "--with-llvm=#{Formula["llvm@21"].opt_prefix}"
+        "--with-gsl=#{Formula["gsl"].opt_prefix}",
+        "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
+        "--with-udunits=#{Formula["udunits"].opt_prefix}",
+        "--with-llvm=#{llvm.opt_prefix}"
     ]
 
     system "./configure", *args
@@ -59,8 +61,8 @@ class Trick < Formula
 
     inreplace pkgshare/"makefiles/config_user.mk" do |s|
       # Fix hardcoded shim compiler paths in installed config file
-      s.gsub! "super/clang++", "clang++"
-      s.gsub! "super/clang", "clang"
+      s.gsub "super/clang++", "clang++"
+      s.gsub "super/clang", "clang"
       s.gsub! "super/ld", "ld"
       s.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
       # Replace javac with homebrew openjdk javac path
