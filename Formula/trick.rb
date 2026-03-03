@@ -28,12 +28,14 @@ class Trick < Formula
   uses_from_macos "libxml2"
 
   def install
+    ENV.prepend_path "PATH", Formula["llvm@21"].opt_bin
+
     args = [
       "--with-gsl=#{Formula["gsl"].opt_prefix}",
       "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
       "--with-udunits=#{Formula["udunits"].opt_prefix}",
+      "--with-llvm=#{Formula["llvm@21"].opt_prefix}"
     ]
-    args << "--with-llvm=#{Formula["llvm"].opt_prefix}" if Hardware::CPU.intel?
 
     system "./configure", *args
     system "make", "-j#{ENV.make_jobs}"
