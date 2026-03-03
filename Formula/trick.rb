@@ -31,6 +31,7 @@ class Trick < Formula
   uses_from_macos "libxml2"
 
   def install
+    llvm = Formula["llvm@#{LLVM_VERSION}"]
     args = [
       "--with-gsl=#{Formula["gsl"].opt_prefix}",
       "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
