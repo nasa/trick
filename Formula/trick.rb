@@ -30,17 +30,15 @@ class Trick < Formula
   uses_from_macos "libxml2"
 
   def install
-    llvm = Formula["llvm@#{LLVM_VERSION}"]
-    ENV.prepend_path "PATH", llvm.opt_bin
     args = [
         "--with-gsl=#{Formula["gsl"].opt_prefix}",
         "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
         "--with-udunits=#{Formula["udunits"].opt_prefix}",
+        "--with-llvm=#{Formula["llvm@#{LLVM_VERSION}"].opt_prefix}"
     ]
 
     if Hardware::CPU.intel?
       args += [
-        "--with-llvm=#{llvm.opt_prefix}",
         "--x-includes=#{Formula["libxt"].opt_include}",
         "--x-libraries=#{Formula["libxt"].opt_lib}"
       ]
@@ -68,8 +66,8 @@ class Trick < Formula
 
     inreplace pkgshare/"makefiles/config_user.mk" do |s|
       # Fix hardcoded shim compiler paths in installed config file
-      s.gsub! "super/clang++", "clang++"
-      s.gsub! "super/clang", "clang"
+      # s.gsub! "super/clang++", "clang++"
+      # s.gsub! "super/clang", "clang"
       s.gsub! "super/ld", "ld"
       s.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
       # Replace javac with homebrew openjdk javac path
