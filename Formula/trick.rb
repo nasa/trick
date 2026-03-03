@@ -41,6 +41,8 @@ class Trick < Formula
     ]
 
     if Hardware::CPU.intel?
+      ENV.append "CPPFLAGS", "-I#{Formula["libxt"].opt_include}"
+      ENV.append "LDFLAGS", "-L#{Formula["libxt"].opt_lib}"
       args += [
         "--x-includes=#{Formula["libxt"].opt_include}",
         "--x-libraries=#{Formula["libxt"].opt_lib}",
