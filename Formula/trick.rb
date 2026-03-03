@@ -14,7 +14,7 @@ class Trick < Formula
   depends_on "libaec"
   depends_on "libx11"
   depends_on "libxt"
-  depends_on "llvm"
+  depends_on "llvm@21"
   depends_on :macos
   depends_on "maven"
   depends_on "openjdk"
