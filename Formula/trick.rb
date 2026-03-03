@@ -41,15 +41,20 @@ class Trick < Formula
     ]
 
     if Hardware::CPU.intel?
-      ENV.append "CPPFLAGS", "-I#{Formula["libxt"].opt_include}"
-      ENV.append "LDFLAGS", "-L#{Formula["libxt"].opt_lib}"
+      libxt = Formula["libxt"]
+      ohai "libxt opt_prefix: #{libxt.opt_prefix}"
+      ohai "libxt include contents:"
+      system "find", "#{libxt.opt_include}", "-name", "*.h"
+
+      ENV.append "CPPFLAGS", "-I#{libxt.opt_include}"
+      ENV.append "LDFLAGS", "-L#{libxt.opt_lib}"
       args += [
-        "--x-includes=#{Formula["libxt"].opt_include}",
-        "--x-libraries=#{Formula["libxt"].opt_lib}",
+        "--x-includes=#{libxt.opt_include}",
+        "--x-libraries=#{libxt.opt_lib}"
       ]
     end
 
-    system "./configure", *args
+    system "./configure", *args, *std_configure_args
     system "make", "-j#{ENV.make_jobs}"
 
     bin.install Dir["bin/*"] if File.directory?("bin")
