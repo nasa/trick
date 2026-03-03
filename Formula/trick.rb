@@ -6,6 +6,12 @@ class Trick < Formula
   license "NASA-1.3"
   head "https://github.com/nasa/trick.git", branch: "master"
 
+  bottle do
+    root_url "https://github.com/nasa/trick/releases/download/25.0.2"
+    sha256 cellar: :any, arm64_tahoe:   "82ff7e557a22070f60b6dcbe51162dca0c1f21b1f17ca085b6ecd0c879e617d8"
+    sha256 cellar: :any, arm64_sequoia: "1de737ce38adfc7df972db2b8d6781d7ce3b55731559b2cc085e8b8b1c270d91"
+  end
+
   LLVM_VERSION = "21".freeze
 
   depends_on "pkgconf" => :build
