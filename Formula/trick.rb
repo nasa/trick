@@ -61,12 +61,12 @@ class Trick < Formula
 
     inreplace pkgshare/"makefiles/config_user.mk" do |s|
       # Fix hardcoded shim compiler paths in installed config file
-      s.gsub "super/clang++", "clang++"
-      s.gsub "super/clang", "clang"
-      s.gsub! "super/ld", "ld"
-      s.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
+      s.string.gsub! "super/clang++", "clang++"
+      s.string.gsub! "super/clang", "clang"
+      s.string.gsub! "super/ld", "ld"
+      s.string.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
       # Replace javac with homebrew openjdk javac path
-      s.gsub! "javac", "#{Formula["openjdk"].opt_bin}/javac"
+      s.string.gsub! "javac", "#{Formula["openjdk"].opt_bin}/javac"
     end
 
     # Fix HDF5 library paths to include libaec for libsz
