@@ -36,8 +36,15 @@ class Trick < Formula
         "--with-gsl=#{Formula["gsl"].opt_prefix}",
         "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
         "--with-udunits=#{Formula["udunits"].opt_prefix}",
-        "--with-llvm=#{llvm.opt_prefix}"
     ]
+
+    if Hardware::CPU.intel?
+      args += [
+        "--with-llvm=#{llvm.opt_prefix}"
+        "--x-includes=#{Formula["libxt"].opt_include}",
+        "--x-libraries=#{Formula["libxt"].opt_lib}"
+      ]
+    end
 
     system "./configure", *args
     system "make", "-j#{ENV.make_jobs}"
@@ -61,12 +68,12 @@ class Trick < Formula
 
     inreplace pkgshare/"makefiles/config_user.mk" do |s|
       # Fix hardcoded shim compiler paths in installed config file
-      s.string.gsub! "super/clang++", "clang++"
-      s.string.gsub! "super/clang", "clang"
-      s.string.gsub! "super/ld", "ld"
-      s.string.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
+      s.gsub! "super/clang++", "clang++"
+      s.gsub! "super/clang", "clang"
+      s.gsub! "super/ld", "ld"
+      s.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
       # Replace javac with homebrew openjdk javac path
-      s.string.gsub! "javac", "#{Formula["openjdk"].opt_bin}/javac"
+      s.gsub! "javac", "#{Formula["openjdk"].opt_bin}/javac"
     end
 
     # Fix HDF5 library paths to include libaec for libsz
