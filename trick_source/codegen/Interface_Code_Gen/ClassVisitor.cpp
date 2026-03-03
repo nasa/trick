@@ -98,7 +98,13 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                 // llvm believed this to be a bug, so now we call TraverseType
                 // in addition to TraverseDecl.
                 evis.TraverseDecl(ed) ;
-                #if (LIBCLANG_MAJOR >= 14)
+                // Since llvm 22, getTypeForDecl has been marked as deleted:
+                //   const Type *getTypeForDecl() const = delete;
+                #if (LIBCLANG_MAJOR >= 22)
+                // Clang 22+: manual traversal type required plus use explicit cast to void deleted TagDecl overload
+                evis.TraverseType(ed->getASTContext().getTypeDeclType(static_cast<const clang::TypeDecl *>(ed)));
+                #elif (LIBCLANG_MAJOR >= 14)
+                // Clang 14-21: manual traversal type required
                 evis.TraverseType(clang::QualType(ed->getTypeForDecl(), 0));
                 #endif
                 pa.printEnum(evis.get_enum_data()) ;
@@ -172,10 +178,34 @@ bool CXXRecordVisitor::VisitType(clang::Type *t) {
 static bool isTypeTemplateSpecialization(const clang::Type * type_ptr) {
     if ( type_ptr->getTypeClass() == clang::Type::TemplateSpecialization ) {
         return true ;
-    } else if ( type_ptr->getTypeClass() == clang::Type::Elaborated ) {
+    } else {
+    // Elaborated is gone in clang 22, so need to check template specialization in a different way.
+    #if (LIBCLANG_MAJOR >= 22)
+    if (const auto *tt = type_ptr->getAs<clang::TagType>()) {
+        const clang::TagDecl *d = tt->getDecl();
+
+        // Safety: ensure we aren't in the middle of defining it
+        if (d->isBeingDefined()) return false;
+
+        // Check if the declaration itself or its definition is a specialization
+        if (clang::isa<clang::ClassTemplateSpecializationDecl>(d)) {
+            return true;
+        }
+
+        // If 'd' is just a forward decl, check the actual definition
+        if (const auto *def = d->getDefinition()) {
+            if (clang::isa<clang::ClassTemplateSpecializationDecl>(def)) {
+                return true;
+            }
+        }
+    }
+    #else
+    if ( type_ptr->getTypeClass() == clang::Type::Elaborated ) {
         const clang::ElaboratedType * et = type_ptr->getAs<clang::ElaboratedType>() ;
         //std::cout << "\n[32minherited Type = " << et->getNamedType().getTypePtr()->getTypeClassName() << "[00m" << std::endl ;
         return et->getNamedType().getTypePtr()->getTypeClass() == clang::Type::TemplateSpecialization ;
+    }
+    #endif
     }
     return false ;
 }
@@ -238,11 +268,18 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     clang::CXXRecordDecl::base_class_iterator bcii ;
     for ( bcii = rec->bases_begin() ; bcii != rec->bases_end() ; ++bcii ) {
         if ( !bcii->isVirtual() ) {
-            const clang::Type * temp = bcii->getType().getTypePtr() ;
+            const clang::QualType base_qt = bcii->getType() ;
+            const clang::Type * temp = base_qt.getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
-            const clang::RecordType * rt = temp->getAs<clang::RecordType>() ;
-            if ( rt != NULL ) {
-                clang::RecordDecl * rd = rt->getDecl() ;
+            clang::CXXRecordDecl * rd = base_qt->getAsCXXRecordDecl() ;
+            if ( rd != NULL ) {
+                // If the class is only forward declared,
+                //   getAsCXXRecordDecl will return the forward declaration,
+                //   but getDefinition() will return NULL.
+                // If the class is defined, getAsCXXRecordDecl will return the definition.
+                if ( rd->getDefinition() != NULL ) {
+                    rd = rd->getDefinition() ;
+                }
                 //std::cout << "    [34m" << cval.getName() << " inherits from " << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
                 if ( isInUserOrTrickCode(ci , rd->RBRACELOC(), hsd) ) {
@@ -253,7 +290,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
-                    if (inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd))) {
+                    if (inherit_cvis.TraverseCXXRecordDecl(rd)) {
                         cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, false) ;
                         // clear the field list in the inherited class so they are not freed when inherit_cvis
                         // goes out of scope.
@@ -285,11 +322,18 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     // so we don't process virtual inherited classes multiple times.
     if ( include_virtual_base ) {
         for ( bcii = rec->vbases_begin() ; bcii != rec->vbases_end() ; ++bcii ) {
-            const clang::Type * temp = bcii->getType().getTypePtr() ;
+            const clang::QualType base_qt = bcii->getType() ;
+            const clang::Type * temp = base_qt.getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
-            const clang::RecordType * rt = temp->getAs<clang::RecordType>() ;
-            if ( rt != NULL ) {
-                clang::RecordDecl * rd = rt->getDecl() ;
+            clang::CXXRecordDecl * rd = base_qt->getAsCXXRecordDecl() ;
+            // If the class is only forward declared,
+            //   getAsCXXRecordDecl will return the forward declaration,
+            //   but getDefinition() will return NULL.
+            // If the class is defined, getAsCXXRecordDecl will return the definition.
+            if ( rd != NULL ) {
+                if ( rd->getDefinition() != NULL ) {
+                    rd = rd->getDefinition() ;
+                }
                 //std::cout << "    [34m" << cval.getName() << " virtually inherits from "
                 // << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
@@ -304,7 +348,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
-                    inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
+                    inherit_cvis.TraverseCXXRecordDecl(rd) ;
                     cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, true) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;
