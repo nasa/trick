@@ -268,11 +268,15 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     clang::CXXRecordDecl::base_class_iterator bcii ;
     for ( bcii = rec->bases_begin() ; bcii != rec->bases_end() ; ++bcii ) {
         if ( !bcii->isVirtual() ) {
-            const clang::Type * temp = bcii->getType().getTypePtr() ;
+            const clang::QualType base_qt = bcii->getType() ;
+            const clang::Type * temp = base_qt.getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
-            const clang::RecordType * rt = temp->getAs<clang::RecordType>() ;
-            if ( rt != NULL ) {
-                clang::RecordDecl * rd = rt->getDecl() ;
+            const clang::CXXRecordDecl * base_cxx = base_qt->getAsCXXRecordDecl() ;
+            if ( base_cxx != NULL ) {
+                if ( base_cxx->getDefinition() != NULL ) {
+                    base_cxx = base_cxx->getDefinition() ;
+                }
+                clang::CXXRecordDecl * rd = const_cast<clang::CXXRecordDecl *>(base_cxx) ;
                 //std::cout << "    [34m" << cval.getName() << " inherits from " << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
                 if ( isInUserOrTrickCode(ci , rd->RBRACELOC(), hsd) ) {
@@ -283,7 +287,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
-                    if (inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd))) {
+                    if (inherit_cvis.TraverseCXXRecordDecl(rd)) {
                         cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, false) ;
                         // clear the field list in the inherited class so they are not freed when inherit_cvis
                         // goes out of scope.
@@ -315,11 +319,15 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     // so we don't process virtual inherited classes multiple times.
     if ( include_virtual_base ) {
         for ( bcii = rec->vbases_begin() ; bcii != rec->vbases_end() ; ++bcii ) {
-            const clang::Type * temp = bcii->getType().getTypePtr() ;
+            const clang::QualType base_qt = bcii->getType() ;
+            const clang::Type * temp = base_qt.getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
-            const clang::RecordType * rt = temp->getAs<clang::RecordType>() ;
-            if ( rt != NULL ) {
-                clang::RecordDecl * rd = rt->getDecl() ;
+            const clang::CXXRecordDecl * base_cxx = base_qt->getAsCXXRecordDecl() ;
+            if ( base_cxx != NULL ) {
+                if ( base_cxx->getDefinition() != NULL ) {
+                    base_cxx = base_cxx->getDefinition() ;
+                }
+                clang::CXXRecordDecl * rd = const_cast<clang::CXXRecordDecl *>(base_cxx) ;
                 //std::cout << "    [34m" << cval.getName() << " virtually inherits from "
                 // << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
@@ -334,7 +342,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
-                    inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
+                    inherit_cvis.TraverseCXXRecordDecl(rd) ;
                     cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, true) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;
