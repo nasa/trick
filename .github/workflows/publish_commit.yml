@@ -10,7 +10,7 @@ env:
   REPO_NAME: ${{ github.event.repository.name }}
   TAP_DIR_BASE: /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps
   PR_NUMBER: ${{ github.event.pull_request.number }}
-  BOTTLE_OS_LIST: macos-26 macos-15 macos-15-intel
+  BOTTLE_OS_LIST: macos-26 macos-15
   PRIMARY_BRANCH: master
 
 jobs:
