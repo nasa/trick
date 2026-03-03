@@ -271,12 +271,15 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
             const clang::QualType base_qt = bcii->getType() ;
             const clang::Type * temp = base_qt.getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
-            const clang::CXXRecordDecl * base_cxx = base_qt->getAsCXXRecordDecl() ;
-            if ( base_cxx != NULL ) {
-                if ( base_cxx->getDefinition() != NULL ) {
-                    base_cxx = base_cxx->getDefinition() ;
+            clang::CXXRecordDecl * rd = base_qt->getAsCXXRecordDecl() ;
+            if ( rd != NULL ) {
+                // If the class is only forward declared,
+                //   getAsCXXRecordDecl will return the forward declaration,
+                //   but getDefinition() will return NULL.
+                // If the class is defined, getAsCXXRecordDecl will return the definition.
+                if ( rd->getDefinition() != NULL ) {
+                    rd = rd->getDefinition() ;
                 }
-                clang::CXXRecordDecl * rd = const_cast<clang::CXXRecordDecl *>(base_cxx) ;
                 //std::cout << "    [34m" << cval.getName() << " inherits from " << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
                 if ( isInUserOrTrickCode(ci , rd->RBRACELOC(), hsd) ) {
@@ -322,12 +325,15 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
             const clang::QualType base_qt = bcii->getType() ;
             const clang::Type * temp = base_qt.getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
-            const clang::CXXRecordDecl * base_cxx = base_qt->getAsCXXRecordDecl() ;
-            if ( base_cxx != NULL ) {
-                if ( base_cxx->getDefinition() != NULL ) {
-                    base_cxx = base_cxx->getDefinition() ;
+            clang::CXXRecordDecl * rd = base_qt->getAsCXXRecordDecl() ;
+            // If the class is only forward declared,
+            //   getAsCXXRecordDecl will return the forward declaration,
+            //   but getDefinition() will return NULL.
+            // If the class is defined, getAsCXXRecordDecl will return the definition.
+            if ( rd != NULL ) {
+                if ( rd->getDefinition() != NULL ) {
+                    rd = rd->getDefinition() ;
                 }
-                clang::CXXRecordDecl * rd = const_cast<clang::CXXRecordDecl *>(base_cxx) ;
                 //std::cout << "    [34m" << cval.getName() << " virtually inherits from "
                 // << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
