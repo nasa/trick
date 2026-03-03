@@ -9,6 +9,7 @@ class Trick < Formula
   LLVM_VERSION = "21".freeze
 
   depends_on "pkgconf" => :build
+  depends_on arch: :arm64
   depends_on "bison"
   depends_on "flex"
   depends_on "gsl"
@@ -30,26 +31,12 @@ class Trick < Formula
   uses_from_macos "libxml2"
 
   def install
-    llvm = Formula["llvm@#{LLVM_VERSION}"]
-    ENV.prepend_path "PATH", llvm.opt_bin
-
     args = [
       "--with-gsl=#{Formula["gsl"].opt_prefix}",
       "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
       "--with-udunits=#{Formula["udunits"].opt_prefix}",
       "--with-llvm=#{llvm.opt_prefix}",
     ]
-
-    if Hardware::CPU.intel?
-      libxt = Formula["libxt"]
-      libx11 = Formula["libx11"]
-      ENV.prepend "CPPFLAGS", "-I#{libx11.opt_include} -I#{libxt.opt_include}"
-      ENV.prepend "LDFLAGS", "-L#{libx11.opt_lib} -L#{libxt.opt_lib}"
-      args += [
-        "--x-includes=#{libxt.opt_include}",
-        "--x-libraries=#{libxt.opt_lib}",
-      ]
-    end
 
     system "./configure", *args, *std_configure_args
     system "make", "-j#{ENV.make_jobs}"
