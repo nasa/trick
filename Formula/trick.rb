@@ -40,7 +40,7 @@ class Trick < Formula
 
     if Hardware::CPU.intel?
       args += [
-        "--with-llvm=#{llvm.opt_prefix}"
+        "--with-llvm=#{llvm.opt_prefix}",
         "--x-includes=#{Formula["libxt"].opt_include}",
         "--x-libraries=#{Formula["libxt"].opt_lib}"
       ]
