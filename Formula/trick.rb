@@ -6,7 +6,7 @@ class Trick < Formula
   license "NASA-1.3"
   head "https://github.com/nasa/trick.git", branch: "master"
 
-  LLVM_VERSION = "21"
+  LLVM_VERSION = "21".freeze
 
   depends_on "pkgconf" => :build
   depends_on "bison"
@@ -16,7 +16,7 @@ class Trick < Formula
   depends_on "libaec"
   depends_on "libx11"
   depends_on "libxt"
-  depends_on "llvm@#{LLVM_VERSION}"
+  depends_on "llvm@21"
   depends_on :macos
   depends_on "maven"
   depends_on "openjdk"
@@ -30,17 +30,20 @@ class Trick < Formula
   uses_from_macos "libxml2"
 
   def install
+    llvm = Formula["llvm@#{LLVM_VERSION}"]
+    ENV.prepend_path "PATH", llvm.opt_bin
+
     args = [
-        "--with-gsl=#{Formula["gsl"].opt_prefix}",
-        "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
-        "--with-udunits=#{Formula["udunits"].opt_prefix}",
-        "--with-llvm=#{Formula["llvm@#{LLVM_VERSION}"].opt_prefix}"
+      "--with-gsl=#{Formula["gsl"].opt_prefix}",
+      "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
+      "--with-udunits=#{Formula["udunits"].opt_prefix}",
+      "--with-llvm=#{llvm.opt_prefix}",
     ]
 
     if Hardware::CPU.intel?
       args += [
         "--x-includes=#{Formula["libxt"].opt_include}",
-        "--x-libraries=#{Formula["libxt"].opt_lib}"
+        "--x-libraries=#{Formula["libxt"].opt_lib}",
       ]
     end
 
