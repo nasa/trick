@@ -680,6 +680,53 @@ TEST_F (VariableServerTest, ListSize) {
     EXPECT_EQ(expected_bytes, actual_bytes);
 }
 
+TEST_F (VariableServerTest, NormalArrayCStringRead) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    // point_dyn_array contains: 3 Point elements
+    //                           Point(1.1, 2.2, PointLabel("Label 1 for Array Point 1"), PointLabel *, PointLabel [3])
+    //                           Point(3.3, 4.4, PointLabel("Label 1 for Array Point 2"), PointLabel *, PointLabel [3])
+    //                           Point(5.5, 6.6, PointLabel("Label 1 for Array Point 3"), PointLabel *, PointLabel [3])
+    // point_static_array contains: 2 Point elements (only one used in this test)
+    //                           Point(7.7, 8.8, PointLabel("Label 1 for Static Point 1"), PointLabel *, PointLabel [3])
+
+    std::string reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_dyn_array[0].x\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   1.1"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_dyn_array[0].point_label_obj.label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Label 1 for Array Point 1"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_dyn_array[0].point_dyn_label_array[0].label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Dyn Label 1 for Array Point 1"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_dyn_array[1].y\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   4.4"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_dyn_array[1].point_static_label_array[0].label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Static Label 1 for Array Point 2"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_static_array[0].point_label_obj.label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Label 1 for Static Point 1"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_static_array[0].point_dyn_label_array[0].label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Dyn Label 1 for Static Point 1"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.point_static_array[0].point_static_label_array[1].label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Static Label 1 for Static Point 2"), 0) << "Reply: " << reply;
+}
+
 /************************************/
 /*  STL Parameterized Tests         */
 /************************************/
@@ -1017,7 +1064,11 @@ TEST_F (VariableServerTest, VectorPointPtrElementRead) {
         FAIL();
     }
 
-    // vec_point_ptr contains: Point(11,22), Point(33,44), Point(55,66)
+    // vec_point_ptr contains: 3 Point* elements
+    //                         Point(11,22, PointLabel("Point 1 (11.000000, 22.000000)"), PointLabel *, PointLabel [3]),
+    //                         Point(33,44, PointLabel("Point 2 (33.000000, 44.000000)"), PointLabel *, PointLabel [3]),
+    //                         Point(55,66, PointLabel("Point 3 (55.000000, 66.000000)"), PointLabel *, PointLabel [3])
+    // Each Point in vec_point_ptr has a PointLabel object, a dynamic array of PointLabel objects, and a static array of PointLabel objects.
     std::string reply;
 
     socket << "trick.var_send_once(\"vsx.vst.vec_point_ptr[0].x\")\n";
@@ -1028,9 +1079,25 @@ TEST_F (VariableServerTest, VectorPointPtrElementRead) {
     socket >> reply;
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   22"), 0) << "Reply: " << reply;
 
+    socket << "trick.var_send_once(\"vsx.vst.vec_point_ptr[0].point_label_obj.label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Point 1 (11.000000, 22.000000)"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.vec_point_ptr[0].point_dyn_label_array[0].label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Dyn Label 1 for Point 1"), 0) << "Reply: " << reply;
+
     socket << "trick.var_send_once(\"vsx.vst.vec_point_ptr[1].x\")\n";
     socket >> reply;
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   33"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.vec_point_ptr[1].point_label_obj.label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Point 2 (33.000000, 44.000000)"), 0) << "Reply: " << reply;
+
+    socket << "trick.var_send_once(\"vsx.vst.vec_point_ptr[1].point_static_label_array[0].label_text\")\n";
+    socket >> reply;
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, "5   Static Label 1 for Point 2"), 0) << "Reply: " << reply;
 
     socket << "trick.var_send_once(\"vsx.vst.vec_point_ptr[2].y\")\n";
     socket >> reply;

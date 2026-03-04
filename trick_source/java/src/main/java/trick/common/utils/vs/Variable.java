@@ -116,13 +116,24 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
         sendUnitsToVariableServer(units, variableServerConnection);
     }
 
+    // helper method to check if a string is a valid numeric value
+    private boolean isNumericValue(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     /**
     * sets this <code>Variable</code>'s value to <code>value</code>
     *
     * @param value the value to be set, expressed in Variable Server format
     */
     public void setValue(String value) {
-        if (value.equals("BAD_REF")) {
+        if (value.equals("BAD_REF") || value == null ||
+            (!this.value.getClass().getSimpleName().equals("TVString") && !isNumericValue(value))) {
             state = State.Invalid;
         }
         else {

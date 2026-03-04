@@ -397,6 +397,7 @@ param: NAME {
            $$.units = NULL;
            $$.num_index_left = 0;
            $$.pointer_present = 0;
+           $$.stl_present = 0;
            $$.ref_type = REF_INVALID;
            $$.address = NULL;
            $$.attr = NULL;

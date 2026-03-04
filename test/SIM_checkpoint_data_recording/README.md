@@ -54,4 +54,12 @@ RUN started with different logging setup
 Checkpoint loaded at t=5
 Expected: logging with multiple rates to start from t=7.01+ with no offset
 
-Overall: expectation is that what loads in from the checkpoint should take precedence and overwrite the file of the same name.
+RUN_test11 and RUN_test11_redirect
+RUN_test11 runs with data recording and drops a checkpoint at 5.5 seconds
+RUN_test11_redirect loads the checkpoint from RUN_test11 at time = 0.0 and redirects the output to its own directory
+Expected: ref_log_foo and log_foo in RUN_test11 should match, showing that the checkpoint did not overwrite previous data;
+ref_log_foo and log_foo in RUN_test11_redirect should match, showing that the checkpoint redirected output to the new dir.
+
+
+
+Overall: expectation is that what loads in from the checkpoint should take precedence and overwrite the file of the same name - expect for RUN_test11*.

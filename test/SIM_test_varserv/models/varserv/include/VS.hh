@@ -29,14 +29,23 @@ typedef enum {
 } Color;
 
 // Simple class for testing STL containers of structured types
+class PointLabel {
+    public:
+        char label_text[35];
+};
+
 class Point {
     public:
         double x;
         double y;
         //std::vector<double> coords;
 
-        Point() : x(0.0), y(0.0) {}
-        Point(double x_val, double y_val) : x(x_val), y(y_val) {}
+        PointLabel point_label_obj;
+        PointLabel * point_dyn_label_array;
+        PointLabel point_static_label_array[3];
+
+        Point() : x(0.0), y(0.0), point_label_obj(), point_dyn_label_array(nullptr) {}
+        Point(double x_val, double y_val) : x(x_val), y(y_val), point_label_obj(), point_dyn_label_array(nullptr) {}
 };
 
 
@@ -107,6 +116,9 @@ class VSTest {
         std::array<Point, 3> arr_point;
         
         std::vector<Point*> vec_point_ptr;
+
+        Point * point_dyn_array;
+        Point point_static_array[2];
 
 		VSTest();
 		~VSTest();

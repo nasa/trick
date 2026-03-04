@@ -55,6 +55,47 @@ int VSTest::default_vars() {
 	blocked_from_input = 500;
 	blocked_from_output = 1000;
 
+    // Initialize dynamic array of Points
+    point_dyn_array = (Point*)TMM_declare_var_s("Point[3]");
+    point_dyn_array[0] = Point(1.1, 2.2);
+    point_dyn_array[0].point_label_obj = PointLabel();
+    snprintf(point_dyn_array[0].point_label_obj.label_text, sizeof(point_dyn_array[0].point_label_obj.label_text), "Label 1 for Array Point 1");
+    point_dyn_array[0].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    point_dyn_array[0].point_dyn_label_array[0] = PointLabel();
+    point_dyn_array[0].point_dyn_label_array[1] = PointLabel();
+    snprintf(point_dyn_array[0].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[0].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 1");
+    snprintf(point_dyn_array[0].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[0].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 1");
+    snprintf(point_dyn_array[0].point_static_label_array[0].label_text, sizeof(point_dyn_array[0].point_static_label_array[0].label_text), "Static Label 1 for Array Point 1");
+    snprintf(point_dyn_array[0].point_static_label_array[1].label_text, sizeof(point_dyn_array[0].point_static_label_array[1].label_text), "Static Label 2 for Array Point 1");
+
+    point_dyn_array[1] = Point(3.3, 4.4);
+    point_dyn_array[1].point_label_obj = PointLabel();
+    snprintf(point_dyn_array[1].point_label_obj.label_text, sizeof(point_dyn_array[1].point_label_obj.label_text), "Label 1 for Array Point 2");
+    point_dyn_array[1].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    point_dyn_array[1].point_dyn_label_array[0] = PointLabel();
+    point_dyn_array[1].point_dyn_label_array[1] = PointLabel();
+    snprintf(point_dyn_array[1].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[1].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 2");
+    snprintf(point_dyn_array[1].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[1].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 2");
+    snprintf(point_dyn_array[1].point_static_label_array[0].label_text, sizeof(point_dyn_array[1].point_static_label_array[0].label_text), "Static Label 1 for Array Point 2");
+    snprintf(point_dyn_array[1].point_static_label_array[1].label_text, sizeof(point_dyn_array[1].point_static_label_array[1].label_text), "Static Label 2 for Array Point 2");
+
+    point_dyn_array[2] = Point(5.5, 6.6);
+    point_dyn_array[2].point_label_obj = PointLabel();
+    snprintf(point_dyn_array[2].point_label_obj.label_text, sizeof(point_dyn_array[2].point_label_obj.label_text), "Label 1 for Array Point 3");
+    point_dyn_array[2].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_dyn_array[2].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[2].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 3");
+    snprintf(point_dyn_array[2].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[2].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 3");
+
+    // Initialize static array of Points
+    point_static_array[0] = Point(7.7, 8.8);
+    point_static_array[0].point_label_obj = PointLabel();
+    snprintf(point_static_array[0].point_label_obj.label_text, sizeof(point_static_array[0].point_label_obj.label_text), "Label 1 for Static Point 1");
+    point_static_array[0].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_static_array[0].point_dyn_label_array[0].label_text, sizeof(point_static_array[0].point_dyn_label_array[0].label_text), "Dyn Label 1 for Static Point 1");
+    snprintf(point_static_array[0].point_dyn_label_array[1].label_text, sizeof(point_static_array[0].point_dyn_label_array[1].label_text), "Dyn Label 2 for Static Point 1");
+    snprintf(point_static_array[0].point_static_label_array[0].label_text, sizeof(point_static_array[0].point_static_label_array[0].label_text), "Static Label 1 for Static Point 1");
+    snprintf(point_static_array[0].point_static_label_array[1].label_text, sizeof(point_static_array[0].point_static_label_array[1].label_text), "Static Label 2 for Static Point 1");
+
     // Initialize vector containers
     vec_int.push_back(10);
     vec_int.push_back(20);
@@ -167,14 +208,43 @@ int VSTest::default_vars() {
     Point* p1 = (Point*)TMM_declare_var_s("Point");
     p1->x = 11.0;
     p1->y = 22.0;
+    p1->point_label_obj = PointLabel();
+    snprintf(p1->point_label_obj.label_text, sizeof(p1->point_label_obj.label_text), "Point 1 (%6.6f, %6.6f)", p1->x, p1->y);
+    p1->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    p1->point_dyn_label_array[0] = PointLabel();
+    snprintf(p1->point_dyn_label_array[0].label_text, sizeof(p1->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 1");
+    snprintf(p1->point_static_label_array[0].label_text, sizeof(p1->point_static_label_array[0].label_text), "Static Label 1 for Point 1");
+    p1->point_dyn_label_array[1] = PointLabel();
+    snprintf(p1->point_dyn_label_array[1].label_text, sizeof(p1->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 1");
+    snprintf(p1->point_static_label_array[1].label_text, sizeof(p1->point_static_label_array[1].label_text), "Static Label 2 for Point 1");
     vec_point_ptr.push_back(p1);
+
     Point* p2 = (Point*)TMM_declare_var_s("Point");
     p2->x = 33.0;
     p2->y = 44.0;
+    p2->point_label_obj = PointLabel();
+    snprintf(p2->point_label_obj.label_text, sizeof(p2->point_label_obj.label_text), "Point 2 (%6.6f, %6.6f)", p2->x, p2->y);
+    p2->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    p2->point_dyn_label_array[0] = PointLabel();
+    snprintf(p2->point_dyn_label_array[0].label_text, sizeof(p2->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 2");
+    snprintf(p2->point_static_label_array[0].label_text, sizeof(p2->point_static_label_array[0].label_text), "Static Label 1 for Point 2");
+    p2->point_dyn_label_array[1] = PointLabel();
+    snprintf(p2->point_dyn_label_array[1].label_text, sizeof(p2->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 2");
+    snprintf(p2->point_static_label_array[1].label_text, sizeof(p2->point_static_label_array[1].label_text), "Static Label 2 for Point 2");
     vec_point_ptr.push_back(p2);
+
     Point* p3 = (Point*)TMM_declare_var_s("Point");
     p3->x = 55.0;
     p3->y = 66.0;
+    p3->point_label_obj = PointLabel();
+    snprintf(p3->point_label_obj.label_text, sizeof(p3->point_label_obj.label_text), "Point 3 (%6.6f, %6.6f)", p3->x, p3->y);
+    p3->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    p3->point_dyn_label_array[0] = PointLabel();
+    snprintf(p3->point_dyn_label_array[0].label_text, sizeof(p3->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 3");
+    snprintf(p3->point_static_label_array[0].label_text, sizeof(p3->point_static_label_array[0].label_text), "Static Label 1 for Point 3");
+    p3->point_dyn_label_array[1] = PointLabel();
+    snprintf(p3->point_dyn_label_array[1].label_text, sizeof(p3->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 3");
+    snprintf(p3->point_static_label_array[1].label_text, sizeof(p3->point_static_label_array[1].label_text), "Static Label 2 for Point 3");
     vec_point_ptr.push_back(p3);
 
 	return 0;

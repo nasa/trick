@@ -282,6 +282,12 @@ namespace Trick {
              void set_hexfloat_checkpoint( bool flag);
 
              /**
+              Return if the checkpoint is set to use hexfloat format for floating point values.
+              @return true if hexfloat format is enabled, false otherwise.
+              */
+             bool is_hexfloat_checkpoint();
+
+             /**
               Indicate whether print a comment line for "hexfloat" values using decimal representation.
               Hexfloat format preserves the precision of floating point values, but isn't readable by
               sane human beings.

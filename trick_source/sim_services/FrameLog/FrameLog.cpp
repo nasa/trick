@@ -18,6 +18,18 @@
 
 Trick::FrameLog * the_fl = NULL ;
 
+
+int frame_log_on(Trick::DR_Buffering bufferType)
+{
+
+    if (the_fl != NULL) {
+        return the_fl->framelog_on(bufferType) ;
+    }
+    return(0) ;
+}
+
+
+
 //Constructor.
 Trick::FrameLog::FrameLog(Trick::Clock & in_clock) : 
  frame_log_flag(false),
@@ -250,13 +262,13 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
 -# Call add_data_record_group for drg_trick
 -# Call add_data_record_group for drg_frame
 */
-void Trick::FrameLog::add_recording_groups_to_sim() {
+void Trick::FrameLog::add_recording_groups_to_sim(Trick::DR_Buffering bufferType) {
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
     for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; ++fdrg_it ) {
         add_data_record_group( *fdrg_it , Trick::DR_Ring_Buffer) ;
     }
-    add_data_record_group(drg_trick, Trick::DR_Ring_Buffer) ;
-    add_data_record_group(drg_frame, Trick::DR_Ring_Buffer) ;
+    add_data_record_group(drg_trick, bufferType) ;
+    add_data_record_group(drg_frame, bufferType) ;
 }
 
 /**
@@ -430,7 +442,7 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
 -# Enable the recording groups
 -# Set the frame log flag to true
 */
-int Trick::FrameLog::framelog_on() {
+int Trick::FrameLog::framelog_on(Trick::DR_Buffering bufferType) {
 
     if ( frame_log_flag == true ) {
         return(0) ;
@@ -440,7 +452,7 @@ int Trick::FrameLog::framelog_on() {
     // We do this in framelog_on so we don't add unnecessary jobs and create
     // log_rt files until we have to.
     if ( get_data_record_group(drg_trick->get_group_name()) == NULL ) {
-        add_recording_groups_to_sim() ;
+        add_recording_groups_to_sim(bufferType) ;
         init_recording_groups() ;
     }
     add_instrument_jobs() ;

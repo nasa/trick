@@ -103,6 +103,9 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         // Get the address of the indexed element using the type-safe accessor function
         R->address = R->attr->get_stl_element(R->address, index_value);
 
+        // Mark that STL indexing was used in this reference path
+        R->stl_present = 1;
+
         // Store vector<bool> context in ref_attr for use in ref_assignment
         if (container_address != nullptr)
         {
