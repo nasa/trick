@@ -46,6 +46,8 @@ const int Trick::ClassicCheckPointAgent::array_elements_per_line[TRICK_NUMBER_OF
      1  /** TRICK_STL */
 };
 
+static constexpr size_t REFNAME_MAXSIZE = 256;
+
 // MEMBER FUNCTION
 Trick::ClassicCheckPointAgent::ClassicCheckPointAgent( Trick::MemoryManager *MM) {
 
@@ -211,7 +213,7 @@ static int getCompositeSubReference(
         }
         else
         {
-            snprintf(reference_name, 256, " + %zu", referenceOffset);
+            snprintf(reference_name, REFNAME_MAXSIZE, " + %zu", referenceOffset);
         }
         return 0;
     }
@@ -221,7 +223,7 @@ static int getCompositeSubReference(
     ATTRIBUTES *Ai = traversalResult.found_attr;
 
 /* We found a member corresponding to the reference address, so print it's name. */
-    snprintf(reference_name, 256, ".%s", Ai->name);
+    snprintf(reference_name, REFNAME_MAXSIZE, ".%s", Ai->name);
 
     // If it's a primitive type with computed array indices
     if (Ai->type != TRICK_STRUCTURED && traversalResult.num_computed_indices > 0)
@@ -230,7 +232,7 @@ static int getCompositeSubReference(
         for (int j = 0; j < traversalResult.num_computed_indices; j++)
         {
             size_t len = strlen(reference_name);
-            size_t rem = 256 - len;
+            size_t rem = REFNAME_MAXSIZE - len;
             snprintf(&reference_name[len], rem, "[%d]", traversalResult.array_indices[j]);
         }
         return 0;
@@ -251,13 +253,13 @@ static int getCompositeSubReference(
             return 0;
         }
 
-        char buf[256];
+        char buf[REFNAME_MAXSIZE];
         ret = getCompositeSubReference(rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES *)Ai->attr, buf);
 
         if (ret == 0)
         {
             size_t len = strlen(reference_name);
-            size_t rem = 256 - len;
+            size_t rem = REFNAME_MAXSIZE - len;
             snprintf(&reference_name[len], rem, "%s", buf);
         }
         return ret;
@@ -272,7 +274,7 @@ static int getCompositeSubReference(
         for (int j = 0; j < traversalResult.num_computed_indices; j++)
         {
             size_t len = strlen(reference_name);
-            size_t rem = 256 - len;
+            size_t rem = REFNAME_MAXSIZE - len;
             snprintf(&reference_name[len], rem, "[%d]", traversalResult.array_indices[j]);
         }
 
@@ -285,14 +287,14 @@ static int getCompositeSubReference(
 /**** Go find the subreference for the arrayed struct member and append *********/
 
         // Recurse into the array element
-        char buf[256];
+        char buf[REFNAME_MAXSIZE];
         ret = getCompositeSubReference(rAddr, left_type, sAddr + Ai->offset + traversalResult.offset_from_found_attr,
                                        (ATTRIBUTES *)Ai->attr, buf);
 
         if (ret == 0)
         {
             size_t len = strlen(reference_name);
-            size_t rem = 256 - len;
+            size_t rem = REFNAME_MAXSIZE - len;
             snprintf(&reference_name[len], rem, "%s", buf);
         }
         return ret;
@@ -309,7 +311,7 @@ std::string Trick::ClassicCheckPointAgent::get_var_name( void* addr,
                                                          void* struct_addr,
                                                          std::string name,
                                                          ATTRIBUTES** left_type) {
-    char reference_name[256];
+    char reference_name[REFNAME_MAXSIZE];
     int ret;
     std::string var_name;
 
