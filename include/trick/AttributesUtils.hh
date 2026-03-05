@@ -103,11 +103,9 @@ namespace Trick
         struct TraversalResult
         {
             ATTRIBUTES* found_attr;             // The attribute found at the given offset (or parent if not found)
-            size_t offset_from_struct;          // Offset from the structure base address
             size_t offset_from_found_attr;      // Offset from the found attribute's address
             int array_indices[TRICK_MAX_INDEX]; // Computed array indices (if applicable)
             int num_computed_indices;           // Number of valid indices in array_indices
-            bool is_exact_match;                // True if found_attr exactly matches the address
             bool is_in_anonymous_member;        // True if the address is in a **'d out member
         };
 
@@ -116,24 +114,20 @@ namespace Trick
          * This function provides the common traversal logic that can be used for the need to 
          * traverse structures but expecting different output formats.
          * 
-         * @param reference_offset Offset from struct_base_addr to the address we're looking for
-         * @param struct_base_addr Base address of the structure
+         * @param reference_offset Offset from the structure base address to the address we're looking for
          * @param struct_attr ATTRIBUTES of the structure to traverse
          * @param result Output parameter containing traversal results
          * @return 0 if success, otherwise 1 or non-zero
          */
         static int traverse_for_offset(
             size_t reference_offset,
-            size_t struct_base_addr,
             ATTRIBUTES *struct_attr,
             TraversalResult &result)
         {
             // Initialize result
             result.found_attr = nullptr;
-            result.offset_from_struct = reference_offset;
             result.offset_from_found_attr = 0;
             result.num_computed_indices = 0;
-            result.is_exact_match = false;
             result.is_in_anonymous_member = false;
             memset(result.array_indices, 0, sizeof(result.array_indices));
 
@@ -157,7 +151,6 @@ namespace Trick
                 // Check if it's a scalar or unconstrained pointer
                 if (ret_attr->num_index == 0 || ret_attr->index[0].size == 0)
                 {
-                    result.is_exact_match = (result.offset_from_found_attr == 0);
                     return 0;
                 }
 
@@ -178,7 +171,6 @@ namespace Trick
             // If it's a reference (&), we're done
             if ((ret_attr->mods & 1) == 1)
             {
-                result.is_exact_match = true;
                 return 0;
             }
 
@@ -193,7 +185,6 @@ namespace Trick
             // If it's a pointer (unconstrained array), we're done
             if (ret_attr->index[0].size == 0)
             {
-                result.is_exact_match = true;
                 return 0;
             }
 

@@ -194,7 +194,7 @@ static int getCompositeSubReference(
     size_t referenceOffset = (size_t)rAddr - (size_t)sAddr;
 
     Trick::AttributesUtils::TraversalResult traversalResult;
-    int ret = Trick::AttributesUtils::traverse_for_offset(referenceOffset, (size_t)sAddr, A, traversalResult);
+    int ret = Trick::AttributesUtils::traverse_for_offset(referenceOffset, A, traversalResult);
 
     if (ret != 0)
     {

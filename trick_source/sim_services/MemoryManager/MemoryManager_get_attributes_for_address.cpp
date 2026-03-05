@@ -17,7 +17,7 @@ static int getCompositeSubReference(
 
     Trick::AttributesUtils::TraversalResult traversalResult;
 
-    int ret = Trick::AttributesUtils::traverse_for_offset(addrOffsetFromStruct, structAddrValue, structAttr, traversalResult);
+    int ret = Trick::AttributesUtils::traverse_for_offset(addrOffsetFromStruct, structAttr, traversalResult);
 
     if (ret != 0)
     {
