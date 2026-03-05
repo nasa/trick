@@ -4,16 +4,19 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - "docs/**"
-      - ".github/workflows/**"
-      - "!.github/workflows/code_coverage.yml"
-      - "Formula/**"
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/code_coverage.yml"
+      - "!Formula/**"
   pull_request:
-    paths-ignore:
-      - "docs/**"
-      - ".github/workflows/**"
-      - "Formula/**"
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/code_coverage.yml"
+      - "!Formula/**"
   workflow_dispatch:
 
 jobs:

@@ -4,16 +4,19 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - "docs/**"
-      - ".github/workflows/**"
-      - "!.github/workflows/test_linux.yml"
-      - "Formula/**"
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/test_linux.yml"
+      - "!Formula/**"
   pull_request:
-    paths-ignore:
-      - "docs/**"
-      - ".github/workflows/**"
-      - "Formula/**"
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/test_linux.yml"
+      - "!Formula/**"
   workflow_dispatch:
 
 env:
