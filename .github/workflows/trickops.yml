@@ -1,6 +1,23 @@
 name: TrickOps
-# This workflow is triggered on pushes to the repository.
-on: [pull_request]
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/trickops.yml"
+      - "!Formula/**"
+  pull_request:
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/trickops.yml"
+      - "!Formula/**"
+  workflow_dispatch:
 
 defaults:
   run:

@@ -3,12 +3,20 @@ name: Linux
 on:
   push:
     branches:
-        - master
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_linux.yml'
+      - master
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/test_linux.yml"
+      - "!Formula/**"
   pull_request:
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/test_linux.yml"
+      - "!Formula/**"
   workflow_dispatch:
 
 env:
@@ -21,13 +29,13 @@ jobs:
       fail-fast: false
       matrix:
         cfg:
-#-------- Operating Systems ----------------
-          - { os: ubuntu,      tag: 22.04,    arch: debian, arch_ver: 12 }
-          - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
-          - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
+          #-------- Operating Systems ----------------
+          - { os: ubuntu, tag: 22.04, arch: debian, arch_ver: 12 }
+          - { os: rockylinux, tag: 8, arch: rhel, arch_ver: 8 }
+          - { os: oraclelinux, tag: 8, arch: rhel, arch_ver: 8 }
         python: [3]
 
-#-------- Defaults --------------------------
+        #-------- Defaults --------------------------
         include:
           - cfg: {}
             deps: >-
@@ -42,12 +50,12 @@ jobs:
               zip
               gdb
             install_gtest: echo gtest already installed
-            conf_pkg:  echo package manager already configured
+            conf_pkg: echo package manager already configured
             install_cmd: install -y
-#-------- Debian-based Dependencies ----------------
+          #-------- Debian-based Dependencies ----------------
           - cfg: { arch: debian }
             pkg_mgr: apt-get
-            conf_pkg:  apt-get update
+            conf_pkg: apt-get update
             arch_deps: >-
               swig
               curl
@@ -73,7 +81,7 @@ jobs:
               cmake .
               make
               cp lib/libgtest* /usr/lib/
-#-------- RHEL Dependencies ----------------
+          #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
             arch_deps: >-
               clang-devel
@@ -94,7 +102,7 @@ jobs:
               zlib-devel
               python2-devel
               python3-devel
-#-------- RHEL 8-based Only Dependencies ----------------
+          #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
             tag_deps: >-
@@ -107,12 +115,12 @@ jobs:
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel gmock-devel
-#-------- OS and Version Specific Dependencies ----------------
+          #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
               dnf install -y gtest-devel gmock-devel
-#-------- Job definition ----------------
+    #-------- Job definition ----------------
     runs-on: ubuntu-latest
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
     steps:
@@ -120,11 +128,11 @@ jobs:
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
         run: >
-          ${{matrix.pkg_mgr}} 
-          ${{matrix.install_cmd}} 
-          ${{matrix.deps}} 
-          ${{matrix.arch_deps}} 
-          ${{matrix.os_deps}} 
+          ${{matrix.pkg_mgr}}
+          ${{matrix.install_cmd}}
+          ${{matrix.deps}}
+          ${{matrix.arch_deps}}
+          ${{matrix.os_deps}}
           ${{matrix.tag_deps}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
@@ -147,12 +155,12 @@ jobs:
           cd ../../../; make test
       - name: Upload Tests
         uses: actions/upload-artifact@v4
-        if: success() || failure()    # run this step even if previous step failed
+        if: success() || failure() # run this step even if previous step failed
         with:
           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
           path: trick_test/*.xml
           retention-days: 1
-# Uncomment for build artifacts          
+# Uncomment for build artifacts
 #       - name: Upload Trick Build
 #         uses: actions/upload-artifact@v3.0.0
 #         with:
