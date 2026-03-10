@@ -186,6 +186,33 @@ class ClassOfEverything {
    /* maybe someday we'll be able to do something like this. */
    double d_test ;          /* -- blah */
 
+   double & get_d();
+//    double * get_d_flat();
+   double (&get_da())[3];
+//    double * get_da_flat();
+   double * get_dp();
+   
+   double (&get_daa())[2][3];
+//    double * get_daa_flat();
+//    double ** get_daa_2d();
+#ifndef SWIG
+   double* (&get_dap())[4];
+#endif
+   double ** get_dap_2d();
+   double ** get_dap_2d_pl_2();
+   double ** get_dpp();
+   double *** get_dppp();
+   double (&get_daaa())[2][3][4];
+//    double * get_daaa_flat();
+//    double ** get_daaa_2d();
+//    double *** get_daaa_3d();
+   double (&get_daaaa())[2][3][4][5];
+//    double * get_daaaa_flat();
+//    double ** get_daaaa_2d();
+//    double *** get_daaaa_3d();
+//    double **** get_daaaa_4d();
+   
+
    double d ;          /* kg blah */
    double da[3] ;      /* kg blah */
    double * dp ;       /* kg blah */
@@ -197,6 +224,15 @@ class ClassOfEverything {
    double daaaa[2][3][4][5] ; /* kg blah */
 
    double get_double();
+
+   float & get_f();
+   float * get_fa();
+   float * get_fp();
+   float * get_faa();
+   float ** get_fap();
+   float ** get_fpp();
+   float *** get_fppp();
+   float * get_faaa();
 
    float f ;          /* kg blah */
    float fa[3] ;      /* kg blah */

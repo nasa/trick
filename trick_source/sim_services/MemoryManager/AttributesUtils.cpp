@@ -15,11 +15,13 @@ size_t Trick::AttributesUtils::compute_member_byte_size(const ATTRIBUTES &member
     if (member.num_index != 0)
     {
         // if size of last valid index is 0, then we are looking at a pointer
+        size_t total = 0;
         if (member.index[member.num_index - 1].size == 0)
         {
-            return sizeof(void *);
+            total = sizeof(void *);
+        } else { 
+            total = member.size;
         }
-        size_t total = member.size;
         // multiply by sizes of fixed dimensions
         for (int i = 0; i < member.num_index; ++i)
         {

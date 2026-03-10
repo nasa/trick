@@ -63,9 +63,15 @@ static int getCompositeSubReference(
             }
         }
 
+        int remIndex[TRICK_MAX_INDEX] = {};
+        Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(*retAttr, traversalResult.offset_from_found_attr, remIndex, attrOut.num_index);
+
         attrOut = *retAttr;
-        attrOut.num_index = 1;
-        attrOut.index[0].size = (max_offset - traversalResult.offset_from_found_attr) / retAttr->size;
+        for(int ii = 0; ii < attrOut.num_index; ++ii)
+        {
+            attrOut.index[ii].size -= remIndex[ii];
+        }
+        // attrOut.index[0].size = (max_offset - traversalResult.offset_from_found_attr) / retAttr->size;
         return 0;
     }
 
@@ -100,6 +106,12 @@ static int getCompositeSubReference(
  */
 void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES &attrOut)
 {
+    if(address == nullptr)
+    {
+        attrOut = ATTRIBUTES();
+        return;
+    }
+
     /** Find the allocation that contains the pointer-address. */
     ALLOC_INFO *alloc_info = get_alloc_info_of(address);
 
@@ -128,6 +140,12 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
             {
                 // If there's an attribute for this allocation for some reason, populate the return structure.
                 attrOut = *(alloc_info->attr);
+            } else {
+                attrOut.type = alloc_info->type;
+                if(alloc_info->name){
+                    attrOut.name = strdup(alloc_info->name);
+                }
+                attrOut.stl_type = TRICK_STL_UNKNOWN;
             }
             attrOut.num_index = 1;
             attrOut.index[0].size = max_alloc_index - alloc_elem_index;

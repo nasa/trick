@@ -52,9 +52,9 @@ namespace Trick
             ATTRIBUTES *struct_attr,
             TraversalResult &result);
 
-    private:
-        // Given a byte offset within a member of a struct/class, compute indices for fixed dimensions.
-        // Returns false if fixed-dimension size computation becomes invalid (e.g. a zero sized dimension).
+    
+        // Given a byte offset within a member's storage, compute indices for fixed dimensions.
+        // Returns false if an invalid configuration is detected (e.g., divide-by-zero risk).
         static bool compute_fixed_indices_for_linear_offset(
             const ATTRIBUTES &member,
             long offset_within_member_bytes,
