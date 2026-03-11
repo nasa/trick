@@ -326,12 +326,8 @@
     }
     t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
-    t->ref.attr->num_index = addrAttr.num_index;
-    if(addrAttr.num_index == 0)
-    { 
-        t->ref.attr->num_index = 1;
-    }
-    memcpy(t->ref.attr->index, addrAttr.index, sizeof(addrAttr.index));
+    t->ref.attr->num_index = 1;
+    t->ref.attr->index[0].size = addrAttr.index[0].size;
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;

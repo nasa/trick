@@ -150,7 +150,7 @@ def main():
 
     TRICK_EXPECT_EQ( str(test_so.obj.dap[0]) , "[0 kg, 0 kg, 0 kg]", test_suite , "2D array of ptr, single row access" )
     TRICK_EXPECT_EQ( str(test_so.obj.get_dap_2d()[0]) , "[0 kg, 0 kg, 0 kg]", test_suite , "get_dap_2d(), 2D array of ptr, single row access" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_dap_2d_pl_2()) , "[0 kg, 0 kg, 0 kg]", test_suite , "get_dap_2d_pl_2(), 2D array of ptr, single row access" )
+    TRICK_EXPECT_EQ( str(test_so.obj.get_dap_2d_pl_2()) , "[[0 kg, 0 kg, 0 kg, 0 kg, 0 kg], [0 kg, 0 kg, 0 kg, 0 kg, 0 kg, 0 kg]]", test_suite , "get_dap_2d_pl_2(), 2D array of ptr, single row access" )
     
 
     test_so.obj.dap[3] = [ 60 , 61 , 62, 63 ]
@@ -158,6 +158,7 @@ def main():
      test_suite , "2D array of ptr, single row realloc and assignment" )
     TRICK_EXPECT_EQ( str(test_so.obj.get_dap_2d()[3]) , "[60 kg, 61 kg, 62 kg, 63 kg]",
      test_suite , "get_dap_2d(), 2D array of ptr, single row realloc and assignment" )
+    TRICK_EXPECT_EQ( str(test_so.obj.get_dap_2d_pl_2()[1]) , "[60 kg, 61 kg, 62 kg, 63 kg]", test_suite , "get_dap_2d_pl_2(), 2D array of ptr, single row realloc and assignment" )
 
     test_so.obj.dap[3][1] = 75
     test_so.obj.dap[3][3] = trick.attach_units("lb", float(test_so.obj.dap[3][3]) + 1.0)

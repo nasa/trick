@@ -51,27 +51,33 @@ static int getCompositeSubReference(
             return 0;
         }
 
-        // This is an array type. Calculate the offset from the address to the end of the attribute
-        // Then, calculate the remaining elements in the array as a single value.
-        // Calculate the maximum offset of this attribute.
-        size_t max_offset = retAttr->size;
-        for (int ii = 0; ii < retAttr->num_index; ii++)
-        {
-            if (retAttr->index[ii].size > 0)
-            {
-                max_offset *= retAttr->index[ii].size;
-            }
-        }
-
         int remIndex[TRICK_MAX_INDEX] = {};
         Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(*retAttr, traversalResult.offset_from_found_attr, remIndex, attrOut.num_index);
 
+        int firstPtrDim = -1;
+        int lastRealDim = -1;
         attrOut = *retAttr;
-        for(int ii = 0; ii < attrOut.num_index; ++ii)
+        for(int ii = (attrOut.num_index-1); ii >= 0; --ii)
         {
+            if(attrOut.index[ii].size == 0)
+            {
+                if(lastRealDim == -1) {
+                    firstPtrDim = ii;
+                }
+            } else {
+                if(lastRealDim == -1) {
+                    lastRealDim = ii;
+                }
+            }            
             attrOut.index[ii].size -= remIndex[ii];
         }
-        // attrOut.index[0].size = (max_offset - traversalResult.offset_from_found_attr) / retAttr->size;
+        for(int ii = 0; ii <= lastRealDim; ++ii)
+        {
+            if(attrOut.index[ii].size == 0)
+            {
+                --attrOut.num_index;
+            }
+        }
         return 0;
     }
 
@@ -104,7 +110,7 @@ static int getCompositeSubReference(
 /**
  @par Detailed Description:
  */
-void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES &attrOut)
+void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES &attrOut, size_t & remainingOffset)
 {
     if(address == nullptr)
     {
@@ -120,6 +126,7 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
         // Found the allocation. Look for the attribute that pertains to it.
         size_t addrValue = reinterpret_cast<size_t>(address);
         size_t allocAddrStart = reinterpret_cast<size_t>(alloc_info->start);
+        remainingOffset = addrValue - allocAddrStart;
         size_t alloc_elem_size = alloc_info->size;
         size_t alloc_elem_index = (addrValue - allocAddrStart) / alloc_elem_size;
         size_t misalignment = (addrValue - allocAddrStart) % alloc_elem_size;
@@ -135,8 +142,9 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
         {
             // Primitive allocation is found, compute the remaining number of elements from the current address
             size_t allocAddrEnd = reinterpret_cast<size_t>(alloc_info->end) + 1;
-            size_t max_alloc_index = (allocAddrEnd - allocAddrStart) / alloc_elem_size;
-            if (alloc_info->attr)
+            size_t offsetFromStart = addrValue - allocAddrStart;
+            // size_t max_alloc_index = (allocAddrEnd - allocAddrStart) / alloc_elem_size;
+            if (alloc_info->attr && alloc_info->type != TRICK_ENUMERATED)
             {
                 // If there's an attribute for this allocation for some reason, populate the return structure.
                 attrOut = *(alloc_info->attr);
@@ -146,9 +154,26 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
                     attrOut.name = strdup(alloc_info->name);
                 }
                 attrOut.stl_type = TRICK_STL_UNKNOWN;
+                attrOut.num_index = alloc_info->num_index;
+                for(int ii = 0; ii < alloc_info->num_index; ++ii) {
+                    attrOut.index[ii].size = alloc_info->index[ii];
+                }
             }
-            attrOut.num_index = 1;
-            attrOut.index[0].size = max_alloc_index - alloc_elem_index;
+
+            int remNumIndex = 0;
+            int remIndex[8] = {};
+            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(attrOut, offsetFromStart, remIndex, remNumIndex);
+
+            if(attrOut.index[attrOut.num_index - 1].size == 0) {
+                // If array of pointers, need to reset  the last
+                ++remNumIndex;
+            }
+            attrOut.num_index = remNumIndex;
+            for (int ii = 0; ii < attrOut.num_index; ++ii)
+            {
+                attrOut.index[ii].size -= remIndex[ii];
+            }
+
         }
     }
     else
