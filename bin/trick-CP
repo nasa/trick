@@ -1,5 +1,19 @@
 #!/usr/bin/perl
 
+##########
+#
+# INPUTS:
+#   S_define in cwd
+#
+# OUTPUTS:
+#   Main sim makefile under TRICK_BUILD_DIR (if empty, cwd)
+#
+# PURPOSE:
+#   Start of the sim build process. Constructs the sims primary makefile and kicks it off. 
+#   Also does command line parsing and attempts to run rebuild_trickify if available.
+#
+##########
+
 # It is so hard getting the absolute path of the current script in bash
 # so I converted CP back to perl. :)
 
@@ -89,9 +103,11 @@ if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk")
     {
         print "$cmd_ret" ;
     }
-}
+} 
 
 system("make -f ${trick_build_dir}makefile " . $makefileAddArgs) ;
+# Dump the build dir readme
+system("cp $trick_home/share/doc/trick/data/build_dir_readme ${trick_build_dir}build/README") ;
 exit $? >> 8;
 
 # trick-CP help message
@@ -203,6 +219,13 @@ test: all
 
 debug: TRICK_CPFLAGS += --debug
 debug: all
+
+ifneq ($(TRICK_BUILD_DIR),)
+    TRICK_CXXFLAGS += -I $(TRICK_BUILD_DIR)
+    TRICK_CXXFLAGS += -I $(dir $(TRICK_BUILD_DIR))
+    TRICK_CFLAGS += -I $(TRICK_BUILD_DIR)
+    TRICK_CFLAGS += -I $(dir $(TRICK_BUILD_DIR))
+endif
 
 $(TRICK_BUILD_DIR)build/:
 	@mkdir -p $@

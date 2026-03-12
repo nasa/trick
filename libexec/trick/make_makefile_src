@@ -371,8 +371,23 @@ foreach $k ( sort keys %files_by_dir ) {
 }
 close MAKEFILEOVER ;
 
-open TRICKIFYDEPS, ">$ENV{TRICK_BUILD_DIR}build/trickify_deps" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify_deps" ;
-print TRICKIFYDEPS map {"$_\n"} (sort keys %non_lib_processed_files) ;
+if($ENV{'AM_I_TRICKIFYING'}) {
+    # %non_lib_processed_files consists of the #include tree starting from S_source.hh, plus listed lib dependencies.
+    #       not included are the #include trees of library dependencies.
+    my %trickify_deps = %non_lib_processed_files ;
+
+    # to ensure trickify deps include ALL files needed to build the sim, we must grab the headers missing from %non_lib_processed_files
+    #       get_s_source_deps() is the function used by make_makefile_swig to grabe its dep list.
+    #       this function traverses the #includes of lib dependencies, so it will fill in the gaps in our list.
+    (my $ext_lib_files, my $files_to_process) = get_s_source_deps() ;
+    foreach my $ftp (@$files_to_process) {
+        $trickify_deps{$ftp} = 1 ;
+    }
+
+    open TRICKIFYDEPS, ">$ENV{TRICK_BUILD_DIR}build/trickify_deps" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify_deps" ;
+    print TRICKIFYDEPS map {"$_\n"} (sort keys %trickify_deps) ;
+    close TRICKIFYDEPS ;
+}
 
 # write out all of files we processed as dependencies to Makefile_src
 open MAKEFILEDEPS, ">$ENV{TRICK_BUILD_DIR}build/Makefile_src_deps" or die "Could not open $ENV{TRICK_BUILD_DIR}build/Makefile_src_deps" ;
@@ -387,7 +402,6 @@ open LIB_LIST, ">$ENV{TRICK_BUILD_DIR}build/S_library_list" or die "Could not op
 print LIB_LIST map {"$_\n"} (sort keys %processed_files) ;
 close LIB_LIST ;
 
-if($ENV{'AM_I_TRICKIFYING'})
-{
+if($ENV{'AM_I_TRICKIFYING'}) {
     0 or exit 1;
 }

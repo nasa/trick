@@ -215,6 +215,14 @@ my @lib_deps_header;
 my @lib_deps_source;
 if($s_define ne "")
 {
+    #Clean up tmp build if it already exists
+    if (-d "$build_dir/tmp_build")
+    {
+        chdir Cwd::abs_path("$build_dir/tmp_build") or die "Error changing to the build directory: $build_dir/tmp_build\n" ;
+        system('make clean');
+        chdir Cwd::abs_path("$build_dir") or die "Error changing to the build directory: $build_dir\n" ;
+        system('rm -r tmp_build'); 
+    }
     
     $s_define_dir = dirname($s_define) ;
     chdir Cwd::abs_path($s_define_dir) or die "Error changing to the s_define directory: $s_define_dir\n" ;
@@ -244,12 +252,6 @@ if($s_define ne "")
         }
     }
     close ($fh) ;
-
-    #Clean up tmp build
-    chdir Cwd::abs_path("$build_dir/tmp_build") or die "Error changing to the build directory: $build_dir/tmp_build\n" ;
-    system('make clean');
-    chdir Cwd::abs_path("$build_dir") or die "Error changing to the build directory: $build_dir\n" ;
-    system('rm -r tmp_build'); 
 }
 my @filters = split ' ', $s_define_filter ;
 filter_paths(\@lib_deps_source, \@filters) ;
@@ -376,6 +378,8 @@ print $fh "\t-rm -f python\n" ;
 print $fh "\t-rm -f *.a\n" ;
 print $fh "\t-rm -f *.o\n" ;
 print $fh "\t-rm -f *.so\n" ;
+print $fh "\t-rm -rf tmp_build\n" ;
+print $fh "\t-rm -f full_file\n" ;
 print $fh "\nnuke_trickify: clean_trickify\n" ;
 print $fh "\t-rm -f S_overrides_trickify.mk\n" ;
 print $fh "\t-rm -f *.mk\n" ;
@@ -579,7 +583,7 @@ print "Begin Trickification...\n" ;
 if($s_overrides_dir ne "")
 {
     chdir Cwd::abs_path($s_overrides_dir) or die "Error changing to s_overrides directory: $s_overrides_dir\n" ;
-    dump_makefile_vars($s_overrides, $build_dir, \%SHELL_ENV, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS", "TRICK_SYSTEM_SWIG_CFLAGS", "TRICK_SWIG_CFLAGS")) ; 
+    dump_makefile_vars($s_overrides, $build_dir, \%SHELL_ENV, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS", "TRICK_SFLAGS", "TRICK_SYSTEM_CXXFLAGS", "TRICK_SYSTEM_SWIG_CFLAGS", "TRICK_SWIG_CFLAGS", "TRICK_EXCLUDE")) ; 
     chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
     $ENV{"TRICKIFY_MAKE_DUMP"} = Cwd::abs_path("var_dump.mk") ;
 }

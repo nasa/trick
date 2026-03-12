@@ -145,9 +145,14 @@ class PrintAttributes {
         std::map< std::string , std::set< std::string > > processed_classes ;
         /** map of processed enums sorted by file */
         std::map< std::string , std::set< std::string > > processed_enums ;
-        /** Local copy of the environment variable TRICK_BUILD_DIR*/
+        /** Local copy of the environment variable TRICK_BUILD_DIR */
         std::string trick_build_dir ;
-
+        /** Local copy of the environment variable AM_I_TRICKIFYING */
+        bool trickifying  ;
+        /** Local copy of the environment variable AM_I_TRICKIFYING_MK */
+        bool trickifying_mk ;
+        /** Used for trickify only, will be empty otherwise. Copy of the base sims dependency list */
+        std::vector<std::string> trickify_src_deps_map;
 } ;
 
 #endif

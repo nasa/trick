@@ -7,15 +7,13 @@ use File::Basename ;
 use Cwd ;
 use Cwd 'abs_path';
 use gte ;
-use Digest::MD5 qw(md5_hex) ;
-use trick_version ;
 use html ;
 use verbose_build ;
+use get_lib_deps ;
 use get_paths ;
+use Digest::MD5 qw(md5_hex) ;
 use strict ;
 
-my @exclude_paths ;
-my @swig_exclude_paths ;
 my @ext_lib_paths ;
 my @ext_lib_paths_overrides ;
 my @files_to_process ;
@@ -26,100 +24,70 @@ my %trick_headers ;
 my %python_modules ;
 my %python_module_dirs ;
 
-my $trick_build_dir = "./";
-if ( exists $ENV{'TRICK_BUILD_DIR'} )
+sub read_files_to_process() 
 {
-    $trick_build_dir = $ENV{'TRICK_BUILD_DIR'} ;
-}
+    
+    # We are trickifying, and already generated the list of files. Just read it in.
+    if($ENV{'AM_I_TRICKIFYING'} and $ENV{'AM_I_TRICKIFYING_MK'}) {
+        my $line ;
+        my $fh ;
 
-sub read_files_to_process() {
-    (my $version, my $thread) = get_trick_version() ;
-    (my $year) = $version =~ /^(\d+)/ ;
-    (my $cc = gte("TRICK_CC")) =~ s/\n// ;
+        # Read in @files_to_process
+        open($fh, '<', "$ENV{TRICK_BUILD_DIR}build/trickify/swig/files_to_process") or die "Cannot open file $ENV{TRICK_BUILD_DIR}build/trickify/swig/files_to_process: $!" ; 
 
-    # Prepend -I to each include path before we pass them to the compiler
-    my @include_paths = map("-I$_", (get_include_paths(), "$ENV{TRICK_HOME}", "$ENV{TRICK_HOME}/include", "$ENV{TRICK_HOME}/include/trick/compat", "$ENV{TRICK_HOME}/trick_source", "../include")) ;
-    my @defines = (get_defines(), "-DTRICK_VER=$year", "-DSWIG") ;
+        while ($line = <$fh>) 
+        {
+            chomp $line ;
+            push @files_to_process, $line ;
+        }
 
-    # get the list of header files from the compiler
-    open FILE_LIST, "$cc -MM @include_paths @defines $ENV{'TRICK_BUILD_DIR'}S_source.hh |" ;
-    my $dir = dirname(abs_path("S_define")) ;
-    my %files ;
-    my %ext_libs ;
-    while ( <FILE_LIST> ) {
-        next if ( /^#/ or /^\s+\\/ ) ;
-        outer:
-        foreach my $word ( split ) {
-            next if ( $word eq "\\" or $word =~ /o:/ ) ;
+        # Read in @ext_lib_files
+        open($fh, '<', "$ENV{TRICK_BUILD_DIR}build/trickify/swig/ext_lib_files") or die "Cannot open file $ENV{TRICK_BUILD_DIR}build/trickify/swig/ext_lib_files: $!" ; 
 
-            # skip unsupported extensions
-            next if not $word =~ /\.(H|h|hh|hxx|h++|hpp)$/ ;
+        while ($line = <$fh>) 
+        {
+            chomp $line ;
+            push @ext_lib_files, $line ;
+        }
 
-            # get the absolute path
-            if ( $word !~ /^\// and $dir ne "\/" ) {
-                $word = "$dir/$word" ;
-            }
-            $word = abs_path(dirname($word)) . "/" . basename($word) ;
+        # Read in %md5s
+        open($fh, '<', "$ENV{TRICK_BUILD_DIR}build/trickify/swig/files_to_process") or die "Cannot open file $ENV{TRICK_BUILD_DIR}build/trickify/swig/files_to_process: $!" ; 
 
-            # skip duplicate files
-            next if (exists($md5s{$word})) ;
-            $md5s{$word} = md5_hex($word) ;
-
-            # skip system headers that are missed by the compiler -MM flag
-            next if ( $word =~ /^\/usr\/include/ ) ;
-            next if ( $word =~ /^\/usr\/local\/include/ ) ;
-
-            # skip Trick headers
-            my $trick_home = $ENV{'TRICK_HOME'} ;
-            next if ( $word =~ /^\Q$trick_home\/include/ ) ;
-            next if ( $word =~ /^\Q$trick_home\/trick_source/ ) ;
-
-            # skip paths in TRICK_EXCLUDE
-            foreach my $path ( @exclude_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
-                    next outer ;
-                }
-            }
-
-            # skip paths in TRICK_SWIG_EXCLUDE
-            foreach my $path ( @swig_exclude_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
-                    next outer ;
-                }
-            }
-
-            # separate paths in TRICK_EXT_LIB_DIRS
-            foreach my $path ( @ext_lib_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
-                    if ( get_containing_path( $word, @ext_lib_paths_overrides) eq 0 ) {
-                        print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
-                        $ext_libs{$word} = 1 ;
-                        next outer ;
-                    }
-                }
-            }
-            $files{$word} = 1 ;
+        while ($line = <$fh>) 
+        {
+            chomp $line ;
+            my @hash = split ':', $line ;
+            $md5s{$hash[0]} = $hash[1] ;
         }
     }
-    @ext_lib_files = sort keys %ext_libs ;
-    @files_to_process = sort keys %files ;
+    # Generate list of files to process.
+    else
+    {
+        (my $ext_lib_files, my $files_to_process, my $md5s) = get_s_source_deps() ;
+        @files_to_process = @$files_to_process ;
+        @ext_lib_files = @$ext_lib_files ;
+        %md5s = %$md5s ;
+    }
 }
 
-sub write_makefile_swig_deps() {
+sub write_makefile_swig_deps() 
+{
     open DEPENDENCIES_FILE , ">$ENV{TRICK_BUILD_DIR}build/Makefile_swig_deps" or die "Could not open $ENV{TRICK_BUILD_DIR}build/Makefile_swig_deps for writing" ;
     print DEPENDENCIES_FILE "$ENV{TRICK_BUILD_DIR}build/Makefile_swig:" ;
-    foreach my $file ( @files_to_process, @ext_lib_files ) {
+    foreach my $file ( @files_to_process, @ext_lib_files ) 
+    {
         print DEPENDENCIES_FILE " \\\n    " . $file ;
     }
     close DEPENDENCIES_FILE ;
 }
 
-sub get_trick_headers() {
-    foreach my $f ( @files_to_process, @ext_lib_files) {
+sub get_trick_headers() 
+{
+    foreach my $f ( @files_to_process, @ext_lib_files) 
+    {
         my %trick_header = extract_trick_header( $f, do { local( @ARGV, $/ ) = $f ; <> }, 0, 0 ) ;
-        if ( exists $trick_header{python_module} ) {
+        if ( exists $trick_header{python_module} ) 
+        {
             $trick_headers{$f}{python_module} = $trick_header{python_module};
             ($trick_headers{$f}{python_module_dir} = $trick_header{python_module}) =~ s/\./\//g;
             $python_modules{$trick_headers{$f}{python_module}} = 1;
@@ -129,29 +97,27 @@ sub get_trick_headers() {
     }
 }
 
-sub has_swig_no {
+sub has_swig_no 
+{
     my $result = $trick_headers{$_[0]}{swig} =~ /^NO$/i ;
     print "[95mSWIG Skip[39m  SWIG: (NO): $_[0]\n" if $verbose_build and $result ;
     return $result ;
 }
 
-sub purge_swig_no_files() {
+sub purge_swig_no_files() 
+{
     @files_to_process = grep { !has_swig_no($_) } @files_to_process ;
     @ext_lib_files = grep { !has_swig_no($_) } @ext_lib_files ;
 }
 
-sub write_makefile_swig() {
+sub write_makefile_swig() 
+{
     my $s_source_md5 = md5_hex(abs_path("$ENV{TRICK_BUILD_DIR}S_source.hh")) ;
     my $swig_sim_dir = "$ENV{'TRICK_BUILD_DIR'}.trick" ;
     my $swig_sim_zip = "trick.zip" ;
     my $swig_src_dir = "$ENV{'TRICK_BUILD_DIR'}build" ;
 
     open MAKEFILE , ">$ENV{TRICK_BUILD_DIR}build/Makefile_swig" or die "Could not open $ENV{TRICK_BUILD_DIR}build/Makefile_swig for writing" ;
-    open PY_LINK_LIST , ">$ENV{TRICK_BUILD_DIR}build/py_link_list" or die "Could not open $ENV{TRICK_BUILD_DIR}build/py_link_list for writing" ;
-    open TRICKIFY_PY_LINK_LIST , ">$ENV{TRICK_BUILD_DIR}build/trickify_py_link_list" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify_py_link_list for writing" ;
-    print PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build/init_swig_modules.o\n" ;
-    print PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build/top.o\n" ;
-
     print MAKEFILE "TRICK_SYSTEM_SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 
 ifeq (\$(IS_CC_CLANG), 1)
@@ -186,13 +152,10 @@ TRICK_FIXED_PYTHON = \\
 
 SWIG_I =" ;
 
-    foreach my $file ( @files_to_process ) {
+    foreach my $file ( @files_to_process ) 
+    {
         (my $swig_file = $file) =~ s/(\.[^.]*)?$/_py/ ;
         print MAKEFILE " \\\n    $ENV{TRICK_BUILD_DIR}build$swig_file.i" ;
-        print PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build$swig_file.o\n" ;
-        if ( !($swig_file =~ /(.*)S_source_py$/) ) {
-            print TRICKIFY_PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build$swig_file.o\n" ;
-        }
     }
 
     print MAKEFILE "
@@ -245,22 +208,13 @@ $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip: \$(SWIG_SRC) \$(TRICK_FIXED_PYTHON) $swig_
 all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
 " ;
 
-    close MAKEFILE ;
-    close PY_LINK_LIST ;
-    close TRICKIFY_PY_LINK_LIST ;
-
-    open SWIGLIB , ">$ENV{TRICK_BUILD_DIR}build/S_library_swig" or die "Could not open $ENV{TRICK_BUILD_DIR}build/S_library_swig for writing" ;
-    foreach my $file ( @files_to_process ) {
-        print SWIGLIB "$file\n" ;
-    }
-    close SWIGLIB ;
-
     open INITSWIGFILE , ">$ENV{TRICK_BUILD_DIR}build/init_swig_modules.cpp" or die "Could not open $ENV{TRICK_BUILD_DIR}build/init_swig_modules.cpp for writing" ;
     print INITSWIGFILE "#include <Python.h>\n" ;
     print INITSWIGFILE "#if PY_VERSION_HEX >= 0x03000000\n" ;
     print INITSWIGFILE "extern \"C\" {\n\n" ;
 
-    foreach my $file ( @files_to_process, @ext_lib_files ) {
+    foreach my $file ( @files_to_process, @ext_lib_files ) 
+    {
         print INITSWIGFILE "PyObject * PyInit__m$md5s{$file}(void) ; /* $file */\n" ;
     }
 
@@ -271,7 +225,8 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     print INITSWIGFILE "PyObject * PyInit__swig_ref(void) ;\n" ;
 
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
-    foreach my $file ( @files_to_process, @ext_lib_files ) {
+    foreach my $file ( @files_to_process, @ext_lib_files ) 
+    {
         next if ( $file =~ /S_source.hh/ ) ;
         print INITSWIGFILE "    PyImport_AppendInittab(\"_m$md5s{$file}\", PyInit__m$md5s{$file}) ;\n" ;
     }
@@ -286,7 +241,8 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
 
     print INITSWIGFILE "extern \"C\" {\n\n" ;
 
-    foreach my $file ( @files_to_process, @ext_lib_files ) {
+    foreach my $file ( @files_to_process, @ext_lib_files ) 
+    {
         print INITSWIGFILE "void init_m$md5s{$file}(void) ; /* $file */\n" ;
     }
 
@@ -297,7 +253,8 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     print INITSWIGFILE "void init_swig_ref(void) ;\n" ;
 
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
-    foreach my $file ( @files_to_process, @ext_lib_files) {
+    foreach my $file ( @files_to_process, @ext_lib_files) 
+    {
         next if ( $file =~ /S_source.hh/ ) ;
         print INITSWIGFILE "    init_m$md5s{$file}() ;\n" ;
     }
@@ -311,7 +268,8 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     print INITSWIGFILE "#endif\n" ;
     close INITSWIGFILE ;
 
-    if ( ! -e $swig_sim_dir) {
+    if ( ! -e $swig_sim_dir) 
+    {
         mkdir $swig_sim_dir ;
     }
     open INITFILE , ">$swig_sim_dir/__init__.py" or die "Could not open $swig_sim_dir/__init__.py for writing" ;
@@ -321,7 +279,8 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     print INITFILE "import sys\n" ;
     print INITFILE "import os\n" ;
     print INITFILE "sys.path.append(os.getcwd() + \"/$swig_sim_zip/trick\")\n" ;
-    foreach my $dir ( keys %python_module_dirs ) {
+    foreach my $dir ( keys %python_module_dirs ) 
+    {
        print INITFILE "sys.path.append(os.getcwd() + \"/$swig_sim_zip/trick/$dir\")\n" ;
     }
 
@@ -334,19 +293,22 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
     print INITFILE "cvar = None\n\n" ;
 
-    foreach my $file ( @files_to_process, @ext_lib_files ) {
+    foreach my $file ( @files_to_process, @ext_lib_files ) 
+    {
         print INITFILE "# $file\n" ;
         print INITFILE "import _m$md5s{$file}\n" ;
         print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
         print INITFILE "cvar = None\n\n" ;
     }
 
-    foreach my $file ( @files_to_process, @ext_lib_files ) {
+    foreach my $file ( @files_to_process, @ext_lib_files ) 
+    {
         print INITFILE "# $file\n" ;
         print INITFILE "from m$md5s{$file} import *\n" ;
     }
 
-    foreach my $mod ( keys %python_modules ) {
+    foreach my $mod ( keys %python_modules ) 
+    {
         print INITFILE "import trick.$mod\n" ;
     }
 
@@ -367,11 +329,14 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     print INITFILE "cvar = all_cvars\n\n" ;
     close INITFILE ;
 
-    foreach my $dir ( keys %python_module_dirs ) {
+    foreach my $dir ( keys %python_module_dirs ) 
+    {
         system("mkdir -p $swig_sim_dir/$dir");
         open MODULE_INITFILE, ">$swig_sim_dir/$dir/__init__.py";
-        foreach my $file ( @files_to_process ) {
-            if ( exists $trick_headers{$file}{python_module_dir} and $trick_headers{$file}{python_module_dir} eq $dir ) {
+        foreach my $file ( @files_to_process ) 
+        {
+            if ( exists $trick_headers{$file}{python_module_dir} and $trick_headers{$file}{python_module_dir} eq $dir ) 
+            {
                 print MODULE_INITFILE "# $file\n" ;
                 print MODULE_INITFILE "import _m$md5s{$file}\n" ;
                 print MODULE_INITFILE "from m$md5s{$file} import *\n" ;
@@ -383,8 +348,31 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     return ;
 }
 
-@exclude_paths = get_paths( "TRICK_EXCLUDE" ) ;
-@swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE" ) ;
+sub write_lib_files() 
+{
+    open PY_LINK_LIST , ">$ENV{TRICK_BUILD_DIR}build/py_link_list" or die "Could not open $ENV{TRICK_BUILD_DIR}build/py_link_list for writing" ;
+    open TRICKIFY_PY_LINK_LIST , ">$ENV{TRICK_BUILD_DIR}build/trickify_py_link_list" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify_py_link_list for writing" ;
+    print PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build/init_swig_modules.o\n" ;
+    print PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build/top.o\n" ;
+    open SWIGLIB , ">$ENV{TRICK_BUILD_DIR}build/S_library_swig" or die "Could not open $ENV{TRICK_BUILD_DIR}build/S_library_swig for writing" ;
+
+    foreach my $file ( @files_to_process ) 
+    {
+        print SWIGLIB "$file\n" ;
+        (my $swig_file = $file) =~ s/(\.[^.]*)?$/_py/ ;
+        print PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build$swig_file.o\n" ;
+        if ( !($swig_file =~ /(.*)S_source_py$/) ) 
+        {
+            print TRICKIFY_PY_LINK_LIST "$ENV{TRICK_BUILD_DIR}build$swig_file.o\n" ;
+        }
+    }
+
+    close MAKEFILE ;
+    close PY_LINK_LIST ;
+    close TRICKIFY_PY_LINK_LIST ;
+    close SWIGLIB ;
+}
+
 @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
 @ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
 read_files_to_process() ;
@@ -395,3 +383,4 @@ get_trick_headers() ;
 # If SWIG: (NO) is removed, Makefile_swig needs to be regenerated.
 purge_swig_no_files() ;
 write_makefile_swig() ;
+write_lib_files() ;
