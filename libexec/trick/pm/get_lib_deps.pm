@@ -30,7 +30,7 @@ sub get_lib_deps ($$) {
     # library dependency regular expression will match all the way through last parenthesis followed by
     # another field in the trick header, a doxygen style keyword, or the end of comment *.
     # we capture all library dependencies at once into raw_lib_deps
-    @raw_lib_deps = ($contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES)\s*:[^(]*(.*?)\)(?:[A-Z _\t\n\r]+:|\s*[\*@])/gsi) ;
+    @raw_lib_deps = ($contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES)\s*:(.*?)(?=^[ \t]*\**[ \t]*[A-Z][A-Z _\t]*:|\*\/)/gmsi) ;
     foreach my $r ( @raw_lib_deps ) {
         # if there is preprocessor directive in the library dependencies, run the text through cpp.
         if ( $r =~ /#/ ) {
@@ -43,7 +43,9 @@ sub get_lib_deps ($$) {
             }
             $r = $temp ;
         }
-        push @lib_list , (split /\)[ \t\n\r\*]*\(/ , $r)  ;
+        # Strip leading comment markers from continuation lines before extracting '(...)' items.
+        $r =~ s/^\s*\**\s*//mg ;
+        push @lib_list , ($r =~ /\(([^()]+)\)/g) ;
     }
 
     @inc_paths = get_include_paths() ;
