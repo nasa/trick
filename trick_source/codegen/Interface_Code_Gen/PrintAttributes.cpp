@@ -33,6 +33,34 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
    output_dir( in_output_dir )
 {
     printer = new PrintFileContents10() ;
+    
+    const char* trick_build_dir_ptr = std::getenv("TRICK_BUILD_DIR");
+    if( !trick_build_dir_ptr ) {
+        trick_build_dir_ptr = "";
+    }
+    trick_build_dir = trick_build_dir_ptr;
+
+    trickifying    = false;
+    trickifying_mk = false;
+    if( std::getenv("AM_I_TRICKIFYING") && std::getenv("AM_I_TRICKIFYING_MK") ) {
+        trickifying    = true;
+        trickifying_mk = true;
+        std::ifstream trickify_deps(trick_build_dir + "build/fake_deps_map") ;
+        if ( !trickify_deps.fail() ) {
+            std::string input;
+            while ( std::getline(trickify_deps, input) ) {
+                trickify_src_deps_map.push_back(input);
+            }
+        }
+        else {
+            std::cout << trick_build_dir + "build/fake_deps_map no exist =(" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "NO AM_I_TRICKIFYING_MK!" << std::endl;
+    }
+        
 }
 
 void PrintAttributes::addIgnoreTypes() {
@@ -54,7 +82,6 @@ void PrintAttributes::addIgnoreTypes() {
 
 /**
 @details
-
 In order for us to create an io_src file for an include the header must:
 
 1.  Reside in a user directory ( not system dirs like /usr/include
@@ -134,6 +161,19 @@ bool PrintAttributes::openIOFile(const std::string& header_file_name) {
         return false;
     }
 
+    if (trickifying && trickifying_mk) {
+        bool found = false;
+        for (int itr = 0; itr < trickify_src_deps_map.size(); itr++) {
+            if (trickify_src_deps_map[itr] == header_file_name) {
+               found = true;
+            }
+        }
+        if (!found) {
+            std::cout << "|" << header_file_name << "|" << std::endl;
+            return false;
+        }
+    }
+
     // map the header to its IO file
     char* realPath  = almostRealPath(header_file_name.c_str());
     const std::string io_file_name = createIOFileName(realPath) ;
@@ -209,7 +249,7 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
             } else {
                 //TODO: only use build directory if we are ICG'ing a sim
                 // All files go into a build directory based in the current directory.
-                io_file_name =  std::string("build") + dir_name + "/" + base_name ;
+                io_file_name =  trick_build_dir + std::string("build") + dir_name + "/" + base_name ;
             }
         }
         return io_file_name ;
@@ -282,7 +322,7 @@ void PrintAttributes::printSieClass( ClassValues * cv ) {
         xmlFileName = std::string(getenv("TRICK_HOME")) + "/share/trick/xml/sim_services_classes.resource";
     #endif
     } else {
-        xmlFileName = "build/classes.resource";
+        xmlFileName = trick_build_dir + "build/classes.resource";
     }
     std::ofstream ostream(xmlFileName, std::ofstream::app);
     ostream << "  <class name=\"" << sanitize(cv->getFullyQualifiedMangledTypeName("__")) << "\">\n";
@@ -349,7 +389,7 @@ void PrintAttributes::createMapFiles() {
         class_map_function_name = "populate_sim_services_class_map" ;
         enum_map_function_name = "populate_sim_services_enum_map" ;
     } else {
-        map_dir = "build" ;
+        map_dir = trick_build_dir + "build" ;
         class_map_function_name = "populate_class_map" ;
         enum_map_function_name = "populate_enum_map" ;
     }
@@ -435,7 +475,7 @@ void PrintAttributes::printIOMakefile() {
 
     std::cout << color(INFO, "Writing") << "    Makefile_io_src" << std::endl ;
 
-    makefile_io_src.open("build/Makefile_io_src") ;
+    makefile_io_src.open(trick_build_dir + "build/Makefile_io_src") ;
     makefile_io_src
         << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
         << std::endl
@@ -458,7 +498,7 @@ void PrintAttributes::printIOMakefile() {
         makefile_io_src << " \\\n    " << (*mit).second.substr(0,found) << ".o" ;
     }
 
-    makefile_io_src << " \\\n    build/class_map.o" << std::endl
+    makefile_io_src << " \\\n    $(TRICK_BUILD_DIR)build/class_map.o" << std::endl
         << std::endl
         << "$(IO_OBJECTS): \%.o : \%.cpp | \%.d" << std::endl
         << "\t$(PRINT_COMPILE)" << std::endl
@@ -470,7 +510,7 @@ void PrintAttributes::printIOMakefile() {
         << std::endl
         << "$(S_MAIN): $(IO_OBJECTS)" << std::endl
         << std::endl
-        << "LINK_LISTS += $(LD_FILELIST)build/io_link_list" << std::endl;
+        << "LINK_LISTS += $(LD_FILELIST)" + trick_build_dir + "build/io_link_list" << std::endl;
 
     makefile_io_src.close() ;
 
@@ -484,12 +524,12 @@ void PrintAttributes::printIOMakefile() {
 
        ICG_process lists all header files to be used by SWIG.
      */
-    makefile_ICG.open("build/Makefile_ICG") ;
-    io_link_list.open("build/io_link_list") ;
-    trickify_io_link_list.open("build/trickify_io_link_list") ;
-    ICG_processed.open("build/ICG_processed") ;
+    makefile_ICG.open(trick_build_dir + "build/Makefile_ICG") ;
+    io_link_list.open(trick_build_dir + "build/io_link_list") ;
+    trickify_io_link_list.open(trick_build_dir + "build/trickify_io_link_list") ;
+    ICG_processed.open(trick_build_dir + "build/ICG_processed") ;
 
-    makefile_ICG << "build/Makefile_io_src:" ;
+    makefile_ICG << trick_build_dir + "build/Makefile_io_src:" ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; ++mit ) {
         makefile_ICG << " \\\n    " << (*mit).first ;
         size_t found ;
@@ -497,7 +537,8 @@ void PrintAttributes::printIOMakefile() {
         io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
         std::string ssrc = (*mit).second.substr(0,found) ;
         if(ssrc.substr( ssrc.length()-11, ssrc.length()) != "io_S_source" )
-        {
+        {  
+            //TODO: class_map.o appears to be missing?
             trickify_io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
         }
         ICG_processed << (*mit).first << std::endl ;
@@ -510,11 +551,11 @@ void PrintAttributes::printIOMakefile() {
     }
     ICG_processed.close() ;
 
-    io_link_list << "build/class_map.o" << std::endl ;
+    io_link_list << trick_build_dir + "build/class_map.o" << std::endl ;
     io_link_list.close() ;
     trickify_io_link_list.close() ;
 
-    ext_lib.open("build/ICG_ext_lib") ;
+    ext_lib.open(trick_build_dir + "build/ICG_ext_lib") ;
     for ( auto& file : ext_lib_io_files ) {
         ext_lib << file << std::endl ;
     }
@@ -522,9 +563,10 @@ void PrintAttributes::printIOMakefile() {
 }
 
 void PrintAttributes::printICGNoFiles() {
+
     if ( ! sim_services_flag ) {
         std::vector< std::string >::iterator it ;
-        std::ofstream icg_no_outfile("build/ICG_no_found") ;
+        std::ofstream icg_no_outfile(trick_build_dir + "build/ICG_no_found") ;
         for ( it = icg_no_files.begin() ; it != icg_no_files.end() ; ++it ) {
             icg_no_outfile << (*it) << std::endl ;
         }
