@@ -188,6 +188,16 @@ class ClassOfEverything {
 
    double & get_d();
 //    double * get_d_flat();
+
+#if SWIG 
+   #if SWIG_VERSION < 0x040300
+   %ignore get_da;
+   %ignore get_daa;
+   %ignore get_daaa;
+   %ignore get_daaaa;
+   #endif
+#endif
+
    double (&get_da())[3];
 //    double * get_da_flat();
    double * get_dp();

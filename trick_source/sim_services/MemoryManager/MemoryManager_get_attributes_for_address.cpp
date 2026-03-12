@@ -1,3 +1,5 @@
+#include  <string.h>
+
 #include "trick/MemoryManager.hh"
 #include "trick/ClassicCheckPointAgent.hh"
 #include "trick/AttributesUtils.hh"
@@ -159,21 +161,6 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
                     attrOut.index[ii].size = alloc_info->index[ii];
                 }
             }
-
-            int remNumIndex = 0;
-            int remIndex[8] = {};
-            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(attrOut, offsetFromStart, remIndex, remNumIndex);
-
-            if(attrOut.index[attrOut.num_index - 1].size == 0) {
-                // If array of pointers, need to reset  the last
-                ++remNumIndex;
-            }
-            attrOut.num_index = remNumIndex;
-            for (int ii = 0; ii < attrOut.num_index; ++ii)
-            {
-                attrOut.index[ii].size -= remIndex[ii];
-            }
-
         }
     }
     else

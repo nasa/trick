@@ -2,6 +2,12 @@
 import math
 from trick.unit_test import *
 
+try:
+    test_so.obj.get_da
+    useNewGetters = True
+except AttributeError:
+    useNewGetters = False
+
 def main():
 
     # These are here as a reference for the add_collect syntax... I have changed the code to not use collect
@@ -39,39 +45,43 @@ def main():
     TRICK_EXPECT_NEAR( test_so.obj.da[0] , 20 , 0.000001 , test_suite , "1D array, integer value, no units" )
     TRICK_EXPECT_NEAR( test_so.obj.da[1] , 21 , 0.000001 , test_suite , "1D array, integer value, no units" )
     TRICK_EXPECT_NEAR( test_so.obj.da[2] , 22 , 0.000001 , test_suite , "1D array, integer value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 20 , 0.000001 , test_suite , "get_da(), 1D array, integer value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 21 , 0.000001 , test_suite , "get_da(), 1D array, integer value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 22 , 0.000001 , test_suite , "get_da(), 1D array, integer value, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[20 kg, 21 kg, 22 kg]", test_suite , "get_da(), 1D array, integer value, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 20 , 0.000001 , test_suite , "get_da(), 1D array, integer value, no units" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 21 , 0.000001 , test_suite , "get_da(), 1D array, integer value, no units" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 22 , 0.000001 , test_suite , "get_da(), 1D array, integer value, no units" )
+        TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[20 kg, 21 kg, 22 kg]", test_suite , "get_da(), 1D array, integer value, no units" )
 
     test_so.obj.da = [ 30.1 , 31.1 , 32.1 ]
 
     TRICK_EXPECT_NEAR( test_so.obj.da[0] , 30.1 , 0.000001 , test_suite , "1D array, float value, no units" )
     TRICK_EXPECT_NEAR( test_so.obj.da[1] , 31.1 , 0.000001 , test_suite , "1D array, float value, no units" )
     TRICK_EXPECT_NEAR( test_so.obj.da[2] , 32.1 , 0.000001 , test_suite , "1D array, float value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 30.1 , 0.000001 , test_suite , "get_da(), 1D array, float value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 31.1 , 0.000001 , test_suite , "get_da(), 1D array, float value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 32.1 , 0.000001 , test_suite , "get_da(), 1D array, float value, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[30.1 kg, 31.1 kg, 32.1 kg]", test_suite , "get_da(), 1D array, float value, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 30.1 , 0.000001 , test_suite , "get_da(), 1D array, float value, no units" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 31.1 , 0.000001 , test_suite , "get_da(), 1D array, float value, no units" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 32.1 , 0.000001 , test_suite , "get_da(), 1D array, float value, no units" )
+        TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[30.1 kg, 31.1 kg, 32.1 kg]", test_suite , "get_da(), 1D array, float value, no units" )
 
     test_so.obj.da = 40.1 , 41.1 , 42.1
 
     TRICK_EXPECT_NEAR( test_so.obj.da[0] , 40.1 , 0.000001 , test_suite , "1D array, tuple float value, no units" )
     TRICK_EXPECT_NEAR( test_so.obj.da[1] , 41.1 , 0.000001 , test_suite , "1D array, tuple float value, no units" )
     TRICK_EXPECT_NEAR( test_so.obj.da[2] , 42.1 , 0.000001 , test_suite , "1D array, tuple float value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 40.1 , 0.000001 , test_suite , "get_da(), 1D array, tuple float value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 41.1 , 0.000001 , test_suite , "get_da(), 1D array, tuple float value, no units" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 42.1 , 0.000001 , test_suite , "get_da(), 1D array, tuple float value, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[40.1 kg, 41.1 kg, 42.1 kg]", test_suite , "get_da(), 1D array, tuple float value, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 40.1 , 0.000001 , test_suite , "get_da(), 1D array, tuple float value, no units" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 41.1 , 0.000001 , test_suite , "get_da(), 1D array, tuple float value, no units" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 42.1 , 0.000001 , test_suite , "get_da(), 1D array, tuple float value, no units" )
+        TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[40.1 kg, 41.1 kg, 42.1 kg]", test_suite , "get_da(), 1D array, tuple float value, no units" )
 
     test_so.obj.da = trick.attach_units("lb" , [2 , 3 , 4])
     TRICK_EXPECT_NEAR( test_so.obj.da[0] , 0.90718474 , 0.000001 , test_suite , "1D array, float value, units convert" )
     TRICK_EXPECT_NEAR( test_so.obj.da[1] , 1.36077711 ,  0.00001  , test_suite , "1D array, float value, units convert" )
     TRICK_EXPECT_NEAR( test_so.obj.da[2] , 1.81436948 ,  0.00001  , test_suite , "1D array, float value, units convert" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 0.90718474 , 0.000001 , test_suite , "get_da(), 1D array, float value, units convert" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 1.36077711 ,  0.00001  , test_suite , "get_da(), 1D array, float value, units convert" )
-    TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 1.81436948 ,  0.00001  , test_suite , "get_da(), 1D array, float value, units convert" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[0.90718474 kg, 1.36077711 kg, 1.81436948 kg]", test_suite , "get_da(), 1D array, float value, units convert" )
+    if useNewGetters:
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[0] , 0.90718474 , 0.000001 , test_suite , "get_da(), 1D array, float value, units convert" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[1] , 1.36077711 ,  0.00001  , test_suite , "get_da(), 1D array, float value, units convert" )
+        TRICK_EXPECT_NEAR( test_so.obj.get_da()[2] , 1.81436948 ,  0.00001  , test_suite , "get_da(), 1D array, float value, units convert" )
+        TRICK_EXPECT_EQ( str(test_so.obj.get_da()) , "[0.90718474 kg, 1.36077711 kg, 1.81436948 kg]", test_suite , "get_da(), 1D array, float value, units convert" )
 
     test_so.obj.dp = trick.TMM_declare_var_s("double tname[6]")
     TRICK_EXPECT_NEAR( test_so.obj.dp[0] , 0 ,  0.00001  , test_suite , "1D ptr, allocation" )
@@ -107,38 +117,44 @@ def main():
     test_so.obj.daa = trick.attach_units( "kg", (( 50 , 51 , 52) , [53, 54, 55]) )
     TRICK_EXPECT_EQ( str(test_so.obj.daa) , "[[50 kg, 51 kg, 52 kg],[53 kg, 54 kg, 55 kg]]",
      test_suite , "2D array, full assign, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[50 kg, 51 kg, 52 kg],[53 kg, 54 kg, 55 kg]]",
-     test_suite , "get_daa(), 2D array, full assign, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[50 kg, 51 kg, 52 kg],[53 kg, 54 kg, 55 kg]]",
+         test_suite , "get_daa(), 2D array, full assign, no units" )
 
     test_so.obj.daa = trick.attach_units( "kg", [[ 40 , 41 , 42] , [43, 44, 45]] )
     TRICK_EXPECT_EQ( str(test_so.obj.daa) , "[[40 kg, 41 kg, 42 kg],[43 kg, 44 kg, 45 kg]]",
      test_suite , "2D array, full assign, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[43 kg, 44 kg, 45 kg]]",
-     test_suite , "get_daa(), 2D array, full assign, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[43 kg, 44 kg, 45 kg]]",
+         test_suite , "get_daa(), 2D array, full assign, no units" )
 
     test_so.obj.daa[1] = [ 50 , 51 , 52]
     TRICK_EXPECT_EQ( str(test_so.obj.daa) , "[[40 kg, 41 kg, 42 kg],[50 kg, 51 kg, 52 kg]]",
      test_suite , "2D array, partial assign, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[50 kg, 51 kg, 52 kg]]",
-     test_suite , "get_daa(), 2D array, partial assign, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[50 kg, 51 kg, 52 kg]]",
+         test_suite , "get_daa(), 2D array, partial assign, no units" )
 
     test_so.obj.daa[1] = [ 50.1 , 51.2 , 52.3 ]
     TRICK_EXPECT_EQ( str(test_so.obj.daa) , "[[40 kg, 41 kg, 42 kg],[50.1 kg, 51.2 kg, 52.3 kg]]",
      test_suite , "2D array, partial assign, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[50.1 kg, 51.2 kg, 52.3 kg]]",
-     test_suite , "get_daa(), 2D array, partial assign, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[50.1 kg, 51.2 kg, 52.3 kg]]",
+         test_suite , "get_daa(), 2D array, partial assign, no units" )
 
     test_so.obj.daa[1][1] =  60
     TRICK_EXPECT_EQ( str(test_so.obj.daa) , "[[40 kg, 41 kg, 42 kg],[50.1 kg, 60 kg, 52.3 kg]]",
      test_suite , "2D array, single assign, no units" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[50.1 kg, 60 kg, 52.3 kg]]",
-     test_suite , "get_daa(), 2D array, single assign, no units" )
+    if useNewGetters:
+        TRICK_EXPECT_EQ( str(test_so.obj.get_daa()) , "[[40 kg, 41 kg, 42 kg],[50.1 kg, 60 kg, 52.3 kg]]",
+         test_suite , "get_daa(), 2D array, single assign, no units" )
 
     test_so.obj.daa[0] = trick.attach_units( "lb",[ 4.0, 5.0, 6.0])
     TRICK_EXPECT_EQ( str(test_so.obj.daa[0]) , "[1.81436948 kg, 2.26796185 kg, 2.72155422 kg]",
      test_suite , "2D array, single single row assignment with units conversion" )
-    TRICK_EXPECT_EQ( str(test_so.obj.get_daa()[0]) , "[1.81436948 kg, 2.26796185 kg, 2.72155422 kg]",
-     test_suite , "get_daa(), 2D array, single single row assignment with units conversion" )
+    if useNewGetters: 
+        TRICK_EXPECT_EQ( str(test_so.obj.get_daa()[0]) , "[1.81436948 kg, 2.26796185 kg, 2.72155422 kg]",
+         test_suite , "get_daa(), 2D array, single single row assignment with units conversion" )
 
     TRICK_EXPECT_EQ( str(test_so.obj.dap) , "[NULL, NULL, NULL, NULL]", test_suite , "2D array of ptr, initial value" )
     TRICK_EXPECT_EQ( str(test_so.obj.get_dap_2d()) , "[NULL, NULL, NULL, NULL]", test_suite , "get_dap_2d(), 2D array of ptr, initial value" )

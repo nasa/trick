@@ -85,8 +85,9 @@
               enum SWIGTYPE &, bool & {
     // INT OUT
     // swig_int_typemap.i : 87
+    size_t offsetRemainder;
     ATTRIBUTES attr = {};
-    trick_MM->get_attributes_for_address((void *)$1, attr);
+    trick_MM->get_attributes_for_address((void *)$1, attr, offsetRemainder);
 
     swig_int * t = new swig_int ;
     t->value = (long long)result ;
@@ -118,8 +119,9 @@
 %typemap(out) double &, float & {
     // DOUBLE OUT
     // swig_int_typemap.i : 120
+    size_t offsetRemainder;
     ATTRIBUTES attr = {};
-    trick_MM->get_attributes_for_address((void *)$1, attr);
+    trick_MM->get_attributes_for_address((void *)$1, attr, offsetRemainder);
 
     swig_double * t = new swig_double ;
     t->value = (double)*result ;
@@ -222,8 +224,9 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
+    size_t offsetRemainder;
     ATTRIBUTES addrAttr = {};
-    trick_MM->get_attributes_for_address((void *)$1, addrAttr);
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
     ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
     if ( primAttr == NULL ) {
@@ -306,8 +309,9 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
+    size_t offsetRemainder;
     ATTRIBUTES addrAttr = {};
-    trick_MM->get_attributes_for_address((void *)$1, addrAttr);
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
     ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
     if ( primAttr == NULL ) {
@@ -447,8 +451,9 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
+    size_t offsetRemainder;
     ATTRIBUTES addrAttr = {};
-    trick_MM->get_attributes_for_address((void *)$1, addrAttr);
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
     ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
     if ( primAttr == NULL ) {
@@ -602,8 +607,9 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
+    size_t offsetRemainder;
     ATTRIBUTES addrAttr = {};
-    trick_MM->get_attributes_for_address((void *)$1, addrAttr);
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
     ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
     if ( primAttr == NULL ) {
