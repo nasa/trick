@@ -115,17 +115,25 @@ jobs:
 
           #-------- RHEL 9-only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 9 }
-            install_gtest: |
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
               dnf config-manager --enable crb
+            install_gtest: |
               dnf install -y gtest-devel gmock-devel
 
           #-------- RHEL 10-only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 10 }
-            install_gtest: |
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
               dnf config-manager --enable crb
+            install_gtest: |
               dnf install -y gtest-devel gmock-devel
 
-          #-------- OL 8 Dependencies ----------------
+          #-------- OS-specific Overrides ----------------
           - cfg: { os: oraclelinux, arch_ver: 8 }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
