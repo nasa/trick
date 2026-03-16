@@ -19,10 +19,6 @@ on:
       - "!Formula/**"
   workflow_dispatch:
 
-env:
-  ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
 jobs:
   build:
     strategy:
@@ -31,9 +27,10 @@ jobs:
         cfg:
           #-------- Operating Systems ----------------
           - { os: ubuntu, tag: 22.04, arch: debian, arch_ver: 12 }
-          - { os: rockylinux, tag: 8, arch: rhel, arch_ver: 8 }
           - { os: oraclelinux, tag: 8, arch: rhel, arch_ver: 8 }
-        python: [3]
+          - { os: rockylinux, tag: 8, arch: rhel, arch_ver: 8 }
+          - { os: rockylinux, tag: 9, arch: rhel, arch_ver: 9 }
+          - { os: rockylinux, tag: 10, arch: rhel, arch_ver: 10 }
 
         #-------- Defaults --------------------------
         include:
@@ -52,6 +49,7 @@ jobs:
             install_gtest: echo gtest already installed
             conf_pkg: echo package manager already configured
             install_cmd: install -y
+
           #-------- Debian-based Dependencies ----------------
           - cfg: { arch: debian }
             pkg_mgr: apt-get
@@ -71,7 +69,6 @@ jobs:
               libudunits2-dev
               libgtest-dev
               default-jdk
-              python2.7-dev
               python3-dev
               python3-pip
               python3-venv
@@ -81,13 +78,20 @@ jobs:
               cmake .
               make
               cp lib/libgtest* /usr/lib/
-          #-------- RHEL Dependencies ----------------
+
+          #-------- RHEL-based Dependencies (all versions) ----------------
           - cfg: { arch: rhel }
+            pkg_mgr: dnf
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
             arch_deps: >-
               clang-devel
+              diffutils
               gcc
               gcc-c++
-              java-11-openjdk-devel
+              java-21-openjdk-devel
               libxml2-devel
               llvm-devel
               llvm-static
@@ -96,30 +100,37 @@ jobs:
               openmotif-devel
               perl
               perl-Digest-MD5
+              swig
               udunits2
               udunits2-devel
               which
               zlib-devel
-              python2-devel
               python3-devel
-          #-------- RHEL 8-based Only Dependencies ----------------
+
+          #-------- RHEL 8-only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
-            pkg_mgr: dnf
-            tag_deps: >-
-              swig
-              diffutils
-            conf_pkg: |
-              dnf -y install epel-release
-              dnf -y update
-              dnf install -y 'dnf-command(config-manager)'
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel gmock-devel
-          #-------- OS and Version Specific Dependencies ----------------
-          - cfg: { os: oraclelinux }
+
+          #-------- RHEL 9-only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 9 }
+            install_gtest: |
+              dnf config-manager --enable crb
+              dnf install -y gtest-devel gmock-devel
+
+          #-------- RHEL 10-only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 10 }
+            install_gtest: |
+              dnf config-manager --enable crb
+              dnf install -y gtest-devel gmock-devel
+
+          #-------- OL 8 Dependencies ----------------
+          - cfg: { os: oraclelinux, arch_ver: 8 }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
               dnf install -y gtest-devel gmock-devel
+
     #-------- Job definition ----------------
     runs-on: ubuntu-latest
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
@@ -132,8 +143,6 @@ jobs:
           ${{matrix.install_cmd}}
           ${{matrix.deps}}
           ${{matrix.arch_deps}}
-          ${{matrix.os_deps}}
-          ${{matrix.tag_deps}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
@@ -141,7 +150,6 @@ jobs:
       - name: Configure Trick
         run: |
           export MAKEFLAGS=-j`nproc`
-          export PYTHON_VERSION=${{matrix.python}}
           ./configure
       - name: Build Trick
         run: |
@@ -154,17 +162,18 @@ jobs:
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
           cd ../../../; make test
       - name: Upload Tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: success() || failure() # run this step even if previous step failed
         with:
-          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
           path: trick_test/*.xml
           retention-days: 1
+
 # Uncomment for build artifacts
 #       - name: Upload Trick Build
 #         uses: actions/upload-artifact@v3.0.0
 #         with:
-#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
 #           path: |
 #             bin
 #             include

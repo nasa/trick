@@ -80,7 +80,7 @@ jobs:
           source ../.venv/bin/activate
           export PATH="/tmp/koviz-master/bin:${PATH}"
           ./run_tests.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: doctests_${{ github.run_id }}_${{ github.job }}

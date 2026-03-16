@@ -147,3 +147,10 @@ jobs:
           cd share/trick/trickops/
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
           cd ../../../; make test32
+      - name: Upload Tests
+        uses: actions/upload-artifact@v7
+        if: success() || failure()
+        with:
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+          path: trick_test/*.xml
+          retention-days: 1
