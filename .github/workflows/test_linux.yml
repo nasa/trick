@@ -26,12 +26,41 @@ jobs:
       matrix:
         cfg:
           #-------- Operating Systems ----------------
-          - { os: ubuntu, tag: 22.04, arch: debian, arch_ver: 12 }
-          - { os: oraclelinux, tag: 8, arch: rhel, arch_ver: 8 }
-          - { os: rockylinux/rockylinux, tag: 8, arch: rhel, arch_ver: 8 }
-          - { os: rockylinux/rockylinux, tag: 9, arch: rhel, arch_ver: 9 }
-          - { os: rockylinux/rockylinux, tag: 10, arch: rhel, arch_ver: 10 }
-
+          - {
+              os: ubuntu,
+              tag: 22.04,
+              arch: debian,
+              arch_ver: 12,
+              image: ubuntu,
+            }
+          - {
+              os: rockylinux,
+              tag: 8,
+              arch: rhel,
+              arch_ver: 8,
+              image: rockylinux/rockylinux,
+            }
+          - {
+              os: oraclelinux,
+              tag: 8,
+              arch: rhel,
+              arch_ver: 8,
+              image: oraclelinux,
+            }
+          - {
+              os: rockylinux,
+              tag: 9,
+              arch: rhel,
+              arch_ver: 9,
+              image: rockylinux/rockylinux,
+            }
+          - {
+              os: rockylinux,
+              tag: 10,
+              arch: rhel,
+              arch_ver: 10,
+              image: rockylinux/rockylinux,
+            }
         #-------- Defaults --------------------------
         include:
           - cfg: {}
@@ -141,7 +170,7 @@ jobs:
 
     #-------- Job definition ----------------
     runs-on: ubuntu-latest
-    container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
+    container: docker://${{matrix.cfg.image}}:${{matrix.cfg.tag}}
     steps:
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
