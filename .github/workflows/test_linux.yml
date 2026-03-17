@@ -19,6 +19,13 @@ on:
       - "!Formula/**"
   workflow_dispatch:
 
+concurrency:
+  # On PRs, cancel in-progress runs on the same branch when new commits are pushed.
+  # On master and workflow_dispatch, head_ref is undefined so run_id is used as fallback,
+  # which is unique per run and prevents any cancellation.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
@@ -34,18 +41,18 @@ jobs:
               image: ubuntu,
             }
           - {
-              os: rockylinux,
-              tag: 8,
-              arch: rhel,
-              arch_ver: 8,
-              image: rockylinux/rockylinux,
-            }
-          - {
               os: oraclelinux,
               tag: 8,
               arch: rhel,
               arch_ver: 8,
               image: oraclelinux,
+            }
+          - {
+              os: rockylinux,
+              tag: 8,
+              arch: rhel,
+              arch_ver: 8,
+              image: rockylinux/rockylinux,
             }
           - {
               os: rockylinux,
@@ -162,7 +169,7 @@ jobs:
             install_gtest: |
               dnf install -y gtest-devel gmock-devel
 
-          #-------- OS-specific Overrides ----------------
+          #-------- OL 8 Dependencies ----------------
           - cfg: { os: oraclelinux, arch_ver: 8 }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder

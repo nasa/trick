@@ -19,6 +19,13 @@ on:
       - "!Formula/**"
   workflow_dispatch:
 
+concurrency:
+  # On PRs, cancel in-progress runs on the same branch when new commits are pushed.
+  # On master and workflow_dispatch, head_ref is undefined so run_id is used as fallback,
+  # which is unique per run and prevents any cancellation.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   macOS:
     runs-on: macos-15
