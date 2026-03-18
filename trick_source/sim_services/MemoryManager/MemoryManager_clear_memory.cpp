@@ -47,6 +47,9 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                } else if ((size_t)attr->size == sizeof(short)) {
                    final_address = (char*)base_address + offset * sizeof(short);
                    *(short*)final_address = 0;
+               } else if ((size_t)attr->size == sizeof(char)) {
+                   final_address = (char*)base_address + offset * sizeof(char);
+                   *(char*)final_address = 0;
                } else {
                    emitError("INTERNAL-ERROR - Unexpected size of ENUMERATION type.") ;
                }
