@@ -7,8 +7,10 @@ use Exporter ();
 use gte ;
 use get_paths ;
 use verbose_build ;
+use trick_version ;
+use Digest::MD5 qw(md5_hex) ;
 @ISA = qw(Exporter);
-@EXPORT = qw(get_lib_deps write_lib_deps);
+@EXPORT = qw(get_lib_deps write_lib_deps get_s_source_deps trickify_map_fake_deps) ;
 
 use strict ;
 
@@ -190,9 +192,9 @@ sub write_lib_deps($) {
 
     # Build the library dependencies file name to store results
     my ( $file, $dir, $suffix) = fileparse($source_file_name, qr/\.[^.]*/) ;
-    my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
+    my ($lib_dep_file_name) = "$ENV{TRICK_BUILD_DIR}build$dir${file}${suffix}.lib_deps" ;
     if ( ! -e "build$dir" ) {
-        make_path("build$dir") ;
+        make_path("$ENV{TRICK_BUILD_DIR}build$dir") ;
     }
 
     if ( -e $lib_dep_file_name ) {
@@ -224,6 +226,87 @@ sub write_lib_deps($) {
 
     # return the deps changed flag and the list of dependencies
     return $deps_changed , @resolved_files ;
+}
+
+sub get_s_source_deps() {
+    (my $version, my $thread) = get_trick_version() ;
+    (my $year) = $version =~ /^(\d+)/ ;
+    (my $cc = gte("TRICK_CC")) =~ s/\n// ;
+
+    # Prepend -I to each include path before we pass them to the compiler
+    my @include_paths = map("-I$_", (get_include_paths(), "$ENV{TRICK_HOME}", "$ENV{TRICK_HOME}/include", "$ENV{TRICK_HOME}/include/trick/compat", "$ENV{TRICK_HOME}/trick_source", "../include")) ;
+    my @defines = (get_defines(), "-DTRICK_VER=$year", "-DSWIG") ;
+
+    my @exclude_paths = get_paths( "TRICK_EXCLUDE" ) ;
+    my @swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE" ) ;
+    my %local_md5s ;
+
+    # get the list of header files from the compiler
+    open FILE_LIST, "$cc -MM @include_paths @defines $ENV{'TRICK_BUILD_DIR'}S_source.hh |" ;
+    my $dir = dirname(abs_path("S_define")) ;
+    my %files ;
+    my %ext_libs ;
+    while ( <FILE_LIST> ) {
+        next if ( /^#/ or /^\s+\\/ ) ;
+        outer:
+        foreach my $word ( split ) {
+            next if ( $word eq "\\" or $word =~ /o:/ ) ;
+
+            # skip unsupported extensions
+            next if not $word =~ /\.(H|h|hh|hxx|h++|hpp)$/ ;
+
+            # get the absolute path
+            if ( $word !~ /^\// and $dir ne "\/" ) {
+                $word = "$dir/$word" ;
+            }
+            $word = abs_path(dirname($word)) . "/" . basename($word) ;
+
+            # skip duplicate files
+            next if (exists($local_md5s{$word})) ;
+            $local_md5s{$word} = md5_hex($word) ;
+
+            # skip system headers that are missed by the compiler -MM flag
+            next if ( $word =~ /^\/usr\/include/ ) ;
+            next if ( $word =~ /^\/usr\/local\/include/ ) ;
+
+            # skip Trick headers
+            my $trick_home = $ENV{'TRICK_HOME'} ;
+            next if ( $word =~ /^\Q$trick_home\/include/ ) ;
+            next if ( $word =~ /^\Q$trick_home\/trick_source/ ) ;
+
+            # skip paths in TRICK_EXCLUDE
+            foreach my $path ( @exclude_paths ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
+            }
+
+            # skip paths in TRICK_SWIG_EXCLUDE
+            foreach my $path ( @swig_exclude_paths ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
+            }
+
+            # separate paths in TRICK_EXT_LIB_DIRS
+            foreach my $path ( @ext_lib_paths ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                    if ( get_containing_path( $word, @ext_lib_paths_overrides) eq 0 ) {
+                        print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
+                        $ext_libs{$word} = 1 ;
+                        next outer ;
+                    }
+                }
+            }
+            $files{$word} = 1 ;
+        }
+    }
+    my @local_ext_lib_files = sort keys %ext_libs ;
+    my @local_files_to_process = sort keys %files ;
+
+    return (\@local_files_to_process, \@local_ext_lib_files, \%local_md5s) ;
 }
 
 1

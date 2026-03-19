@@ -18,6 +18,7 @@ use get_paths ;
 use verbose_build ;
 use parse_s_define 'index_comments' ;
 
+
 ##
 ## ================================================================================
 ## Program: convert_swig
@@ -138,7 +139,7 @@ if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
 }
 
 if ( scalar @ARGV == 0 ) {
-    my ($s_library_swig) = "build/S_library_swig" ;
+    my ($s_library_swig) = "$ENV{TRICK_BUILD_DIR}build/S_library_swig" ;
     open FILE_LIST, $s_library_swig or die "Could not open $s_library_swig" ;
     while ( <FILE_LIST> ) {
         chomp ;
@@ -150,7 +151,7 @@ if ( scalar @ARGV == 0 ) {
         $base_file =~ s/\.[^\.]+$// ;
 
         $swig_dir = dirname($f) ;
-        $swig_dir = "build/$swig_dir" ;
+        $swig_dir = "$ENV{TRICK_BUILD_DIR}build/$swig_dir" ;
         $swig_file = "$swig_dir/${base_file}_py.i" ;
 
         #print "$swig_file\n" ;
@@ -171,6 +172,7 @@ if ( scalar keys %out_of_date == 0 ) {
 
 ## Finally, call process_file() to create SWIG interface files for each of the out_of_date headers.
 ##
+
 
 process_file() ;
 
@@ -277,7 +279,7 @@ sub process_file() {
                         next outer ;
                     }
                 }
-                $file_name = "build" . $file_name ;
+                $file_name = "$ENV{TRICK_BUILD_DIR}build" . $file_name ;
                 $file_name =~ s/\.[^\.]+?$/\_py.i/ ;
                 $contents .= "\%import \"$file_name\"\n" ;
             } else {
@@ -294,7 +296,7 @@ sub process_file() {
         my $md5_sum = md5_hex($f) ;
 
         my ($out_dir) = dirname($f) ;
-        $out_dir = "build$out_dir" ;
+        $out_dir = "$ENV{TRICK_BUILD_DIR}build$out_dir" ;
 
         my $out_file ;
         $out_file = basename($f) ;

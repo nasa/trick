@@ -30,7 +30,7 @@ my @ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
 
 # set default verbose level
 $sim{args}{v} = 2 ;
-$sim{args}{o} = "build/CP_out" ;
+$sim{args}{o} = "$ENV{TRICK_BUILD_DIR}build/CP_out" ;
 $sim{args}{p} = 1 ;
 
 #--------------------------------------------------------------
@@ -49,10 +49,6 @@ pod2usage(1) if $sim{args}{h} ;
 # Get Trick version
 my ($version, $thread) = get_trick_version() ;
 $thread =~ s/\d+\.// ;
-
-if ( ! -e "build" ) {
-     mkdir  "build", 0755 ;
-}
 
 local *OUTFILE ;
 open OUTFILE , ">$sim{args}{o}" or warn "CP cannot open $sim{args}{o} for writing\n" ;
@@ -92,7 +88,7 @@ close OUTFILE ;
 
 #--------------------------------------------------------------
 # Write out the library dependencies found in the S_define file.
-open LIBDEP, ">build/S_define.lib_deps" ;
+open LIBDEP, ">$ENV{TRICK_BUILD_DIR}build/S_define.lib_deps" ;
 foreach my $file ( @{$sim{mis_entry_files}} ) {
     if ( $file ne "" ) {
         $file = abs_path(dirname($file)) . "/" . basename($file) ;
