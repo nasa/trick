@@ -19,6 +19,13 @@ on:
       - "!Formula/**"
   workflow_dispatch:
 
+concurrency:
+  # On PRs, cancel in-progress runs on the same branch when new commits are pushed.
+  # On master and workflow_dispatch, head_ref is undefined so run_id is used as fallback,
+  # which is unique per run and prevents any cancellation.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   macOS:
     runs-on: macos-15
@@ -60,7 +67,7 @@ jobs:
           export MAKEFLAGS=-j4
           cd ../../../; make test
       - name: Upload Tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: success() || failure() # run this step even if previous step failed
         with:
           # Include run attempt in artifact name so report workflow can fetch the latest attempt
