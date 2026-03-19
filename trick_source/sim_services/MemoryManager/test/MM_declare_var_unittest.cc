@@ -10,7 +10,7 @@
 class MM_declare_var : public ::testing::Test {
 	protected:
 	Trick::MemoryManager *memmgr;
-		MM_declare_var() { memmgr = new Trick::MemoryManager; }
+		MM_declare_var() { memmgr = new Trick::MemoryManager;}
 		~MM_declare_var() { delete memmgr;   }
 		void SetUp() {}
 		void TearDown() {}
@@ -297,4 +297,22 @@ TEST_F(MM_declare_var, UserDefinedTwoDimArray) {
         UDT1 *test_var = (UDT1 *)memmgr->declare_var("UDT1[3][4]");
         int extents[8] = {3,4,0,0,0,0,0,0};
         validate_alloc_info_local(memmgr, test_var, TRICK_STRUCTURED, "UDT1", NULL, 12, 2, extents);
+}
+
+// declare_operatornew_var tests
+
+// Unnamed allocation
+TEST_F(MM_declare_var, OperatorNewAnonymous) {
+    UDT1 * test_var = (UDT1 *)memmgr->declare_operatornew_var("UDT1",sizeof(UDT1),sizeof(UDT1));
+    int extents[8] = {1,0,0,0,0,0,0,0};
+    validate_alloc_info_local(memmgr, test_var, TRICK_STRUCTURED, "UDT1", NULL, 1, 1, extents);
+}
+
+// Named allocation
+TEST_F(MM_declare_var, OperatorNewNamed) {
+    UDT1 * test_var = (UDT1 *)memmgr->declare_operatornew_var("UDT1",sizeof(UDT1),sizeof(UDT1),"UserDefinedStruct1");
+    int extents[8] = {1,0,0,0,0,0,0,0};
+    validate_alloc_info_local(memmgr, test_var, TRICK_STRUCTURED, "UDT1", "UserDefinedStruct1", 1, 1, extents);
+    // test if variable name was added to variable map
+    EXPECT_EQ(memmgr->var_exists("UserDefinedStruct1"), 1);
 }
