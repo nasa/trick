@@ -379,7 +379,7 @@ if($ENV{'AM_I_TRICKIFYING'}) {
     # to ensure trickify deps include ALL files needed to build the sim, we must grab the headers missing from %non_lib_processed_files
     #       get_s_source_deps() is the function used by make_makefile_swig to grabe its dep list.
     #       this function traverses the #includes of lib dependencies, so it will fill in the gaps in our list.
-    (my $ext_lib_files, my $files_to_process) = get_s_source_deps() ;
+    (my $files_to_process) = get_s_source_deps() ;
     foreach my $ftp (@$files_to_process) {
         $trickify_deps{$ftp} = 1 ;
     }

@@ -204,9 +204,6 @@ $(TRICKIFY_PYTHON_DIR): $(SWIG_OBJECTS:.o=.cpp) | $(dir $(TRICKIFY_PYTHON_DIR))
 	$(info $(call COLOR,Zipping)    Python modules into $@)
 	$(call ECHO_AND_LOG,cd .trick && zip -Arq $@ .)
 
-build/fake_deps_map:
-	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/trickify_make_deps_map)
-
 # SWIG_OBJECTS and IO_OBJECTS are meant to contain all of the *_py and io_*
 # object file names, respectively, by looking at products of ICG and
 # make_makefile_swig. However, we can't run a rule for ICG before those
@@ -239,9 +236,9 @@ build/fake_deps_map:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
 
-$(BUILD_DIR)S_source.d: | $(BUILD_DIR) build/fake_deps_map
+$(BUILD_DIR)S_source.d: | $(BUILD_DIR)
 	$(call ECHO_AND_LOG,$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh)
-	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig)
+	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/trickify_get_swig_data)
 	$(call ECHO_AND_LOG,$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICK_CXXFLAGS) S_source.hh)
 
 -include $(BUILD_DIR)S_source.d

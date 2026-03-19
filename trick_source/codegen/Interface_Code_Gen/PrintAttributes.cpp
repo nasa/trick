@@ -45,7 +45,7 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
     if( std::getenv("AM_I_TRICKIFYING") && std::getenv("AM_I_TRICKIFYING_MK") ) {
         trickifying    = true;
         trickifying_mk = true;
-        std::ifstream trickify_deps(trick_build_dir + "build/fake_deps_map") ;
+        std::ifstream trickify_deps(trick_build_dir + "build/trickify/fake_deps_map") ;
         if ( !trickify_deps.fail() ) {
             std::string input;
             while ( std::getline(trickify_deps, input) ) {
@@ -53,7 +53,7 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
             }
         }
         else {
-            std::cout << trick_build_dir + "build/fake_deps_map no exist =(" << std::endl;
+            std::cout << trick_build_dir + "build/trickify/fake_deps_map no exist =(" << std::endl;
         }
     }
     else

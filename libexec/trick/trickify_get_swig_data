@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
+
+use File::Path qw(make_path);
+use swig_make ;
+
+use strict ;
+
+read_files_to_process() ;
+
+# Only want to run this with trickify-25. This check is to prevent this script from executing using the old trickify.mk method.
+#TODO: Come up with a more elegant solution. Or drop this check when oldschool trickify.mk is no longer supported.
+if($ENV{'AM_I_TRICKIFYING'}) 
+{
+    trickify_map_fake_deps() ;
+
+    replace_files_to_process() ;
+}
+
+get_trick_headers() ;
+
+purge_swig_no_files() ;
+
+write_lib_files() ;
+
+# Only want to run this with trickify-25. This check is to prevent this script from executing using the old trickify.mk method.
+#TODO: Come up with a more elegant solution. Or drop this check when oldschool trickify.mk is no longer supported.
+if($ENV{'AM_I_TRICKIFYING'}) 
+{
+    write_fake_deps_map() ;
+}
