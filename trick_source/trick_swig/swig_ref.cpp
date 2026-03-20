@@ -72,23 +72,29 @@ char * swig_ref::__str__() {
             size = get_truncated_size((char *)ref_copy.address);
         }
 
-        int startingElemOffset = ref_copy.attr->offset / ref_copy.attr->size;
+        int offsetIndex = ref_copy.attr->offset / ref_copy.attr->size;
+        int startingIndex = offsetIndex;
         bool isFirstElemWritten = false;
         os << "[" ;
         for ( int i = 0; i < size; i++ ) {            
-            if(startingElemOffset > 0)
-            {
-                --startingElemOffset;
-                continue;
-            }
-            if (isFirstElemWritten) {
-                os << ", ";
-            } else {
-                isFirstElemWritten = true;
-            }
+            bool skipIndex = false;
+
+                    if(startingIndex > 0)
+                    {
+                        --startingIndex;
+                        continue;
+                    }
+
+                    // if(!skipIndex) {
+                        if (isFirstElemWritten) {
+                            os << ", ";
+                        } else {
+                            isFirstElemWritten = true;
+                        }
             
             // Get element at index i (will be a swig_ref to the next dimension)
-            PyObject* elem = __getitem__(i);
+            // __getitem__ needs to account for address being start of attribute. the substraction
+            PyObject* elem = __getitem__(i - offsetIndex);
             if ( elem != NULL ) {
                 // Check if elem is a swig_ref
                 void* argp = NULL;
@@ -112,7 +118,7 @@ char * swig_ref::__str__() {
                         os << elem_str;
                     } else {
                         // Otherwise call write_rvalue with in_list=true so strings get quoted properly
-                        Trick::PythonPrint::write_rvalue(os, elem_ref_copy.address, elem_ref_copy.attr, 0, 0, true, true);
+                        Trick::PythonPrint::write_rvalue(os, elem_ref_copy.address, elem_ref_copy.attr, 0, 0, true, true, &startingIndex);
                     }
                     } else {
                     // Not a swig_ref, use str representation
@@ -132,6 +138,7 @@ char * swig_ref::__str__() {
                 }
                 Py_DECREF(elem);
             }            
+        // }
         }
         os << "]";
     } else {
@@ -952,9 +959,9 @@ PyObject * swig_ref::__getitem__(int ii) {
     if ( ii < 0 ) {
         ii += temp_ref.attr->index[0].size ;
     }
+    ii += temp_ref.attr->offset / temp_ref.attr->size;
 
     v_data.type = TRICK_INTEGER ;
-    // v_data.value.i = ii + (temp_ref.attr->offset / temp_ref.attr->size);
     v_data.value.i = ii;
 
 
@@ -1110,6 +1117,7 @@ PyObject * swig_ref::__getitem__(int ii) {
         /* Start with the current attributes we have */
         *new_attr = *temp_ref.attr ;
         new_ref->ref.attr = new_attr ;
+        new_ref->ref.attr->offset = 0;
 
         /* make copies of the strings for type_name and units */
         new_ref->ref.attr->type_name = strdup(temp_ref.attr->type_name) ;
