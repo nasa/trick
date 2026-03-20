@@ -195,6 +195,8 @@ class ClassOfEverything {
    %ignore get_daa;
    %ignore get_daaa;
    %ignore get_daaaa;
+   %ignore get_ea;
+   %ignore get_cana;
    #endif
 #endif
 
