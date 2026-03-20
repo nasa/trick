@@ -8,6 +8,6 @@ updates:
       interval: "quarterly"
 
   - package-ecosystem: "npm"
-    directory: "/trick/web/dashboard"
+    directory: "/trick_source/web/dashboard"
     schedule:
       interval: "quarterly"
