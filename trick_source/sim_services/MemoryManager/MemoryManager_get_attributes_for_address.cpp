@@ -8,7 +8,8 @@ static int getCompositeSubReference(
     size_t addrValue,
     ATTRIBUTES &attrOut,
     size_t structAddrValue,
-    ATTRIBUTES *structAttr)
+    ATTRIBUTES *structAttr,
+    size_t & remainingOffset)
 {
     if (addrValue < structAddrValue)
     {
@@ -20,6 +21,7 @@ static int getCompositeSubReference(
     Trick::AttributesUtils::TraversalResult traversalResult;
 
     int ret = Trick::AttributesUtils::traverse_for_offset(addrOffsetFromStruct, structAttr, traversalResult);
+    remainingOffset = traversalResult.offset_from_found_attr;
 
     if (ret != 0)
     {
@@ -53,33 +55,7 @@ static int getCompositeSubReference(
             return 0;
         }
 
-        int remIndex[TRICK_MAX_INDEX] = {};
-        Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(*retAttr, traversalResult.offset_from_found_attr, remIndex, attrOut.num_index);
-
-        int firstPtrDim = -1;
-        int lastRealDim = -1;
         attrOut = *retAttr;
-        for(int ii = (attrOut.num_index-1); ii >= 0; --ii)
-        {
-            if(attrOut.index[ii].size == 0)
-            {
-                if(lastRealDim == -1) {
-                    firstPtrDim = ii;
-                }
-            } else {
-                if(lastRealDim == -1) {
-                    lastRealDim = ii;
-                }
-            }            
-            attrOut.index[ii].size -= remIndex[ii];
-        }
-        for(int ii = 0; ii <= lastRealDim; ++ii)
-        {
-            if(attrOut.index[ii].size == 0)
-            {
-                --attrOut.num_index;
-            }
-        }
         return 0;
     }
 
@@ -93,7 +69,7 @@ static int getCompositeSubReference(
     // If attribute is an unarrayed struct, continue to call getCompositeSubReference
     if (retAttr->num_index == 0)
     {
-        return getCompositeSubReference(addrValue, attrOut, structAddrValue + retAttr->offset, (ATTRIBUTES *)retAttr->attr);
+        return getCompositeSubReference(addrValue, attrOut, structAddrValue + retAttr->offset, (ATTRIBUTES *)retAttr->attr, remainingOffset);
     }
 
     // If the member is a pointer, do nothing and return
@@ -106,7 +82,7 @@ static int getCompositeSubReference(
     // Arrayed struct - recurse into the element
     return getCompositeSubReference(addrValue, attrOut,
                                     structAddrValue + retAttr->offset + traversalResult.offset_from_found_attr,
-                                    (ATTRIBUTES *)retAttr->attr);
+                                    (ATTRIBUTES *)retAttr->attr, remainingOffset);
 }
 
 /**
@@ -131,14 +107,14 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
         remainingOffset = addrValue - allocAddrStart;
         size_t alloc_elem_size = alloc_info->size;
         size_t alloc_elem_index = (addrValue - allocAddrStart) / alloc_elem_size;
-        size_t misalignment = (addrValue - allocAddrStart) % alloc_elem_size;
+        // size_t misalignment = (addrValue - allocAddrStart) % alloc_elem_size;
 
         if (alloc_info->type == TRICK_STRUCTURED)
         {
             // The allocation is not a primitive type, traverse the structure unil the attribute is found or an
             // anonymous pointer is returned
             getCompositeSubReference(addrValue, attrOut, allocAddrStart + (alloc_elem_index * alloc_elem_size),
-                                     alloc_info->attr);
+                                     alloc_info->attr, remainingOffset);
         }
         else
         {

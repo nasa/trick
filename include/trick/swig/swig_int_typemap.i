@@ -13,6 +13,7 @@
 #include "trick/UnitsMap.hh"
 #include "trick/reference.h"
 #include "trick/memorymanager_c_intf.h"
+#include "trick/AttributesUtils.hh"
 
 #include "trick/swig/swig_int_templates.hh"
 
@@ -90,7 +91,7 @@
     trick_MM->get_attributes_for_address((void *)$1, attr, offsetRemainder);
 
     swig_int * t = new swig_int ;
-    t->value = (long long)result ;
+    t->value = (long long)*result ;
     if(attr.units) {
         t->units = attr.units;
     } else {
@@ -330,12 +331,51 @@
     }
     t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
-    t->ref.attr->num_index = 1;
-    t->ref.attr->index[0].size = addrAttr.index[0].size;
+
+    if(addrAttr.num_index == 0)
+    { 
+        // Attributes weren't found resort to specifying a unsized pointer array
+        t->ref.attr->num_index  = 1 ;
+        t->ref.attr->index[0].size  = 0 ;
+    } else {
+        // Attributes were found, check if the right number of dimensions
+        if(addrAttr.num_index == 1) {
+            t->ref.attr->num_index = addrAttr.num_index;
+            t->ref.address = (char *)t->ref.address - offsetRemainder;
+            t->ref.attr->offset = offsetRemainder;
+            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            {
+                t->ref.attr->index[dim].size = addrAttr.index[dim].size;
+            }
+        } else {
+            std::cout << "$symname warning: Mismatch in dimensions for swig typemap $1_type, required 1D array but attributes report a " << addrAttr.num_index << "D array\n" << std::endl ;
+            // Flatten to 1d
+            t->ref.attr->num_index = 1;
+            int remDims;
+            int remIndex[TRICK_MAX_INDEX] = {};
+            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(addrAttr, offsetRemainder, remIndex, remDims);
+            size_t multiplier = 1;
+            t->ref.attr->index[0].size = 0;
+            for(int dim = addrAttr.num_index-1, rem_dim = remDims-1; dim >= 0; --dim)
+            {
+                if(addrAttr.index[dim].size == 0) {
+                    t->ref.attr->index[dim].size = 0;
+                    continue;
+                }
+                if(dim == addrAttr.num_index-1) {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]);
+                } else {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]-1);
+                }
+                multiplier *= addrAttr.index[dim].size;
+                --rem_dim;
+            }
+        }
+    }
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
-    t->ref.num_index_left  = 1 ;
+    t->ref.num_index_left  = t->ref.attr->num_index ;
     t->ref.ref_type  = REF_ADDRESS ;
 
     if(addrAttr.units) {        
@@ -475,6 +515,7 @@
     t->ref.attr->num_index  = 2 ;
     t->ref.attr->index[0].size  = $1_dim0 ;
     t->ref.attr->index[1].size  = $1_dim1 ;
+    t->ref.attr->offset = offsetRemainder;
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
@@ -628,14 +669,47 @@
     }
     t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
-    t->ref.attr->num_index = addrAttr.num_index;
     if(addrAttr.num_index == 0)
     { 
+        // Attributes weren't found resort to specifying a 2D unsized pointer
         t->ref.attr->num_index  = 2 ;
-        t->ref.attr->index[0].size  = get_truncated_size((char *)$1) ;
+        t->ref.attr->index[0].size  = 0 ;
         t->ref.attr->index[1].size  =  0 ;
+    } else {
+        // Attributes were found, check if the right number of dimensions
+        if(addrAttr.num_index == 2) {
+            t->ref.attr->num_index = addrAttr.num_index;
+            t->ref.address = (char *)t->ref.address - offsetRemainder;
+            t->ref.attr->offset = offsetRemainder;
+            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            {
+                t->ref.attr->index[dim].size = addrAttr.index[dim].size;
+            }
+        } else {
+            std::cout << "$symname warning: Mismatch in dimensions for swig typemap $1_type, required 2D array but attributes report a " << addrAttr.num_index << "D array\n" << std::endl ;
+            // Flatten to 1d
+            t->ref.attr->num_index = 1;
+            int remDims;
+            int remIndex[TRICK_MAX_INDEX] = {};
+            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(addrAttr, offsetRemainder, remIndex, remDims);
+            size_t multiplier = 1;
+            t->ref.attr->index[0].size = 0;
+            for(int dim = addrAttr.num_index-1, rem_dim = remDims-1; dim >= 0; --dim)
+            {
+                if(addrAttr.index[dim].size == 0) {
+                    t->ref.attr->index[dim].size = 0;
+                    continue;
+                }
+                if(dim == addrAttr.num_index-1) {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]);
+                } else {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]-1);
+                }
+                multiplier *= addrAttr.index[dim].size;
+                --rem_dim;
+            }
+        }
     }
-    memcpy(t->ref.attr->index, addrAttr.index, sizeof(addrAttr.index));
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
@@ -714,10 +788,14 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+    size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -727,23 +805,66 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
-    t->ref.attr->num_index  = 3 ;
-    t->ref.attr->index[0].size  = get_truncated_size((char *)$1) ;
-    t->ref.attr->index[1].size  =  0 ;
-    t->ref.attr->index[2].size  =  0 ;
+    if(addrAttr.num_index == 0)
+    { 
+        // Attributes weren't found resort to specifying a 2D unsized pointer
+        t->ref.attr->num_index  = 3 ;
+        t->ref.attr->index[0].size  = 0 ;
+        t->ref.attr->index[1].size  =  0 ;
+        t->ref.attr->index[2].size  =  0 ;
+    } else {
+        // Attributes were found, check if the right number of dimensions
+        if(addrAttr.num_index == 3) {
+            t->ref.attr->num_index = addrAttr.num_index;
+            t->ref.address = (char *)t->ref.address - offsetRemainder;
+            t->ref.attr->offset = offsetRemainder;
+            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            {
+                t->ref.attr->index[dim].size = addrAttr.index[dim].size;
+            }
+        } else {
+            std::cout << "$symname warning: Mismatch in dimensions for swig typemap $1_type, required 3D array but attributes report a " << addrAttr.num_index << "D array\n" << std::endl ;
+            // Flatten to 1d
+            t->ref.attr->num_index = 1;
+            int remDims;
+            int remIndex[TRICK_MAX_INDEX] = {};
+            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(addrAttr, offsetRemainder, remIndex, remDims);
+            size_t multiplier = 1;
+            t->ref.attr->index[0].size = 0;
+            for(int dim = addrAttr.num_index-1, rem_dim = remDims-1; dim >= 0; --dim)
+            {
+                if(addrAttr.index[dim].size == 0) {
+                    t->ref.attr->index[dim].size = 0;
+                    continue;
+                }
+                if(dim == addrAttr.num_index-1) {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]);
+                } else {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]-1);
+                }
+                multiplier *= addrAttr.index[dim].size;
+                --rem_dim;
+            }
+        }
+    }
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
-    t->ref.num_index_left  = 3 ;
+    t->ref.num_index_left  = t->ref.attr->num_index ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 
@@ -795,10 +916,14 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+        size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -808,8 +933,9 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
     t->ref.attr->num_index  = 3 ;
     t->ref.attr->index[0].size  = $1_dim0 ;
@@ -821,10 +947,14 @@
     t->ref.num_index_left  = 3 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }

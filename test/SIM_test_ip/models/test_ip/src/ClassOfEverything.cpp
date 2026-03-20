@@ -78,37 +78,89 @@ ClassOfEverything::ClassOfEverything() : cir(i), icr(i) {
     return daaaa;
    }
 
-     float & ClassOfEverything::get_f()
+    float & ClassOfEverything::get_f()
   {
     return f;
   }
-   float * ClassOfEverything::get_fa()
-   {
+  float * ClassOfEverything::get_fa_flat()
+  {
     return fa;
-   }
-   float * ClassOfEverything::get_fp()
-   {
+  }
+
+  float *ClassOfEverything::get_fp()
+  {
     return fp;
-   }
-   float * ClassOfEverything::get_faa()
+  }
+
+  char &ClassOfEverything::get_c()
+  {
+    return c;
+  }
+  char *ClassOfEverything::get_ca_flat()
+  {
+    return ca;
+  }
+  char *ClassOfEverything::get_cp()
+  {
+    return cp;
+  }
+
+  unsigned char  &ClassOfEverything::get_uc()
+  {
+    return uc;
+  }
+  unsigned char  *ClassOfEverything::get_uca_flat()
+  {
+    return uca;
+  }
+  unsigned char  *ClassOfEverything::get_ucp()
+  {
+    return ucp;
+  }
+
+     MY_ENUM & ClassOfEverything::get_e()
+     {
+      return e;
+     }
+   MY_ENUM  (&ClassOfEverything::get_ea())[4]
    {
-    return &faa[0][0];
+    return ea;
    }
-   float ** ClassOfEverything::get_fap()
+   MY_ENUM * ClassOfEverything::get_ea_flat()
    {
-    return fap;
+    return ea;
    }
-   float ** ClassOfEverything::get_fpp()
+   MY_ENUM * ClassOfEverything::get_ep()
    {
-    return fpp;
+    return ep;
    }
-   float *** ClassOfEverything::get_fppp()
+
+      int & ClassOfEverything::get_i()
+      {
+return i;
+      }
+   int * ClassOfEverything::get_ia_flat()
    {
-    return fppp;
+return ia;
    }
-   float * ClassOfEverything::get_faaa()
+   int * ClassOfEverything::get_ip()
    {
-    return &faaa[0][0][0];
+    return ip;
+   }
+
+      CanCopy & ClassOfEverything::get_can2()
+      {return can2;}
+   CanCopy  (&ClassOfEverything::get_cana())[20]
+   {
+    return cana;
+   }
+   CanCopy * ClassOfEverything::get_cana_flat()
+   {
+    return cana;
+   }
+   CanCopy * ClassOfEverything::get_canp()
+   {
+    return canp;
    }
 
 double ClassOfEverything::get_double()

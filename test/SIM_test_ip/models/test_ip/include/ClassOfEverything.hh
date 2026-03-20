@@ -236,13 +236,8 @@ class ClassOfEverything {
    double get_double();
 
    float & get_f();
-   float * get_fa();
+   float * get_fa_flat();
    float * get_fp();
-   float * get_faa();
-   float ** get_fap();
-   float ** get_fpp();
-   float *** get_fppp();
-   float * get_faaa();
 
    float f ;          /* kg blah */
    float fa[3] ;      /* kg blah */
@@ -256,6 +251,10 @@ class ClassOfEverything {
    float  f_rad ; /* rad float test value */
    double d_deg ; /* degree blah */
 
+   char & get_c();
+   char * get_ca_flat();
+   char * get_cp();
+
    char c ;            /* -- blah */
    char ca[20] ;       /* -- blah */
    char * cp ;         /* -- blah */
@@ -264,6 +263,10 @@ class ClassOfEverything {
    char * cap[4] ;     /* -- blah */
    char **cpp;
    char ***cppp;
+
+   unsigned char & get_uc();
+   unsigned char * get_uca_flat();
+   unsigned char * get_ucp();
 
    unsigned char uc ;            /* -- blah */
    unsigned char uca[20] ;       /* -- blah */
@@ -291,12 +294,22 @@ class ClassOfEverything {
    unsigned short **uspp;
    unsigned short ***usppp;
 
+
+   MY_ENUM & get_e();
+   MY_ENUM  (&get_ea())[4];
+   MY_ENUM * get_ea_flat();
+   MY_ENUM * get_ep();
+
    MY_ENUM e ;
    MY_ENUM ea[4] ;
    MY_ENUM * ep ;
    MY_ENUM eaa[2][3] ;
    MY_ENUM * eap[4] ;
    MY_ENUM ** epp ;
+
+   int & get_i();
+   int * get_ia_flat();
+   int * get_ip();
 
    int i ;          /* -- blah */
    int ia[3] ;      /* -- blah */
@@ -360,6 +373,11 @@ class ClassOfEverything {
    bool * bap[4] ;     /* -- blah */
    bool **bpp;
    bool ***bppp ;
+
+   CanCopy & get_can2();
+   CanCopy  (&get_cana())[20];
+   CanCopy * get_cana_flat();
+   CanCopy * get_canp();
 
    CanCopy can ;
    CanCopy can2 ;
