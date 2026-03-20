@@ -13,6 +13,7 @@
 #include "trick/UnitsMap.hh"
 #include "trick/reference.h"
 #include "trick/memorymanager_c_intf.h"
+#include "trick/AttributesUtils.hh"
 
 #include "trick/swig/swig_int_templates.hh"
 
@@ -51,6 +52,7 @@
              long long , unsigned long long , signed long long ,
              enum SWIGTYPE , bool ,
              double , float {
+    // swig_int_typemap.i : 54
     int ret ;
     ret = typemap_in_scalar<$1_ltype >( $1 , $input , "$symname") ;
     if ( ret != 0 ) {
@@ -65,10 +67,10 @@
               long long , unsigned long long , signed long long ,
               enum SWIGTYPE , bool {
     // INT OUT
-    std::string temp_name ;
+    // swig_int_typemap.i : 69
     swig_int * t = new swig_int ;
     t->value = (long long)result ;
-    temp_name = "$symname" ;
+    std::string temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
     //cout << "swig_int out looking for param " << temp_name << std::endl ;
     t->units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
@@ -76,12 +78,38 @@
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_int"), SWIG_POINTER_OWN);
 }
 
+%typemap(out) char &, unsigned char &, signed char &,
+              short &, unsigned short &, signed short &,
+              int &, unsigned int &, signed int &,
+              long &, unsigned long &, signed long &,
+              long long &, unsigned long long &, signed long long &,
+              enum SWIGTYPE &, bool & {
+    // INT OUT
+    // swig_int_typemap.i : 87
+    size_t offsetRemainder;
+    ATTRIBUTES attr = {};
+    trick_MM->get_attributes_for_address((void *)$1, attr, offsetRemainder);
+
+    swig_int * t = new swig_int ;
+    t->value = (long long)*result ;
+    if(attr.units) {
+        t->units = attr.units;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        //cout << "swig_int out looking for param " << temp_name << std::endl ;
+        t->units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    }
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_int"), SWIG_POINTER_OWN);
+}
+
 %typemap(out) double , float {
     // DOUBLE OUT
-    std::string temp_name ;
+    // swig_int_typemap.i : 106
     swig_double * t = new swig_double ;
     t->value = (double)result ;
-    temp_name = "$symname" ;
+    t->isFloat = swig_double::checkPrecType<$1_basetype>();
+    std::string temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
     //cout << "swig_double out looking for param " << temp_name << std::endl ;
     t->units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
@@ -89,21 +117,46 @@
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_double"), SWIG_POINTER_OWN);
 }
 
+%typemap(out) double &, float & {
+    // DOUBLE OUT
+    // swig_int_typemap.i : 120
+    size_t offsetRemainder;
+    ATTRIBUTES attr = {};
+    trick_MM->get_attributes_for_address((void *)$1, attr, offsetRemainder);
+
+    swig_double * t = new swig_double ;
+    t->value = (double)*result ;
+    t->isFloat = swig_double::checkPrecType<$1_basetype>();
+    if(attr.units) {
+        t->units = attr.units;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        //cout << "swig_double out looking for param " << temp_name << std::endl ;
+        t->units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    }
+    //cout << "swig_double out found units " << t->units << std::endl ;
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_double"), SWIG_POINTER_OWN);
+}
+
 // Special typemap for pointer types (char*, void*, etc.) to block array of pointers assignment
 %typemap(in) char * [] , void * [] {
     //ARRAY[] IN for pointer types
+    // swig_int_typemap.i : 142
     SWIG_exception_fail(SWIG_TypeError, "Assignment of arrays of pointer types (char*[], void*[]) is not supported in Trick");
 }
 
 // Special typemap for double-pointer types (char**, void**, etc.) to block array of double-pointers assignment
 %typemap(in) char ** [] , void ** [] {
     //ARRAY[] IN for double-pointer types
+    // swig_int_typemap.i : 149
     SWIG_exception_fail(SWIG_TypeError, "Assignment of arrays of double-pointer types (char**[], void**[]) is not supported in Trick");
 }
 
 // Special typemap for triple-pointer types (char***, void***, etc.) to block array of triple-pointers assignment
 %typemap(in) char *** [] , void *** [] {
     //ARRAY[] IN for triple-pointer types
+    // swig_int_typemap.i : 156
     SWIG_exception_fail(SWIG_TypeError, "Assignment of arrays of triple-pointer types (char***[], void***[]) is not supported in Trick");
 }
 
@@ -115,6 +168,7 @@
              enum SWIGTYPE [] , bool [] ,
              double [] , float [] {
     //ARRAY[] IN
+    // swig_int_typemap.i : 168
     int ret ;
     ret = typemap_in_1dp<$1_basetype>( $input , "$1_basetype", "$symname", &$1) ;
     if ( ret != 0 ) {
@@ -129,6 +183,7 @@
                    long long [] , unsigned long long [] , signed long long [] ,
                    enum SWIGTYPE [] , bool [] ,
                    double [] , float [] {
+    // swig_int_typemap.i : 183
 }
 
 %typemap(in) char [ANY] , unsigned char [ANY] , signed char [ANY] ,
@@ -139,6 +194,7 @@
              enum SWIGTYPE [ANY] , bool [ANY] ,
              double [ANY] , float [ANY] {
     //ARRAY[ANY] IN
+    // swig_int_typemap.i : 194
     $1 = typemap_in_1d<$1_basetype>( $input , $1_dim0, "$symname") ;
     if ( $1 == NULL ) {
         SWIG_exception_fail(SWIG_TypeError,"Right hand side could not be converted to proper array type");
@@ -153,6 +209,7 @@
                    enum SWIGTYPE [ANY] , bool [ANY] ,
                    double [ANY] , float [ANY] {
     free($1) ;
+    // swig_int_typemap.i : 209
 }
 
 %typemap(out) char [ANY] , unsigned char [ANY] , signed char [ANY] ,
@@ -162,18 +219,20 @@
               long long [ANY] , unsigned long long [ANY] , signed long long [ANY] ,
               enum SWIGTYPE [ANY] , bool [ANY] ,
               double [ANY] , float [ANY] {
-    std::string temp_name ;
-    std::string temp_str ;
-
     swig_ref * t = new swig_ref ;
+    // swig_int_typemap.i : 220
 
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+    size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -183,9 +242,11 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
+    t->ref.attr->num_index = addrAttr.num_index;
     t->ref.attr->num_index  = 1 ;
     t->ref.attr->index[0].size  = $1_dim0 ;
 
@@ -194,10 +255,14 @@
     t->ref.num_index_left  = 1 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
@@ -210,6 +275,7 @@
              enum SWIGTYPE * , bool * ,
              double * , float * {
     int ret ;
+    // swig_int_typemap.i : 265
     ret = typemap_in_1dp<$1_basetype>( $input , "$1_basetype", "$symname", &$1) ;
     if ( ret != 0 ) {
         SWIG_exception_fail(SWIG_TypeError,"Right hand side could not be converted to proper array type");
@@ -217,14 +283,17 @@
 }
 
 %typemap(memberin) char * {
+    // swig_int_typemap.i : 273
     $1 = $input ;
 }
 
 %typemap(freearg) char * {
+    // swig_int_typemap.i : 278
 }
 
 // For __str__ printout routines
 %typemap(out) char * __str__ {
+    // swig_int_typemap.i : 283
     $result = PyString_FromString($1) ;
 }
 
@@ -235,18 +304,20 @@
               long long * , unsigned long long * , signed long long * ,
               enum SWIGTYPE * , bool * ,
               double * , float * {
-    std::string temp_name ;
-    std::string temp_str ;
-
     swig_ref * t = new swig_ref ;
+    // swig_int_typemap.i : 295
 
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+    size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -256,22 +327,65 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
-    t->ref.attr->num_index  = 1 ;
-    t->ref.attr->index[0].size  = get_truncated_size((char *)t->ref.address) ;
-    t->ref.attr->index[0].start  = 0 ;
+
+    if(addrAttr.num_index == 0)
+    { 
+        // Attributes weren't found resort to specifying a unsized pointer array
+        t->ref.attr->num_index  = 1 ;
+        t->ref.attr->index[0].size  = 0 ;
+    } else {
+        // Attributes were found, check if the right number of dimensions
+        if(addrAttr.num_index == 1) {
+            t->ref.attr->num_index = addrAttr.num_index;
+            t->ref.address = (char *)t->ref.address - offsetRemainder;
+            t->ref.attr->offset = offsetRemainder;
+            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            {
+                t->ref.attr->index[dim].size = addrAttr.index[dim].size;
+            }
+        } else {
+            std::cout << "$symname warning: Mismatch in dimensions for swig typemap $1_type, required 1D array but attributes report a " << addrAttr.num_index << "D array\n" << std::endl ;
+            // Flatten to 1d
+            t->ref.attr->num_index = 1;
+            int remDims;
+            int remIndex[TRICK_MAX_INDEX] = {};
+            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(addrAttr, offsetRemainder, remIndex, remDims);
+            size_t multiplier = 1;
+            t->ref.attr->index[0].size = 0;
+            for(int dim = addrAttr.num_index-1, rem_dim = remDims-1; dim >= 0; --dim)
+            {
+                if(addrAttr.index[dim].size == 0) {
+                    t->ref.attr->index[dim].size = 0;
+                    continue;
+                }
+                if(dim == addrAttr.num_index-1) {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]);
+                } else {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]-1);
+                }
+                multiplier *= addrAttr.index[dim].size;
+                --rem_dim;
+            }
+        }
+    }
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
-    t->ref.num_index_left  = 1 ;
+    t->ref.num_index_left  = t->ref.attr->num_index ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
@@ -283,7 +397,7 @@
              long long [ANY][ANY] , unsigned long long [ANY][ANY] , signed long long [ANY][ANY] ,
              enum SWIGTYPE [ANY][ANY] , bool [ANY][ANY] ,
              double [ANY][ANY] , float [ANY][ANY] {
-
+    // swig_int_typemap.i : 347
     //ARRAY[ANY][ANY] IN
     // The strange looking "+ 0" is required because unconstrained arrays are falling into this rule and level $1_dim0 blank.
     if ( $1_dim0 + 0 > 0 ) {
@@ -303,7 +417,7 @@
              long long [ANY][ANY][ANY] , unsigned long long [ANY][ANY][ANY] , signed long long [ANY][ANY][ANY] ,
              enum SWIGTYPE [ANY][ANY][ANY] , bool [ANY][ANY][ANY] ,
              double [ANY][ANY][ANY] , float [ANY][ANY][ANY] {
-
+    // swig_int_typemap.i : 367
     //ARRAY[ANY][ANY][ANY] IN
     // The strange looking "+ 0" is required because unconstrained arrays are falling into this rule and level $1_dim0 blank.
     if ( $1_dim0 + 0 > 0 ) {
@@ -327,6 +441,7 @@
              enum SWIGTYPE (*)[DIM_SIZE] , bool (*)[DIM_SIZE] ,
              double (*)[DIM_SIZE] , float (*)[DIM_SIZE] {
     //ARRAY(*)[DIM_SIZE] IN
+    // swig_int_typemap.i : 391
     void * argp2 ;
 
     //std::cout << "HERE WITH " << SWIG_TypePrettyName(SWIG_Python_GetSwigThis(obj1)->ty) << std::endl ;
@@ -358,6 +473,7 @@
              enum SWIGTYPE [ANY][ANY] , bool [ANY][ANY] ,
              double [ANY][ANY] , float [ANY][ANY] {
     free($1) ;
+    // swig_int_typemap.i : 423
 }
 
 %typemap(out) char [ANY][ANY] , unsigned char [ANY][ANY] , signed char [ANY][ANY] ,
@@ -367,21 +483,22 @@
               long long [ANY][ANY] , unsigned long long [ANY][ANY] , signed long long [ANY][ANY] ,
               enum SWIGTYPE [ANY][ANY] , bool [ANY][ANY] ,
               double [ANY][ANY] , float [ANY][ANY] {
-
+    // swig_int_typemap.i : 433
     //INT[ANY][ANY] OUT
-
-    std::string temp_name ;
-    std::string temp_str ;
 
     swig_ref * t = new swig_ref ;
 
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+    size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -391,22 +508,28 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
     t->ref.attr->num_index  = 2 ;
     t->ref.attr->index[0].size  = $1_dim0 ;
     t->ref.attr->index[1].size  = $1_dim1 ;
+    t->ref.attr->offset = offsetRemainder;
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
     t->ref.num_index_left  = 2 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
@@ -419,7 +542,7 @@
               long long * [ANY] , unsigned long long * [ANY] , signed long long * [ANY] ,
               enum SWIGTYPE * [ANY] , bool * [ANY] ,
               double * [ANY] , float * [ANY] {
-
+    // swig_int_typemap.i : 485
     //INT * [ANY] OUT
 
     std::string temp_name ;
@@ -475,7 +598,7 @@
              long long ** , unsigned long long ** , signed long long ** ,
              enum SWIGTYPE ** , bool ** ,
              double ** , float ** {
-
+    // swig_int_typemap.i : 541
     //INT ** IN
     void * argp2 ;
     int ret ;
@@ -517,21 +640,22 @@
               long long ** , unsigned long long ** , signed long long ** ,
               enum SWIGTYPE ** , bool ** ,
               double ** , float ** {
-
+    // swig_int_typemap.i : 583
     //INT ** OUT
-
-    std::string temp_name ;
-    std::string temp_str ;
 
     swig_ref * t = new swig_ref ;
 
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+    size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -541,22 +665,65 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
-    t->ref.attr->num_index  = 2 ;
-    t->ref.attr->index[0].size  = get_truncated_size((char *)$1) ;
-    t->ref.attr->index[1].size  =  0 ;
+    if(addrAttr.num_index == 0)
+    { 
+        // Attributes weren't found resort to specifying a 2D unsized pointer
+        t->ref.attr->num_index  = 2 ;
+        t->ref.attr->index[0].size  = 0 ;
+        t->ref.attr->index[1].size  =  0 ;
+    } else {
+        // Attributes were found, check if the right number of dimensions
+        if(addrAttr.num_index == 2) {
+            t->ref.attr->num_index = addrAttr.num_index;
+            t->ref.address = (char *)t->ref.address - offsetRemainder;
+            t->ref.attr->offset = offsetRemainder;
+            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            {
+                t->ref.attr->index[dim].size = addrAttr.index[dim].size;
+            }
+        } else {
+            std::cout << "$symname warning: Mismatch in dimensions for swig typemap $1_type, required 2D array but attributes report a " << addrAttr.num_index << "D array\n" << std::endl ;
+            // Flatten to 1d
+            t->ref.attr->num_index = 1;
+            int remDims;
+            int remIndex[TRICK_MAX_INDEX] = {};
+            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(addrAttr, offsetRemainder, remIndex, remDims);
+            size_t multiplier = 1;
+            t->ref.attr->index[0].size = 0;
+            for(int dim = addrAttr.num_index-1, rem_dim = remDims-1; dim >= 0; --dim)
+            {
+                if(addrAttr.index[dim].size == 0) {
+                    t->ref.attr->index[dim].size = 0;
+                    continue;
+                }
+                if(dim == addrAttr.num_index-1) {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]);
+                } else {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]-1);
+                }
+                multiplier *= addrAttr.index[dim].size;
+                --rem_dim;
+            }
+        }
+    }
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
-    t->ref.num_index_left  = 2 ;
+    t->ref.num_index_left  = t->ref.attr->num_index ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 
@@ -569,7 +736,7 @@
              long long *** , unsigned long long *** , signed long long *** ,
              enum SWIGTYPE *** , bool *** ,
              double *** , float *** {
-
+    // swig_int_typemap.i : 635
     //INT *** IN
     void * argp2 ;
     int ret ;
@@ -610,7 +777,7 @@
               long long *** , unsigned long long *** , signed long long *** ,
               enum SWIGTYPE *** , bool *** ,
               double *** , float *** {
-
+    // swig_int_typemap.i : 676
     //INT *** OUT
 
     std::string temp_name ;
@@ -621,10 +788,14 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+    size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -634,23 +805,66 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
-    t->ref.attr->num_index  = 3 ;
-    t->ref.attr->index[0].size  = get_truncated_size((char *)$1) ;
-    t->ref.attr->index[1].size  =  0 ;
-    t->ref.attr->index[2].size  =  0 ;
+    if(addrAttr.num_index == 0)
+    { 
+        // Attributes weren't found resort to specifying a 2D unsized pointer
+        t->ref.attr->num_index  = 3 ;
+        t->ref.attr->index[0].size  = 0 ;
+        t->ref.attr->index[1].size  =  0 ;
+        t->ref.attr->index[2].size  =  0 ;
+    } else {
+        // Attributes were found, check if the right number of dimensions
+        if(addrAttr.num_index == 3) {
+            t->ref.attr->num_index = addrAttr.num_index;
+            t->ref.address = (char *)t->ref.address - offsetRemainder;
+            t->ref.attr->offset = offsetRemainder;
+            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            {
+                t->ref.attr->index[dim].size = addrAttr.index[dim].size;
+            }
+        } else {
+            std::cout << "$symname warning: Mismatch in dimensions for swig typemap $1_type, required 3D array but attributes report a " << addrAttr.num_index << "D array\n" << std::endl ;
+            // Flatten to 1d
+            t->ref.attr->num_index = 1;
+            int remDims;
+            int remIndex[TRICK_MAX_INDEX] = {};
+            Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(addrAttr, offsetRemainder, remIndex, remDims);
+            size_t multiplier = 1;
+            t->ref.attr->index[0].size = 0;
+            for(int dim = addrAttr.num_index-1, rem_dim = remDims-1; dim >= 0; --dim)
+            {
+                if(addrAttr.index[dim].size == 0) {
+                    t->ref.attr->index[dim].size = 0;
+                    continue;
+                }
+                if(dim == addrAttr.num_index-1) {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]);
+                } else {
+                    t->ref.attr->index[0].size += multiplier * (addrAttr.index[dim].size - remIndex[rem_dim]-1);
+                }
+                multiplier *= addrAttr.index[dim].size;
+                --rem_dim;
+            }
+        }
+    }
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
-    t->ref.num_index_left  = 3 ;
+    t->ref.num_index_left  = t->ref.attr->num_index ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 
@@ -665,6 +879,7 @@
                    enum SWIGTYPE [ANY][ANY][ANY], bool [ANY][ANY][ANY],
                    double [ANY][ANY][ANY], float [ANY][ANY][ANY]
 {
+    // swig_int_typemap.i : 731
     size_t ii = 0, jj = 0, kk = 0;
     for (; ii < (size_t)$1_dim0; ++ii)
         for (jj = 0; jj < (size_t)$1_dim1; ++jj)
@@ -679,6 +894,7 @@
                    SWIGTYPE [ANY][ANY][ANY][ANY][ANY][ANY][ANY],
                    SWIGTYPE [ANY][ANY][ANY][ANY][ANY][ANY][ANY][ANY]
 {
+    // swig_int_typemap.i : 746
     std::cout << "Cannot assign directly to $1_type\n" << std::endl ;
 }
 
@@ -689,7 +905,7 @@
               long long [ANY][ANY][ANY] , unsigned long long [ANY][ANY][ANY] , signed long long [ANY][ANY][ANY] ,
               enum SWIGTYPE [ANY][ANY][ANY] , bool [ANY][ANY][ANY] ,
               double [ANY][ANY][ANY] , float [ANY][ANY][ANY] {
-
+    // swig_int_typemap.i : 757
     //DOUBLE[ANY][ANY][ANY] OUT
 
     std::string temp_name ;
@@ -700,10 +916,14 @@
     t->ref.address = (void *)$1;
     t->ref.units = NULL ;
 
-    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+        size_t offsetRemainder;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)$1, addrAttr, offsetRemainder);
+    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( t->ref.attr == NULL ) {
-        t->ref.attr = new ATTRIBUTES() ;
+    if ( primAttr == NULL ) {
+        primAttr = new ATTRIBUTES();
+        t->ref.attr = primAttr ;
         t->ref.attr->size  = sizeof($1_basetype) ;
         switch ( t->ref.attr->size ) {
             case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
@@ -713,8 +933,9 @@
             default: t->ref.attr->type = TRICK_INTEGER ; break ;
         }
         t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        addrAttr.units = nullptr;
     }
-
+    t->ref.attr = primAttr;
     t->ref.attr->type_name  = strdup("$1_basetype") ;
     t->ref.attr->num_index  = 3 ;
     t->ref.attr->index[0].size  = $1_dim0 ;
@@ -726,10 +947,14 @@
     t->ref.num_index_left  = 3 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    temp_name = "$symname" ;
-    temp_name.erase(temp_name.length() - 4) ;
-    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    t->ref.attr->units = strdup(temp_str.c_str()) ;
+    if(addrAttr.units) {        
+        t->ref.attr->units = strdup(addrAttr.units) ;
+    } else {
+        std::string temp_name = "$symname" ;
+        temp_name.erase(temp_name.length() - 4) ;
+        std::string temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        t->ref.attr->units = strdup(temp_str.c_str()) ;
+    }
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
