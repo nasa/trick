@@ -3,59 +3,74 @@ name: macOS
 on:
   push:
     branches:
-        - master
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_macos.yml'
+      - master
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/test_macos.yml"
+      - "!Formula/**"
   pull_request:
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/test_macos.yml"
+      - "!Formula/**"
   workflow_dispatch:
+
+concurrency:
+  # On PRs, cancel in-progress runs on the same branch when new commits are pushed.
+  # On master and workflow_dispatch, head_ref is undefined so run_id is used as fallback,
+  # which is unique per run and prevents any cancellation.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   macOS:
     runs-on: macos-15
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    # Install googletest version 1.17.0 — the latest stable release as of 6/6/25
-    # Note: Need to periodically update googletest version to ensure tests can run
-    # against the latest.
-    # Specifying the version to ensure CI builds are stable and not unexpectedly
-    # broken by upstream changes.
-    - name: Install gtest 1.17.0
-      run: |
-        wget https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
-        tar -xvf v1.17.0.tar.gz
-        cd googletest-1.17.0
-        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/homebrew
-        cmake --build build
-        sudo cmake --install build
-    - name: Install dependencies
-      run: |
-        brew update
-        brew upgrade || true
-        brew install --cask xquartz
-        brew install udunits openmotif maven
-        brew install swig llvm
-    - name: Build Trick
-      run: |
-        export MAKEFLAGS=-j4
-        # Image YAML labels macos-14 and macos-15 use arm64, while macos-13 is intel-based.
-        # The configure script has been updated to find /opt/homebrew automatically for arm64 as of 6/6/25
-        # Please note that if using the intel one, --with-xxx options are needed to specify the path
-        ./configure
-        make
-    - name: Test
-      run: |
-        cd share/trick/trickops/
-        python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
-        export MAKEFLAGS=-j4
-        cd ../../../; make test
-    - name: Upload Tests
-      uses: actions/upload-artifact@v4
-      if: success() || failure()    # run this step even if previous step failed
-      with:
-        # Include run attempt in artifact name so report workflow can fetch the latest attempt
-        name: Trick_macos_attempt_${{ github.run_attempt }}
-        path: trick_test/*.xml
-        retention-days: 1
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Install googletest version 1.17.0 — the latest stable release as of 6/6/25
+      # Note: Need to periodically update googletest version to ensure tests can run
+      # against the latest.
+      # Specifying the version to ensure CI builds are stable and not unexpectedly
+      # broken by upstream changes.
+      - name: Install gtest 1.17.0
+        run: |
+          wget https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+          tar -xvf v1.17.0.tar.gz
+          cd googletest-1.17.0
+          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/homebrew
+          cmake --build build
+          sudo cmake --install build
+      - name: Install dependencies
+        run: |
+          brew update
+          brew upgrade || true
+          brew install --cask xquartz
+          brew install udunits openmotif maven
+          brew install swig llvm
+      - name: Build Trick
+        run: |
+          export MAKEFLAGS=-j4
+          # Image YAML labels macos-14 and macos-15 use arm64, while macos-13 is intel-based.
+          # The configure script has been updated to find /opt/homebrew automatically for arm64 as of 6/6/25
+          # Please note that if using the intel one, --with-xxx options are needed to specify the path
+          ./configure
+          make
+      - name: Test
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+          export MAKEFLAGS=-j4
+          cd ../../../; make test
+      - name: Upload Tests
+        uses: actions/upload-artifact@v7
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          # Include run attempt in artifact name so report workflow can fetch the latest attempt
+          name: Trick_macos_attempt_${{ github.run_attempt }}
+          path: trick_test/*.xml
+          retention-days: 1

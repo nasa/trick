@@ -41,7 +41,8 @@ class TypedefVisitor : public clang::RecursiveASTVisitor<TypedefVisitor> {
 
         /* These routines are called when nodes of the corresponding types are traversed */
         bool VisitConstantArrayType(clang::ConstantArrayType *ct) ;
-        bool VisitElaboratedType(clang::ElaboratedType *et) ;
+        // Commented out as it doesn't seem to be called and now causing issue with clang 22 since ElaboratedType is gone.
+        //bool VisitElaboratedType(clang::ElaboratedType *et) ;
         bool VisitPointerType(clang::PointerType *pt) ;
         bool VisitRecordType(clang::RecordType *rt) ;
         bool VisitTemplateSpecializationType(clang::TemplateSpecializationType *tst) ;

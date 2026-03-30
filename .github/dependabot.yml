@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directories:
+      - "/share/trick/pymods/trick"
+      - "/share/trick/trickops"
+    schedule:
+      interval: "quarterly"
+
+  - package-ecosystem: "npm"
+    directory: "/trick/web/dashboard"
+    schedule:
+      interval: "quarterly"

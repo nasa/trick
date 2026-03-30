@@ -1,6 +1,30 @@
 name: TrickOps
-# This workflow is triggered on pushes to the repository.
-on: [pull_request]
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/trickops.yml"
+      - "!Formula/**"
+  pull_request:
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.github/workflows/**"
+      - ".github/workflows/trickops.yml"
+      - "!Formula/**"
+  workflow_dispatch:
+
+concurrency:
+  # On PRs, cancel in-progress runs on the same branch when new commits are pushed.
+  # On master and workflow_dispatch, head_ref is undefined so run_id is used as fallback,
+  # which is unique per run and prevents any cancellation.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -63,7 +87,7 @@ jobs:
           source ../.venv/bin/activate
           export PATH="/tmp/koviz-master/bin:${PATH}"
           ./run_tests.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: doctests_${{ github.run_id }}_${{ github.job }}
