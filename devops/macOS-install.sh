@@ -5,7 +5,8 @@
 
 set -u  # Exit on unset variable
 
-TRICK_TAP="brendan-nasa/trick"
+TRICK_TAP="nasa/trick"
+TRICK_TAP_URL="https://github.com/nasa/trick"
 TRICK_PACKAGE="trick"
 LOG_FILE="$HOME/trick_install_log.txt"
 
@@ -105,7 +106,7 @@ add_trick_tap() {
     print_status "Adding Trick software repository to Homebrew..."
     log_message "Adding tap: $TRICK_TAP"
 
-    brew tap "$TRICK_TAP" 2>&1 | tee -a "$LOG_FILE"
+    brew tap "$TRICK_TAP" "$TRICK_TAP_URL" 2>&1 | tee -a "$LOG_FILE"
     local tap_status=${pipestatus[1]}
 
     if [ $tap_status -eq 0 ]; then
