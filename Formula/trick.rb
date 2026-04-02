@@ -5,6 +5,7 @@ class Trick < Formula
   sha256 "0e51ee68d7239423a18b144dea9e0560125c523a0e2d8a914933ace1bba39dd3"
   license "NASA-1.3"
   head "https://github.com/nasa/trick.git", branch: "master"
+  revision 1
 
   bottle do
     root_url "https://github.com/nasa/trick/releases/download/25.0.2"
@@ -67,8 +68,8 @@ class Trick < Formula
 
     inreplace pkgshare/"makefiles/config_user.mk" do |s|
       # Fix hardcoded shim compiler paths in installed config file
-      # s.gsub! "super/clang++", "clang++"
-      # s.gsub! "super/clang", "clang"
+      s.gsub! "super/clang++", "clang++"
+      s.gsub! "super/clang", "clang"
       s.gsub! "super/ld", "ld"
       s.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
       # Replace javac with homebrew openjdk javac path
