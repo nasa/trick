@@ -4,8 +4,8 @@ class Trick < Formula
   url "https://github.com/nasa/trick/archive/refs/tags/25.0.2.tar.gz"
   sha256 "0e51ee68d7239423a18b144dea9e0560125c523a0e2d8a914933ace1bba39dd3"
   license "NASA-1.3"
-  head "https://github.com/nasa/trick.git", branch: "master"
   revision 1
+  head "https://github.com/nasa/trick.git", branch: "master"
 
   bottle do
     root_url "https://github.com/nasa/trick/releases/download/25.0.2"
