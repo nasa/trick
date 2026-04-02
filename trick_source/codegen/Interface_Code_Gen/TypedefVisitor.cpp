@@ -145,6 +145,23 @@ bool TypedefVisitor::VisitTypedefDecl(clang::TypedefDecl *td) {
     typedef_location = td->getSourceRange() ;
     typedef_decl_context = td->getDeclContext() ;
 
+    // If the typedef is for a forward declaration, stop traversal so that VisitRecordType
+    // is never reached and no I/O attributes are generated for the incomplete type.
+    // This replicates the behavior of the old VisitElaboratedType (removed in LLVM 22)
+    // using fwd_declared_classes, which is keyed by file and populated by TranslationUnitVisitor.
+    // Falls back to isIncompleteType() for types not yet seen by TranslationUnitVisitor.
+    const clang::Type *underlying = td->getUnderlyingType().getTypePtr();
+    if (const clang::RecordType *rt = underlying->getAs<clang::RecordType>()) {
+        clang::RecordDecl *rd = rt->getDecl();
+        if (rd) {
+            std::string type_name = rd->getNameAsString();
+            if (fwd_declared_classes.find(type_name) != fwd_declared_classes.end() ||
+                rt->isIncompleteType()) {
+                return false; // Stop traversal - no I/O code should be generated
+            }
+        }
+    }
+
     return true;
 }
 

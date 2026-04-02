@@ -60,12 +60,6 @@ typedef struct { /* BFORCE ---------------------------------------------------*/
   BFORCE_IN   input ;     /**<  (--)   User inputs */
   BFORCE_OUT  output ;    /**<  (--)   User outputs */
 
-  int int_array[20];
-  int  int_array_size; /**<  (--)   Size of int_array */
-
-  char       name[50] ;  /**<  (--)   Name of the force model */
-  char copied_name[50] ;  /**<  (--)   Copy of name for thread safety */
-  char * another_name ;   /**<  (--)   Another name pointer for demonstration */
 } BFORCE ; /*-----------------------------------------------------------------*/
 
 #endif
