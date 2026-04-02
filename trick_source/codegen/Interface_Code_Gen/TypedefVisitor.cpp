@@ -37,7 +37,11 @@ bool TypedefVisitor::VisitConstantArrayType(clang::ConstantArrayType *ct) {
     return true;
 }
 
-// Commented out as it doesn't seem to be called and now causing issue with clang 22 since ElaboratedType is gone.
+// Commented out in case we need to re-enable for older LLVM versions that still have ElaboratedType.
+// ElaboratedType is a wrapper type in older LLVM for structs, unions, and classes that includes the elaborated keyword (e.g. struct MyStruct).
+// However, it no longer exists in clang 22 and is desugared away during parsing.
+// The VisitRecordType and VisitTemplateSpecializationType functions are still called for typedefs of structs, unions, and classes and
+// the code in those functions should be sufficient to handle forward declaration typedefs without needing to check for ElaboratedType.
 /*bool TypedefVisitor::VisitElaboratedType(clang::ElaboratedType *et) {
     // Test if this typedef is based on a forward declaration.  If it is then we do not
     // need to print out attributes for the type.
@@ -71,6 +75,10 @@ bool TypedefVisitor::VisitRecordType(clang::RecordType *rt) {
     }
 
     if ( rd != NULL and ! has_dims ) {
+        /* Skip forward declarations (incomplete types) - no I/O code should be generated */
+        if ( !rd->isCompleteDefinition() ) {
+            return true ;
+        }
         CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
         cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(rd)) ;
         /* Test to see if the typedef name and the struct/union have the same name.
@@ -97,7 +105,7 @@ bool TypedefVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializati
         trec->dump() ; std::cout << std::endl ;
     }
 
-    /* The getDifinition() call retrieves the resolved template if it exists.  The call
+    /* The getDefinition() call retrieves the resolved template if it exists.  The call
        returns NULL if the template was defined but never used */
     clang::TagDecl * td = trec->getDefinition() ;
 
