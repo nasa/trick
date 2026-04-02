@@ -9,8 +9,8 @@ class Trick < Formula
 
   bottle do
     root_url "https://github.com/nasa/trick/releases/download/25.0.2"
-    sha256 cellar: :any, arm64_tahoe:   "82ff7e557a22070f60b6dcbe51162dca0c1f21b1f17ca085b6ecd0c879e617d8"
-    sha256 cellar: :any, arm64_sequoia: "1de737ce38adfc7df972db2b8d6781d7ce3b55731559b2cc085e8b8b1c270d91"
+    sha256 cellar: :any, arm64_tahoe:   "f14affa551747806b9fc7eeea6184a0e9c73a19efe799f3d2196aee491679d28"
+    sha256 cellar: :any, arm64_sequoia: "0114ecbadfc3d5bd20c1b86d844e7ec4360d2c33b0a0c81947c1f581f730df09"
   end
 
   LLVM_VERSION = "21".freeze
