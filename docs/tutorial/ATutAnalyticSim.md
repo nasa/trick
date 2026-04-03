@@ -74,7 +74,7 @@ PURPOSE: (Represent the state and initial conditions of a cannonball)
 
 typedef struct {
 
-    double vel0[2] ;    /* *i m Init velocity of cannonball */
+    double vel0[2] ;    /* *i m/s Init velocity of cannonball */
     double pos0[2] ;    /* *i m Init position of cannonball */
     double init_speed ; /* *i m/s Init barrel speed */
     double init_angle ; /* *i rad Angle of cannon */
