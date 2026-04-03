@@ -17,8 +17,11 @@ PROGRAMMERS:
 
 #include <pthread.h>
 
+
 #ifndef BALL_FORCE_H
 #define BALL_FORCE_H
+
+#include "ball_typedef.h"
 
 /** @struct BFORCE_IN
     @brief ball force input parameters
@@ -29,6 +32,16 @@ typedef struct { /* BFORCE_IN ------------------------------------------------*/
   double force ;       /**< (N)    Force magnitude */
 
 } BFORCE_IN ; /*--------------------------------------------------------------*/
+
+/** @struct B_FORCE_IN_
+    @brief ball force input parameters - with typedef struct forward declaration for testing
+ */
+struct B_FORCE_IN_ { /* B_FORCE_IN ------------------------------------------------*/
+
+  double origin[2] ;   /**< (m)    Origin of force center */
+  double force ;       /**< (N)    Force magnitude */
+
+} ; /*--------------------------------------------------------------*/
 
 /** @struct BFORCE_OUT
     @brief ball force output parameters
