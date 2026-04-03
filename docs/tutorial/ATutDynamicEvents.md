@@ -159,7 +159,7 @@ of amount of integration time necessary to reach the event.
 When the estimate (tgo in our example) is equal to 0.0, we've found the event.
 At this point, the actions meant to result from the event should be performed.
 
-In the action block, the first thing you'll want to do is the get the current
+In the action block, the first thing you'll want to do is get the current
 simulation time. This is the event time. Then you'll want to reset the
 ```REGULA_FALSI``` object to it's default state with ```reset_regula_falsi()```.
 After do whatever needs to happen as a result of the event. In
