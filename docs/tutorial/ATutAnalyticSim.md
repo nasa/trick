@@ -79,7 +79,7 @@ typedef struct {
     double init_speed ; /* *i m/s Init barrel speed */
     double init_angle ; /* *i rad Angle of cannon */
 
-    double acc[2] ;     /* m/s2 xy-acceleration  */
+    double acc[2] ;     /* m/s^2 xy-acceleration  */
     double vel[2] ;     /* m/s xy-velocity */
     double pos[2] ;     /* m xy-position */
 
