@@ -6,8 +6,16 @@ updates:
       - "/share/trick/trickops"
     schedule:
       interval: "quarterly"
+    groups:
+      pip-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "npm"
-    directory: "/trick/web/dashboard"
+    directory: "/trick_source/web/dashboard"
     schedule:
       interval: "quarterly"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
