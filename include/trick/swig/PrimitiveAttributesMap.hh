@@ -37,7 +37,7 @@ namespace Trick {
             static Trick::PrimitiveAttributesMap * attributes_map() ;
 
             /**
-             * Gets the units for a specified variable.
+             * Gets the attributes for a specified primitive type name.
              * @param param    The name of the variable.
              * @return    The units of a specified variable.
              */

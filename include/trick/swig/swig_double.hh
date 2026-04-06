@@ -9,8 +9,18 @@ class swig_double {
         double value ;
         std::string units ;
         static char str_output[32] ;
+        static char fmt_specifiers[4][12];
+        bool isFloat;
 
         swig_double() ;
+
+
+        template<typename T>
+        static bool isTypeFloat()
+        {
+            return std::is_same<T, float>::value;
+        }
+
 
         char * __str__() ;
         char * __repr__() ;
