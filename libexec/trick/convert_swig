@@ -62,6 +62,18 @@ my %processed_templates ;
 # Prefix for template instantiation guards
 my $template_guard_prefix = "TRICK_SWIG_TEMPLATE_" ;
 
+# Current file being processed (set in process_file loop, used by sub-functions)
+my $current_file = '' ;
+
+# Global report of all template instantiations encountered across all processed files.
+# Key: normalized type (no whitespace). Value: arrayref of {name, file, kind} hashrefs.
+# kind is 'user' for explicit %template directives, 'auto' for Trick-generated ones.
+my %all_templates_report ;
+
+# Set of header files actually processed in this convert_swig run (after skip guards).
+# Used by write_template_report to evict stale entries from previous runs for those files.
+my %files_processed_this_run ;
+
 my $typedef_def = qr/typedef\s+                            # the word typedef
                (?:[_A-Za-z][\s\w]*\s*)                     # resolved type
                (?:[_A-Za-z]\w*)                            # new type
@@ -176,6 +188,7 @@ if ( scalar keys %out_of_date == 0 ) {
 ##
 
 process_file() ;
+write_template_report() ;
 
 ##
 ## ================================================================================
@@ -205,6 +218,10 @@ sub process_file() {
 
         next if ( $f =~ /^$ENV{TRICK_HOME}\/include/ ) ;
         next if ( $f =~ /^$ENV{TRICK_HOME}\/trick_source/ ) ;
+
+        # Track the current file so subroutines can record template instantiations.
+        $current_file = $f ;
+        $files_processed_this_run{$f} = 1 ;
 
         # clear the processed templates per each file
         undef %processed_templates ;
@@ -309,6 +326,15 @@ sub process_file() {
             my $define_count = () = $before_template =~ /\%define/g;
             my $enddef_count = () = $before_template =~ /\%enddef/g;
             my $inside_macro = ($define_count > $enddef_count);
+
+            # Record every user-defined %template directive in the global report, regardless
+            # of whether its guard already exists or it is inside a macro.  This gives users a
+            # complete view of what names were requested for each C++ template type.
+            push @{$all_templates_report{$template_type_no_sp}}, {
+                name => $template_name,
+                file => $current_file,
+                kind => 'user',
+            };
 
             # Only wrap if not already in a #ifndef TRICK_SWIG_TEMPLATE block and not inside a macro
             if ( !$inside_macro && $before_template !~ /#ifndef\s+${template_guard_prefix}\w+\s*$/ ) {
@@ -446,7 +472,131 @@ sub usage() {
 }
 
 ## ================================================================================
-## process_contents
+## write_template_report
+##
+## Synopsis
+##
+## Write a human-readable report of all SWIG %template instantiations encountered
+## during the current convert_swig run to "build/convert_swig_template_instantiations".
+##
+## For each unique C++ type the report lists every Python alias name that was
+## registered (user-defined or auto-generated).  When more than one name exists for
+## the same type, the SWIG preprocessor guard (#ifndef TRICK_SWIG_TEMPLATE_...)
+## ensures that only the first name encountered in the SWIG include chain is
+## effective.  The report marks any additional names as "(suppressed by guard)" so
+## that users know which name to use when a Python type cannot be found.
+##
+sub write_template_report() {
+
+    my $report_file = "build/convert_swig_template_instantiations" ;
+
+    # Build the merged report data by:
+    #   - Read any entries from a previous run that belong to files NOT being
+    #     processed in this invocation (preserve cross-file accumulation).
+    #   - Discard entries whose source file IS in %files_processed_this_run
+    #     (those are stale — we have fresh data for those files now).
+    #   - Add all entries recorded in %all_templates_report for this run.
+    my %merged ;  # type_no_sp -> [ {name, file, kind}, ... ]
+
+    if ( -e $report_file ) {
+        open my $in, '<', $report_file
+            or warn "convert_swig: could not read existing report $report_file: $!\n" ;
+        if ( $in ) {
+            while ( <$in> ) {
+                next if /^\s*#/ ;   # skip comment/header lines
+                next if /^\s*$/ ;   # skip blank lines
+                # Data line format (space-padded, pipe-separated):
+                #   type | name | kind | file [  # note]
+                my ( $type_col, $name_col, $kind_col, $rest ) =
+                    split /\s*\|\s*/, $_, 4 ;
+                next unless defined $rest ;
+                ( my $file_col = $rest ) =~ s/\s*#.*$// ;  # strip trailing note
+                $file_col =~ s/^\s+|\s+$//g ;              # trim whitespace
+                for my $v ( $type_col, $name_col, $kind_col ) {
+                    $v =~ s/^\s+|\s+$//g if defined $v ;
+                }
+                # Only preserve entries for files we are NOT rebuilding now.
+                unless ( $files_processed_this_run{$file_col} ) {
+                    push @{ $merged{$type_col} }, {
+                        name => $name_col,
+                        file => $file_col,
+                        kind => $kind_col,
+                    } ;
+                }
+            }
+            close $in ;
+        }
+    }
+
+    # Merge in the fresh entries collected during this run, deduplicating within
+    # each (name, file, kind) triple to suppress repeated auto-generated entries
+    # for multiple variables of the same template type within one class.
+    for my $type_no_sp ( keys %all_templates_report ) {
+        my %seen_key ;
+        for my $r ( @{ $all_templates_report{$type_no_sp} } ) {
+            my $key = "$r->{name}\t$r->{file}\t$r->{kind}" ;
+            next if $seen_key{$key}++ ;
+            push @{ $merged{$type_no_sp} }, $r ;
+        }
+    }
+
+    return unless %merged ;
+
+    open my $rfh, '>', $report_file or do {
+        warn "convert_swig: could not write template report to $report_file: $!\n" ;
+        return ;
+    } ;
+
+    print $rfh "# Trick SWIG Template Instantiations Report\n" ;
+    print $rfh "# Generated by convert_swig — accumulates across incremental builds.\n" ;
+    print $rfh "#\n" ;
+    print $rfh "# This file lists every C++ template instantiation that convert_swig registered\n" ;
+    print $rfh "# (or encountered) for Python during this build.\n" ;
+    print $rfh "#\n" ;
+    print $rfh "# When the same C++ type appears in multiple SWIG interface files with different\n" ;
+    print $rfh "# Python names, only the first name the SWIG preprocessor encounters is\n" ;
+    print $rfh "# effective.  All subsequent names are blocked by the\n" ;
+    print $rfh "#   #ifndef TRICK_SWIG_TEMPLATE_<type>\n" ;
+    print $rfh "# guard.\n" ;
+    print $rfh "#\n" ;
+    print $rfh "# If a Python name is not found in an input file, look it up here to discover\n" ;
+    print $rfh "# the effective name for the same C++ type.\n" ;
+    print $rfh "#\n" ;
+    print $rfh "# Columns: C++ type (no whitespace) | Python name | kind    | source file\n" ;
+    print $rfh "#   kind: 'user'    = explicit %template directive written by the user\n" ;
+    print $rfh "#         'auto'    = %template directive generated automatically by Trick\n" ;
+    print $rfh "#         'skipped' = type used as a member but no %template generated\n" ;
+    print $rfh "#                     (STL type filtered without -s flag, or wstring)\n" ;
+    print $rfh "#                     Look for a 'user' or 'auto' entry to find the effective name\n" ;
+    print $rfh "#\n" ;
+
+    foreach my $type_no_sp ( sort keys %merged ) {
+        my @regs = @{ $merged{$type_no_sp} } ;
+
+        my $first_active = 1 ;  # first non-skipped entry is the effective one
+        for my $r ( @regs ) {
+            my $note ;
+            if ( $r->{kind} eq 'skipped' ) {
+                $note = 'no %template generated here (STL/filtered type)' ;
+            } elsif ( $first_active ) {
+                $note = '' ;
+                $first_active = 0 ;
+            } else {
+                $note = 'may be suppressed by guard — check the first active entry for the effective name' ;
+            }
+            printf $rfh "%-60s | %-35s | %-7s | %s%s\n",
+                $type_no_sp,
+                $r->{name},
+                $r->{kind},
+                $r->{file},
+                ( $note ? "  # $note" : '' ) ;
+        }
+    }
+
+    close $rfh ;
+    print "[34mWriting[0m    $report_file\n" if not verbose_build() ;
+}
+
 ##
 ## Synopsis
 ##
@@ -750,30 +900,46 @@ sub process_class($$$$$) {
 
                 $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
                 my ($template_type) = $1 ;
+
+                # Compute normalized type once — used both in the active and skipped branches.
+                my ($template_type_no_sp) = $template_full_type ;
+                $template_type_no_sp =~ s/\s//g ;
+
                 # ignore some STL types and types that involve std::wstring
                 if ( ((  $stls and ! exists $stl_names{$template_type})
                    or ( !$stls and ! exists $all_stl_names{$template_type} ))
                    and $template_full_type !~ /(std::)?wstring/ ) {
 
-                    my ($template_type_no_sp) = $template_full_type ;
-                    $template_type_no_sp =~ s/\s//g ;
+                    # Generate deterministic canonical name from type (always, so it
+                    # can be recorded in the report even if the %template guard
+                    # prevents emission in this file).
+                    my $canonical_name = $template_type_no_sp;
+                    $canonical_name =~ s/[^a-zA-Z0-9_]/_/g;  # Replace all special chars with _
+                    $canonical_name =~ s/_+/_/g;             # Collapse multiple underscores
+                    $canonical_name =~ s/_$//;               # Remove trailing underscore
+                    # Add _ptr suffix if template contains pointer types
+                    if ($template_full_type =~ /\*/) {
+                        $canonical_name .= "_ptr";
+                    }
+
+                    # Record every occurrence in the global report — including ones
+                    # where the %template directive will be suppressed by the guard at
+                    # SWIG compile time (i.e. the same type was already emitted by an
+                    # earlier-included .i file).  This gives users a complete picture of
+                    # which files reference each template type and which Python name each
+                    # file would have used.
+                    if ($isSwigExcludeBlock == 0) {
+                        push @{$all_templates_report{$template_type_no_sp}}, {
+                            name => $canonical_name,
+                            file => $current_file,
+                            kind => 'auto',
+                        };
+                    }
 
                     #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( ! exists $processed_templates{$template_type_no_sp} ) {
 
-                        # Auto-generated templates always use deterministic type-based names
-                        my $canonical_name;
                         my $trick_swig_template;
-
-                        # Generate deterministic canonical name from type
-                        $canonical_name = $template_type_no_sp;
-                        $canonical_name =~ s/[^a-zA-Z0-9_]/_/g;  # Replace all special chars with _
-                        $canonical_name =~ s/_+/_/g;             # Collapse multiple underscores
-                        $canonical_name =~ s/_$//;               # Remove trailing underscore
-                        # Add _ptr suffix if template contains pointer types
-                        if ($template_full_type =~ /\*/) {
-                            $canonical_name .= "_ptr";
-                        }
 
                         # Use type based guard
                         $trick_swig_template = $template_guard_prefix . $template_type_no_sp;
@@ -829,6 +995,16 @@ sub process_class($$$$$) {
 
                         $processed_templates{$template_type_no_sp} = 1 ;
                     }
+                } elsif ( $isSwigExcludeBlock == 0 ) {
+                    # This template type is in the STL skip list (or is wstring) so no
+                    # %template directive is auto-generated here.  Record every occurrence
+                    # so users can see which files reference this type even when it is
+                    # filtered out.
+                    push @{$all_templates_report{$template_type_no_sp}}, {
+                        name => '(skipped-stl)',
+                        file => $current_file,
+                        kind => 'skipped',
+                    } ;
                 }
             }
         }
