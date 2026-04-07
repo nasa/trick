@@ -85,10 +85,10 @@ typedef struct ATTRIBUTES_tag {
 
                                 Each bit controls different I/O access.
 
-                                Bit 31 TRICK_VAR_OUTPUT - Allows output through attribute based capabilities
-                                Bit 30 TRICK_VAR_INPUT - Allows input through attribute based capabilities
-                                Bit 29 TRICK_CHKPNT_OUTPUT - Allows checkpoint output
-                                Bit 28 TRICK_CHKPNT_OUTPUT - Allows checkpoint input
+                                Bit 0 (0x01) TRICK_VAR_OUTPUT   - Allows output through attribute based capabilities
+                                Bit 1 (0x02) TRICK_VAR_INPUT    - Allows input through attribute based capabilities
+                                Bit 2 (0x04) TRICK_CHKPNT_OUTPUT - Allows checkpoint output
+                                Bit 3 (0x08) TRICK_CHKPNT_INPUT  - Allows checkpoint input
 
                                 */
     TRICK_TYPE type;    /**< -- TRICK data type. */
