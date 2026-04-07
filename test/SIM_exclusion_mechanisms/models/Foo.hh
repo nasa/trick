@@ -1,6 +1,9 @@
 // @trick_parse{everything}
 // @trick_link_dependency{Foo.cpp}
 
+#ifndef FOO_HH
+#define FOO_HH
+
 #include "Exclude.hh"
 #include "exclude/Exclude.hh"
 #include "symlinks/exclude_link_path/links/exclude/Exclude.hh"
@@ -20,3 +23,11 @@
 #include "ext_lib_dir/ExtLibDir.hh"
 #include "symlinks/exclude_link_path/links/ext_lib_dir/ExtLibDir.hh"
 #include "symlinks/exclude_real_path/links/ext_lib_dir/ExtLibDir.hh"
+
+class Foo
+{
+    private:
+    void operator=(const Foo&);
+};
+
+#endif

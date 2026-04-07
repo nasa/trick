@@ -24,3 +24,10 @@
 ##include "ext_lib_dir/ExtLibDir.hh"
 ##include "symlinks/exclude_link_path/links/ext_lib_dir/ExtLibDir.hh"
 ##include "symlinks/exclude_real_path/links/ext_lib_dir/ExtLibDir.hh"
+
+##include <vector>
+
+class Sandbox : public Trick::SimObject
+{
+    const std::vector<Foo> foos;
+};
