@@ -3,6 +3,9 @@ SIM_alloc_test:
   path: test/SIM_alloc_test
 SIM_alloc_test:
   path: test/SIM_alloc_test
+SIM_build_dir:
+  path: test/SIM_build_dir
+  build_args: "-b Trick_Build_Dir"
 SIM_anon_enum:
   path: test/SIM_anon_enum
 SIM_default_member_initializer:

@@ -3,8 +3,8 @@ CD       := cd
 MV       := /bin/mv
 RM       := /bin/rm
 CP       := /bin/cp
-MAKE_OUT := $(abspath build/MAKE_out)
-MAKE_ERR := $(abspath build/MAKE_err)
+MAKE_OUT := $(abspath $(TRICK_BUILD_DIR)build/MAKE_out)
+MAKE_ERR := $(abspath $(TRICK_BUILD_DIR)build/MAKE_err)
 
 PWD       = $(shell /bin/pwd)
 COLOR     = [34m$(1)[0m

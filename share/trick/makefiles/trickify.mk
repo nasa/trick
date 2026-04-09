@@ -88,6 +88,8 @@
 # For more information, see:
 # https://nasa.github.io/trick/documentation/building_a_simulation/Trickified-Project-Libraries
 
+export AM_I_TRICKIFYING_MK=1
+
 MY_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
 
 -include $(TRICKIFY_MAKE_DUMP)
@@ -236,7 +238,7 @@ $(TRICKIFY_PYTHON_DIR): $(SWIG_OBJECTS:.o=.cpp) | $(dir $(TRICKIFY_PYTHON_DIR))
 
 $(BUILD_DIR)S_source.d: | $(BUILD_DIR)
 	$(call ECHO_AND_LOG,$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh)
-	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig)
+	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/trickify_get_swig_data)
 	$(call ECHO_AND_LOG,$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICK_CXXFLAGS) S_source.hh)
 
 -include $(BUILD_DIR)S_source.d
