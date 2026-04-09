@@ -10,13 +10,9 @@ on:
       - "!.github/workflows/**"
       - ".github/workflows/test_macos.yml"
       - "!Formula/**"
-  pull_request:
-    paths:
-      - "**"
-      - "!docs/**"
-      - "!.github/workflows/**"
-      - ".github/workflows/test_macos.yml"
-      - "!Formula/**"
+  workflow_run:
+    workflows: ["Style"]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -29,9 +25,15 @@ concurrency:
 jobs:
   macOS:
     runs-on: macos-15
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request')
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       # Install googletest version 1.17.0 — the latest stable release as of 6/6/25
       # Note: Need to periodically update googletest version to ensure tests can run
       # against the latest.

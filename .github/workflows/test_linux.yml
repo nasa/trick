@@ -10,13 +10,9 @@ on:
       - "!.github/workflows/**"
       - ".github/workflows/test_linux.yml"
       - "!Formula/**"
-  pull_request:
-    paths:
-      - "**"
-      - "!docs/**"
-      - "!.github/workflows/**"
-      - ".github/workflows/test_linux.yml"
-      - "!Formula/**"
+  workflow_run:
+    workflows: ["Style"]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -35,7 +31,7 @@ jobs:
           #-------- Operating Systems ----------------
           - {
               os: ubuntu,
-              tag: 22.04,
+              tag: 24.04,
               arch: debian,
               arch_ver: 12,
               image: ubuntu,
@@ -178,6 +174,10 @@ jobs:
     #-------- Job definition ----------------
     runs-on: ubuntu-latest
     container: docker://${{matrix.cfg.image}}:${{matrix.cfg.tag}}
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request')
     steps:
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
@@ -190,7 +190,9 @@ jobs:
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Configure Trick
         run: |
           export MAKEFLAGS=-j`nproc`

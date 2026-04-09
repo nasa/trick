@@ -10,13 +10,9 @@ on:
       - "!.github/workflows/**"
       - ".github/workflows/code_coverage.yml"
       - "!Formula/**"
-  pull_request:
-    paths:
-      - "**"
-      - "!docs/**"
-      - "!.github/workflows/**"
-      - ".github/workflows/code_coverage.yml"
-      - "!Formula/**"
+  workflow_run:
+    workflows: ["Style"]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -30,6 +26,10 @@ jobs:
   code-coverage:
     runs-on: ubuntu-latest
     container: docker://oraclelinux:8
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request')
     steps:
       - name: Update Package Manager
         run: |
@@ -47,7 +47,9 @@ jobs:
           dnf install -y gtest-devel gmock-devel
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Configure Trick
         run: |

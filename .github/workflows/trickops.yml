@@ -10,13 +10,9 @@ on:
       - "!.github/workflows/**"
       - ".github/workflows/trickops.yml"
       - "!Formula/**"
-  pull_request:
-    paths:
-      - "**"
-      - "!docs/**"
-      - "!.github/workflows/**"
-      - ".github/workflows/trickops.yml"
-      - "!Formula/**"
+  workflow_run:
+    workflows: ["Style"]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -32,11 +28,17 @@ defaults:
 
 jobs:
   trickops-tests-ubuntu:
-    name: Unit Tests Ubuntu:22.04
-    runs-on: ubuntu-22.04
-    container: ubuntu:22.04
+    name: Unit Tests Ubuntu:24.04
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request')
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: install dependencies
         # Note that perl is for trick-gte which TrickOps runs and qt and everything after it is for koviz
         run: |
@@ -65,10 +67,16 @@ jobs:
 
   trickops-tests-rockylinux8:
     name: Unit Tests RockyLinux8
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: rockylinux:8
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request')
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: install dependencies
         # Note that perl is for trick-gte which TrickOps runs and qt and everything after it is for koviz
         run: |
