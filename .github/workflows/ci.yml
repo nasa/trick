@@ -36,10 +36,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install clang-format
+      - name: Install tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y clang-format
+          sudo apt-get install -y clang-format perltidy
 
       - name: Check formatting of changed lines
         run: |
@@ -62,6 +62,49 @@ jobs:
             exit 1
           fi
           echo "All changed C/C++ lines are correctly formatted."
+
+      - name: Check perltidy on changed Perl files
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            git fetch origin master
+            BASE=$(git merge-base origin/master HEAD)
+          fi
+
+          # Collect changed Perl files: by extension and by shebang
+          PERL_FILES=()
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              *.pl|*.pm|*.t) PERL_FILES+=("$f") ;;
+              *) if head -1 "$f" 2>/dev/null | grep -q '^#!.*perl'; then
+                   PERL_FILES+=("$f")
+                 fi ;;
+            esac
+          done < <(git diff --diff-filter=ACMR --name-only "$BASE")
+
+          if [ ${#PERL_FILES[@]} -eq 0 ]; then
+            echo "No changed Perl files to check."
+            exit 0
+          fi
+
+          FAILED=0
+          for f in "${PERL_FILES[@]}"; do
+            if ! perltidy -st -se -nb "$f" | diff -u "$f" -; then
+              echo "::error file=$f::$f is not perltidy-compliant."
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -ne 0 ]; then
+            echo ""
+            echo "::error::To fix, run: perltidy -b <file>"
+            exit 1
+          fi
+          echo "All changed Perl files are correctly formatted."
 
       # TODO: Once the codebase is fully formatted, switch to whole-file checking:
       #
