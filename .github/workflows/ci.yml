@@ -1,0 +1,484 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "docs/**"
+      - "Formula/**"
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "Formula/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 1: Style checks
+# ──────────────────────────────────────────────────────────────────────────────
+
+jobs:
+  style:
+    name: Style Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang-format
+
+      - name: Check formatting of changed lines
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            git fetch origin master
+            BASE=$(git merge-base origin/master HEAD)
+          fi
+
+          DIFF=$(git clang-format --diff "$BASE" --extensions c,h,cpp,hpp,cc,hh)
+
+          if echo "$DIFF" | grep -q '^diff'; then
+            echo "$DIFF"
+            echo ""
+            echo "::error::Changed lines are not correctly formatted."
+            echo "::error::To fix, run: git clang-format ${{ github.base_ref || 'master' }}"
+            exit 1
+          fi
+          echo "All changed C/C++ lines are correctly formatted."
+
+      # TODO: Once the codebase is fully formatted, switch to whole-file checking:
+      #
+      # - name: Check formatting of changed files
+      #   run: |
+      #     set -euo pipefail
+      #
+      #     if [ "${{ github.event_name }}" = "pull_request" ]; then
+      #       BASE=${{ github.event.pull_request.base.sha }}
+      #     else
+      #       git fetch origin master
+      #       BASE=$(git merge-base origin/master HEAD)
+      #     fi
+      #
+      #     FAILED=0
+      #     while IFS= read -r f; do
+      #       [ -z "$f" ] && continue
+      #       if ! clang-format -n --Werror --style=file "$f"; then
+      #         echo "::error file=$f::$f is not correctly formatted."
+      #         FAILED=1
+      #       fi
+      #     done < <(git diff --diff-filter=ACMR --name-only "$BASE" -- \
+      #       '*.[hc]pp' '*.cc' '*.[ch]' '*.hh')
+      #
+      #     if [ $FAILED -ne 0 ]; then
+      #       echo ""
+      #       echo "::error::To fix, run: clang-format -i --style=file <file>"
+      #       exit 1
+      #     fi
+      #     echo "All changed C/C++ files are correctly formatted."
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 2: Build & test
+  # ──────────────────────────────────────────────────────────────────────────
+
+  test-linux:
+    name: Linux (${{ matrix.cfg.os }} ${{ matrix.cfg.tag }})
+    needs: [style]
+    runs-on: ubuntu-latest
+    container: docker://${{ matrix.cfg.image }}:${{ matrix.cfg.tag }}
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - {
+              os: ubuntu,
+              tag: 24.04,
+              arch: debian,
+              arch_ver: 12,
+              image: ubuntu,
+            }
+          - {
+              os: oraclelinux,
+              tag: 8,
+              arch: rhel,
+              arch_ver: 8,
+              image: oraclelinux,
+            }
+          - {
+              os: rockylinux,
+              tag: 8,
+              arch: rhel,
+              arch_ver: 8,
+              image: rockylinux/rockylinux,
+            }
+          - {
+              os: rockylinux,
+              tag: 9,
+              arch: rhel,
+              arch_ver: 9,
+              image: rockylinux/rockylinux,
+            }
+          - {
+              os: rockylinux,
+              tag: 10,
+              arch: rhel,
+              arch_ver: 10,
+              image: rockylinux/rockylinux,
+            }
+        include:
+          - cfg: {}
+            deps: >-
+              bison
+              clang
+              flex
+              git
+              llvm
+              make
+              maven
+              cmake
+              zip
+              gdb
+            install_gtest: echo gtest already installed
+            conf_pkg: echo package manager already configured
+            install_cmd: install -y
+
+          #-------- Debian-based Dependencies ----------------
+          - cfg: { arch: debian }
+            pkg_mgr: apt-get
+            conf_pkg: apt-get update
+            arch_deps: >-
+              swig
+              curl
+              g++
+              libx11-dev
+              libxml2-dev
+              libxt-dev
+              libmotif-common
+              libmotif-dev
+              zlib1g-dev
+              llvm-dev
+              libclang-dev
+              libudunits2-dev
+              libgtest-dev
+              default-jdk
+              python3-dev
+              python3-pip
+              python3-venv
+            install_gtest: |
+              apt-get install -y libgtest-dev libgmock-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp lib/libgtest* /usr/lib/
+
+          #-------- RHEL-based Dependencies (all versions) ----------------
+          - cfg: { arch: rhel }
+            pkg_mgr: dnf
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+            arch_deps: >-
+              clang-devel
+              diffutils
+              gcc
+              gcc-c++
+              java-21-openjdk-devel
+              libxml2-devel
+              llvm-devel
+              llvm-static
+              ncurses-devel
+              openmotif
+              openmotif-devel
+              perl
+              perl-Digest-MD5
+              swig
+              udunits2
+              udunits2-devel
+              which
+              zlib-devel
+              python3-devel
+
+          #-------- RHEL 8-only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 8 }
+            install_gtest: |
+              dnf config-manager --enable powertools
+              dnf install -y gtest-devel gmock-devel
+
+          #-------- RHEL 9-only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 9 }
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+              dnf config-manager --enable crb
+            install_gtest: |
+              dnf install -y gtest-devel gmock-devel
+
+          #-------- RHEL 10-only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 10 }
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+              dnf config-manager --enable crb
+            install_gtest: |
+              dnf install -y gtest-devel gmock-devel
+
+          #-------- OL 8 Dependencies ----------------
+          - cfg: { os: oraclelinux, arch_ver: 8 }
+            install_gtest: |
+              dnf config-manager --enable ol8_codeready_builder
+              dnf install -y gtest-devel gmock-devel
+
+    steps:
+      - name: Set noninteractive mode
+        run: echo "DEBIAN_FRONTEND=noninteractive" >> "$GITHUB_ENV"
+        if: matrix.cfg.arch == 'debian'
+      - name: Update Package Manager
+        run: ${{ matrix.conf_pkg }}
+      - name: Install Dependencies
+        run: >
+          ${{ matrix.pkg_mgr }}
+          ${{ matrix.install_cmd }}
+          ${{ matrix.deps }}
+          ${{ matrix.arch_deps }}
+      - name: Install GTest
+        run: ${{ matrix.install_gtest }}
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Configure Trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          ./configure
+      - name: Build Trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
+          make
+      - name: Test
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+          cd ../../../; make test
+      - name: Upload Tests
+        uses: actions/upload-artifact@v7
+        if: success() || failure()
+        with:
+          name: Trick_${{ matrix.cfg.os }}${{ matrix.cfg.tag }}
+          path: trick_test/*.xml
+          if-no-files-found: warn
+          retention-days: 1
+
+  test-macos:
+    name: macOS
+    needs: [style]
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      # Install googletest version 1.17.0 — the latest stable release as of 6/6/25
+      # Note: Need to periodically update googletest version to ensure tests can run
+      # against the latest.
+      # Specifying the version to ensure CI builds are stable and not unexpectedly
+      # broken by upstream changes.
+      - name: Install gtest 1.17.0
+        run: |
+          wget https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+          tar -xvf v1.17.0.tar.gz
+          cd googletest-1.17.0
+          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/homebrew
+          cmake --build build
+          sudo cmake --install build
+      - name: Install dependencies
+        run: |
+          brew update
+          brew upgrade || true
+          brew install --cask xquartz
+          brew install udunits openmotif maven
+          brew install swig llvm
+      - name: Build Trick
+        run: |
+          export MAKEFLAGS=-j4
+          ./configure
+          make
+      - name: Test
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+          export MAKEFLAGS=-j4
+          cd ../../../; make test
+      - name: Upload Tests
+        uses: actions/upload-artifact@v7
+        if: success() || failure()
+        with:
+          name: Trick_macos
+          path: trick_test/*.xml
+          if-no-files-found: warn
+          retention-days: 1
+
+  trickops:
+    name: TrickOps (${{ matrix.name }})
+    needs: [style]
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 24.04
+            image: ubuntu:24.04
+            install: |
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y git python3 python3-venv perl perl-modules-5.38 qtbase5-dev wget unzip g++ make flex bison
+            qmake: qmake
+          - name: RockyLinux 8
+            image: rockylinux:8
+            install: |
+              dnf install -y git python3-devel which perl perl-Digest-MD5 qt5-qtbase-devel bison clang flex make gcc gcc-c++ wget
+            qmake: qmake-qt5
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install dependencies
+        run: ${{ matrix.install }}
+      - name: Create virtual environment
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && source .venv/bin/activate && pip3 install --upgrade pip && pip3 install -r requirements.txt
+      - name: Build koviz
+        run: |
+          cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
+          cd /tmp/koviz-master/ && ${{ matrix.qmake }} && make
+      - name: Run unit and doc tests
+        run: |
+          cd share/trick/trickops/tests/
+          source ../.venv/bin/activate
+          export PATH="/tmp/koviz-master/bin:${PATH}"
+          ./run_tests.py
+      - name: Upload test logs
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: trickops_${{ strategy.job-index }}
+          path: |
+            share/trick/trickops/tests/*_doctest_log.txt
+            /tmp/log.*
+
+  code-coverage:
+    name: Code Coverage
+    needs: [style]
+    runs-on: ubuntu-latest
+    container: docker://oraclelinux:8
+    env:
+      CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      LDFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      TRICK_CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      TRICK_CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      TRICK_SYSTEM_LDFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      TRICK_SYSTEM_CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      TRICK_SYSTEM_CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+    steps:
+      - name: Update Package Manager
+        run: |
+          dnf -y install epel-release
+          dnf -y update
+          dnf install -y 'dnf-command(config-manager)'
+
+      - name: Install Dependencies
+        run: |
+          dnf install -y bison clang flex git llvm make maven cmake zip  clang-devel gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 udunits2-devel which zlib-devel python2-devel python3-devel swig diffutils lcov
+
+      - name: Install GTest
+        run: |
+          dnf config-manager --enable ol8_codeready_builder
+          dnf install -y gtest-devel gmock-devel
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure Trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          export PYTHON_VERSION=3
+          ./configure
+      - name: Build Trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
+          make
+      - name: Generate Code Coverage
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          cd share/trick/trickops/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+          cd ../../../
+          make code-coverage
+      - name: Upload to Coveralls
+        uses: coverallsapp/github-action@v2
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: "./coverage.info"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 3: Report results
+  # ──────────────────────────────────────────────────────────────────────────
+
+  report-linux:
+    name: Report (${{ matrix.cfg.os }} ${{ matrix.cfg.tag }})
+    needs: [test-linux]
+    if: always()
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - { os: ubuntu, tag: 24.04 }
+          - { os: oraclelinux, tag: 8 }
+          - { os: rockylinux, tag: 8 }
+          - { os: rockylinux, tag: 9 }
+          - { os: rockylinux, tag: 10 }
+    steps:
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v2
+        with:
+          artifact: Trick_${{ matrix.cfg.os }}${{ matrix.cfg.tag }}
+          name: Results_Trick_${{ matrix.cfg.os }}${{ matrix.cfg.tag }}
+          path: "*.xml"
+          reporter: java-junit
+
+  report-macos:
+    name: Report (macOS)
+    needs: [test-macos]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v2
+        with:
+          artifact: Trick_macos
+          name: Results_Trick_macos
+          path: "*.xml"
+          reporter: java-junit
