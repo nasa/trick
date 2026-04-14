@@ -8,10 +8,10 @@
 char swig_double::str_output[32] ;
 
 char swig_double::fmt_specifiers[4][12] = {
-   { "%.16g %s" },
-    {"%.8g %s"},
-   { "%.16g"},
-   { "%.8g"}
+    { "%.16g %s" },
+    { "%.8g %s" },
+    { "%.16g" },
+    { "%.8g" }
 };
 
 swig_double::swig_double() {
@@ -22,9 +22,9 @@ swig_double::swig_double() {
 
 char * swig_double::__str__() {
     if ( ! units.empty() && units.compare("1") ) {
-        snprintf(str_output , sizeof(str_output), fmt_specifiers[isFloat], value , units.c_str()) ;
+        snprintf(str_output, sizeof(str_output), fmt_specifiers[isFloat], value, units.c_str());
     } else {
-        snprintf(str_output , sizeof(str_output), fmt_specifiers[isFloat+2], value ) ;
+        snprintf(str_output, sizeof(str_output), fmt_specifiers[isFloat + 2], value);
     }
     return(str_output) ;
 }

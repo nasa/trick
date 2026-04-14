@@ -12,15 +12,13 @@ class swig_double {
         static char fmt_specifiers[4][12];
         bool isFloat;
 
-        swig_double() ;
+        swig_double();
 
-
-        template<typename T>
+        template <typename T>
         static bool isTypeFloat()
         {
             return std::is_same<T, float>::value;
         }
-
 
         char * __str__() ;
         char * __repr__() ;

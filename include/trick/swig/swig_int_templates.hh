@@ -6,98 +6,133 @@
 #ifndef SWIG_INT_TEMPLATES_HH
 #define SWIG_INT_TEMPLATES_HH
 
+#include "trick/MemoryManager.hh"
+#include "trick/UdUnits.hh"
+#include "trick/attributes.h"
+
 #include <string>
 #include <type_traits>
-#include "trick/UdUnits.hh"
 #include <udunits2.h>
-#include "trick/attributes.h"
-#include "trick/MemoryManager.hh"
 
-template< typename T >
-static void test_attr_units_and_set( T & swig_inst, ATTRIBUTES & attr, const std::string & syname)
+template <typename T>
+static void test_attr_units_and_set(T& swig_inst, ATTRIBUTES& attr, const std::string& syname)
 {
-    if(attr.units) {
+    if (attr.units)
+    {
         swig_inst.units = attr.units;
-    } else {
-        std::string temp_name = Trick::UnitsMap::units_map()->get_units(syname.substr(0, syname.length() - 4 )) ;
+    }
+    else
+    {
+        std::string temp_name = Trick::UnitsMap::units_map()->get_units(syname.substr(0, syname.length() - 4));
         swig_inst.units = temp_name;
     }
 }
 
-template<>
-void test_attr_units_and_set<swig_ref>( swig_ref & swig_inst, ATTRIBUTES & attr, const std::string & syname)
+template <>
+void test_attr_units_and_set<swig_ref>(swig_ref& swig_inst, ATTRIBUTES& attr, const std::string& syname)
 {
-    if(attr.units) {
+    if (attr.units)
+    {
         swig_inst.ref.attr->units = strdup(attr.units);
-    } else {
-        std::string temp_name = Trick::UnitsMap::units_map()->get_units(syname.substr(0, syname.length() - 4 )) ;
+    }
+    else
+    {
+        std::string temp_name = Trick::UnitsMap::units_map()->get_units(syname.substr(0, syname.length() - 4));
         swig_inst.ref.attr->units = strdup(temp_name.c_str());
     }
 }
 
-static void init_swig_ref_attributes_for_dimensions(swig_ref & swig_inst, ATTRIBUTES & addrAttr, size_t offsetRemainder, const std::string & symname, const std::string & tname, size_t expectedNumDimensions)
+static void init_swig_ref_attributes_for_dimensions(swig_ref& swig_inst,
+    ATTRIBUTES& addrAttr,
+    size_t offsetRemainder,
+    const std::string& symname,
+    const std::string& tname,
+    size_t expectedNumDimensions)
 {
-    if(addrAttr.num_index == 0)
+    if (addrAttr.num_index == 0)
     {
         // Attributes weren't found resort to specifying a 2D unsized pointer
-        swig_inst.ref.attr->num_index  = expectedNumDimensions;
-        for(int dim = 0; dim < expectedNumDimensions; ++dim)
+        swig_inst.ref.attr->num_index = expectedNumDimensions;
+        for (int dim = 0; dim < expectedNumDimensions; ++dim)
         {
-            swig_inst.ref.attr->index[dim].size  = 0;
+            swig_inst.ref.attr->index[dim].size = 0;
         }
-    } else {
+    }
+    else
+    {
         // Attributes were found, check if the right number of dimensions
-        if(addrAttr.num_index == expectedNumDimensions) {
+        if (addrAttr.num_index == expectedNumDimensions)
+        {
             swig_inst.ref.attr->num_index = addrAttr.num_index;
-            swig_inst.ref.address = (char *)swig_inst.ref.address - offsetRemainder;
+            swig_inst.ref.address = (char*)swig_inst.ref.address - offsetRemainder;
             swig_inst.ref.attr->offset = offsetRemainder;
-            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            for (int dim = 0; dim < addrAttr.num_index; ++dim)
             {
                 swig_inst.ref.attr->index[dim].size = addrAttr.index[dim].size;
             }
-        } else {
-            if(addrAttr.num_index < expectedNumDimensions) {
-                std::cout << symname << " warning: Mismatch in dimensions for swig typemap " << tname << ", required " << expectedNumDimensions << "D array but attributes report a " << addrAttr.num_index << "D array\n" << std::endl ;
+        }
+        else
+        {
+            if (addrAttr.num_index < expectedNumDimensions)
+            {
+                std::cout << symname << " warning: Mismatch in dimensions for swig typemap " << tname << ", required "
+                          << expectedNumDimensions << "D array but attributes report a " << addrAttr.num_index
+                          << "D array\n"
+                          << std::endl;
             }
             // Flatten to 1d
             swig_inst.ref.attr->num_index = 1;
             size_t totalElements = 1;
-            for(int dim = 0; dim < addrAttr.num_index; ++dim)
+            for (int dim = 0; dim < addrAttr.num_index; ++dim)
             {
-                if(addrAttr.index[dim].size != 0) {
+                if (addrAttr.index[dim].size != 0)
+                {
                     totalElements *= addrAttr.index[dim].size;
                 }
             }
-            swig_inst.ref.attr->index[0].size = totalElements - (offsetRemainder/swig_inst.ref.attr->size);
+            swig_inst.ref.attr->index[0].size = totalElements - (offsetRemainder / swig_inst.ref.attr->size);
         }
     }
 }
 
-template<typename T>
-static void alloc_and_get_primitive_vs_enum_attributes(T * var_addr, swig_ref & swig_inst, const std::string & type_name, ATTRIBUTES & addrAttr, size_t & offsetRemainder)
+template <typename T>
+static void alloc_and_get_primitive_vs_enum_attributes(
+    T* var_addr, swig_ref& swig_inst, const std::string& type_name, ATTRIBUTES& addrAttr, size_t& offsetRemainder)
 {
     using Decayed = std::decay_t<T>;
     using Pointee = std::remove_pointer_t<Decayed>;
 
     trick_MM->get_attributes_for_address(var_addr, addrAttr, offsetRemainder);
-    ATTRIBUTES * primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr(type_name) ;
+    ATTRIBUTES* primAttr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr(type_name);
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
-    if ( primAttr == NULL ) {
+    if (primAttr == NULL)
+    {
         primAttr = new ATTRIBUTES();
-        swig_inst.ref.attr = primAttr ;
-        swig_inst.ref.attr->size  = sizeof(Pointee) ;
-        switch ( swig_inst.ref.attr->size ) {
-            case 1: swig_inst.ref.attr->type = TRICK_CHARACTER ; break ;
-            case 2: swig_inst.ref.attr->type = TRICK_SHORT ; break ;
-            case 4: swig_inst.ref.attr->type = TRICK_INTEGER ; break ;
-            case 8: swig_inst.ref.attr->type = TRICK_LONG_LONG ; break ;
-            default: swig_inst.ref.attr->type = TRICK_INTEGER ; break ;
+        swig_inst.ref.attr = primAttr;
+        swig_inst.ref.attr->size = sizeof(Pointee);
+        switch (swig_inst.ref.attr->size)
+        {
+        case 1:
+            swig_inst.ref.attr->type = TRICK_CHARACTER;
+            break;
+        case 2:
+            swig_inst.ref.attr->type = TRICK_SHORT;
+            break;
+        case 4:
+            swig_inst.ref.attr->type = TRICK_INTEGER;
+            break;
+        case 8:
+            swig_inst.ref.attr->type = TRICK_LONG_LONG;
+            break;
+        default:
+            swig_inst.ref.attr->type = TRICK_INTEGER;
+            break;
         }
-        swig_inst.ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+        swig_inst.ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
         addrAttr.units = nullptr;
     }
     swig_inst.ref.attr = primAttr;
-    swig_inst.ref.attr->type_name  = strdup(type_name.c_str()) ;
+    swig_inst.ref.attr->type_name = strdup(type_name.c_str());
 }
 
 template< class S , typename T > static int convert_and_set( T & output , void * my_argp , std::string to_units ) {

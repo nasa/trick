@@ -186,364 +186,365 @@ class ClassOfEverything {
    /* maybe someday we'll be able to do something like this. */
    double d_test ;          /* -- blah */
 
-   double & get_d();
-//    double * get_d_flat();
+   double& get_d();
+   //    double * get_d_flat();
 
-#if SWIG 
-   #if SWIG_VERSION < 0x040300
-   %ignore get_da;
-   %ignore get_daa;
-   %ignore get_daaa;
-   %ignore get_daaaa;
-   %ignore get_ea;
-   %ignore get_cana;
-   #endif
+#if SWIG
+#if SWIG_VERSION < 0x040300
+   % ignore get_da;
+   % ignore get_daa;
+   % ignore get_daaa;
+   % ignore get_daaaa;
+   % ignore get_ea;
+   % ignore get_cana;
+#endif
 #endif
 
    double (&get_da())[3];
-//    double * get_da_flat();
-   double * get_dp();
-   
+   //    double * get_da_flat();
+   double* get_dp();
+
    double (&get_daa())[2][3];
 //    double * get_daa_flat();
 //    double ** get_daa_2d();
 #ifndef SWIG
-   double* (&get_dap())[4];
+    double* (&get_dap())[4];
 #endif
-   double ** get_dap_2d();
-   double ** get_dap_2d_pl_2();
-   double ** get_dpp();
-   double *** get_dppp();
-   double (&get_daaa())[2][3][4];
-//    double * get_daaa_flat();
-//    double ** get_daaa_2d();
-//    double *** get_daaa_3d();
-   double (&get_daaaa())[2][3][4][5];
-//    double * get_daaaa_flat();
-//    double ** get_daaaa_2d();
-//    double *** get_daaaa_3d();
-//    double **** get_daaaa_4d();
-   
-
-   double d ;          /* kg blah */
-   double da[3] ;      /* kg blah */
-   double * dp ;       /* kg blah */
-   double daa[2][3] ;  /* kg blah */
-   double * dap[4] ;   /* kg blah */
-   double ** dpp ;     /* kg blah */
-   double *** dppp ;   /* kg blah */
-   double daaa[2][3][4] ; /* kg blah */
-   double daaaa[2][3][4][5] ; /* kg blah */
-
-   double get_double();
-
-   float & get_f();
-   float * get_fa_flat();
-   float * get_fp();
-
-   float f ;          /* kg blah */
-   float fa[3] ;      /* kg blah */
-   float * fp ;       /* kg blah */
-   float faa[2][3] ;  /* kg blah */
-   float faaa[2][3][4] ;
-   float * fap[4] ;   /* kg blah */
-   float ** fpp ;     /* kg blah */
-   float *** fppp ;
-
-   float  f_rad ; /* rad float test value */
-   double d_deg ; /* degree blah */
-
-   char & get_c();
-   char * get_ca_flat();
-   char * get_cp();
-
-   char c ;            /* -- blah */
-   char ca[20] ;       /* -- blah */
-   char * cp ;         /* -- blah */
-   char caa[3][16] ;   /* -- blah */
-   char caaa[2][12][14] ;
-   char * cap[4] ;     /* -- blah */
-   char **cpp;
-   char ***cppp;
-
-   unsigned char & get_uc();
-   unsigned char * get_uca_flat();
-   unsigned char * get_ucp();
-
-   unsigned char uc ;            /* -- blah */
-   unsigned char uca[20] ;       /* -- blah */
-   unsigned char * ucp ;         /* -- blah */
-   unsigned char ucaa[2][3] ;    /* -- blah */
-   unsigned char * ucap[4] ;     /* -- blah */
-   unsigned char **ucpp;
-   unsigned char ***ucppp;
-
-   short s ;            /* -- blah */
-   short sa[20] ;       /* -- blah */
-   short * sp ;         /* -- blah */
-   short saa[2][3] ;    /* -- blah */
-   short saaa[2][3][4] ;
-   short * sap[4] ;     /* -- blah */
-   short **spp;
-   short ***sppp;
-
-   unsigned short us ;            /* -- blah */
-   unsigned short usa[20] ;       /* -- blah */
-   unsigned short * usp ;         /* -- blah */
-   unsigned short usaa[2][3] ;    /* -- blah */
-   unsigned short usaaa[2][3][4] ;
-   unsigned short * usap[4] ;     /* -- blah */
-   unsigned short **uspp;
-   unsigned short ***usppp;
-
-
-   MY_ENUM & get_e();
-   MY_ENUM  (&get_ea())[4];
-   MY_ENUM * get_ea_flat();
-   MY_ENUM * get_ep();
-
-   MY_ENUM e ;
-   MY_ENUM ea[4] ;
-   MY_ENUM * ep ;
-   MY_ENUM eaa[2][3] ;
-   MY_ENUM * eap[4] ;
-   MY_ENUM ** epp ;
-
-   int & get_i();
-   int * get_ia_flat();
-   int * get_ip();
-
-   int i ;          /* -- blah */
-   int ia[3] ;      /* -- blah */
-   int * ip ;       /* -- blah */
-   int iaa[2][3] ;  /* -- blah */
-   int iaaa[2][3][4] ;
-   int * iap[NUM] ; /* -- blah */
-   int ** ipp ;     /* -- blah */
-   int *** ippp ;
-
-   unsigned int ui ;            /* -- blah */
-   unsigned int uia[20] ;       /* -- blah */
-   unsigned int * uip ;         /* -- blah */
-   unsigned int uiaa[2][3] ;    /* -- blah */
-   unsigned int uiaaa[2][3][4] ;
-   unsigned int * uiap[4] ;     /* -- blah */
-   unsigned int **uipp;
-   unsigned int ***uippp;
-
-   long l ;            /* -- blah */
-   long la[20] ;       /* -- blah */
-   long * lp ;         /* -- blah */
-   long laa[2][3] ;    /* -- blah */
-   long laaa[2][3][4] ;
-   long * lap[4] ;     /* -- blah */
-   long **lpp;
-   long ***lppp;
-
-   unsigned long ul ;            /* -- blah */
-   unsigned long ula[20] ;       /* -- blah */
-   unsigned long * ulp ;         /* -- blah */
-   unsigned long ulaa[2][3] ;    /* -- blah */
-   unsigned long ulaaa[2][3][4] ;
-   unsigned long * ulap[4] ;     /* -- blah */
-   unsigned long **ulpp;
-   unsigned long ***ulppp;
-
-   long long ll ;            /* -- blah */
-   long long lla[20] ;       /* -- blah */
-   long long * llp ;         /* -- blah */
-   long long llaa[2][3] ;    /* -- blah */
-   long long llaaa[2][3][4] ;
-   long long * llap[4] ;     /* -- blah */
-   long long **llpp;
-   long long ***llppp;
-
-   unsigned long long ull ;            /* -- blah */
-   unsigned long long ulla[20] ;       /* -- blah */
-   unsigned long long * ullp ;         /* -- blah */
-   unsigned long long ullaa[2][3] ;    /* -- blah */
-   unsigned long long ullaaa[2][3][4] ;
-   unsigned long long * ullap[4] ;     /* -- blah */
-   unsigned long long **ullpp;
-   unsigned long long ***ullppp;
-
-   bool b ;            /* -- blah */
-   bool ba[20] ;       /* -- blah */
-   bool * bp ;         /* -- blah */
-   bool baa[2][3] ;    /* -- blah */
-   bool baaa[2][3][4] ;
-   bool * bap[4] ;     /* -- blah */
-   bool **bpp;
-   bool ***bppp ;
-
-   CanCopy & get_can2();
-   CanCopy  (&get_cana())[20];
-   CanCopy * get_cana_flat();
-   CanCopy * get_canp();
-
-   CanCopy can ;
-   CanCopy can2 ;
-   CanCopy cana[20] ;
-   CanCopy * canp ;
-   CanCopy canaa[2][3] ;
-   CanCopy * canap[4] ;
-   CanCopy ** canpp ;
-
-   CannotCopy cannot ;
-   CannotCopy cannot2 ;
-
-   UnionTest ut ;
-   union UnionTest2 ut2 ;
-
-   char cbit_0 : 2 ; /**< -- blah */
-   char cbit_1 : 3 ; /**< -- blah */
-   char cbit_2 : 3 ; /**< -- blah */
-
-   unsigned char ucbit_0 : 2 ; /**< -- blah */
-   unsigned char ucbit_1 : 3 ; /**< -- blah */
-   unsigned char ucbit_2 : 3 ; /**< -- blah */
-
-   char cpad[2] ;
-
-   short sbit_0 : 4 ; /**< -- blah */
-   short sbit_1 : 5 ; /**< -- blah */
-   short sbit_2 : 7 ; /**< -- blah */
-
-   unsigned short usbit_0 : 4 ; /**< -- blah */
-   unsigned short usbit_1 : 5 ; /**< -- blah */
-   unsigned short usbit_2 : 7 ; /**< -- blah */
-
-   int bit_0 : 4 ; /**< -- blah */
-   int bit_1 : 5 ; /**< -- blah */
-   int bit_2 : 6 ; /**< -- blah */
-   int pad : 17 ; /**< -- blah */
-
-   unsigned int ubit_0 : 4 ; /**< -- blah */
-   unsigned int ubit_1 : 5 ; /**< -- blah */
-   unsigned int ubit_2 : 6 ; /**< -- blah */
-   unsigned int upad : 17 ; /**< -- blah */
-
-   long lbit_0 : 4 ; /**< -- blah */
-   long lbit_1 : 5 ; /**< -- blah */
-   long lbit_2 : 6 ; /**< -- blah */
-   long lpad : 17 ; /**< -- blah */
-
-   unsigned long ulbit_0 : 4 ; /**< -- blah */
-   unsigned long ulbit_1 : 5 ; /**< -- blah */
-   unsigned long ulbit_2 : 6 ; /**< -- blah */
-   unsigned long ulpad : 17 ; /**< -- blah */
-
-   bool boolbit_0 : 1 ; /**< -- blah */
-   bool boolbit_1 : 1 ; /**< -- blah */
-   bool boolbit_2 : 1 ; /**< -- blah */
-
-   std::string str ;
-
-   // For now we have SWIG ignore templates with wstring
-   std::vector< std::wstring > vwstr ;
-
-   MyTemplate< double , int , short > my_template_var ;
-   MyTemplate< bool , bool , bool > my_template_var_bool ;
-   MyPrivTemplate< double > my_priv_template_var ;
-   MyPrivTemplate< double * > my_priv_template_var2 ;
-   TTT< int , double > TTT_var ;
-
-
-   int ikg ;          /* kg unit-ed integer value testing */
-   int ilbm ;         /* lb unit-ed integer value testing */
-
-   double dkg ;       /* kg unit-ed double value testing */
-   double dlbm ;      /* lb unit-ed double value testing */
-   double dno_units ; /* -- unitless double value testing */
-   double ds ;        /* s unit-ed double value testing */
-
-   Integer iii ;
-   AnotherInteger aiii ;
-   Myint64 i64 ;
-
-   Integer iiia[6] ;
-
-   const int & cir ;
-   int const & icr ;
-
-   /* test comments */
-   int i2 ; // (m)
-   int i3 ; // (m) description
-   int i4 ; /* (m)*/
-
-   typedef int sizeType ;
-   typedef double mydouble ;
-
-   ClassOfEverything::sizeType st ;
-   ClassOfEverything::mydouble md ;
-
-   MyTemplate< double , int , short >::template_int my_template_var_int ;
-   int invisible_int ;
-
-   static double sdaa[3][3] ;
-
-   static const double scd ;
-   const static double csd ;
-   static double const sdc ;
-
-   // These need to be ignored by ICG
-   // ICG is now compiler based.  Thse are ignored properly.
-/*
-   static const double scdi = 42.0 ;
-   const static double csdi = 42.0 ;
-   static double const sdci = 42.0 ;
-*/
-
-   typedef enum {
-    ONE , TWO
-   } Numbers ;
-
-   enum Animals {
-       Duck,
-       Cow
-   } ;
-
-   Animals ani_1 ;
-   Animals animal_function() const { return Duck ; } ;
-
-   // other enum types
-   enums_in_namespace_test::Location e_loc ;
-   enums_in_namespace_test::Occupations e_occ ;
-   Fruit e_fruit ;
-   Numbers e_numbers ;
-
-   double das[sizeof(double)] ;
-
-   int8_t  i8t ;
-   uint8_t  ui8t ;
-   int16_t  i16t ;
-   uint16_t  ui16t ;
-   int32_t  i32t ;
-   uint32_t  ui32t ;
-   int64_t  i64t ;
-   uint64_t  ui64t ;
-
-   size_t sizet ;
-
-   u_char u_c ;
-   u_short u_s ;
-   u_int u_i ;
-   u_long u_l ;
-   quad_t q ;
-   u_quad_t uq ;
-
-   std::map < std::string , int > msi ;
-   std::list < std::string  > ls ;
-
-   ClassNoNS class_no_ns ;
-   NS2::ClassNS class_ns ;
-
-   a::Foo foo1;
-   b::Foo2 foo2;
-
-   private:
-       ClassOfEverything (const ClassOfEverything &);
-       ClassOfEverything & operator= (const ClassOfEverything &);
+    double** get_dap_2d();
+    double** get_dap_2d_pl_2();
+    double** get_dpp();
+    double*** get_dppp();
+    double (&get_daaa())[2][3][4];
+    //    double * get_daaa_flat();
+    //    double ** get_daaa_2d();
+    //    double *** get_daaa_3d();
+    double (&get_daaaa())[2][3][4][5];
+    //    double * get_daaaa_flat();
+    //    double ** get_daaaa_2d();
+    //    double *** get_daaaa_3d();
+    //    double **** get_daaaa_4d();
+
+    double d; /* kg blah */
+    double da[3]; /* kg blah */
+    double* dp; /* kg blah */
+    double daa[2][3]; /* kg blah */
+    double* dap[4]; /* kg blah */
+    double** dpp; /* kg blah */
+    double*** dppp; /* kg blah */
+    double daaa[2][3][4]; /* kg blah */
+    double daaaa[2][3][4][5]; /* kg blah */
+
+    double get_double();
+
+    float& get_f();
+    float* get_fa_flat();
+    float* get_fp();
+
+    float f; /* kg blah */
+    float fa[3]; /* kg blah */
+    float* fp; /* kg blah */
+    float faa[2][3]; /* kg blah */
+    float faaa[2][3][4];
+    float* fap[4]; /* kg blah */
+    float** fpp; /* kg blah */
+    float*** fppp;
+
+    float f_rad; /* rad float test value */
+    double d_deg; /* degree blah */
+
+    char& get_c();
+    char* get_ca_flat();
+    char* get_cp();
+
+    char c; /* -- blah */
+    char ca[20]; /* -- blah */
+    char* cp; /* -- blah */
+    char caa[3][16]; /* -- blah */
+    char caaa[2][12][14];
+    char* cap[4]; /* -- blah */
+    char** cpp;
+    char*** cppp;
+
+    unsigned char& get_uc();
+    unsigned char* get_uca_flat();
+    unsigned char* get_ucp();
+
+    unsigned char uc; /* -- blah */
+    unsigned char uca[20]; /* -- blah */
+    unsigned char* ucp; /* -- blah */
+    unsigned char ucaa[2][3]; /* -- blah */
+    unsigned char* ucap[4]; /* -- blah */
+    unsigned char** ucpp;
+    unsigned char*** ucppp;
+
+    short s; /* -- blah */
+    short sa[20]; /* -- blah */
+    short* sp; /* -- blah */
+    short saa[2][3]; /* -- blah */
+    short saaa[2][3][4];
+    short* sap[4]; /* -- blah */
+    short** spp;
+    short*** sppp;
+
+    unsigned short us; /* -- blah */
+    unsigned short usa[20]; /* -- blah */
+    unsigned short* usp; /* -- blah */
+    unsigned short usaa[2][3]; /* -- blah */
+    unsigned short usaaa[2][3][4];
+    unsigned short* usap[4]; /* -- blah */
+    unsigned short** uspp;
+    unsigned short*** usppp;
+
+    MY_ENUM& get_e();
+    MY_ENUM (&get_ea())
+    [4];
+    MY_ENUM* get_ea_flat();
+    MY_ENUM* get_ep();
+
+    MY_ENUM e;
+    MY_ENUM ea[4];
+    MY_ENUM* ep;
+    MY_ENUM eaa[2][3];
+    MY_ENUM* eap[4];
+    MY_ENUM** epp;
+
+    int& get_i();
+    int* get_ia_flat();
+    int* get_ip();
+
+    int i; /* -- blah */
+    int ia[3]; /* -- blah */
+    int* ip; /* -- blah */
+    int iaa[2][3]; /* -- blah */
+    int iaaa[2][3][4];
+    int* iap[NUM]; /* -- blah */
+    int** ipp; /* -- blah */
+    int*** ippp;
+
+    unsigned int ui; /* -- blah */
+    unsigned int uia[20]; /* -- blah */
+    unsigned int* uip; /* -- blah */
+    unsigned int uiaa[2][3]; /* -- blah */
+    unsigned int uiaaa[2][3][4];
+    unsigned int* uiap[4]; /* -- blah */
+    unsigned int** uipp;
+    unsigned int*** uippp;
+
+    long l; /* -- blah */
+    long la[20]; /* -- blah */
+    long* lp; /* -- blah */
+    long laa[2][3]; /* -- blah */
+    long laaa[2][3][4];
+    long* lap[4]; /* -- blah */
+    long** lpp;
+    long*** lppp;
+
+    unsigned long ul; /* -- blah */
+    unsigned long ula[20]; /* -- blah */
+    unsigned long* ulp; /* -- blah */
+    unsigned long ulaa[2][3]; /* -- blah */
+    unsigned long ulaaa[2][3][4];
+    unsigned long* ulap[4]; /* -- blah */
+    unsigned long** ulpp;
+    unsigned long*** ulppp;
+
+    long long ll; /* -- blah */
+    long long lla[20]; /* -- blah */
+    long long* llp; /* -- blah */
+    long long llaa[2][3]; /* -- blah */
+    long long llaaa[2][3][4];
+    long long* llap[4]; /* -- blah */
+    long long** llpp;
+    long long*** llppp;
+
+    unsigned long long ull; /* -- blah */
+    unsigned long long ulla[20]; /* -- blah */
+    unsigned long long* ullp; /* -- blah */
+    unsigned long long ullaa[2][3]; /* -- blah */
+    unsigned long long ullaaa[2][3][4];
+    unsigned long long* ullap[4]; /* -- blah */
+    unsigned long long** ullpp;
+    unsigned long long*** ullppp;
+
+    bool b; /* -- blah */
+    bool ba[20]; /* -- blah */
+    bool* bp; /* -- blah */
+    bool baa[2][3]; /* -- blah */
+    bool baaa[2][3][4];
+    bool* bap[4]; /* -- blah */
+    bool** bpp;
+    bool*** bppp;
+
+    CanCopy& get_can2();
+    CanCopy (&get_cana())[20];
+    CanCopy* get_cana_flat();
+    CanCopy* get_canp();
+
+    CanCopy can;
+    CanCopy can2;
+    CanCopy cana[20];
+    CanCopy* canp;
+    CanCopy canaa[2][3];
+    CanCopy* canap[4];
+    CanCopy** canpp;
+
+    CannotCopy cannot;
+    CannotCopy cannot2;
+
+    UnionTest ut;
+    union UnionTest2 ut2;
+
+    char cbit_0 : 2; /**< -- blah */
+    char cbit_1 : 3; /**< -- blah */
+    char cbit_2 : 3; /**< -- blah */
+
+    unsigned char ucbit_0 : 2; /**< -- blah */
+    unsigned char ucbit_1 : 3; /**< -- blah */
+    unsigned char ucbit_2 : 3; /**< -- blah */
+
+    char cpad[2];
+
+    short sbit_0 : 4; /**< -- blah */
+    short sbit_1 : 5; /**< -- blah */
+    short sbit_2 : 7; /**< -- blah */
+
+    unsigned short usbit_0 : 4; /**< -- blah */
+    unsigned short usbit_1 : 5; /**< -- blah */
+    unsigned short usbit_2 : 7; /**< -- blah */
+
+    int bit_0 : 4; /**< -- blah */
+    int bit_1 : 5; /**< -- blah */
+    int bit_2 : 6; /**< -- blah */
+    int pad : 17; /**< -- blah */
+
+    unsigned int ubit_0 : 4; /**< -- blah */
+    unsigned int ubit_1 : 5; /**< -- blah */
+    unsigned int ubit_2 : 6; /**< -- blah */
+    unsigned int upad : 17; /**< -- blah */
+
+    long lbit_0 : 4; /**< -- blah */
+    long lbit_1 : 5; /**< -- blah */
+    long lbit_2 : 6; /**< -- blah */
+    long lpad : 17; /**< -- blah */
+
+    unsigned long ulbit_0 : 4; /**< -- blah */
+    unsigned long ulbit_1 : 5; /**< -- blah */
+    unsigned long ulbit_2 : 6; /**< -- blah */
+    unsigned long ulpad : 17; /**< -- blah */
+
+    bool boolbit_0 : 1; /**< -- blah */
+    bool boolbit_1 : 1; /**< -- blah */
+    bool boolbit_2 : 1; /**< -- blah */
+
+    std::string str;
+
+    // For now we have SWIG ignore templates with wstring
+    std::vector<std::wstring> vwstr;
+
+    MyTemplate<double, int, short> my_template_var;
+    MyTemplate<bool, bool, bool> my_template_var_bool;
+    MyPrivTemplate<double> my_priv_template_var;
+    MyPrivTemplate<double*> my_priv_template_var2;
+    TTT<int, double> TTT_var;
+
+    int ikg; /* kg unit-ed integer value testing */
+    int ilbm; /* lb unit-ed integer value testing */
+
+    double dkg; /* kg unit-ed double value testing */
+    double dlbm; /* lb unit-ed double value testing */
+    double dno_units; /* -- unitless double value testing */
+    double ds; /* s unit-ed double value testing */
+
+    Integer iii;
+    AnotherInteger aiii;
+    Myint64 i64;
+
+    Integer iiia[6];
+
+    const int& cir;
+    int const& icr;
+
+    /* test comments */
+    int i2; // (m)
+    int i3; // (m) description
+    int i4; /* (m)*/
+
+    typedef int sizeType;
+    typedef double mydouble;
+
+    ClassOfEverything::sizeType st;
+    ClassOfEverything::mydouble md;
+
+    MyTemplate<double, int, short>::template_int my_template_var_int;
+    int invisible_int;
+
+    static double sdaa[3][3];
+
+    static const double scd;
+    const static double csd;
+    static double const sdc;
+
+    // These need to be ignored by ICG
+    // ICG is now compiler based.  Thse are ignored properly.
+    /*
+       static const double scdi = 42.0 ;
+       const static double csdi = 42.0 ;
+       static double const sdci = 42.0 ;
+    */
+
+    typedef enum
+    {
+        ONE,
+        TWO
+    } Numbers;
+
+    enum Animals
+    {
+        Duck,
+        Cow
+    };
+
+    Animals ani_1;
+    Animals animal_function() const { return Duck; };
+
+    // other enum types
+    enums_in_namespace_test::Location e_loc;
+    enums_in_namespace_test::Occupations e_occ;
+    Fruit e_fruit;
+    Numbers e_numbers;
+
+    double das[sizeof(double)];
+
+    int8_t i8t;
+    uint8_t ui8t;
+    int16_t i16t;
+    uint16_t ui16t;
+    int32_t i32t;
+    uint32_t ui32t;
+    int64_t i64t;
+    uint64_t ui64t;
+
+    size_t sizet;
+
+    u_char u_c;
+    u_short u_s;
+    u_int u_i;
+    u_long u_l;
+    quad_t q;
+    u_quad_t uq;
+
+    std::map<std::string, int> msi;
+    std::list<std::string> ls;
+
+    ClassNoNS class_no_ns;
+    NS2::ClassNS class_ns;
+
+    a::Foo foo1;
+    b::Foo2 foo2;
+
+private:
+    ClassOfEverything(const ClassOfEverything&);
+    ClassOfEverything& operator=(const ClassOfEverything&);
 
 };
 

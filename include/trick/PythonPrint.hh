@@ -55,14 +55,14 @@ class PythonPrint: public CheckPointAgent {
                      located. @c offset=0 means that the address points to the value
                      to be written.
      */
-    static void write_singleton( std::ostream& chkpnt_os, void* address,
-     ATTRIBUTES* attr, int offset, bool write_units, bool in_list);
+    static void write_singleton(std::ostream& chkpnt_os, void* address,
+        ATTRIBUTES* attr, int offset, bool write_units, bool in_list);
 
     /**
      I NEED DOCUMENTATION!
      */
-    static void write_rvalue( std::ostream& chkpnt_os, void* address,
-     ATTRIBUTES* attr, int curr_dim, int offset, bool write_units, bool in_list, int * startingIndex);
+    static void write_rvalue(std::ostream& chkpnt_os, void* address,
+        ATTRIBUTES* attr, int curr_dim, int offset, bool write_units, bool in_list, int* startingIndex);
 
     /**
      Convert a pointer into a text expression that represents that pointer and is

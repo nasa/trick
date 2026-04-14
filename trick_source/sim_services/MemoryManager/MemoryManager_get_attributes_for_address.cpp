@@ -1,15 +1,15 @@
-#include  <string.h>
-
-#include "trick/MemoryManager.hh"
-#include "trick/ClassicCheckPointAgent.hh"
 #include "trick/AttributesUtils.hh"
+#include "trick/ClassicCheckPointAgent.hh"
+#include "trick/MemoryManager.hh"
+
+#include <string.h>
 
 static int getCompositeSubReference(
     size_t addrValue,
-    ATTRIBUTES &attrOut,
+    ATTRIBUTES& attrOut,
     size_t structAddrValue,
-    ATTRIBUTES *structAttr,
-    size_t & remainingOffset)
+    ATTRIBUTES* structAttr,
+    size_t& remainingOffset)
 {
     if (addrValue < structAddrValue)
     {
@@ -33,7 +33,7 @@ static int getCompositeSubReference(
     {
         attrOut = ATTRIBUTES();
         attrOut.type = TRICK_VOID_PTR;
-        attrOut.size = sizeof(void *);
+        attrOut.size = sizeof(void*);
         attrOut.offset = addrOffsetFromStruct;
         attrOut.num_index = 1;
         attrOut.index[0].size = 0;
@@ -41,7 +41,7 @@ static int getCompositeSubReference(
         return 0;
     }
 
-    ATTRIBUTES *retAttr = traversalResult.found_attr;
+    ATTRIBUTES* retAttr = traversalResult.found_attr;
 
     // If the found attribute is a primitive type
     if (retAttr->type != TRICK_STRUCTURED)
@@ -69,7 +69,7 @@ static int getCompositeSubReference(
     // If attribute is an unarrayed struct, continue to call getCompositeSubReference
     if (retAttr->num_index == 0)
     {
-        return getCompositeSubReference(addrValue, attrOut, structAddrValue + retAttr->offset, (ATTRIBUTES *)retAttr->attr, remainingOffset);
+        return getCompositeSubReference(addrValue, attrOut, structAddrValue + retAttr->offset, (ATTRIBUTES*)retAttr->attr, remainingOffset);
     }
 
     // If the member is a pointer, do nothing and return
@@ -81,29 +81,29 @@ static int getCompositeSubReference(
 
     // Arrayed struct - recurse into the element
     return getCompositeSubReference(addrValue, attrOut,
-                                    structAddrValue + retAttr->offset + traversalResult.offset_from_found_attr,
-                                    (ATTRIBUTES *)retAttr->attr, remainingOffset);
+        structAddrValue + retAttr->offset + traversalResult.offset_from_found_attr,
+        (ATTRIBUTES*)retAttr->attr, remainingOffset);
 }
 
 /**
- * Given an address, populate the attributes instance describing the properties of the address and any 
+ * Given an address, populate the attributes instance describing the properties of the address and any
  * remaining offset to the address so that the attributes pertain to the starting address of that attribute
- * and the offset is some array element or subcomponent within that attribute. 
+ * and the offset is some array element or subcomponent within that attribute.
  * @param address pointer to the address of interest
  * @param attrOut reference to the ATTRIBUTES instance to be populated
- * @param remainingOffset reference to the size_t to be populate with the number of bytes to the start of 
+ * @param remainingOffset reference to the size_t to be populate with the number of bytes to the start of
  *                        the attributes returned. (i.e. attrStartAddr = address - remainingOffset )
  */
-void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES &attrOut, size_t & remainingOffset)
+void Trick::MemoryManager::get_attributes_for_address(void* address, ATTRIBUTES& attrOut, size_t& remainingOffset)
 {
-    if(address == nullptr)
+    if (address == nullptr)
     {
         attrOut = ATTRIBUTES();
         return;
     }
 
     /** Find the allocation that contains the pointer-address. */
-    ALLOC_INFO *alloc_info = get_alloc_info_of(address);
+    ALLOC_INFO* alloc_info = get_alloc_info_of(address);
 
     if (alloc_info != NULL)
     {
@@ -120,7 +120,7 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
             // The allocation is not a primitive type, traverse the structure unil the attribute is found or an
             // anonymous pointer is returned
             getCompositeSubReference(addrValue, attrOut, allocAddrStart + (alloc_elem_index * alloc_elem_size),
-                                     alloc_info->attr, remainingOffset);
+                alloc_info->attr, remainingOffset);
         }
         else
         {
@@ -132,14 +132,18 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
             {
                 // If there's an attribute for this allocation for some reason, populate the return structure.
                 attrOut = *(alloc_info->attr);
-            } else {
+            }
+            else
+            {
                 attrOut.type = alloc_info->type;
-                if(alloc_info->name){
+                if (alloc_info->name)
+                {
                     attrOut.name = strdup(alloc_info->name);
                 }
                 attrOut.stl_type = TRICK_STL_UNKNOWN;
                 attrOut.num_index = alloc_info->num_index;
-                for(int ii = 0; ii < alloc_info->num_index; ++ii) {
+                for (int ii = 0; ii < alloc_info->num_index; ++ii)
+                {
                     attrOut.index[ii].size = alloc_info->index[ii];
                 }
             }

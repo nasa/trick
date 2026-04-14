@@ -1,22 +1,22 @@
-#include "trick/MemoryManager.hh"
-#include "trick/parameter_types.h"
-#include "trick/io_alloc.h"
-#include "trick/wcs_ext.h"
-#include "trick/bitfield_proto.h"
-#include "trick/message_proto.h"
-#include "trick/message_type.h"
-
 #include "trick/ClassicCheckPointAgent.hh"
+
 #include "trick/AttributesUtils.hh"
 #include "trick/ChkPtParseContext.hh"
+#include "trick/MemoryManager.hh"
+#include "trick/bitfield_proto.h"
+#include "trick/io_alloc.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
+#include "trick/parameter_types.h"
+#include "trick/wcs_ext.h"
 
-#include <string>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <math.h>
 #include <sstream>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
+#include <string>
 
 const int Trick::ClassicCheckPointAgent::array_elements_per_line[TRICK_NUMBER_OF_TYPES] = {
      5, /** TRICK_VOID (for pointers) */
@@ -174,15 +174,15 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
 */
 
 static int getCompositeSubReference(
-    void*        reference_address, /* Address we are looking for */
-    ATTRIBUTES** left_type,         /* Attributes of type we are looking for */
-    void*        structure_address, /* Address of struct we are in */
-    ATTRIBUTES*  A,                 /* Attributes of current struct we are in */
-    char* reference_name            /* destination buffer of composite subreference */
-    )
+    void* reference_address, /* Address we are looking for */
+    ATTRIBUTES** left_type, /* Attributes of type we are looking for */
+    void* structure_address, /* Address of struct we are in */
+    ATTRIBUTES* A, /* Attributes of current struct we are in */
+    char* reference_name /* destination buffer of composite subreference */
+)
 {
-    char *rAddr = (char *)reference_address;
-    char *sAddr = (char *)structure_address;
+    char* rAddr = (char*)reference_address;
+    char* sAddr = (char*)structure_address;
 
     // Validate addresses before computing offset (to avoid unsigned underflow)
     if (rAddr < sAddr)
@@ -204,7 +204,7 @@ static int getCompositeSubReference(
     // Find the structure member that corresponds to the reference address.
     // If name is empty, we have failed.
 
-/******If failed to find member, set reference_name to offset only and return ****/
+    /******If failed to find member, set reference_name to offset only and return ****/
     if (traversalResult.is_in_anonymous_member)
     {
         if (referenceOffset == 0)
@@ -218,11 +218,11 @@ static int getCompositeSubReference(
         return 0;
     }
 
-/******************************************************************************/
+    /******************************************************************************/
 
-    ATTRIBUTES *Ai = traversalResult.found_attr;
+    ATTRIBUTES* Ai = traversalResult.found_attr;
 
-/* We found a member corresponding to the reference address, so print it's name. */
+    /* We found a member corresponding to the reference address, so print it's name. */
     snprintf(reference_name, REFNAME_MAXSIZE, ".%s", Ai->name);
 
     // If it's a primitive type with computed array indices
@@ -238,7 +238,7 @@ static int getCompositeSubReference(
         return 0;
     }
 
-/******** TRICK_STRUCTURED ****************************************************/
+    /******** TRICK_STRUCTURED ****************************************************/
     /* if it is a reference, do nothing and return */
     if (Ai->type == TRICK_STRUCTURED && (Ai->mods & 1) == 1)
     {
@@ -249,12 +249,13 @@ static int getCompositeSubReference(
     if (Ai->type == TRICK_STRUCTURED && Ai->num_index == 0)
     {
         /* if left_type specifies the current member, stop here */
-        if ( (left_type != NULL) && (*left_type != NULL) && (Ai->attr == (*left_type)->attr)) {
+        if ((left_type != NULL) && (*left_type != NULL) && (Ai->attr == (*left_type)->attr))
+        {
             return 0;
         }
 
         char buf[REFNAME_MAXSIZE];
-        ret = getCompositeSubReference(rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES *)Ai->attr, buf);
+        ret = getCompositeSubReference(rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES*)Ai->attr, buf);
 
         if (ret == 0)
         {
@@ -265,7 +266,7 @@ static int getCompositeSubReference(
         return ret;
     }
 
-/*** Member is an arrayed struct *********************************************/
+    /*** Member is an arrayed struct *********************************************/
 
     // If it's a structured type with array indices
     if (Ai->type == TRICK_STRUCTURED && traversalResult.num_computed_indices > 0)
@@ -284,12 +285,12 @@ static int getCompositeSubReference(
             return 0;
         }
 
-/**** Go find the subreference for the arrayed struct member and append *********/
+        /**** Go find the subreference for the arrayed struct member and append *********/
 
         // Recurse into the array element
         char buf[REFNAME_MAXSIZE];
         ret = getCompositeSubReference(rAddr, left_type, sAddr + Ai->offset + traversalResult.offset_from_found_attr,
-                                       (ATTRIBUTES *)Ai->attr, buf);
+            (ATTRIBUTES*)Ai->attr, buf);
 
         if (ret == 0)
         {

@@ -1,7 +1,7 @@
 #include "trick/AttributesUtils.hh"
 
 // Compute the byte size occupied by a member - references, arrays, and pointers
-size_t Trick::AttributesUtils::compute_member_byte_size(const ATTRIBUTES &member)
+size_t Trick::AttributesUtils::compute_member_byte_size(const ATTRIBUTES& member)
 {
     // if mod bit 0 is set, member is a reference. Width of reference is stored
     // in bits 3-8 of mods. We could use size(void*), but that is implementation
@@ -18,8 +18,10 @@ size_t Trick::AttributesUtils::compute_member_byte_size(const ATTRIBUTES &member
         size_t total = 0;
         if (member.index[member.num_index - 1].size == 0)
         {
-            total = sizeof(void *);
-        } else { 
+            total = sizeof(void*);
+        }
+        else
+        {
             total = member.size;
         }
         // multiply by sizes of fixed dimensions
@@ -52,7 +54,7 @@ size_t Trick::AttributesUtils::compute_member_byte_size(const ATTRIBUTES &member
 //   find_member_by_offset(structAttr, 2) would return the ATTRIBUTES for 'a' because offset 2 is within 'a' (0-3).
 //   find_member_by_offset(structAttr, 10) would return the ATTRIBUTES for 'b' because offset 10 is within 'b' (8-15).
 //   find_member_by_offset(structAttr, 20) would return the ATTRIBUTES for 'c' because offset 20 is within 'c' (16-25).
-ATTRIBUTES *Trick::AttributesUtils::find_member_by_offset(ATTRIBUTES *structAttr, size_t addrOffsetFromStruct)
+ATTRIBUTES* Trick::AttributesUtils::find_member_by_offset(ATTRIBUTES* structAttr, size_t addrOffsetFromStruct)
 {
     int ii = 0;
     size_t temp_size;
@@ -60,8 +62,7 @@ ATTRIBUTES *Trick::AttributesUtils::find_member_by_offset(ATTRIBUTES *structAttr
     while (structAttr[ii].name[0] != '\0')
     {
         temp_size = compute_member_byte_size(structAttr[ii]);
-        if (addrOffsetFromStruct < structAttr[ii].offset ||
-            addrOffsetFromStruct >= structAttr[ii].offset + temp_size)
+        if (addrOffsetFromStruct < structAttr[ii].offset || addrOffsetFromStruct >= structAttr[ii].offset + temp_size)
         {
             ++ii;
         }
@@ -74,7 +75,7 @@ ATTRIBUTES *Trick::AttributesUtils::find_member_by_offset(ATTRIBUTES *structAttr
 }
 
 // Count the number of fixed dimensions on an ATTRIBUTES entry.
-int Trick::AttributesUtils::count_fixed_dims(const ATTRIBUTES &member)
+int Trick::AttributesUtils::count_fixed_dims(const ATTRIBUTES& member)
 {
     int num_fixed_dims = 0;
     for (int i = 0; i < member.num_index; ++i)
@@ -162,14 +163,14 @@ int Trick::AttributesUtils::count_fixed_dims(const ATTRIBUTES &member)
 // walks into nested members.
 int Trick::AttributesUtils::traverse_for_offset(
     size_t reference_offset,
-    ATTRIBUTES *struct_attr,
-    TraversalResult &result)
+    ATTRIBUTES* struct_attr,
+    TraversalResult& result)
 {
     // Initialize result
-    result = TraversalResult{};
+    result = TraversalResult { };
 
     // Find the structure member that corresponds to the reference offset
-    ATTRIBUTES *ret_attr = find_member_by_offset(struct_attr, reference_offset);
+    ATTRIBUTES* ret_attr = find_member_by_offset(struct_attr, reference_offset);
 
     // Check if we failed to find a member (anonymous/**'d out member)
     if (ret_attr->name[0] == '\0')
@@ -256,14 +257,14 @@ int Trick::AttributesUtils::traverse_for_offset(
 //   member.size = 4 (size of int in bytes)
 //   dimensions are 3 and 4 (member.index[0].size = 3, member.index[1].size = 4)
 //   offset_within_member_bytes = 28
-//     Byte 28 means the 8th int overall, so the expected indices would be [1][3] 
+//     Byte 28 means the 8th int overall, so the expected indices would be [1][3]
 //     because a[1][3] is the 8th int (0-based indexing).
 //   So, out_indices would be set to [1, 3] and out_num_fixed_dims would be set to 2.
 bool Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(
-    const ATTRIBUTES &member,
+    const ATTRIBUTES& member,
     long offset_within_member_bytes,
     int out_indices[TRICK_MAX_INDEX],
-    int &out_num_fixed_dims)
+    int& out_num_fixed_dims)
 {
     out_num_fixed_dims = count_fixed_dims(member);
     if (out_num_fixed_dims == 0)
