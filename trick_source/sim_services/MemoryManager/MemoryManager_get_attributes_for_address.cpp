@@ -86,7 +86,13 @@ static int getCompositeSubReference(
 }
 
 /**
- @par Detailed Description:
+ * Given an address, populate the attributes instance describing the properties of the address and any 
+ * remaining offset to the address so that the attributes pertain to the starting address of that attribute
+ * and the offset is some array element or subcomponent within that attribute. 
+ * @param address pointer to the address of interest
+ * @param attrOut reference to the ATTRIBUTES instance to be populated
+ * @param remainingOffset reference to the size_t to be populate with the number of bytes to the start of 
+ *                        the attributes returned. (i.e. attrStartAddr = address - remainingOffset )
  */
 void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES &attrOut, size_t & remainingOffset)
 {

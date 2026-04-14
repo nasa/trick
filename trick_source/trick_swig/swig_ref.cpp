@@ -93,7 +93,9 @@ char * swig_ref::__str__() {
                         }
             
             // Get element at index i (will be a swig_ref to the next dimension)
-            // __getitem__ needs to account for address being start of attribute. the substraction
+            // But, __getitem__ uses index from start of the attributes + offset. 
+            // Subtract the number of indices of the attribute offset to get the absolute index once 
+            // inside the __getitem__ call
             PyObject* elem = __getitem__(i - offsetIndex);
             if ( elem != NULL ) {
                 // Check if elem is a swig_ref
@@ -1051,6 +1053,7 @@ PyObject * swig_ref::__getitem__(int ii) {
                 swig_double * t = new swig_double ;
                 t->value = *(float *)temp_ref.address ;
                 t->units = temp_ref.attr->units ;
+                t->isFloat = true;
                 ret = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_double"), SWIG_POINTER_OWN);
             } break ;
             case TRICK_BOOLEAN: {
@@ -1146,6 +1149,16 @@ PyObject * getValueAsSwigObjectByType( REF2 & temp_ref , Py_ssize_t index , cons
     VALUE_TYPE * casted_address = ( VALUE_TYPE * ) temp_ref.address ;
     t->value = *(casted_address + index ) ;
     t->units = temp_ref.attr->units ;
+    return SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery(swig_type), SWIG_POINTER_OWN);
+}
+
+template <>
+PyObject * getValueAsSwigObjectByType<swig_double, float> ( REF2 & temp_ref , Py_ssize_t index , const char * swig_type ) {
+    swig_double * t = new swig_double ;
+    double * casted_address = ( double * ) temp_ref.address ;
+    t->value = *(casted_address + index ) ;
+    t->units = temp_ref.attr->units ;
+    t->isFloat = swig_double::isTypeFloat<float>();
     return SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery(swig_type), SWIG_POINTER_OWN);
 }
 
