@@ -214,13 +214,69 @@
         }
 
         //std::cout << "HERE in class __getitem__!!!" << std::endl ;
-        swig_type_info *type_info = SWIG_TypeQuery("TYPE *") ;
-        if (type_info) {
-            resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(&self[ii]), type_info, 0);
-        } else {
-            resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(&self[ii]), SWIG_MangledTypeQuery("_p_" "NAME"), 0);
+        // First try the normal SWIG type query which searches the human-readable str field (e.g.
+        // "TrickHLA::Interaction *") of each type descriptor. This succeeds only when the "master"
+        // descriptor (i.e. the one registered by the first module loaded that references this type)
+        // has str set to a non-NULL value. Meaning that the first module loaded that references this
+        // type must be the one that also wraps the class (and thus sets str to a non-NULL value).
+        // If another module that references the type but does not wrap it is loaded first, then its
+        // descriptor becomes the master with str=NULL and the normal SWIG_TypeQuery fails.
+        //
+        // How to tell whether a module "wraps" a type vs merely "references" it:
+        // Look at the static swig_type_info declaration in the generated _py.cpp file.
+        // The second field of the struct initializer is the str field:
+        //   - Non-NULL (str set)   -> this module directly wraps the class:
+        //       static swig_type_info _swigt__p_TrickHLA__Object =
+        //           {"_p_TrickHLA__Object", "TrickHLA::Object *", 0, 0, (void*)0, 0};
+        //   - NULL (str = 0)       -> this module only references the type as a dependency:
+        //       static swig_type_info _swigt__p_TrickHLA__Object =
+        //           {"_p_TrickHLA__Object", 0, 0, 0, 0, 0};
+        //
+        // TrickHLA examples (modules are loaded in alphabetical order by filename):
+        //   - TrickHLA::Object: ExecutionConfiguration_py.cpp ('E') is the first module loaded and
+        //     its declaration has str="TrickHLA::Object *" (non-NULL), so it becomes the master.
+        //     SWIG_TypeQuery succeeds.
+        //   - TrickHLA::ExecutionConfiguration: ExecutionConfiguration_py.cpp ('E') is both the first
+        //     and only module to declare it with str set; no earlier module ('A'-'D') references it.
+        //     SWIG_TypeQuery succeeds.
+        //   - TrickHLA::Interaction: Federate_py.cpp ('F') declares it with str=0 (NULL) and loads
+        //     before Interaction_py.cpp ('I') which has str="TrickHLA::Interaction *". Federate's
+        //     NULL-str descriptor wins the master slot. SWIG_TypeQuery fails.
+        //   - TrickHLA::Federate: same pattern — any module alphabetically before Federate_py.cpp
+        //     that declares Federate with str=0 would become master and cause SWIG_TypeQuery to fail.
+        //
+        // In the failing case, fall back to SWIG_MangledTypeQuery which searches the name field
+        // (e.g. "_p_TrickHLA__Interaction", always non-NULL) and reliably finds the master descriptor
+        // regardless of load order.
+
+        swig_type_info *type_info = SWIG_TypeQuery("TYPE *");
+        if (!type_info)
+        {
+#ifdef TRICK_SWIG_TYPEQUERY_DEBUG
+            fprintf(stdout, "\nswig_class_typedef: SWIG_TypeQuery(\"TYPE *\") returned NULL, dumping all known types:\n\n");
+            // Portable way to access SWIG_globals(). Using stdout for easy shell redirecting to a file if needed for debugging.
+            swig_module_info *smod = SWIG_GetModule(0);
+            if (smod)
+            {
+                // Iterate through the circular linked list of modules and print out all types in each module.
+                // Note: smod is the entry point to the circular linked list.
+                swig_module_info *iter = smod;
+                do
+                {
+                    for (size_t i = 0; i < iter->size; ++i)
+                    {
+                        fprintf(stdout, "  name=%-60s  str=%s\n", iter->types[i]->name ? iter->types[i]->name : "(null)",
+                                iter->types[i]->str ? iter->types[i]->str : "(null)");
+                    }
+                    iter = iter->next;
+                } while (iter != smod);
+            }
+#endif
+            type_info = SWIG_MangledTypeQuery("_p_" "NAME");
         }
-        return(resultobj) ;
+
+        resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(&self[ii]), type_info, 0);
+        return (resultobj);
     }
 
     PyObject * __len__() {
