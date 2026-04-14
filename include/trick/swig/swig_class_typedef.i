@@ -214,7 +214,12 @@
         }
 
         //std::cout << "HERE in class __getitem__!!!" << std::endl ;
-        resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(&self[ii]), SWIG_MangledTypeQuery("_p_" "NAME"), 0);
+        swig_type_info *type_info = SWIG_TypeQuery("TYPE *") ;
+        if (type_info) {
+            resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(&self[ii]), type_info, 0);
+        } else {
+            resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(&self[ii]), SWIG_MangledTypeQuery("_p_" "NAME"), 0);
+        }
         return(resultobj) ;
     }
 
