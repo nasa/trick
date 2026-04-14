@@ -189,16 +189,18 @@ class ClassOfEverything {
    double& get_d();
    //    double * get_d_flat();
 
+// clang-format off
 #if SWIG
 #if SWIG_VERSION < 0x040300
-   % ignore get_da;
-   % ignore get_daa;
-   % ignore get_daaa;
-   % ignore get_daaaa;
-   % ignore get_ea;
-   % ignore get_cana;
+   %ignore get_da;
+   %ignore get_daa;
+   %ignore get_daaa;
+   %ignore get_daaaa;
+   %ignore get_ea;
+   %ignore get_cana;
 #endif
 #endif
+// clang-format on
 
    double (&get_da())[3];
    //    double * get_da_flat();
