@@ -78,15 +78,12 @@ char * swig_ref::__str__() {
         os << "[" ;
         for (int i = 0; i < size; i++)
         {
-            bool skipIndex = false;
-
             if (startingIndex > 0)
             {
                 --startingIndex;
                 continue;
             }
 
-            // if(!skipIndex) {
             if (isFirstElemWritten)
             {
                 os << ", ";
@@ -146,7 +143,6 @@ char * swig_ref::__str__() {
                 }
                 Py_DECREF(elem);
             }
-            // }
         }
         os << "]";
     } else {
