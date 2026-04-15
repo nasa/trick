@@ -1,0 +1,152 @@
+name: LLVM Compatibility
+
+# apt.llvm.org rebuilds packages from the HEAD of each release branch twice
+# daily, so installing a versioned package always tests against the latest
+# tip of that branch
+#
+# Version schedule:
+#   Branch cut in Jan/Jul → next added to matrix (release/<ver>.x now exists)
+#   Release in Feb/Aug    → both latest and next still run
+#   Transition in Mar/Sep → latest bumps, next drops until next branch cut
+#
+#   Mar 2026 → latest=22   Sep 2026 → latest=23
+#   Mar 2027 → latest=24   Sep 2027 → latest=25
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # weekly, Sundays at midnight UTC
+  workflow_dispatch:
+
+concurrency:
+  group: llvm-compatibility
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write # required by dorny/test-reporter to post results
+
+jobs:
+  # ── Build the test matrix ────────────────────────────────────────────────
+  compute-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.versions.outputs.matrix }}
+    steps:
+      - name: Compute LLVM versions
+        id: versions
+        run: |
+          python3 - << 'PYEOF'
+          import datetime, subprocess, json, os
+
+          now = datetime.datetime.now(datetime.timezone.utc).date()
+          year, month = now.year, now.month
+
+          # "latest" transitions at the start of March and September each year.
+          # Before Mar 2026: latest=21.  Each Mar/Sep adds one.
+          #
+          #   (2026, Jan/Feb) → 21   (2026, Mar-Aug) → 22
+          #   (2026, Sep-Dec) → 23   (2027, Jan/Feb) → 23  …
+          ANCHOR = 21  # latest just before Mar 2026
+          transitions = max(0,
+              (year - 2026) * 2
+              + (1 if month >= 3 else 0)
+              + (1 if month >= 9 else 0)
+          )
+          latest = ANCHOR + transitions
+          next  = latest + 1
+
+          probe = subprocess.run(
+              ['git', 'ls-remote', '--heads',
+               'https://github.com/llvm/llvm-project.git',
+               f'refs/heads/release/{next}.x'],
+              capture_output=True, text=True, timeout=60,
+          )
+          next_branch_exists = probe.returncode == 0 and bool(probe.stdout.strip())
+
+          include = [{"llvm": latest, "role": "llvm-latest"}]
+          if next_branch_exists:
+              include.append({"llvm": next, "role": "llvm-next"})
+
+          matrix = json.dumps({"include": include})
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+              fh.write(f'matrix={matrix}\n')
+
+          suffix = f'  next={next}' if next_branch_exists else ' (next branch not yet cut)'
+          print(f'latest={latest}{suffix}')
+          PYEOF
+
+  # ── Build & test ─────────────────────────────────────────────────────────
+  build:
+    name: Build (${{ matrix.role }} / v${{ matrix.llvm }})
+    needs: compute-versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.compute-versions.outputs.matrix) }}
+    steps:
+      - name: Install LLVM v${{ matrix.llvm }} (apt.llvm.org)
+        run: |
+          sudo apt-get update
+          wget -qO /tmp/llvm.sh https://apt.llvm.org/llvm.sh
+          chmod +x /tmp/llvm.sh
+          sudo /tmp/llvm.sh ${{ matrix.llvm }} all
+          echo "LLVM_HOME=/usr/lib/llvm-${{ matrix.llvm }}" >> "$GITHUB_ENV"
+
+      - name: Install Trick dependencies
+        run: |
+          sudo apt-get install -y \
+            bison flex git make maven cmake zip gdb \
+            swig curl g++ \
+            libx11-dev libxml2-dev libxt-dev \
+            libmotif-common libmotif-dev \
+            zlib1g-dev libudunits2-dev \
+            default-jdk \
+            python3-dev python3-pip python3-venv \
+            libgtest-dev libgmock-dev
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure Trick
+        run: |
+          export MAKEFLAGS=-j$(nproc)
+          ./configure --with-llvm="$LLVM_HOME"
+
+      - name: Build Trick
+        run: |
+          export MAKEFLAGS=-j$(nproc)
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+          make
+
+      - name: Test
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+          cd ../../../; make test
+
+      - name: Upload Tests
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: Trick_${{ matrix.role }}
+          path: trick_test/*.xml
+          if-no-files-found: warn
+          retention-days: 7
+
+  # ── Reporting ─────────────────────────────────────────────────────────────
+  report:
+    name: Report (${{ matrix.role }})
+    needs: [compute-versions, build]
+    if: always()
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.compute-versions.outputs.matrix) }}
+    steps:
+      - uses: dorny/test-reporter@v3
+        with:
+          artifact: Trick_${{ matrix.role }}
+          name: Results_Trick_${{ matrix.role }}
+          path: "*.xml"
+          reporter: java-junit
