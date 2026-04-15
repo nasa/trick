@@ -1,5 +1,9 @@
 ---
 BasedOnStyle: WebKit
+AlignConsecutiveAssignments: AcrossEmptyLines
+AlignTrailingComments:
+  Kind: Always
+BreakBeforeBraces: Allman
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^("|<)trick/'
