@@ -233,17 +233,26 @@
         //           {"_p_TrickHLA__Object", 0, 0, 0, 0, 0};
         //
         // TrickHLA examples (modules are loaded in alphabetical order by filename):
-        //   - TrickHLA::Object: ExecutionConfiguration_py.cpp ('E') is the first module loaded and
-        //     its declaration has str="TrickHLA::Object *" (non-NULL), so it becomes the master.
+        //   - TrickHLA::Object: ExecutionConfiguration_py.cpp ('E') loads first and has
+        //     str="TrickHLA::Object *" (non-NULL) because ExecutionConfigurationBase inherits from
+        //     Object. SWIG sets str for any type that appears in an inheritance/upcast relationship
+        //     with a class being wrapped in the module, so that SWIG_TypeQuery can resolve the base
+        //     type when performing implicit upcasts at runtime. So ExecutionConfiguration_py.cpp's
+        //     declaration:
+        //       static swig_type_info _swigt__p_TrickHLA__Object =
+        //           {"_p_TrickHLA__Object", "TrickHLA::Object *", 0, 0, (void*)0, 0};
+        //     becomes the master. SWIG_TypeQuery succeeds.
+        //   - TrickHLA::ExecutionConfiguration: ExecutionConfiguration_py.cpp ('E'+'C'+'o'+'n'+'f'...)
+        //     has str="TrickHLA::ExecutionConfiguration *" and sorts before ExecutionControl_py.cpp
+        //     ('E'+'C'+'o'+'n'+'t'...) which has str=0. So the home module wins the master slot.
         //     SWIG_TypeQuery succeeds.
-        //   - TrickHLA::ExecutionConfiguration: ExecutionConfiguration_py.cpp ('E') is both the first
-        //     and only module to declare it with str set; no earlier module ('A'-'D') references it.
-        //     SWIG_TypeQuery succeeds.
-        //   - TrickHLA::Interaction: Federate_py.cpp ('F') declares it with str=0 (NULL) and loads
-        //     before Interaction_py.cpp ('I') which has str="TrickHLA::Interaction *". Federate's
-        //     NULL-str descriptor wins the master slot. SWIG_TypeQuery fails.
-        //   - TrickHLA::Federate: same pattern — any module alphabetically before Federate_py.cpp
-        //     that declares Federate with str=0 would become master and cause SWIG_TypeQuery to fail.
+        //   - TrickHLA::Interaction: Interaction is only referenced as a plain member field
+        //     (Interaction *interactions) in InteractionServices.hh, which Federate.hh includes.
+        //     Since there is no inheritance relationship, SWIG sets str=0 in Federate_py.cpp:
+        //       static swig_type_info _swigt__p_TrickHLA__Interaction =
+        //           {"_p_TrickHLA__Interaction", 0, 0, 0, 0, 0};
+        //     Federate_py.cpp ('F') loads before Interaction_py.cpp ('I'), so this str=0 descriptor
+        //     becomes the master. SWIG_TypeQuery fails.
         //
         // In the failing case, fall back to SWIG_MangledTypeQuery which searches the name field
         // (e.g. "_p_TrickHLA__Interaction", always non-NULL) and reliably finds the master descriptor
