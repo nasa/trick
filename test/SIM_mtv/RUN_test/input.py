@@ -1,8 +1,10 @@
-import trick
 import os
+
+import trick
 
 event_a = None
 event_b = None
+
 
 def main():
     global event_a, event_b
@@ -20,8 +22,8 @@ def main():
     # mtv_send_event_data() in the test client.
     # -------------------------------------------------------
     event_a = trick.new_event("event_a")
-    event_a.condition(0, "True",                 "cond_comment_0")
-    event_a.action  (0, "mobj.action_counter+=1","act_comment_0")
+    event_a.condition(0, "True", "cond_comment_0")
+    event_a.action(0, "mobj.action_counter+=1", "act_comment_0")
     event_a.set_cycle(0.1)
     event_a.activate()
     trick.add_event(event_a)
@@ -45,10 +47,15 @@ def main():
     # Run synchronously (no &) so the sim waits for the test client to finish.
     # The test client calls mobj.success()/fail() + trick.stop() before exiting,
     # which causes the sim to exit with the appropriate return code.
-    command = ('os.system("./models/test_client/test_client '
-               + str(varServerPort)
-               + ' --gtest_output=xml:' + test_output + '")')
+    command = (
+        'os.system("./models/test_client/test_client '
+        + str(varServerPort)
+        + " --gtest_output=xml:"
+        + test_output
+        + '")'
+    )
     trick.add_read(1.0, command)
+
 
 if __name__ == "__main__":
     main()
