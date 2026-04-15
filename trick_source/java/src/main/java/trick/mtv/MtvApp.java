@@ -67,9 +67,7 @@ public class MtvApp extends TrickApplication {
         JRadioButton butt; // button used in customize_event_display
     }
 
-    public static ArrayList<EventInfo> mtv_events = new ArrayList<EventInfo>(
-        100
-    ); // Save info about events in gui (mtv_count)
+    public static ArrayList<EventInfo> mtv_events = new ArrayList<EventInfo>(100); // Save info about events in gui (mtv_count)
 
     /**
      * Main method launching the application.
@@ -83,9 +81,7 @@ public class MtvApp extends TrickApplication {
                 host = args[0];
                 port = Integer.parseInt(args[1]);
             } catch (NumberFormatException nfe) {
-                System.out.println(
-                    "MTV Invalid <host> <port> arguments. Using localhost and 7000."
-                );
+                System.out.println("MTV Invalid <host> <port> arguments. Using localhost and 7000.");
                 host = "localhost";
                 port = 7000;
             }
@@ -101,9 +97,7 @@ public class MtvApp extends TrickApplication {
         if (default_event_dir.isEmpty()) {
             default_event_dir = trickProperties.getProperty("TRICK_MTV_DIR");
             if (default_event_dir == null) {
-                default_event_dir = resourceMap.getString(
-                    "default_event_directory"
-                );
+                default_event_dir = resourceMap.getString("default_event_directory");
             }
             if (default_event_dir == null) {
                 default_event_dir = ".";
@@ -149,9 +143,7 @@ public class MtvApp extends TrickApplication {
                 // -------------------------- get preliminary event data ---------------------------
                 //vscom.put("trick.var_debug(3)") ;
                 vscom.put("trick.var_cycle(0.01)"); // get preliminary event data at this rate
-                vscom.put(
-                    "trick.var_add(\"trick_ip.mtv.mtv_count\"); trick.var_send(); trick.var_clear();"
-                );
+                vscom.put("trick.var_add(\"trick_ip.mtv.mtv_count\"); trick.var_send(); trick.var_clear();");
                 mtv_list_count = Integer.parseInt(vscom.get());
                 //System.out.println("mtv_count=" + mtv_list_count);
 
@@ -160,12 +152,8 @@ public class MtvApp extends TrickApplication {
                 popup.setTitle("MTV Getting Simulation Event Data");
                 int x, y;
                 if (mtv_view == null) {
-                    x = Integer.valueOf(
-                        MtvApp.getApplication().trickProperties.getProperty("x")
-                    );
-                    y = Integer.valueOf(
-                        MtvApp.getApplication().trickProperties.getProperty("y")
-                    );
+                    x = Integer.valueOf(MtvApp.getApplication().trickProperties.getProperty("x"));
+                    y = Integer.valueOf(MtvApp.getApplication().trickProperties.getProperty("y"));
                 } else {
                     x = mtv_view.getFrame().getX();
                     y = mtv_view.getFrame().getY();
@@ -189,38 +177,19 @@ public class MtvApp extends TrickApplication {
                     if (ii == mtv_events.size()) {
                         // new event data since previous load
                         mtv_events.add(ii, new EventInfo());
-                        mtv_events.get(ii).show = (Integer.parseInt(
-                                results[rindex + 2]
-                            ) ==
-                            1); // show it if it's added
+                        mtv_events.get(ii).show = (Integer.parseInt(results[rindex + 2]) == 1); // show it if it's added
                         mtv_events.get(ii).deleted = false;
-                        mtv_events.get(ii).butt = new JRadioButton(
-                            results[rindex + 0]
-                        ); //name
+                        mtv_events.get(ii).butt = new JRadioButton(results[rindex + 0]); //name
                     }
                     mtv_events.get(ii).name = results[rindex + 0];
-                    mtv_events.get(ii).active = (Integer.parseInt(
-                            results[rindex + 1]
-                        ) ==
-                        1);
-                    mtv_events.get(ii).added = (Integer.parseInt(
-                            results[rindex + 2]
-                        ) ==
-                        1);
-                    mtv_events.get(ii).cond_count = Integer.parseInt(
-                        results[rindex + 3]
-                    );
-                    mtv_events.get(ii).act_count = Integer.parseInt(
-                        results[rindex + 4]
-                    );
-                    mtv_events.get(ii).before_after = Integer.parseInt(
-                        results[rindex + 5]
-                    );
+                    mtv_events.get(ii).active = (Integer.parseInt(results[rindex + 1]) == 1);
+                    mtv_events.get(ii).added = (Integer.parseInt(results[rindex + 2]) == 1);
+                    mtv_events.get(ii).cond_count = Integer.parseInt(results[rindex + 3]);
+                    mtv_events.get(ii).act_count = Integer.parseInt(results[rindex + 4]);
+                    mtv_events.get(ii).before_after = Integer.parseInt(results[rindex + 5]);
                     rindex += 6;
                     if (mtv_view != null) {
-                        mtv_view.status_label.setText(
-                            " Updating " + mtv_events.get(ii).name
-                        );
+                        mtv_view.status_label.setText(" Updating " + mtv_events.get(ii).name);
                     }
                     // update the progress bar
                     bar.setValue(ii);
@@ -229,10 +198,7 @@ public class MtvApp extends TrickApplication {
                     popup.update(popup.getGraphics());
 
                     // read events have no name, or user may not have specified an event name, default is do not show these
-                    if (
-                        mtv_events.get(ii).name.equals("no_name_specified") &&
-                        (mtv_view == null)
-                    ) {
+                    if (mtv_events.get(ii).name.equals("no_name_specified") && (mtv_view == null)) {
                         mtv_events.get(ii).show = false;
                     }
                     // trick gives deleted events a dummy name (they are still in mtv_list)
@@ -245,29 +211,22 @@ public class MtvApp extends TrickApplication {
                         mtv_events.get(ii).show = false;
                         max_reached = true;
                     }
-                    mtv_events
-                        .get(ii)
-                        .butt.setSelected(mtv_events.get(ii).show); // for customize_event_display
+                    mtv_events.get(ii).butt.setSelected(mtv_events.get(ii).show); // for customize_event_display
                     if (!mtv_events.get(ii).show) {
                         // elected not to show this event via customize_event_display (or we are over 100 events)
-                        rindex += (mtv_events.get(ii).cond_count +
-                            mtv_events.get(ii).act_count);
+                        rindex += (mtv_events.get(ii).cond_count + mtv_events.get(ii).act_count);
                         if (mtv_events.get(ii).before_after > 0) rindex++;
                         continue;
                     }
 
-                    mtv_events.get(ii).cond = new String[mtv_events.get(
-                        ii
-                    ).cond_count];
+                    mtv_events.get(ii).cond = new String[mtv_events.get(ii).cond_count];
                     for (int jj = 0; jj < mtv_events.get(ii).cond_count; jj++) {
                         //vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].cond[" +jj+ "].comment\"); trick.var_send(); trick.var_clear();");
                         //mtv_events.get(ii).cond[jj] = vscom.get();
                         mtv_events.get(ii).cond[jj] = results[rindex + jj];
                     }
                     rindex += mtv_events.get(ii).cond_count;
-                    mtv_events.get(ii).act = new String[mtv_events.get(
-                        ii
-                    ).act_count];
+                    mtv_events.get(ii).act = new String[mtv_events.get(ii).act_count];
                     for (int jj = 0; jj < mtv_events.get(ii).act_count; jj++) {
                         //vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].act[" +jj+ "].comment\"); trick.var_send(); trick.var_clear();");
                         //mtv_events.get(ii).act[jj] = vscom.get();
@@ -283,9 +242,7 @@ public class MtvApp extends TrickApplication {
                     mtv_count++;
                 }
                 // get last mtv update ticker
-                vscom.put(
-                    "trick.var_add(\"trick_ip.mtv.mtv_update_ticker\"); trick.var_send(); trick.var_clear();"
-                );
+                vscom.put("trick.var_add(\"trick_ip.mtv.mtv_update_ticker\"); trick.var_send(); trick.var_clear();");
                 last_update_ticker = Integer.parseInt(vscom.get());
                 map = new int[mtv_count]; // this will map the gui event table index to the mtv_events data
 
@@ -294,8 +251,7 @@ public class MtvApp extends TrickApplication {
                 vscom.put("trick.var_cycle(" + var_cycle + ")");
                 // tell var server to get sim time and mtv_udpate_ticker cyclically
                 time_vars = "trick.var_add(\"trick_sys.sched.time_tics\"); ";
-                time_vars +=
-                    "trick.var_add(\"trick_ip.mtv.mtv_update_ticker\"); ";
+                time_vars += "trick.var_add(\"trick_ip.mtv.mtv_update_ticker\"); ";
                 //System.out.println(time_vars);
                 vscom.put(time_vars);
                 mtv_var_count += 2;
@@ -307,89 +263,27 @@ public class MtvApp extends TrickApplication {
                     }
                     // tell var server to get status info for each event that we will read cyclically
                     map[mtv_count] = ii;
-                    event_vars =
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].active\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].fired_time\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].fired_count\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].ran_time\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].ran_count\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].manual\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].manual_fired\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].hold\"); ";
-                    event_vars +=
-                        "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                        ii +
-                        "][0].added\"); ";
+                    event_vars = "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].active\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].fired_time\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].fired_count\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].ran_time\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].ran_count\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].manual\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].manual_fired\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].hold\"); ";
+                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].added\"); ";
                     mtv_var_count += 9;
                     for (int jj = 0; jj < mtv_events.get(ii).cond_count; jj++) {
-                        event_vars +=
-                            "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                            ii +
-                            "][0].condition_list[" +
-                            jj +
-                            "].enabled\"); ";
-                        event_vars +=
-                            "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                            ii +
-                            "][0].condition_list[" +
-                            jj +
-                            "].fired_time\"); ";
-                        event_vars +=
-                            "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                            ii +
-                            "][0].condition_list[" +
-                            jj +
-                            "].fired_count\"); ";
-                        event_vars +=
-                            "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                            ii +
-                            "][0].condition_list[" +
-                            jj +
-                            "].hold\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj + "].enabled\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj + "].fired_time\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj + "].fired_count\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj + "].hold\"); ";
                         mtv_var_count += 4;
                     }
                     for (int jj = 0; jj < mtv_events.get(ii).act_count; jj++) {
-                        event_vars +=
-                            "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                            ii +
-                            "][0].action_list[" +
-                            jj +
-                            "].enabled\"); ";
-                        event_vars +=
-                            "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                            ii +
-                            "][0].action_list[" +
-                            jj +
-                            "].ran_time\"); ";
-                        event_vars +=
-                            "trick.var_add(\"trick_ip.mtv.mtv_list[" +
-                            ii +
-                            "][0].action_list[" +
-                            jj +
-                            "].ran_count\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].action_list[" + jj + "].enabled\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].action_list[" + jj + "].ran_time\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].action_list[" + jj + "].ran_count\"); ";
                         mtv_var_count += 3;
                     }
                     //System.out.println(event_vars);
@@ -425,15 +319,7 @@ public class MtvApp extends TrickApplication {
         removeExitListener(exitListener);
         exitListener = new Application.ExitListener() {
             public boolean canExit(EventObject e) {
-                return (
-                    JOptionPane.showConfirmDialog(
-                        mtv_view.viewPanel,
-                        "Do you really want to exit?",
-                        "Confirm Exit",
-                        0
-                    ) ==
-                    0
-                );
+                return (JOptionPane.showConfirmDialog(mtv_view.viewPanel, "Do you really want to exit?", "Confirm Exit", 0) == 0);
             }
 
             public void willExit(EventObject e) {}
@@ -447,19 +333,7 @@ public class MtvApp extends TrickApplication {
     @Override
     protected void startup() {
         Vector<Object> row;
-        Vector<Object> default_row = new Vector<Object>(
-            Arrays.asList(
-                false,
-                null,
-                null,
-                null,
-                null,
-                null,
-                false,
-                null,
-                false
-            )
-        );
+        Vector<Object> default_row = new Vector<Object>(Arrays.asList(false, null, null, null, null, null, false, null, false));
         //Vector<Object> default_row = new Vector<Object>(Arrays.asList(false,null,null,null,null,null,false,null,null)); //DANNY add hidden column on end
         int rownum;
         boolean deadrow;
@@ -467,14 +341,8 @@ public class MtvApp extends TrickApplication {
         //System.out.println("Startup.");
         if (mtv_view == null) {
             // set application icon ??
-            getMainFrame().setIconImage(
-                resourceMap.getImageIcon("Application.icon").getImage()
-            );
-            confirmExit = Boolean.valueOf(
-                MtvApp.getApplication().trickProperties.getProperty(
-                    "confirmExit"
-                )
-            );
+            getMainFrame().setIconImage(resourceMap.getImageIcon("Application.icon").getImage());
+            confirmExit = Boolean.valueOf(MtvApp.getApplication().trickProperties.getProperty("confirmExit"));
             if (confirmExit) {
                 add_my_exit_listener();
             }
@@ -517,8 +385,7 @@ public class MtvApp extends TrickApplication {
         // make whole row not editable when user does not specify event name
         mtv_view.canEditRow = new boolean[mtv_view.event_table_rows.size()];
         // set Active, Hold, and Mode checkboxes editable where appropriate
-        mtv_view.canEdit =
-            new boolean[mtv_view.event_table_rows.size()][mtv_view.event_table_cols.size()];
+        mtv_view.canEdit = new boolean[mtv_view.event_table_rows.size()][mtv_view.event_table_cols.size()];
         //mtv_view.canEdit = new boolean[mtv_view.event_table_rows.size()][mtv_view.event_table_cols.size()+1]; //DANNY
         // keep track of when fired column is set to red & when ran column is set to green
         mtv_view.is_red = new boolean[mtv_view.event_table_rows.size()];
@@ -535,15 +402,9 @@ public class MtvApp extends TrickApplication {
             mtv_view.canEdit[rownum][0] = true; // Active
             mtv_view.canEdit[rownum][7] = true; // Mode
             mtv_view.canEdit[rownum][8] = true; // Added
-            deadrow = (mtv_events
-                    .get(map[ii])
-                    .name.equals("no_name_specified"));
+            deadrow = (mtv_events.get(map[ii]).name.equals("no_name_specified"));
             mtv_view.canEditRow[rownum] = !deadrow;
-            mtv_view.event_table.setValueAt(
-                mtv_events.get(map[ii]).name,
-                rownum,
-                1
-            ); // Name
+            mtv_view.event_table.setValueAt(mtv_events.get(map[ii]).name, rownum, 1); // Name
             //mtv_view.event_table.setValueAt(mtv_events.get(map[ii]).name, rownum, 8); // Hidden Name DANNY
             for (int jj = 0; jj < mtv_events.get(map[ii]).cond_count; jj++) {
                 rownum++;
@@ -556,11 +417,7 @@ public class MtvApp extends TrickApplication {
                 mtv_view.canEdit[rownum][6] = true; // Hold
                 mtv_view.canEdit[rownum][8] = false; // Added
                 mtv_view.canEditRow[rownum] = !deadrow;
-                mtv_view.event_table.setValueAt(
-                    "_cond(" + jj + "): " + mtv_events.get(map[ii]).cond[jj],
-                    rownum,
-                    1
-                ); // Condition comment
+                mtv_view.event_table.setValueAt("_cond(" + jj + "): " + mtv_events.get(map[ii]).cond[jj], rownum, 1); // Condition comment
                 //mtv_view.event_table.setValueAt("   cond("+jj+") ", rownum, 1); // Condition indicator
                 //mtv_view.event_table.setValueAt(mtv_events.get(map[ii]).name, rownum, 8); // Hidden Name DANNY
             }
@@ -574,11 +431,7 @@ public class MtvApp extends TrickApplication {
                 mtv_view.canEdit[rownum][0] = true; // Active
                 mtv_view.canEdit[rownum][8] = false; // Added
                 mtv_view.canEditRow[rownum] = !deadrow;
-                mtv_view.event_table.setValueAt(
-                    "__act(" + jj + "): " + mtv_events.get(map[ii]).act[jj],
-                    rownum,
-                    1
-                ); // Action comment
+                mtv_view.event_table.setValueAt("__act(" + jj + "): " + mtv_events.get(map[ii]).act[jj], rownum, 1); // Action comment
                 //mtv_view.event_table.setValueAt("      action("+jj+")", rownum, 1);       // Action indicator
                 //mtv_view.event_table.setValueAt(mtv_events.get(map[ii]).name, rownum, 8); // Hidden Name DANNY
             }
@@ -597,48 +450,19 @@ public class MtvApp extends TrickApplication {
 
         // manually set the initial column sizes
         //mtv_view.event_table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(0)
-            .setPreferredWidth(20); // Active
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(1)
-            .setPreferredWidth(225); // Name
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(2)
-            .setPreferredWidth(72); // Fired Time
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(3)
-            .setPreferredWidth(72); // Fired Count
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(4)
-            .setPreferredWidth(72); // Ran Time
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(5)
-            .setPreferredWidth(72); // Ran Count
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(6)
-            .setPreferredWidth(50); // Hold
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(7)
-            .setPreferredWidth(82); // Mode
-        mtv_view.event_table
-            .getColumnModel()
-            .getColumn(8)
-            .setPreferredWidth(20); // Added
+        mtv_view.event_table.getColumnModel().getColumn(0).setPreferredWidth(20); // Active
+        mtv_view.event_table.getColumnModel().getColumn(1).setPreferredWidth(225); // Name
+        mtv_view.event_table.getColumnModel().getColumn(2).setPreferredWidth(72); // Fired Time
+        mtv_view.event_table.getColumnModel().getColumn(3).setPreferredWidth(72); // Fired Count
+        mtv_view.event_table.getColumnModel().getColumn(4).setPreferredWidth(72); // Ran Time
+        mtv_view.event_table.getColumnModel().getColumn(5).setPreferredWidth(72); // Ran Count
+        mtv_view.event_table.getColumnModel().getColumn(6).setPreferredWidth(50); // Hold
+        mtv_view.event_table.getColumnModel().getColumn(7).setPreferredWidth(82); // Mode
+        mtv_view.event_table.getColumnModel().getColumn(8).setPreferredWidth(20); // Added
 
         // force all rows to be redrawn when updating
         //    this does it: tell event table listener to forget previous state
-        TableModelEvent tme = new TableModelEvent(
-            mtv_view.event_table.getModel()
-        );
+        TableModelEvent tme = new TableModelEvent(mtv_view.event_table.getModel());
         mtv_view.event_table.tableChanged(tme);
 
         show(mtv_view);
@@ -656,9 +480,7 @@ public class MtvApp extends TrickApplication {
             }
         } else {
             mtv_view.connect_button.setEnabled(true);
-            mtv_view.status_label.setText(
-                " Could not connect to " + host + ":" + port
-            );
+            mtv_view.status_label.setText(" Could not connect to " + host + ":" + port);
             mtv_view.event_table.setEnabled(false);
             mtv_view.send_button.setEnabled(false);
         }
@@ -708,9 +530,7 @@ public class MtvApp extends TrickApplication {
         initialize(null);
         need_update = false;
         if (vscom == null) {
-            mtv_view.status_label.setText(
-                " Could not connect to " + host + ":" + port
-            );
+            mtv_view.status_label.setText(" Could not connect to " + host + ":" + port);
             return;
         }
         startup();
@@ -748,14 +568,8 @@ public class MtvApp extends TrickApplication {
             }
         }
         // save position
-        trickProperties.setProperty(
-            "x",
-            String.valueOf(mtv_view.getFrame().getX())
-        );
-        trickProperties.setProperty(
-            "y",
-            String.valueOf(mtv_view.getFrame().getY())
-        );
+        trickProperties.setProperty("x", String.valueOf(mtv_view.getFrame().getX()));
+        trickProperties.setProperty("y", String.valueOf(mtv_view.getFrame().getY()));
         super.shutdown();
     }
 
@@ -813,17 +627,8 @@ public class MtvApp extends TrickApplication {
                             continue;
                         }
                         results = vscom.get(mtv_var_count).split("\t");
-                        if (
-                            (results == null) ||
-                            (results.length != mtv_var_count)
-                        ) {
-                            System.out.println(
-                                "Read unknown (length= " +
-                                    results.length +
-                                    " expected= " +
-                                    mtv_var_count +
-                                    "), exitting."
-                            );
+                        if ((results == null) || (results.length != mtv_var_count)) {
+                            System.out.println("Read unknown (length= " + results.length + " expected= " + mtv_var_count + "), exitting.");
                             break;
                         }
                         // if this is a one shot read during pause, don't process any further
@@ -843,16 +648,9 @@ public class MtvApp extends TrickApplication {
 
                         index = 0; // index into results that we read
                         // 1st 2 variables are sim time and mtv update time; they are long long but get them as double??
-                        if (
-                            Double.parseDouble(results[index + 0]) / time_tics >
-                            sim_time
-                        ) {
-                            sim_time =
-                                Double.parseDouble(results[index + 0]) /
-                                time_tics;
-                            mtv_view.simtime_text.setText(
-                                " " + ((Double) sim_time).toString()
-                            );
+                        if (Double.parseDouble(results[index + 0]) / time_tics > sim_time) {
+                            sim_time = Double.parseDouble(results[index + 0]) / time_tics;
+                            mtv_view.simtime_text.setText(" " + ((Double) sim_time).toString());
                             //System.out.println("simtime=" + sim_time);
                         }
                         update_ticker = Integer.parseInt(results[index + 1]);
@@ -870,80 +668,36 @@ public class MtvApp extends TrickApplication {
                         for (int ii = 0; ii < mtv_count; ii++) {
                             // EVENT
                             event_active_state_changed = false;
-                            mtv_events.get(map[ii]).active =
-                                Integer.parseInt(results[index + 0]) == 1;
-                            mtv_view.active[rownum] = mtv_events.get(
-                                map[ii]
-                            ).active;
+                            mtv_events.get(map[ii]).active = Integer.parseInt(results[index + 0]) == 1;
+                            mtv_view.active[rownum] = mtv_events.get(map[ii]).active;
                             // set active value so that cell renderer is called which ensures all rows get displayed
-                            if (
-                                !mtv_view.event_table
-                                    .getValueAt(rownum, 0)
-                                    .equals(mtv_view.active[rownum])
-                            ) {
-                                mtv_view.event_table.setValueAt(
-                                    mtv_view.active[rownum],
-                                    rownum,
-                                    0
-                                ); // Active
+                            if (!mtv_view.event_table.getValueAt(rownum, 0).equals(mtv_view.active[rownum])) {
+                                mtv_view.event_table.setValueAt(mtv_view.active[rownum], rownum, 0); // Active
                                 event_active_state_changed = true;
                             }
                             time = Double.parseDouble(results[index + 1]);
                             count = Integer.parseInt(results[index + 2]);
-                            fired = (mtv_view.event_table.getValueAt(
-                                    rownum,
-                                    3
-                                ) ==
-                                null)
+                            fired = (mtv_view.event_table.getValueAt(rownum, 3) == null)
                                 ? count > 0
-                                : count >
-                                  (Integer) mtv_view.event_table.getValueAt(
-                                      rownum,
-                                      3
-                                  );
+                                : count > (Integer) mtv_view.event_table.getValueAt(rownum, 3);
                             // set event fired column color red for a second
-                            remove_color =
-                                (mtv_view.is_red[rownum]) &&
-                                (sim_time >= time + color_duration);
+                            remove_color = (mtv_view.is_red[rownum]) && (sim_time >= time + color_duration);
                             if (fired || remove_color) {
                                 mtv_view.is_red[rownum] = !remove_color;
-                                mtv_view.event_table.setValueAt(
-                                    time,
-                                    rownum,
-                                    2
-                                ); // Fired Time
-                                mtv_view.event_table.setValueAt(
-                                    count,
-                                    rownum,
-                                    3
-                                ); // Fired Count
+                                mtv_view.event_table.setValueAt(time, rownum, 2); // Fired Time
+                                mtv_view.event_table.setValueAt(count, rownum, 3); // Fired Count
                             }
                             time = Double.parseDouble(results[index + 3]);
                             count = Integer.parseInt(results[index + 4]);
-                            ran = (mtv_view.event_table.getValueAt(rownum, 5) ==
-                                null)
+                            ran = (mtv_view.event_table.getValueAt(rownum, 5) == null)
                                 ? count > 0
-                                : count >
-                                  (Integer) mtv_view.event_table.getValueAt(
-                                      rownum,
-                                      5
-                                  );
+                                : count > (Integer) mtv_view.event_table.getValueAt(rownum, 5);
                             // set event ran column color green for a second
-                            remove_color =
-                                (mtv_view.is_green[rownum]) &&
-                                (sim_time >= time + color_duration);
+                            remove_color = (mtv_view.is_green[rownum]) && (sim_time >= time + color_duration);
                             if (ran || remove_color) {
                                 mtv_view.is_green[rownum] = !remove_color;
-                                mtv_view.event_table.setValueAt(
-                                    time,
-                                    rownum,
-                                    4
-                                ); // Ran Time
-                                mtv_view.event_table.setValueAt(
-                                    count,
-                                    rownum,
-                                    5
-                                ); // Ran Count
+                                mtv_view.event_table.setValueAt(time, rownum, 4); // Ran Time
+                                mtv_view.event_table.setValueAt(count, rownum, 5); // Ran Count
                             }
                             if (Integer.parseInt(results[index + 5]) == 1) {
                                 // manual true              // Mode:
@@ -951,10 +705,7 @@ public class MtvApp extends TrickApplication {
                                 mtv_view.canEdit[rownum][0] = false;
                                 if (Integer.parseInt(results[index + 6]) == 1) {
                                     //   fired
-                                    if (
-                                        Integer.parseInt(results[index + 7]) ==
-                                        1
-                                    ) {
+                                    if (Integer.parseInt(results[index + 7]) == 1) {
                                         //   hold on
                                         mode = "Manual ON"; // Manual ON
                                         mtv_view.mode[rownum] = Mode.MANUALON;
@@ -974,196 +725,83 @@ public class MtvApp extends TrickApplication {
                                 mtv_view.mode[rownum] = Mode.NORMAL;
                                 mtv_view.canEdit[rownum][0] = true;
                             }
-                            if (
-                                mode !=
-                                mtv_view.event_table.getValueAt(rownum, 7)
-                            ) {
-                                mtv_view.event_table.setValueAt(
-                                    mode,
-                                    rownum,
-                                    7
-                                );
+                            if (mode != mtv_view.event_table.getValueAt(rownum, 7)) {
+                                mtv_view.event_table.setValueAt(mode, rownum, 7);
                             }
-                            mtv_events.get(map[ii]).added = (Integer.parseInt(
-                                    results[index + 8]
-                                ) ==
-                                1); // Added
-                            if (
-                                !mtv_view.event_table
-                                    .getValueAt(rownum, 8)
-                                    .equals(mtv_events.get(map[ii]).added)
-                            ) {
-                                mtv_view.event_table.setValueAt(
-                                    mtv_events.get(map[ii]).added,
-                                    rownum,
-                                    8
-                                );
+                            mtv_events.get(map[ii]).added = (Integer.parseInt(results[index + 8]) == 1); // Added
+                            if (!mtv_view.event_table.getValueAt(rownum, 8).equals(mtv_events.get(map[ii]).added)) {
+                                mtv_view.event_table.setValueAt(mtv_events.get(map[ii]).added, rownum, 8);
                                 event_active_state_changed = true;
                             }
                             index += 9;
                             rownum++;
-                            for (
-                                int jj = 0;
-                                jj < mtv_events.get(map[ii]).cond_count;
-                                jj++
-                            ) {
+                            for (int jj = 0; jj < mtv_events.get(map[ii]).cond_count; jj++) {
                                 // CONDITION
                                 if (event_active_state_changed) {
                                     // the event's Active or Added was clicked, so simply touch row so that it is rendered again
-                                    mtv_view.event_table.setValueAt(
-                                        mtv_view.event_table.getValueAt(
-                                            rownum,
-                                            0
-                                        ),
-                                        rownum,
-                                        0
-                                    );
+                                    mtv_view.event_table.setValueAt(mtv_view.event_table.getValueAt(rownum, 0), rownum, 0);
                                 }
-                                if (
-                                    mtv_view
-                                        .mode[mtv_events.get(
-                                        mtv_view.eventmap[rownum]
-                                    ).row] !=
-                                    Mode.NORMAL
-                                ) {
+                                if (mtv_view.mode[mtv_events.get(mtv_view.eventmap[rownum]).row] != Mode.NORMAL) {
                                     // disable condition Active button in manual mode
                                     mtv_view.canEdit[rownum][0] = false;
                                 } else {
                                     mtv_view.canEdit[rownum][0] = true;
                                 }
-                                mtv_view.active[rownum] =
-                                    Integer.parseInt(results[index + 0]) == 1;
-                                if (
-                                    !mtv_view.event_table
-                                        .getValueAt(rownum, 0)
-                                        .equals(mtv_view.active[rownum])
-                                ) {
-                                    mtv_view.event_table.setValueAt(
-                                        mtv_view.active[rownum],
-                                        rownum,
-                                        0
-                                    ); // Enabled
+                                mtv_view.active[rownum] = Integer.parseInt(results[index + 0]) == 1;
+                                if (!mtv_view.event_table.getValueAt(rownum, 0).equals(mtv_view.active[rownum])) {
+                                    mtv_view.event_table.setValueAt(mtv_view.active[rownum], rownum, 0); // Enabled
                                 }
                                 time = Double.parseDouble(results[index + 1]);
                                 count = Integer.parseInt(results[index + 2]);
-                                fired = (mtv_view.event_table.getValueAt(
-                                        rownum,
-                                        3
-                                    ) ==
-                                    null)
+                                fired = (mtv_view.event_table.getValueAt(rownum, 3) == null)
                                     ? count > 0
-                                    : count >
-                                      (Integer) mtv_view.event_table.getValueAt(
-                                          rownum,
-                                          3
-                                      );
+                                    : count > (Integer) mtv_view.event_table.getValueAt(rownum, 3);
                                 // set condition fired column color red for a second
-                                remove_color =
-                                    (mtv_view.is_red[rownum]) &&
-                                    (sim_time >= time + color_duration);
+                                remove_color = (mtv_view.is_red[rownum]) && (sim_time >= time + color_duration);
                                 if (fired || remove_color) {
                                     mtv_view.is_red[rownum] = !remove_color;
-                                    mtv_view.event_table.setValueAt(
-                                        time,
-                                        rownum,
-                                        2
-                                    ); // Fired Time
-                                    mtv_view.event_table.setValueAt(
-                                        count,
-                                        rownum,
-                                        3
-                                    ); // Fired Count
+                                    mtv_view.event_table.setValueAt(time, rownum, 2); // Fired Time
+                                    mtv_view.event_table.setValueAt(count, rownum, 3); // Fired Count
                                 }
-                                hold =
-                                    Integer.parseInt(results[index + 3]) == 1;
-                                if (
-                                    !mtv_view.event_table
-                                        .getValueAt(rownum, 6)
-                                        .equals(hold)
-                                ) {
-                                    mtv_view.event_table.setValueAt(
-                                        hold,
-                                        rownum,
-                                        6
-                                    ); // Hold
+                                hold = Integer.parseInt(results[index + 3]) == 1;
+                                if (!mtv_view.event_table.getValueAt(rownum, 6).equals(hold)) {
+                                    mtv_view.event_table.setValueAt(hold, rownum, 6); // Hold
                                 }
                                 index += 4;
                                 rownum++;
                             }
-                            for (
-                                int jj = 0;
-                                jj < mtv_events.get(map[ii]).act_count;
-                                jj++
-                            ) {
+                            for (int jj = 0; jj < mtv_events.get(map[ii]).act_count; jj++) {
                                 // ACTION
                                 if (event_active_state_changed) {
                                     // the event's Active or Added was clicked, so simply touch row so that it is rendered again
-                                    mtv_view.event_table.setValueAt(
-                                        mtv_view.event_table.getValueAt(
-                                            rownum,
-                                            0
-                                        ),
-                                        rownum,
-                                        0
-                                    );
+                                    mtv_view.event_table.setValueAt(mtv_view.event_table.getValueAt(rownum, 0), rownum, 0);
                                 }
-                                mtv_view.active[rownum] =
-                                    Integer.parseInt(results[index + 0]) == 1;
-                                if (
-                                    !mtv_view.event_table
-                                        .getValueAt(rownum, 0)
-                                        .equals(mtv_view.active[rownum])
-                                ) {
-                                    mtv_view.event_table.setValueAt(
-                                        mtv_view.active[rownum],
-                                        rownum,
-                                        0
-                                    ); // Enabled
+                                mtv_view.active[rownum] = Integer.parseInt(results[index + 0]) == 1;
+                                if (!mtv_view.event_table.getValueAt(rownum, 0).equals(mtv_view.active[rownum])) {
+                                    mtv_view.event_table.setValueAt(mtv_view.active[rownum], rownum, 0); // Enabled
                                 }
                                 time = Double.parseDouble(results[index + 1]);
                                 count = Integer.parseInt(results[index + 2]);
-                                ran = (mtv_view.event_table.getValueAt(
-                                        rownum,
-                                        5
-                                    ) ==
-                                    null)
+                                ran = (mtv_view.event_table.getValueAt(rownum, 5) == null)
                                     ? count > 0
-                                    : count >
-                                      (Integer) mtv_view.event_table.getValueAt(
-                                          rownum,
-                                          5
-                                      );
+                                    : count > (Integer) mtv_view.event_table.getValueAt(rownum, 5);
                                 // set action ran column color green for a second
-                                remove_color =
-                                    (mtv_view.is_green[rownum]) &&
-                                    (sim_time >= time + color_duration);
+                                remove_color = (mtv_view.is_green[rownum]) && (sim_time >= time + color_duration);
                                 if (ran || remove_color) {
                                     mtv_view.is_green[rownum] = !remove_color;
-                                    mtv_view.event_table.setValueAt(
-                                        time,
-                                        rownum,
-                                        4
-                                    ); // Ran Time
-                                    mtv_view.event_table.setValueAt(
-                                        count,
-                                        rownum,
-                                        5
-                                    ); // Ran Count
+                                    mtv_view.event_table.setValueAt(time, rownum, 4); // Ran Time
+                                    mtv_view.event_table.setValueAt(count, rownum, 5); // Ran Count
                                 }
                                 index += 3;
                                 rownum++;
                             }
                         } // end for ii
                     } else {
-                        System.out.println(
-                            "MTV doInBackground() VarClient is null."
-                        );
+                        System.out.println("MTV doInBackground() VarClient is null.");
                         break;
                     }
                 } catch (Exception ioe) {
-                    System.out.println(
-                        "MTV doInBackground() " + ioe.toString() + "."
-                    );
+                    System.out.println("MTV doInBackground() " + ioe.toString() + ".");
                     break;
                 }
             } // end whild true
@@ -1183,9 +821,7 @@ public class MtvApp extends TrickApplication {
                     vscom.put("trick.var_clear()");
                     vscom.close();
                 } catch (IOException ioe) {
-                    System.out.println(
-                        "MTV finished() " + ioe.toString() + "."
-                    );
+                    System.out.println("MTV finished() " + ioe.toString() + ".");
                 }
             }
             mtv_view.connect_button.setEnabled(true);
