@@ -72,12 +72,32 @@ char * swig_ref::__str__() {
             size = get_truncated_size((char *)ref_copy.address);
         }
 
+        int offsetIndex = ref_copy.attr->offset / ref_copy.attr->size;
+        int startingIndex = offsetIndex;
+        bool isFirstElemWritten = false;
         os << "[" ;
-        for ( int i = 0; i < size; i++ ) {
-            if ( i > 0 ) os << ", ";
+        for (int i = 0; i < size; i++)
+        {
+            if (startingIndex > 0)
+            {
+                --startingIndex;
+                continue;
+            }
+
+            if (isFirstElemWritten)
+            {
+                os << ", ";
+            }
+            else
+            {
+                isFirstElemWritten = true;
+            }
 
             // Get element at index i (will be a swig_ref to the next dimension)
-            PyObject* elem = __getitem__(i);
+            // But, __getitem__ uses index from start of the attributes + offset.
+            // Subtract the number of indices of the attribute offset to get the absolute index once
+            // inside the __getitem__ call
+            PyObject* elem = __getitem__(i - offsetIndex);
             if ( elem != NULL ) {
                 // Check if elem is a swig_ref
                 void* argp = NULL;
@@ -101,9 +121,11 @@ char * swig_ref::__str__() {
                         os << elem_str;
                     } else {
                         // Otherwise call write_rvalue with in_list=true so strings get quoted properly
-                        Trick::PythonPrint::write_rvalue(os, elem_ref_copy.address, elem_ref_copy.attr, 0, 0, true, true);
+                        Trick::PythonPrint::write_rvalue(os, elem_ref_copy.address, elem_ref_copy.attr, 0, 0, true, true, &startingIndex);
                     }
-                } else {
+                }
+                else
+                {
                     // Not a swig_ref, use str representation
                     PyObject* str_obj = PyObject_Str(elem);
                     if ( str_obj != NULL ) {
@@ -126,7 +148,8 @@ char * swig_ref::__str__() {
     } else {
         // Use Trick's default printing for all types
         // write_rvalue prints units by default
-        Trick::PythonPrint::write_rvalue(os , ref_copy.address , ref_copy.attr , 0 , 0) ;
+        int startingElemOffset = ref_copy.attr->offset / ref_copy.attr->size;
+        Trick::PythonPrint::write_rvalue(os, ref_copy.address, ref_copy.attr, 0, 0, true, false, &startingElemOffset);
     }
 
     if ( str_output ) {
@@ -940,10 +963,10 @@ PyObject * swig_ref::__getitem__(int ii) {
     if ( ii < 0 ) {
         ii += temp_ref.attr->index[0].size ;
     }
+    ii += temp_ref.attr->offset / temp_ref.attr->size;
 
     v_data.type = TRICK_INTEGER ;
-    v_data.value.i = ii ;
-
+    v_data.value.i = ii;
 
     /* Do a bounds check before calling ref_dim.  Ref_dim would catch this error too, but it
        prints an error message that throws visitors off from the python error.  Returining NULL
@@ -1031,6 +1054,7 @@ PyObject * swig_ref::__getitem__(int ii) {
                 swig_double * t = new swig_double ;
                 t->value = *(float *)temp_ref.address ;
                 t->units = temp_ref.attr->units ;
+                t->isFloat = true;
                 ret = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_double"), SWIG_POINTER_OWN);
             } break ;
             case TRICK_BOOLEAN: {
@@ -1097,6 +1121,7 @@ PyObject * swig_ref::__getitem__(int ii) {
         /* Start with the current attributes we have */
         *new_attr = *temp_ref.attr ;
         new_ref->ref.attr = new_attr ;
+        new_ref->ref.attr->offset = 0;
 
         /* make copies of the strings for type_name and units */
         new_ref->ref.attr->type_name = strdup(temp_ref.attr->type_name) ;
@@ -1125,6 +1150,17 @@ PyObject * getValueAsSwigObjectByType( REF2 & temp_ref , Py_ssize_t index , cons
     VALUE_TYPE * casted_address = ( VALUE_TYPE * ) temp_ref.address ;
     t->value = *(casted_address + index ) ;
     t->units = temp_ref.attr->units ;
+    return SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery(swig_type), SWIG_POINTER_OWN);
+}
+
+template <>
+PyObject* getValueAsSwigObjectByType<swig_double, float>(REF2& temp_ref, Py_ssize_t index, const char* swig_type)
+{
+    swig_double* t = new swig_double;
+    double* casted_address = (double*)temp_ref.address;
+    t->value = *(casted_address + index);
+    t->units = temp_ref.attr->units;
+    t->isFloat = swig_double::isTypeFloat<float>();
     return SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery(swig_type), SWIG_POINTER_OWN);
 }
 
