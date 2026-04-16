@@ -242,10 +242,11 @@
         //       static swig_type_info _swigt__p_TrickHLA__Object =
         //           {"_p_TrickHLA__Object", "TrickHLA::Object *", 0, 0, (void*)0, 0};
         //     becomes the master. SWIG_TypeQuery succeeds.
-        //   - TrickHLA::ExecutionConfiguration: ExecutionConfiguration_py.cpp ('E'+'C'+'o'+'n'+'f'...)
+        //   - TrickHLA::ExecutionConfiguration: ExecutionConfiguration_py.cpp ("Execution"+'C'+'o'+'n'+'f'...)
         //     has str="TrickHLA::ExecutionConfiguration *" and sorts before ExecutionControl_py.cpp
-        //     ('E'+'C'+'o'+'n'+'t'...) which has str=0. So the home module wins the master slot.
-        //     SWIG_TypeQuery succeeds.
+        //     ("Execution"+'C'+'o'+'n'+'t'...) which has str=0. So the home module (the _py.cpp file
+        //     generated from %include-ing the class's own header, ExecutionConfiguration.hh) wins the
+        //     master slot. SWIG_TypeQuery succeeds.
         //   - TrickHLA::Interaction: Interaction is only referenced as a plain member field
         //     (Interaction *interactions) in InteractionServices.hh, which Federate.hh includes.
         //     Since there is no inheritance relationship, SWIG sets str=0 in Federate_py.cpp:
