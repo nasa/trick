@@ -21,12 +21,13 @@ static int getCompositeSubReference(
     Trick::AttributesUtils::TraversalResult traversalResult;
 
     int ret = Trick::AttributesUtils::traverse_for_offset(addrOffsetFromStruct, structAttr, traversalResult);
-    remainingOffset = traversalResult.offset_from_found_attr;
 
     if (ret != 0)
     {
         return 1;
     }
+
+    remainingOffset = traversalResult.offset_from_found_attr;
 
     // Handle anonymous/**'d out members
     if (traversalResult.is_in_anonymous_member)

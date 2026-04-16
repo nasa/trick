@@ -207,7 +207,6 @@
     size_t offsetRemainder;
     ATTRIBUTES addrAttr = { };
     alloc_and_get_primitive_vs_enum_attributes($1, *t, "$1_basetype", addrAttr, offsetRemainder);
-    t->ref.attr->num_index = addrAttr.num_index;
     t->ref.attr->num_index = 1;
     t->ref.attr->index[0].size = $1_dim0;
 

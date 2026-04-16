@@ -14,17 +14,11 @@ char swig_double::fmt_specifiers[4][12] = {
     { "%.8g" }
 };
 
-swig_double::swig_double() {
-    value = 0 ;
-    units = "1" ;
-    isFloat = false;
-}
-
 char * swig_double::__str__() {
     if ( ! units.empty() && units.compare("1") ) {
-        snprintf(str_output, sizeof(str_output), fmt_specifiers[isFloat], value, units.c_str());
+        snprintf(str_output, sizeof(str_output), fmt_specifiers[static_cast<int>(isFloat)], value, units.c_str());
     } else {
-        snprintf(str_output, sizeof(str_output), fmt_specifiers[isFloat + 2], value);
+        snprintf(str_output, sizeof(str_output), fmt_specifiers[static_cast<int>(isFloat) + 2], value);
     }
     return(str_output) ;
 }
