@@ -664,6 +664,15 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     return false;
 }
 
+// Suppress IO attributes for function pointer fields (e.g. double (*get_vel)()).
+// Without this, the traversal recurses into the function's return type and incorrectly
+// generates an IO attribute for the field (e.g. TRICK_DOUBLE for get_vel as if it were a double *).
+bool FieldVisitor::VisitFunctionProtoType(clang::FunctionProtoType *fpt)
+{
+    fdes->setIO(0);
+    return false;
+}
+
 bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
 
     fdes->setStatic(v->isStaticDataMember()) ;
