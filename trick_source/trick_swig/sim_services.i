@@ -57,6 +57,7 @@
 #ifdef HDF5
 #include "trick/DRHDF5.hh"
 #endif
+#include "trick/IntegrationJobDataRecordGroup.hh"
 #include "trick/DataRecordDispatcher.hh"
 #include "trick/data_record_proto.h"
 #include "trick/DebugPause.hh"
