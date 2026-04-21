@@ -34,9 +34,12 @@ typedef struct {
     int size;                          /* -- Size of shared memory segment */
     void* addr;                        /* ** Address of shared memory segment */
 
-    char key_file[256];                 /* -- An existing file name to use in generating key (ftok) for shared memory */
-    int  key_id;                       /* ** Id value to use in generating key value (ftok) for shared memory */
+    char key_file[256];                /* -- An existing file name to use in generating key, in combination with proj_id, (ftok) for shared memory */
+    int  proj_id;                      /* -- A value to use, in combination with the key_file, (ftok) for shared memory. Use 1..255 to create 255 different keys */
+    int  key_id;                       /* ** Id value to use,  in generating key value (ftok) for shared memory. . */
+
     key_t key;                         /* ** The key returned from ftok call, needed for shared memory create (shmget) */
+    
     int shmid;                         /* ** The shared memory id returned from shmget call */
 
     double timeout_limit;              /* -- s Optional: how long do we wait for shared memory data before we time out */
