@@ -4,6 +4,7 @@ AlignConsecutiveAssignments: AcrossEmptyLines
 AlignTrailingComments:
   Kind: Always
 BreakBeforeBraces: Allman
+ColumnLimit: 120
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^("|<)trick/'
@@ -16,4 +17,8 @@ IncludeCategories:
     Priority: 4
   - Regex: ".*"
     Priority: 1
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
 ...

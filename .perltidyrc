@@ -1,5 +1,5 @@
 # .perltidyrc — Trick project Perl formatting rules
--l=100
+-l=120
 -i=4
 -ci=4
 -xci
