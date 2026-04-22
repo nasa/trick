@@ -15,8 +15,6 @@ on:
 
 permissions:
   contents: read
-  checks: write
-  actions: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -322,7 +320,7 @@ jobs:
           cd ../../../; make test
       - name: Upload Tests
         uses: actions/upload-artifact@v7
-        if: success() || failure()
+        if: ${{ !cancelled() }}
         with:
           name: Trick_${{ matrix.cfg.os }}${{ matrix.cfg.tag }}
           path: trick_test/*.xml
@@ -369,7 +367,7 @@ jobs:
           cd ../../../; make test
       - name: Upload Tests
         uses: actions/upload-artifact@v7
-        if: success() || failure()
+        if: ${{ !cancelled() }}
         with:
           name: Trick_macos
           path: trick_test/*.xml
@@ -484,44 +482,3 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: "./coverage.info"
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # Stage 3: Report results
-  # ──────────────────────────────────────────────────────────────────────────
-
-  report-linux:
-    name: Report (${{ matrix.cfg.os }} ${{ matrix.cfg.tag }})
-    needs: [test-linux]
-    if: always()
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        cfg:
-          - { os: ubuntu, tag: 24.04 }
-          - { os: oraclelinux, tag: 8 }
-          - { os: rockylinux, tag: 8 }
-          - { os: rockylinux, tag: 9 }
-          - { os: rockylinux, tag: 10 }
-    steps:
-      - name: Publish Test Report
-        uses: dorny/test-reporter@v2
-        with:
-          artifact: Trick_${{ matrix.cfg.os }}${{ matrix.cfg.tag }}
-          name: Results_Trick_${{ matrix.cfg.os }}${{ matrix.cfg.tag }}
-          path: "*.xml"
-          reporter: java-junit
-
-  report-macos:
-    name: Report (macOS)
-    needs: [test-macos]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Publish Test Report
-        uses: dorny/test-reporter@v2
-        with:
-          artifact: Trick_macos
-          name: Results_Trick_macos
-          path: "*.xml"
-          reporter: java-junit
