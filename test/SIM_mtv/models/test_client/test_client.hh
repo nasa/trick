@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <cstring>
+#include <ctime>
 #include <iostream>
 #include <netinet/in.h>
 #include <sstream>
@@ -28,12 +29,8 @@ public:
     {
     }
 
-    int init(const std::string& host, int port)
+    int init(const std::string& host, int port, int timeout_sec = 10)
     {
-        _fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (_fd < 0)
-            return -1;
-
         struct sockaddr_in addr;
         memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
@@ -41,11 +38,22 @@ public:
         if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) <= 0)
             return -1;
 
-        if (connect(_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-            return -1;
-
-        _ok = true;
-        return 0;
+        time_t deadline = time(nullptr) + timeout_sec;
+        while (time(nullptr) < deadline)
+        {
+            _fd = socket(AF_INET, SOCK_STREAM, 0);
+            if (_fd < 0)
+                return -1;
+            if (connect(_fd, (struct sockaddr*)&addr, sizeof(addr)) == 0)
+            {
+                _ok = true;
+                return 0;
+            }
+            ::close(_fd);
+            _fd = -1;
+            usleep(100000); // 100 ms between retries
+        }
+        return -1;
     }
 
     void close()
