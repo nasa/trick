@@ -306,11 +306,10 @@ jobs:
         uses: actions/checkout@v6
       - name: Configure Trick
         run: |
-          export MAKEFLAGS=-j`nproc`
+          echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
           ./configure
       - name: Build Trick
         run: |
-          export MAKEFLAGS=-j`nproc`
           export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
           make
       - name: Test
@@ -331,6 +330,8 @@ jobs:
     name: macOS
     needs: [style]
     runs-on: macos-15
+    env:
+      MAKEFLAGS: -j4
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -356,14 +357,12 @@ jobs:
           brew install swig llvm
       - name: Build Trick
         run: |
-          export MAKEFLAGS=-j4
           ./configure
           make
       - name: Test
         run: |
           cd share/trick/trickops/
           python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
-          export MAKEFLAGS=-j4
           cd ../../../; make test
       - name: Upload Tests
         uses: actions/upload-artifact@v7
@@ -432,6 +431,7 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://oraclelinux:8
     env:
+      MAKEFLAGS: -j4
       CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
       CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
       LDFLAGS: "-fprofile-arcs -ftest-coverage -O0"
@@ -458,20 +458,14 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v6
-
       - name: Configure Trick
-        run: |
-          export MAKEFLAGS=-j`nproc`
-          export PYTHON_VERSION=3
-          ./configure
+        run: ./configure
       - name: Build Trick
         run: |
-          export MAKEFLAGS=-j`nproc`
           export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
           make
       - name: Generate Code Coverage
         run: |
-          export MAKEFLAGS=-j`nproc`
           cd share/trick/trickops/
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
           cd ../../../
