@@ -147,41 +147,12 @@ jobs:
       fail-fast: false
       matrix:
         cfg:
-          - {
-              os: ubuntu,
-              tag: 24.04,
-              arch: debian,
-              arch_ver: 12,
-              image: ubuntu,
-            }
-          - {
-              os: oraclelinux,
-              tag: 8,
-              arch: rhel,
-              arch_ver: 8,
-              image: oraclelinux,
-            }
-          - {
-              os: rockylinux,
-              tag: 8,
-              arch: rhel,
-              arch_ver: 8,
-              image: rockylinux/rockylinux,
-            }
-          - {
-              os: rockylinux,
-              tag: 9,
-              arch: rhel,
-              arch_ver: 9,
-              image: rockylinux/rockylinux,
-            }
-          - {
-              os: rockylinux,
-              tag: 10,
-              arch: rhel,
-              arch_ver: 10,
-              image: rockylinux/rockylinux,
-            }
+          - { os: ubuntu, tag: 24.04, arch: debian, image: ubuntu }
+          - { os: ubuntu, tag: 26.04, arch: debian, image: ubuntu }
+          - { os: oraclelinux, tag: 8, arch: rhel, image: oraclelinux }
+          - { os: rockylinux, tag: 8, arch: rhel, image: rockylinux/rockylinux }
+          - { os: rockylinux, tag: 9, arch: rhel, image: rockylinux/rockylinux }
+          - { os: rockylinux, tag: 10, arch: rhel, image: rockylinux/rockylinux }
         include:
           - cfg: {}
             deps: >-
@@ -257,13 +228,13 @@ jobs:
               python3-devel
 
           #-------- RHEL 8-only Dependencies ----------------
-          - cfg: { arch: rhel, arch_ver: 8 }
+          - cfg: { arch: rhel, tag: 8 }
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel gmock-devel
 
           #-------- RHEL 9-only Dependencies ----------------
-          - cfg: { arch: rhel, arch_ver: 9 }
+          - cfg: { arch: rhel, tag: 9 }
             conf_pkg: |
               dnf -y install epel-release
               dnf -y update
@@ -273,7 +244,7 @@ jobs:
               dnf install -y gtest-devel gmock-devel
 
           #-------- RHEL 10-only Dependencies ----------------
-          - cfg: { arch: rhel, arch_ver: 10 }
+          - cfg: { arch: rhel, tag: 10 }
             conf_pkg: |
               dnf -y install epel-release
               dnf -y update
@@ -283,7 +254,7 @@ jobs:
               dnf install -y gtest-devel gmock-devel
 
           #-------- OL 8 Dependencies ----------------
-          - cfg: { os: oraclelinux, arch_ver: 8 }
+          - cfg: { os: oraclelinux, tag: 8 }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
               dnf install -y gtest-devel gmock-devel
