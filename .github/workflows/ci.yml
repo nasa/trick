@@ -402,14 +402,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MAKEFLAGS: -j4
-      CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
-      CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      CFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
+      CXXFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
       LDFLAGS: "-fprofile-arcs -ftest-coverage -O0"
-      TRICK_CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
-      TRICK_CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      TRICK_CFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
+      TRICK_CXXFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
       TRICK_SYSTEM_LDFLAGS: "-fprofile-arcs -ftest-coverage -O0"
-      TRICK_SYSTEM_CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
-      TRICK_SYSTEM_CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
+      TRICK_SYSTEM_CFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
+      TRICK_SYSTEM_CXXFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
     steps:
       - name: Install Dependencies
         run: |
