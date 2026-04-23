@@ -158,16 +158,18 @@ jobs:
             deps: >-
               bison
               clang
+              curl
               flex
               git
               llvm
               make
               maven
               cmake
+              swig
               zip
               gdb
-            install_gtest: echo gtest already installed
             conf_pkg: echo package manager already configured
+            enable_repo: ""
             install_cmd: install -y
 
           #-------- Debian-based Dependencies ----------------
@@ -175,8 +177,6 @@ jobs:
             pkg_mgr: apt-get
             conf_pkg: apt-get update
             arch_deps: >-
-              swig
-              curl
               g++
               libx11-dev
               libxml2-dev
@@ -188,16 +188,11 @@ jobs:
               libclang-dev
               libudunits2-dev
               libgtest-dev
+              libgmock-dev
               default-jdk
               python3-dev
               python3-pip
               python3-venv
-            install_gtest: |
-              apt-get install -y libgtest-dev libgmock-dev
-              cd /usr/src/gtest
-              cmake .
-              make
-              cp lib/libgtest* /usr/lib/
 
           #-------- RHEL-based Dependencies (all versions) ----------------
           - cfg: { arch: rhel }
@@ -211,6 +206,8 @@ jobs:
               diffutils
               gcc
               gcc-c++
+              gtest-devel
+              gmock-devel
               java-21-openjdk-devel
               libxml2-devel
               llvm-devel
@@ -227,67 +224,50 @@ jobs:
               zlib-devel
               python3-devel
 
-          #-------- RHEL 8-only Dependencies ----------------
+          #-------- RHEL 8: gtest lives in powertools ----------------
           - cfg: { arch: rhel, tag: 8 }
-            install_gtest: |
-              dnf config-manager --enable powertools
-              dnf install -y gtest-devel gmock-devel
+            enable_repo: dnf config-manager --enable powertools
 
-          #-------- RHEL 9-only Dependencies ----------------
+          #-------- RHEL 9/10: gtest lives in crb ----------------
           - cfg: { arch: rhel, tag: 9 }
-            conf_pkg: |
-              dnf -y install epel-release
-              dnf -y update
-              dnf install -y 'dnf-command(config-manager)'
-              dnf config-manager --enable crb
-            install_gtest: |
-              dnf install -y gtest-devel gmock-devel
+            enable_repo: dnf config-manager --enable crb
 
-          #-------- RHEL 10-only Dependencies ----------------
           - cfg: { arch: rhel, tag: 10 }
-            conf_pkg: |
-              dnf -y install epel-release
-              dnf -y update
-              dnf install -y 'dnf-command(config-manager)'
-              dnf config-manager --enable crb
-            install_gtest: |
-              dnf install -y gtest-devel gmock-devel
+            enable_repo: dnf config-manager --enable crb
 
-          #-------- OL 8 Dependencies ----------------
+          #-------- OL 8: gtest lives in codeready_builder ----------------
           - cfg: { os: oraclelinux, tag: 8 }
-            install_gtest: |
-              dnf config-manager --enable ol8_codeready_builder
-              dnf install -y gtest-devel gmock-devel
+            enable_repo: dnf config-manager --enable ol8_codeready_builder
 
     steps:
       - name: Set noninteractive mode
         run: echo "DEBIAN_FRONTEND=noninteractive" >> "$GITHUB_ENV"
         if: matrix.cfg.arch == 'debian'
       - name: Update Package Manager
-        run: ${{ matrix.conf_pkg }}
+        run: |
+          ${{ matrix.conf_pkg }}
+          ${{ matrix.enable_repo }}
       - name: Install Dependencies
         run: >
           ${{ matrix.pkg_mgr }}
           ${{ matrix.install_cmd }}
           ${{ matrix.deps }}
           ${{ matrix.arch_deps }}
-      - name: Install GTest
-        run: ${{ matrix.install_gtest }}
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Configure Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
           ./configure
       - name: Build Trick
+        run: make
+      - name: Test Trick
         run: |
-          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
-          make
-      - name: Test
-        run: |
-          cd share/trick/trickops/
-          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
-          cd ../../../; make test
+          python3 -m venv share/trick/trickops/.venv
+          source share/trick/trickops/.venv/bin/activate
+          pip3 install -r share/trick/trickops/requirements.txt
+          make test
       - name: Upload Tests
         uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
@@ -332,9 +312,10 @@ jobs:
           make
       - name: Test
         run: |
-          cd share/trick/trickops/
-          python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
-          cd ../../../; make test
+          python3 -m venv share/trick/trickops/.venv
+          source share/trick/trickops/.venv/bin/activate
+          pip3 install -r share/trick/trickops/requirements.txt
+          make test
       - name: Upload Tests
         uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
@@ -375,18 +356,18 @@ jobs:
         run: ${{ matrix.install }}
       - name: Create virtual environment
         run: |
-          cd share/trick/trickops/
-          python3 -m venv .venv && source .venv/bin/activate && pip3 install --upgrade pip && pip3 install -r requirements.txt
+          python3 -m venv share/trick/trickops/.venv
+          source share/trick/trickops/.venv/bin/activate
+          pip3 install --upgrade pip && pip3 install -r share/trick/trickops/requirements.txt
       - name: Build koviz
         run: |
-          cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
-          cd /tmp/koviz-master/ && ${{ matrix.qmake }} && make
+          git clone --depth 1 https://github.com/nasa/koviz.git /tmp/koviz
+          cd /tmp/koviz && ${{ matrix.qmake }} && make
       - name: Run unit and doc tests
         run: |
-          cd share/trick/trickops/tests/
-          source ../.venv/bin/activate
-          export PATH="/tmp/koviz-master/bin:${PATH}"
-          ./run_tests.py
+          source share/trick/trickops/.venv/bin/activate
+          export PATH="/tmp/koviz/bin:${PATH}"
+          share/trick/trickops/tests/run_tests.py
       - name: Upload test logs
         uses: actions/upload-artifact@v7
         if: always()
@@ -401,7 +382,6 @@ jobs:
     needs: [style]
     runs-on: ubuntu-latest
     env:
-      MAKEFLAGS: -j4
       CFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
       CXXFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
       LDFLAGS: "-fprofile-arcs -ftest-coverage -O0"
@@ -424,20 +404,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Configure Trick
-        run: ./configure
-      - name: Build Trick
         run: |
+          echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
           export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
-          make
+          ./configure
+      - name: Build Trick
+        run: make
       - name: Generate Code Coverage
         run: |
-          cd share/trick/trickops/
-          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
-          cd ../../../
+          python3 -m venv share/trick/trickops/.venv
+          source share/trick/trickops/.venv/bin/activate
+          pip3 install -r share/trick/trickops/requirements.txt
           make code-coverage
       - name: Upload to Coveralls
         uses: coverallsapp/github-action@v2
         continue-on-error: true
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: "./coverage.info"
+          file: coverage.info
+          format: lcov
