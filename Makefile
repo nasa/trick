@@ -335,8 +335,8 @@ extra-coverage-builds:
 	@ $(MAKE) test -C trick_source/trick_utils/SAIntegrator
 
 code-coverage: test extra-coverage-builds
-	lcov --capture --ignore-errors mismatch,negative $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info
-	lcov --remove coverage_large.info '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info
+	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info
+	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info
 	rm coverage_large.info
 	lcov --list coverage.info
 
