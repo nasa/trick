@@ -264,7 +264,7 @@ jobs:
       - name: Test Trick
         run: |
           python3 -m venv share/trick/trickops/.venv
-          source share/trick/trickops/.venv/bin/activate
+          . share/trick/trickops/.venv/bin/activate
           pip3 install -r share/trick/trickops/requirements.txt
           make test
       - name: Upload Tests
@@ -312,7 +312,7 @@ jobs:
       - name: Test
         run: |
           python3 -m venv share/trick/trickops/.venv
-          source share/trick/trickops/.venv/bin/activate
+          . share/trick/trickops/.venv/bin/activate
           pip3 install -r share/trick/trickops/requirements.txt
           make test
       - name: Upload Tests
@@ -356,7 +356,7 @@ jobs:
       - name: Create virtual environment
         run: |
           python3 -m venv share/trick/trickops/.venv
-          source share/trick/trickops/.venv/bin/activate
+          . share/trick/trickops/.venv/bin/activate
           pip3 install --upgrade pip && pip3 install -r share/trick/trickops/requirements.txt
       - name: Build koviz
         run: |
@@ -364,7 +364,7 @@ jobs:
           cd /tmp/koviz && ${{ matrix.qmake }} && make
       - name: Run unit and doc tests
         run: |
-          source share/trick/trickops/.venv/bin/activate
+          . share/trick/trickops/.venv/bin/activate
           export PATH="/tmp/koviz/bin:${PATH}"
           cd share/trick/trickops/tests && ./run_tests.py
       - name: Upload test logs
@@ -412,7 +412,7 @@ jobs:
       - name: Generate Code Coverage
         run: |
           python3 -m venv share/trick/trickops/.venv
-          source share/trick/trickops/.venv/bin/activate
+          . share/trick/trickops/.venv/bin/activate
           pip3 install -r share/trick/trickops/requirements.txt
           make code-coverage
       - name: Upload to Coveralls
