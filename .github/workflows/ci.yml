@@ -158,7 +158,6 @@ jobs:
             deps: >-
               bison
               clang
-              curl
               flex
               git
               llvm
@@ -177,6 +176,7 @@ jobs:
             pkg_mgr: apt-get
             conf_pkg: apt-get update
             arch_deps: >-
+              curl
               g++
               libx11-dev
               libxml2-dev
@@ -217,7 +217,6 @@ jobs:
               openmotif-devel
               perl
               perl-Digest-MD5
-              swig
               udunits2
               udunits2-devel
               which
@@ -256,12 +255,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Configure Trick
+        run: ./configure
+      - name: Build Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
-          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
-          ./configure
-      - name: Build Trick
-        run: make
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+          make
       - name: Test Trick
         run: |
           python3 -m venv share/trick/trickops/.venv
@@ -367,7 +366,7 @@ jobs:
         run: |
           source share/trick/trickops/.venv/bin/activate
           export PATH="/tmp/koviz/bin:${PATH}"
-          share/trick/trickops/tests/run_tests.py
+          cd share/trick/trickops/tests && ./run_tests.py
       - name: Upload test logs
         uses: actions/upload-artifact@v7
         if: always()
@@ -404,12 +403,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Configure Trick
+        run: ./configure
+      - name: Build Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
-          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
-          ./configure
-      - name: Build Trick
-        run: make
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+          make
       - name: Generate Code Coverage
         run: |
           python3 -m venv share/trick/trickops/.venv
