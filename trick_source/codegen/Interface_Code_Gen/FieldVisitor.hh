@@ -46,6 +46,13 @@ class FieldVisitor : public clang::RecursiveASTVisitor<FieldVisitor> {
         bool VisitFieldDecl( clang::FieldDecl *field ) ;
         bool VisitPointerType(clang::PointerType *p);
         bool VisitRecordType(clang::RecordType *rt);
+
+        /**
+         * The base RecursiveASTVisitor<Derived>::VisitFunctionProtoType is a no-op that returns true.
+         * Overriding it here allows us to check for function pointer types and set IO to 0 for them.
+         */
+        bool VisitFunctionProtoType(clang::FunctionProtoType *fpt);
+
         //bool VisitSubstTemplateTypeParmType(clang::SubstTemplateTypeParmType *sttpt);
         //bool VisitTemplateSpecializationType(clang::TemplateSpecializationType *tst);
         //bool VisitTemplateTypeParmType(clang::TemplateTypeParmType *ttp);
