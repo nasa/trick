@@ -255,12 +255,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Configure Trick
-        run: ./configure
-      - name: Build Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
           echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
-          make
+          ./configure
+      - name: Build Trick
+        run: make
       - name: Test Trick
         run: |
           python3 -m venv share/trick/trickops/.venv
@@ -403,12 +403,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Configure Trick
-        run: ./configure
-      - name: Build Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
           echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
-          make
+          ./configure
+      - name: Build Trick
+        run: make
       - name: Generate Code Coverage
         run: |
           python3 -m venv share/trick/trickops/.venv
