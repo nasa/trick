@@ -400,7 +400,6 @@ jobs:
     name: Code Coverage
     needs: [style]
     runs-on: ubuntu-latest
-    container: docker://oraclelinux:8
     env:
       MAKEFLAGS: -j4
       CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
@@ -412,21 +411,16 @@ jobs:
       TRICK_SYSTEM_CFLAGS: "-fprofile-arcs -ftest-coverage -O0"
       TRICK_SYSTEM_CXXFLAGS: "-fprofile-arcs -ftest-coverage -O0"
     steps:
-      - name: Update Package Manager
-        run: |
-          dnf -y install epel-release
-          dnf -y update
-          dnf install -y 'dnf-command(config-manager)'
-
       - name: Install Dependencies
         run: |
-          dnf install -y bison clang flex git llvm make maven cmake zip  clang-devel gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 udunits2-devel which zlib-devel python2-devel python3-devel swig diffutils lcov
-
-      - name: Install GTest
-        run: |
-          dnf config-manager --enable ol8_codeready_builder
-          dnf install -y gtest-devel gmock-devel
-
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            bison clang flex git llvm make maven cmake zip \
+            g++ libclang-dev llvm-dev \
+            default-jdk libxml2-dev libmotif-dev libxt-dev \
+            perl libdigest-md5-perl libudunits2-dev zlib1g-dev \
+            python3-dev python3-pip python3-venv swig \
+            libgtest-dev libgmock-dev lcov
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Configure Trick
