@@ -321,7 +321,7 @@ jobs:
           sudo cmake --install build
       - name: Install dependencies
         run: |
-          brew update
+          brew update || true
           brew upgrade || true
           brew install --cask xquartz
           brew install udunits openmotif maven
