@@ -12,6 +12,8 @@
 
 #include "trick/VariableServerSessionThread.hh"
 
+extern Trick::VariableServer * the_vs ;
+
 void exit_var_thread(void *in_vst) ;
 
 void * Trick::VariableServerSessionThread::thread_body() {
@@ -26,6 +28,17 @@ void * Trick::VariableServerSessionThread::thread_body() {
 
     // Accept client connection
     int status = _connection->start();
+
+    std::string new_ip = _connection->getClientHostname() ;
+    //check against white list
+    //skip this check if connection failed, don't want an erroneous error
+    if (!_vs->get_allow_all_connections() && status != CONNECTION_FAIL) {
+        if ( _vs->get_ip_whitelist().find(new_ip) == _vs->get_ip_whitelist().end() ) {
+            std::string err_msg = "ILLEGAL IP CONNECTION ATTEMPTED: " + new_ip + "\n";
+            perror(err_msg.c_str()) ;
+            status = CONNECTION_FAIL ;
+        }
+    }
 
     if (status != 0) {
         _vs->delete_vst(pthread_self());

@@ -9,6 +9,7 @@
 #include <map>
 #include <queue>
 #include <vector>
+#include <set>
 #include <string>
 #include <iostream>
 #include <pthread.h>
@@ -295,6 +296,41 @@ namespace Trick {
             */
             void set_copy_and_write_freeze_job( Trick::JobData * ) ;
 
+            /**
+             @brief Enable/Disable the allow connections flag.
+            */
+            bool set_allow_connections(const bool& b) ;
+
+            /**
+             @brief Check the allow connections flag.
+            */
+            bool get_allow_connections() ;
+
+            /**
+             @brief Enable/Disable the allow all connections flag.
+            */
+            bool set_allow_all_connections(const bool& b) ;
+
+            /**
+             @brief Check the allow all connections flag.
+            */
+            bool get_allow_all_connections() ;
+
+            /**
+             @brief Check the allow all connections flag.
+            */
+            const std::set<std::string>& get_ip_whitelist() ;
+
+            /**
+             @brief Add ip to the whitelist.
+            */
+            void add_ip(const std::string& ip) ;
+
+            /**
+             @brief Remove ip from the whitelist.
+            */
+            void remove_ip(const std::string& ip) ;
+
         protected:
 
             /** Toggle to enable/disable the variable server.\n */
@@ -329,6 +365,14 @@ namespace Trick {
             /** Map of additional listen threads created by create_tcp_socket.\n */
             std::map < pthread_t , VariableServerListenThread * > additional_listen_threads ; /**<  trick_io(**) */
 
+            /** List of IPs to accept connections from.\n */
+            std::set<std::string> ip_whitelist;
+            
+            /** Flag to allow connections to the VS. Off by default for security reasons.\n */
+            bool allow_connections;
+
+            /** Skip checks against white list. Allow any connections to VS. UNSECURE MODE.\n */
+            bool allow_all_connections;
 
     } ;
 
@@ -385,6 +429,11 @@ int var_set( const char * var , void * value , const char * units = NULL ) ;
 
 int var_server_log_on() ;
 int var_server_log_off() ;
+
+int var_allow_connections(bool) ;
+int var_allow_all_connections(bool) ;
+void var_add_ip(const std::string& ip) ;
+void var_remove_ip(const std::string& ip) ;
 
 #endif
 

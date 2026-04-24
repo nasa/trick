@@ -9,10 +9,14 @@ Trick::VariableServer * the_vs ;
 Trick::VariableServer::VariableServer() :
  enabled(true) ,
  info_msg(false),
- log(false)
+ log(false),
+ allow_connections(false),
+ allow_all_connections(false)
 {
     the_vs = this ;
     pthread_mutex_init(&map_mutex, NULL);
+
+    ip_whitelist.insert("127.0.0.1");
 }
 
 Trick::VariableServer::~VariableServer() {
@@ -170,4 +174,32 @@ void Trick::VariableServer::set_copy_data_job( Trick::JobData * in_job ) {
 
 void Trick::VariableServer::set_copy_and_write_freeze_job( Trick::JobData * in_job ) {
     copy_and_write_freeze_job = in_job ;
+}
+
+bool Trick::VariableServer::set_allow_connections(const bool& b) {
+    return allow_connections = b ;
+}
+
+bool Trick::VariableServer::get_allow_connections() {
+    return allow_connections ;
+}
+
+bool Trick::VariableServer::set_allow_all_connections(const bool& b) {
+    return allow_all_connections = b ;
+}
+
+bool Trick::VariableServer::get_allow_all_connections() {
+    return allow_all_connections ;
+}
+
+const std::set<std::string>& Trick::VariableServer::get_ip_whitelist() {
+    return ip_whitelist ;
+}
+
+void Trick::VariableServer::add_ip(const std::string& ip) {
+    ip_whitelist.insert(ip) ;
+}
+
+void Trick::VariableServer::remove_ip(const std::string& ip) {
+    ip_whitelist.erase(ip) ;
 }

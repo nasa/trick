@@ -587,3 +587,19 @@ int var_set( const char  * var , const char * value , const char * units ) {
 int var_set( const char  * var , void * value , const char * units ) {
     return var_set_base(var, value, units) ;
 }
+
+int var_allow_connections(bool allow) {
+    return the_vs->set_allow_connections(allow) ;
+}
+
+int var_allow_all_connections(bool allow) {
+    return the_vs->set_allow_all_connections(allow) ;
+}
+
+void var_add_ip(const std::string& ip) {
+    the_vs->add_ip(ip) ;
+}
+
+void var_remove_ip(const std::string& ip) {
+    the_vs->remove_ip(ip) ;
+}

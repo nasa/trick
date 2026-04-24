@@ -7,6 +7,8 @@ event_b = None
 
 
 def main():
+    trick.var_allow_all_connections(1)
+
     global event_a, event_b
     # Fixed port so the test client knows where to connect
     trick.var_server_set_port(40100)
