@@ -409,6 +409,9 @@ int Trick::ClassicCheckPointAgent::is_nil_valued( void* address,
                } else if ((size_t)attr->size == sizeof(short)) {
                    test_addr = (char*)address + offset * sizeof(short);
                    if (*(short*)test_addr == 0) return(1);
+               } else if ((size_t)attr->size == sizeof(char)) {
+                   test_addr = (char*)address + offset * sizeof(char);
+                   if (*(char*)test_addr == 0) return(1);
                } else {
                    return(-1);
                }
@@ -578,6 +581,14 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
                 } else if ((size_t)attr->size == sizeof(short)) {
                     src_addr = (char*)address + offset * sizeof(short);
                     value =  *(short*)src_addr;
+                } else if ((size_t)attr->size == sizeof(char)) {
+                    src_addr = (char*)address + offset * sizeof(char);
+                    ENUM_ATTR* eattr = (ENUM_ATTR*)attr->attr;
+                    if (eattr != nullptr && (eattr[0].mods & 0x40000000)) {
+                        value = (int)(unsigned char)*(char*)src_addr;
+                    } else {
+                        value = (int)*(char*)src_addr;
+                    }
                 } else {
                     std::cerr << __FUNCTION__ << ": enumeration size error." << std::endl;
                     std::cerr.flush();
