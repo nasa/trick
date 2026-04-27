@@ -36,7 +36,6 @@ typedef struct {
 
     char key_file[256];                /* -- An existing file name to use in generating key, in combination with proj_id, (ftok) for shared memory */
     int  proj_id;                      /* -- A value to use, in combination with the key_file, (ftok) for shared memory. Use 1..255 to create 255 different keys */
-    int  key_id;                       /* ** Id value to use,  in generating key value (ftok) for shared memory. . */
 
     key_t key;                         /* ** The key returned from ftok call, needed for shared memory create (shmget) */
     

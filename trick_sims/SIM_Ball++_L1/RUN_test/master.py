@@ -15,7 +15,7 @@ new_slave1 = trick.SlaveInfo()
 new_slave1.set_connection_type(new_connection1)
 new_slave1.sim_path = trick.get_trick_env("TRICK_HOME") + "/trick_sims/SIM_Ball++_L1"
 new_slave1.run_input_file = "RUN_shm_slaves/slave1_shm1.py"
-new_slave1.remote_shell_config_file = "local_trick.zsh"
+new_slave1.remote_shell_config_file = "local_trick.sh"
 new_slave1.sync_error_terminate = 1
 trick_master_slave.master.add_slave(new_slave1)
 
@@ -26,7 +26,7 @@ new_slave2 = trick.SlaveInfo()
 new_slave2.set_connection_type(new_connection2)
 new_slave2.sim_path = trick.get_trick_env("TRICK_HOME") + "/trick_sims/SIM_Ball++_L1"
 new_slave2.run_input_file = "RUN_shm_slaves/slave2_shm2.py"
-new_slave2.remote_shell_config_file = "local_trick.zsh"
+new_slave2.remote_shell_config_file = "local_trick.sh"
 new_slave2.sync_error_terminate = 1
 trick_master_slave.master.add_slave(new_slave2)
 
@@ -35,7 +35,7 @@ new_slave3 = trick.SlaveInfo()
 new_slave3.set_connection_type(new_connection3)
 new_slave3.sim_path = trick.get_trick_env("TRICK_HOME") + "/trick_sims/SIM_Ball++_L1"
 new_slave3.run_input_file = "RUN_socket_slaves/slave3_sock1.py"
-new_slave3.remote_shell_config_file = "local_trick.zsh"
+new_slave3.remote_shell_config_file = "local_trick.sh"
 new_slave3.sync_error_terminate = 1
 trick_master_slave.master.add_slave(new_slave3)
 
@@ -44,7 +44,7 @@ new_slave4 = trick.SlaveInfo()
 new_slave4.set_connection_type(new_connection4)
 new_slave4.sim_path = trick.get_trick_env("TRICK_HOME") + "/trick_sims/SIM_Ball++_L1"
 new_slave4.run_input_file = "RUN_socket_slaves/slave4_sock2.py"
-new_slave4.remote_shell_config_file = "local_trick.zsh"
+new_slave4.remote_shell_config_file = "local_trick.sh"
 new_slave4.sync_error_terminate = 1
 trick_master_slave.master.add_slave(new_slave4)
 

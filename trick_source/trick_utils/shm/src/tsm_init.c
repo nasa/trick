@@ -12,15 +12,15 @@
 #include <stdbool.h>
 #include <string.h>
 
-typedef struct 
+typedef struct
 {
     char key_file[256];
-    int  proj_id;
+    int proj_id;
 
 } TRICK_SHM_PAIRS;
 
-static int g_numTrickShmPairs = 0;
-static TRICK_SHM_PAIRS * g_TrickShmPairs = NULL;
+static int g_numTrickShmPairs           = 0;
+static TRICK_SHM_PAIRS* g_TrickShmPairs = NULL;
 
 key_t my_ftok(const char* path, int proj_id) ;
 
@@ -45,6 +45,35 @@ key_t my_ftok(const char* path, int proj_id) {
 
 }
 
+static void cleanup_trickshm_pairs(void)
+{
+    if (g_TrickShmPairs != NULL)
+    {
+        free(g_TrickShmPairs);
+        g_TrickShmPairs    = NULL;
+        g_numTrickShmPairs = 0;
+    }
+}
+
+static int check_projid_limits(TSMDevice* shm_device, const char* err_prefix)
+{
+    if (shm_device->proj_id > 255)
+    {
+        fprintf(stderr,
+            "tsm_init SHARED MEMORY CREATE FAILED (exceeded max shared memory segments of 255)\n%s, key_file=%s "
+            "proj_id=%d\n",
+            err_prefix, shm_device->key_file, shm_device->proj_id);
+        return (TSM_FAIL);
+    }
+    else if (shm_device->proj_id <= 0)
+    {
+        fprintf(stderr,
+            "tsm_init SHARED MEMORY CREATE FAILED (zero or negative proj_id parameter)\n%s, key_file=%s proj_id=%d\n",
+            err_prefix, shm_device->key_file, shm_device->proj_id);
+        return (TSM_FAIL);
+    }
+    return 0;
+}
 
 int tsm_init(TSMDevice * shm_device)
 {
@@ -64,48 +93,59 @@ int tsm_init(TSMDevice * shm_device)
 
     // Create a key for call to shmget, by passing an existing file name and proj_id to ftok()
     // If user has not set the filename, use this file as the default
-    if (shm_device->proj_id > 255) {
-        perror("tsm_init SHARED MEMORY CREATE FAILED (exceeded max shared memory segments of 255)");
-        fprintf(stderr, "proj_id=%d\n", shm_device->proj_id);
-        return (TSM_FAIL);
-    } else if(shm_device->proj_id < 0)
-    {
-        perror("tsm_init SHARED MEMORY CREATE FAILED (negative proj_id parameter)");
-        fprintf(stderr, "proj_id=%d\n", shm_device->proj_id);
-        return (TSM_FAIL);
-    }
-
     if (shm_device->key_file[0] == '\0') {
         snprintf(shm_device->key_file, sizeof(shm_device->key_file), "%s/trick_source/trick_utils/shm/src/tsm_init.c", get_trick_env("TRICK_HOME"));
     }
-    //shm_device->key = ftok(shm_device->key_file, proj_id);
-    if(shm_device->proj_id == 0)
+
+    // If the user has not set proj_id, create a valid proj_id managed by this library and increment each time this
+    // key_file is used.
+    if (shm_device->proj_id == 0)
     {
-        libManagedProjId = true;
-        TRICK_SHM_PAIRS * foundPair = NULL;
-        for(int ii = 0; ii < g_numTrickShmPairs; ++ii)
+        if (g_TrickShmPairs == NULL)
         {
-            TRICK_SHM_PAIRS * testPair = &g_TrickShmPairs[ii];
-            if(strncmp(testPair->key_file, shm_device->key_file, sizeof(testPair->key_file)) == 0)
+            // We're about to allocate, register the cleanup function once with atexit
+            atexit(cleanup_trickshm_pairs);
+        }
+
+        libManagedProjId           = true;
+        TRICK_SHM_PAIRS* foundPair = NULL;
+        for (int ii = 0; ii < g_numTrickShmPairs; ++ii)
+        {
+            TRICK_SHM_PAIRS* testPair = &g_TrickShmPairs[ii];
+            if (strncmp(testPair->key_file, shm_device->key_file, sizeof(testPair->key_file)) == 0)
             {
                 foundPair = testPair;
-                break;                
+                break;
             }
         }
-        if(foundPair == NULL)
+        if (foundPair == NULL)
         {
-            g_TrickShmPairs = realloc(g_TrickShmPairs, sizeof(TRICK_SHM_PAIRS)*(g_numTrickShmPairs+1));
+            g_TrickShmPairs = realloc(g_TrickShmPairs, sizeof(TRICK_SHM_PAIRS) * (g_numTrickShmPairs + 1));
             memset(&g_TrickShmPairs[g_numTrickShmPairs], 0, sizeof(TRICK_SHM_PAIRS));
             strncpy(g_TrickShmPairs[g_numTrickShmPairs].key_file, shm_device->key_file, sizeof(shm_device->key_file));
             g_TrickShmPairs[g_numTrickShmPairs].proj_id = 1;
-            shm_device->proj_id = 1;
+            shm_device->proj_id                         = 1;
             ++g_numTrickShmPairs;
-        } else {            
+        }
+        else
+        {
             shm_device->proj_id = ++foundPair->proj_id;
+        }
+        if (check_projid_limits(shm_device, "(shm lib managed)"))
+        {
+            return (TSM_FAIL);
+        }
+    }
+    else
+    {
+        if (check_projid_limits(shm_device, "User-specified"))
+        {
+            return (TSM_FAIL);
         }
     }
 
     // we will use our own key generation in my_ftok
+    //shm_device->key = ftok(shm_device->key_file, proj_id);
     shm_device->key = my_ftok(shm_device->key_file, shm_device->proj_id);
     if (shm_device->key == -1) {
         perror("tsm_init SHARED MEMORY CREATE FAILED (ftok)");
@@ -140,10 +180,15 @@ int tsm_init(TSMDevice * shm_device)
         pthread_rwlock_init(shm_device->rwlock_addr, &shm_device->rwlattr);
     }
 
-    if(libManagedProjId) {
-        fprintf(stderr, "Trick shared memory key_file %s (managed) id %d init Successful (shmid=%d)\n", shm_device->key_file, shm_device->proj_id, shm_device->shmid);
-    } else {
-        fprintf(stderr, "Trick shared memory key_file %s id %d init Successful (shmid=%d)\n", shm_device->key_file, shm_device->proj_id, shm_device->shmid);
+    if (libManagedProjId)
+    {
+        fprintf(stderr, "Trick shared memory key_file %s (managed) id %d init Successful (shmid=%d)\n",
+            shm_device->key_file, shm_device->proj_id, shm_device->shmid);
+    }
+    else
+    {
+        fprintf(stderr, "Trick shared memory key_file %s id %d init Successful (shmid=%d)\n", shm_device->key_file,
+            shm_device->proj_id, shm_device->shmid);
     }
 
     return (TSM_SUCCESS);

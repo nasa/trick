@@ -63,7 +63,7 @@ namespace Trick {
 
     /** The data to read/write between the master and slave in shared memory.\n */
     typedef struct {
-        uint64_t master_pid ;                      /**< trick_units(--) */         
+        int64_t master_pid ;                      /**< trick_units(--) */         
         MSQ_DECLARE (master_time, int64_t)
         MSQ_DECLARE (master_command, int32_t)
         MSQ_DECLARE (slave_command, int32_t)
