@@ -3,6 +3,7 @@ PURPOSE: (Testing)
 */
 #include <vector>
 #include <stdlib.h>
+#include <stdint.h>
 
 // Test enum / enum class 32bit, 16bit, and 8bit enums
 enum Enum_u32: uint32_t {
