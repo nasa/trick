@@ -606,13 +606,6 @@ int var_allow_all_connections() {
     return 1 ;
 }
 
-void var_set_vs_enabled(bool b) {
-    the_vs->set_enabled(b) ;
-}
-int var_get_vs_enabled() {
-    return the_vs->get_enabled() ;
-}
-
 int var_set_allow_connections(bool b) {
     return the_vs->set_allow_connections(b) ;
 }

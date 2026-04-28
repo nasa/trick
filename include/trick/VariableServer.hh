@@ -434,8 +434,6 @@ int var_allow_connections() ;
 int var_disable_connections() ;
 int var_allow_all_connections() ;
 
-void var_set_vs_enabled(bool b) ;
-int var_get_vs_enabled() ;
 int var_set_allow_connections(bool b) ;
 int var_get_allow_connections() ;
 int var_set_ip_check_bypass(bool b) ;
