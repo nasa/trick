@@ -6,6 +6,8 @@ exec(open("Modified_data/realtime.py").read())
 varServerPort = trick.var_server_get_port();
 CannonDisplay_path = "../models/graphics/dist/CannonDisplay.jar"
 
+trick.var_allow_all_connections()
+
 if (os.path.isfile(CannonDisplay_path)) :
     CannonDisplay_cmd = "java -jar " \
                    + CannonDisplay_path \

@@ -2,6 +2,8 @@ import math
 
 exec(open("./Modified_data/realtime.py").read())
 
+trick.var_allow_all_connections()
+
 dyn.table.numBalls = 4
 dyn.table.balls = trick.TMM_declare_var_1d("Ball*", dyn.table.numBalls)
 

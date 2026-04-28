@@ -32,8 +32,17 @@ void * Trick::VariableServerSessionThread::thread_body() {
     std::string new_ip = _connection->getClientHostname() ;
     //check against white list
     //skip this check if connection failed, don't want an erroneous error
-    if (!_vs->get_allow_all_connections() && status != CONNECTION_FAIL) {
-        if ( _vs->get_ip_whitelist().find(new_ip) == _vs->get_ip_whitelist().end() ) {
+    if (!_vs->get_bypass_ip_check() && status != CONNECTION_FAIL) {
+        const std::set<std::string>& ips = _vs->get_ip_whitelist() ;
+        bool valid_ip = false ;
+        for (std::set<std::string>::iterator it = ips.begin(); it != ips.end(); ++it) {
+            if ( new_ip.rfind(*it, 0) == 0 ) {
+                valid_ip = true;
+                break ;
+            }
+        }
+
+        if ( !valid_ip ) {
             std::string err_msg = "ILLEGAL IP CONNECTION ATTEMPTED: " + new_ip + "\n";
             perror(err_msg.c_str()) ;
             status = CONNECTION_FAIL ;

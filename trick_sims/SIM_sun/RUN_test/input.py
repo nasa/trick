@@ -1,6 +1,8 @@
 
 trick_sys.sched.set_enable_freeze(True)
 
+trick.var_allow_all_connections()
+
 """ Sim Control Panel """
 simControlPanel = trick.SimControlPanel()
 trick.add_external_application(simControlPanel)

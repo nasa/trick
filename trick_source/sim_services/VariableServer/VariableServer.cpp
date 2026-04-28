@@ -7,11 +7,11 @@
 Trick::VariableServer * the_vs ;
 
 Trick::VariableServer::VariableServer() :
- enabled(true) ,
+ enabled(false) ,
  info_msg(false),
  log(false),
  allow_connections(false),
- allow_all_connections(false)
+ bypass_ip_check(false)
 {
     the_vs = this ;
     pthread_mutex_init(&map_mutex, NULL);
@@ -184,12 +184,12 @@ bool Trick::VariableServer::get_allow_connections() {
     return allow_connections ;
 }
 
-bool Trick::VariableServer::set_allow_all_connections(const bool& b) {
-    return allow_all_connections = b ;
+bool Trick::VariableServer::set_bypass_ip_check(const bool& b) {
+    return bypass_ip_check = b ;
 }
 
-bool Trick::VariableServer::get_allow_all_connections() {
-    return allow_all_connections ;
+bool Trick::VariableServer::get_bypass_ip_check() {
+    return bypass_ip_check ;
 }
 
 const std::set<std::string>& Trick::VariableServer::get_ip_whitelist() {

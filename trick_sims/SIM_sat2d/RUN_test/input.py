@@ -2,6 +2,8 @@ if not trick_utest.unit_tests.enabled:
    exec(open("Modified_data/realtime.py").read())
 exec(open("Modified_data/satellite.dr").read())
 
+trick.var_allow_all_connections()
+
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 6)
 
 #==========================================

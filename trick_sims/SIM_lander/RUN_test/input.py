@@ -1,5 +1,7 @@
 exec(open("./Modified_data/realtime.py").read())
 
+trick.var_allow_all_connections()
+
 dyn.lander.pos[0] = 0
 dyn.lander.pos[1] = 1.8
 dyn.lander.vel[0] = 0.0

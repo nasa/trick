@@ -19,6 +19,8 @@
 exec(open("Modified_data/state_data.dr").read())
 exec(open("Modified_data/realtime.py").read())
 
+trick.var_allow_all_connections()
+
 ################################################################################
 # dyn DATA	    							       #
 #	(NOTE: dyn is our instance of BodySimObject)                           #

@@ -309,12 +309,12 @@ namespace Trick {
             /**
              @brief Enable/Disable the allow all connections flag.
             */
-            bool set_allow_all_connections(const bool& b) ;
+            bool set_bypass_ip_check(const bool& b) ;
 
             /**
              @brief Check the allow all connections flag.
             */
-            bool get_allow_all_connections() ;
+            bool get_bypass_ip_check() ;
 
             /**
              @brief Check the allow all connections flag.
@@ -366,13 +366,13 @@ namespace Trick {
             std::map < pthread_t , VariableServerListenThread * > additional_listen_threads ; /**<  trick_io(**) */
 
             /** List of IPs to accept connections from.\n */
-            std::set<std::string> ip_whitelist;
+            std::set<std::string> ip_whitelist ;
             
             /** Flag to allow connections to the VS. Off by default for security reasons.\n */
-            bool allow_connections;
+            bool allow_connections ;
 
             /** Skip checks against white list. Allow any connections to VS. UNSECURE MODE.\n */
-            bool allow_all_connections;
+            bool bypass_ip_check ;
 
     } ;
 
@@ -430,8 +430,16 @@ int var_set( const char * var , void * value , const char * units = NULL ) ;
 int var_server_log_on() ;
 int var_server_log_off() ;
 
-int var_allow_connections(bool) ;
-int var_allow_all_connections(bool) ;
+int var_allow_connections() ;
+int var_disable_connections() ;
+int var_allow_all_connections() ;
+
+void var_set_vs_enabled(bool b) ;
+int var_get_vs_enabled() ;
+int var_set_allow_connections(bool b) ;
+int var_get_allow_connections() ;
+int var_set_ip_check_bypass(bool b) ;
+int var_get_ip_check_bypass() ;
 void var_add_ip(const std::string& ip) ;
 void var_remove_ip(const std::string& ip) ;
 

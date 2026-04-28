@@ -1,3 +1,5 @@
+trick.var_allow_all_connections()
+
 dyn.baseball.pos[0] = 16.0
 dyn.baseball.pos[1] = 0.1
 dyn.baseball.pos[2] = 2.0

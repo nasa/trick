@@ -3,6 +3,8 @@ import os
 exec(open("Modified_data/realtime.py").read())
 #exec(open("Modified_data/Satellite.dr").read())
 
+trick.var_allow_all_connections()
+
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 18)
 
 scene_app_path = 'models/Satellite/graphics/Scene'

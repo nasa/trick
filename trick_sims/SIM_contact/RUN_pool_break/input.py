@@ -1,5 +1,7 @@
 exec(open("./Modified_data/realtime.py").read())
 
+trick.var_allow_all_connections()
+
 # Variable Server Data should be copied at top of frame.
 trick.var_set_copy_mode(2)
 

@@ -170,7 +170,7 @@ void * Trick::VariableServerListenThread::thread_body() {
         if (_listener->checkForNewConnections()) {
 
             // Create a new thread to service this connection
-            if ( the_vs->get_allow_connections() || the_vs->get_allow_all_connections()) {
+            if ( the_vs->get_allow_connections() ) {
                 pthread_mutex_lock(&connectionMutex);
                 pendingConnections ++;
 

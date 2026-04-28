@@ -588,12 +588,45 @@ int var_set( const char  * var , void * value , const char * units ) {
     return var_set_base(var, value, units) ;
 }
 
-int var_allow_connections(bool allow) {
-    return the_vs->set_allow_connections(allow) ;
+int var_allow_connections() {
+    var_server_set_enabled(true) ;
+    the_vs->set_allow_connections(true) ;
+    return 1 ;
 }
 
-int var_allow_all_connections(bool allow) {
-    return the_vs->set_allow_all_connections(allow) ;
+int var_disable_connections() {
+    var_server_set_enabled(false) ;
+    the_vs->set_allow_connections(false) ;
+    return 0 ;
+}
+
+int var_allow_all_connections() {
+    var_allow_connections() ;
+    the_vs->set_bypass_ip_check(true) ;
+    return 1 ;
+}
+
+void var_set_vs_enabled(bool b) {
+    the_vs->set_enabled(b) ;
+}
+int var_get_vs_enabled() {
+    return the_vs->get_enabled() ;
+}
+
+int var_set_allow_connections(bool b) {
+    return the_vs->set_allow_connections(b) ;
+}
+
+int var_get_allow_connections() {
+    return the_vs->get_allow_connections() ;
+}
+
+int var_set_ip_check_bypass(bool b) {
+    return the_vs->set_bypass_ip_check(b) ;
+}
+
+int var_get_ip_check_bypass() {
+    return the_vs->get_bypass_ip_check() ;
 }
 
 void var_add_ip(const std::string& ip) {

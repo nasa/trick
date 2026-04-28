@@ -1,5 +1,7 @@
 exec(open("./Modified_data/realtime.py").read())
 
+trick.var_allow_all_connections()
+
 dyn.balloon.pos[0] = 0
 #dyn.balloon.pos[1] = 136.89
 dyn.balloon.vel[0] = 0.0
