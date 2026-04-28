@@ -42,6 +42,10 @@ class VariableServerListenThread_test : public ::testing::Test {
         MockMulticastGroup * mcast;
 
 		VariableServerListenThread_test() { 
+            varserver.set_enabled(1);
+            varserver.set_allow_connections(1);
+            varserver.set_bypass_ip_check(1);
+
             // Set up dependencies that haven't been broken
             Trick::VariableServerSessionThread::set_vs_ptr(&varserver);
 

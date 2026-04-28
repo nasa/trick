@@ -18,7 +18,9 @@ class VariableServer_test : public ::testing::Test {
         Trick::VariableServer vs;
 
 		VariableServer_test() { 
-
+            vs.set_enabled(1);
+            vs.set_allow_connections(1);
+            vs.set_bypass_ip_check(1);
         }
 
 		~VariableServer_test() {
