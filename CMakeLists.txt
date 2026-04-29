@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.1)
 # trick is a C/C++ project, but we have some macOS
 # configuration to do before CMake searches for compilers
 project(trick NONE)
-set(TRICK_MAJOR 19)
-set(TRICK_MINOR 8)
-set(TRICK_TINY 0)
+set(TRICK_MAJOR 25)
+set(TRICK_MINOR 0)
+set(TRICK_TINY 3)
 # set TRICK_PRERELEASE TO EMPTY STRING "" ON RELEASE
 set(TRICK_PRERELEASE "-beta")
 
@@ -195,6 +195,8 @@ set( IO_SRC
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MonteCarlo.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MonteMonitor.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MonteVar.cpp
+  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MultiDtIntegLoopScheduler.cpp
+  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MultiDtIntegLoopSimObject.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_NL2_Integrator.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_PlaybackFile.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_RK2_Integrator.cpp

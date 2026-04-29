@@ -8,7 +8,7 @@
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 # Flags passed to the preprocessor.
-TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
+TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
 
 TRICK_LIBS = ${TRICK_LIB_DIR}/libtrick.a
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
@@ -38,4 +38,3 @@ Interpolator_unittest.o : Interpolator_unittest.cc
 
 Interpolator_unittest : Interpolator_unittest.o
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
-

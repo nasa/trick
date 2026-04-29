@@ -77,6 +77,7 @@ namespace Trick {
         bool   _deref;                        // -- indicates whether variable is pointer that needs to be dereferenced
         cv_converter * _conversion_factor ;  // ** udunits conversion factor
         TRICK_TYPE _trick_type ;             // -- Trick type of this variable
+        bool _used_stl_indexing;             // -- indicates if reference involved STL container indexing
 
         bool _staged;
         bool _write_ready;

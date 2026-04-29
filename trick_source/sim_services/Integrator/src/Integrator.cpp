@@ -15,6 +15,7 @@ Trick::Integrator::Integrator() {
    is_2nd_order_ODE_technique = 0;
    use_deriv2 = 0;
    dt = 0.01;
+   target_integ_time = dt;
    state = NULL;
    deriv = NULL;
    deriv2 = NULL;

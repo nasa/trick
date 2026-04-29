@@ -11,19 +11,28 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
 # Flags passed to the preprocessor.
-TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
+TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
 
 # so it seems like there's some weirdness linking in the bitfield objects since they are C
 MM_OBJECTS = $(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_bitfield.o \
 				$(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_unsigned_bitfield.o
 
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick_mm -ltrick_units -ltrick
+#TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick_mm -ltrick_units -ltrick -ltrick_mm
+TRICK_LIB_NAMES = trick_mm trick_units trick trick_pyip trick_connection_handlers trick_comm
+ifeq ($(TRICK_HOST_TYPE),Linux)
+    TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,--start-group $(addprefix -l,$(TRICK_LIB_NAMES)) -Wl,--end-group
+else ifeq ($(TRICK_HOST_TYPE),Darwin)
+	TRICK_LIBS = -L${TRICK_LIB_DIR} $(addprefix -l, $(TRICK_LIB_NAMES))
+else
+    $(error Unsupported platform: $(shell uname))
+endif
+
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = create_path_test
+TESTS = create_path_test CommandLineArguments_test
 
 # House-keeping build targets.
 
@@ -31,6 +40,7 @@ all : $(TESTS)
 
 test: $(TESTS)
 	./create_path_test --gtest_output=xml:${TRICK_HOME}/trick_test/create_path_test.xml
+	./CommandLineArguments_test --gtest_output=xml:${TRICK_HOME}/trick_test/CommandLineArguments_test.xml
 
 clean :
 	rm -f $(TESTS) *.o *.gcno *.gcda
@@ -40,4 +50,10 @@ create_path_test.o : create_path_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
 create_path_test : create_path_test.o $(MM_OBJECTS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+CommandLineArguments_test.o : CommandLineArguments_test.cpp
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
+
+CommandLineArguments_test : CommandLineArguments_test.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

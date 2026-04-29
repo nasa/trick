@@ -11,6 +11,8 @@ int integrate(void);
 int integrate_1st_order_ode(const double* deriv, double* state);
 int integrate_2nd_order_ode(const double* acc, double* vel, double * pos);
 double get_integ_time(void);
+double get_integ_dt(void);
+double get_integ_target_time(void);
 void set_integ_time(double time_value);
 void reset_state();
 #ifndef USE_ER7_UTILS_INTEGRATORS

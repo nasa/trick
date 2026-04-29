@@ -21,11 +21,7 @@ void sig_hand(int sig) ;
 void ctrl_c_hand(int sig) ;
 void term_hand(int sig) ;
 void child_handler(int sig) ;
-#if (__APPLE__ | __CYGWIN__ | __INTERIX )
-void fpe_sig_handler(int sig) ;
-#else
 void fpe_sig_handler(int sig, siginfo_t * sip, void *uap) ;
-#endif
 
 namespace Trick {
 
@@ -810,11 +806,7 @@ TEST_F(ExecutiveTest , SetSignalHandlers) {
     sigaction(SIGCHLD, NULL , &sigact) ;
     EXPECT_TRUE( sigact.sa_handler == child_handler ) ;
     sigaction(SIGFPE, NULL , &sigact) ;
-#if __APPLE__
-    EXPECT_TRUE( sigact.sa_handler == fpe_sig_handler ) ;
-#else
     EXPECT_TRUE( sigact.sa_sigaction == fpe_sig_handler ) ;
-#endif
 
     exec.set_trap_sigbus(0) ;
     exec.set_trap_sigsegv(0) ;

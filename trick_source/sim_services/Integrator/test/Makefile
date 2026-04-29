@@ -8,9 +8,17 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Makefile.common
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include/trick/compat -g -Wall -Wextra -DUSE_ER7_UTILS_INTEGRATORS=1 -DTEST ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include/trick/compat -g -DUSE_ER7_UTILS_INTEGRATORS=1 -DTEST ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
 
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_mm -ltrick_units -ltrick_mm -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick_mm -ltrick_units -ltrick
+#TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_mm -ltrick_units -ltrick_mm -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick_mm -ltrick_units -ltrick -ltrick_mm
+TRICK_LIB_NAMES = trick trick_mm trick_units trick_pyip trick_connection_handlers trick_comm
+ifeq ($(TRICK_HOST_TYPE),Linux)
+    TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,--start-group $(addprefix -l,$(TRICK_LIB_NAMES)) -Wl,--end-group
+else ifeq ($(TRICK_HOST_TYPE),Darwin)
+	TRICK_LIBS = -L${TRICK_LIB_DIR} $(addprefix -l, $(TRICK_LIB_NAMES))
+else
+    $(error Unsupported platform: $(shell uname))
+endif
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 
 # All tests produced by this Makefile.  Remember to add new tests you

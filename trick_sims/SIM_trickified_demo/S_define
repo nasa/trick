@@ -1,0 +1,62 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#define TRICK_JSON_VARIABLE_SERVER
+#include "sim_objects/default_trick_sys.sm"
+
+##include "Ball.hh"
+
+/**
+  This class is the base ball class
+ */
+class ballSimObject : public Trick::SimObject {
+
+    public:
+        /** The actual ball object */
+        Ball obj ;
+
+        /** Constructor to add the jobs */
+        ballSimObject() {
+            //("default_data") obj.force.default_data() ;
+            //("default_data") obj.state.default_data() ;
+
+            ("initialization") obj.state_init() ;
+
+            ("derivative") obj.force_field() ;
+            ("derivative") obj.state_deriv() ;
+            ("integration") trick_ret = obj.state_integ() ;
+
+            {BLUE} (10.0, "scheduled") trick_ret = obj.state_print() ;
+            {BLUE} (10.0, "freeze_scheduled") trick_ret = obj.state_print() ;
+
+            ("shutdown") obj.shutdown() ;
+        }
+} ;
+
+// Instantiations
+ballSimObject ball ;
+
+// We no longer use the collect statement in this simulation.  We have a ball
+// specific add_force routine.
+//collect ball.obj.state.work.external_force = {ball.obj.force.output.force[0]};
+IntegLoop my_integ_loop (0.01) ball;
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    exec_set_terminate_time(300.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+
+    // Set a default integrator. This statement in create connections allows this
+    // sim to run without an input file.
+    my_integ_loop.getIntegrator(Runge_Kutta_2, 4);
+
+    ball.obj.state.add_external_force( ball.obj.force.output.force ) ;
+}
+

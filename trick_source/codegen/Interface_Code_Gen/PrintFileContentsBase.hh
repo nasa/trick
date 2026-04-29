@@ -45,6 +45,9 @@ class PrintFileContentsBase {
         /* gets a vector of fields that can be printed */
         std::vector<FieldDescription*> getPrintableFields(ClassValues& classValues, unsigned int ioMask = 0xFFFFFFF);
 
+        /** stores template argument header dependencies to be printed */
+        virtual void addTemplateArgumentHeaderDependency(const std::string& header, const std::string& dependency) = 0;
+
     protected:
         /** Prints the io_src_allocate function */
         virtual void print_units_map(std::ostream & ostream, ClassValues * cv) ;

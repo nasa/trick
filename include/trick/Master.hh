@@ -83,6 +83,9 @@ namespace Trick {
               to change to that directory before calling S_main_name.\n */
             std::string sim_path;                 /**< trick_units(--) */
 
+            /** @userdesc Optional shell environment setup config file for the slave shell.\n */
+            std::string remote_shell_config_file; /**< trick_units(--) */
+
             /** @userdesc Slave executable name, default is "./S_main_${TRICK_HOST_CPU}.exe".\n */
             std::string S_main_name;              /**< trick_units(--) */
 

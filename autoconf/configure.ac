@@ -50,7 +50,7 @@ AC_ARG_ENABLE([offline],
     [
       [TRICK_OFFLINE="1"]
       AC_CHECK_FILE([trick-offline], [], AC_MSG_ERROR([Offline mode requires an uncompressed directory named "trick-offline" in TRICK_HOME]))
-    ], 
+    ],
     [TRICK_OFFLINE="0"]
   ),
   [TRICK_OFFLINE="0"]
@@ -61,7 +61,7 @@ AC_SUBST([TRICK_OFFLINE])
 AC_ARG_ENABLE([offline],
   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
   AS_IF([test "x$enable_offline" = xyes],
-    [TRICK_OFFLINE="1"], 
+    [TRICK_OFFLINE="1"],
     [TRICK_OFFLINE="0"]
   ),
   [TRICK_OFFLINE="0"]
@@ -73,7 +73,7 @@ AC_SUBST([TRICK_OFFLINE])
 #   AS_IF([test "x$enable_civet" = xyes],
 #     [
 #     TRICK_DISABLE_CIVET="0"
-#     ], 
+#     ],
 #     [TRICK_DISABLE_CIVET="1"]
 #   ),
 #   [TRICK_DISABLE_CIVET="0"]
@@ -84,7 +84,7 @@ AC_SUBST([TRICK_OFFLINE])
 # AC_ARG_ENABLE([offline],
 #   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
 #   AS_IF([test "x$enable_offline" = xyes],
-#     [TRICK_DISABLE_CIVET="1"], 
+#     [TRICK_DISABLE_CIVET="1"],
 #   ),
 # )
 # AC_SUBST([TRICK_OFFLINE])
@@ -131,7 +131,7 @@ dnl find python
 AC_ARG_WITH(
   [python],
   AS_HELP_STRING(
-    [--with-python@<:@=DIR@:>@], 
+    [--with-python@<:@=DIR@:>@],
     [python root directory],
   ),
   [
@@ -165,7 +165,7 @@ AC_ARG_WITH(
       [test "$ac_cv_path_PYTHON_CONFIG" = "" || test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
       AC_MSG_ERROR([could not find python<major>-config python<major.minor>-config or python-config. Please install the python development package]),
       []
-    )  
+    )
   ]
 )
 
@@ -209,7 +209,23 @@ AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:/bin:/usr/bin:/usr/local/bin:
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 AC_SUBST([LLVM_HOME])
 
-OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"
+TR_CLANG_VERSION
+dnl if llvm/clang, test for version >= 3.4.2
+AS_IF([test "x$CLANG_VERSION" = "x"],[],
+ [AC_MSG_CHECKING([clang version >= 3.4.2])
+  AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[3.4.2], [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    AC_MSG_ERROR([Trick requires llvm/clang version >= 3.4.2])
+   ])
+])
+
+AS_IF([test "x$CLANG_VERSION" = "x"],[],
+  [AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[18.0.0],
+   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangASTMatchers -lclangAPINotes -lclangLex -lclangBasic"],
+   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"]
+   )]
+)
+
 NEW_CLANG_LIBS="-lclang-cpp"
 AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],
   [
@@ -237,16 +253,6 @@ AC_CHECK_FILE([$LLVM_LIB_DIR/libclangSupport.a],[ICG_CLANGLIBS="$ICG_CLANGLIBS -
 
 AC_SUBST([ICG_CLANGLIBS])
 
-TR_CLANG_VERSION
-dnl if llvm/clang, test for version >= 3.4.2
-AS_IF([test "x$CLANG_VERSION" = "x"],[],
- [AC_MSG_CHECKING([clang version >= 3.4.2])
-  AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[3.4.2], [AC_MSG_RESULT([yes])],
-   [AC_MSG_RESULT([no])
-    AC_MSG_ERROR([Trick requires llvm/clang version >= 3.4.2])
-   ])
-])
-
 AX_CHECK_ZLIB([],AC_MSG_ERROR([could not find zlib]))
 
 dnl look for udunits in /usr/include and /usr/include/udunits2
@@ -254,10 +260,22 @@ TR_UDUNITS_HOME([])
 AS_IF([test "$UDUNITS_HOME" = ""],
  [
   AC_CHECK_HEADER([udunits2.h],
-   [UDUNITS_INCLUDES=],
-   [AC_CHECK_HEADER([udunits2/udunits2.h],[UDUNITS_INCLUDES=-I/usr/include/udunits2],AC_MSG_ERROR([could not find udunits development headers]))]
+   [UDUNITS_INCLUDES=
+    UDUNITS_LDFLAGS=-ludunits2],
+   [AC_CHECK_HEADER([udunits2/udunits2.h],
+     [UDUNITS_INCLUDES=-I/usr/include/udunits2
+      UDUNITS_LDFLAGS=-ludunits2],
+     AC_CHECK_FILE(/opt/homebrew/include/udunits2.h,
+      [UDUNITS_HOME="/opt/homebrew"
+       UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
+       UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
+       UDUNITS_EXCLUDE=$UDUNITS_HOME
+       LDFLAGS="${LDFLAGS} ${UDUNITS_LDFLAGS}"
+      ],
+       AC_MSG_ERROR([could not find udunits2.h])
+     )
+   )]
   )
-  UDUNITS_LDFLAGS=-ludunits2
  ],
  [
   UDUNITS_EXCLUDE=$UDUNITS_HOME
@@ -284,7 +302,7 @@ AC_SUBST([UDUNITS_EXCLUDE])
 dnl process the other optional command line arguments
 TR_HDF5_HOME([])
 TR_GSL_HOME([])
-TR_GTEST_HOME([])
+TR_GTEST([])
 TR_CIVETWEB_HOME([])
 TR_ER7_UTILS([])
 
@@ -292,4 +310,3 @@ AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])
 AC_OUTPUT
 
 printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
-

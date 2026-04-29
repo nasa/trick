@@ -8,6 +8,7 @@
 
 #include <udunits2.h>
 
+
 #include "ConstructValues.hh"
 #include "clang/Basic/Specifiers.h"
 
@@ -83,6 +84,22 @@ class FieldDescription : public ConstructValues {
         bool isRecord() ;
         void setSTL( bool yes_no ) ;
         bool isSTL() ;
+        /** Sets the STL template name (e.g., "vector", "map") extracted from Clang AST */
+        void setSTLTemplateName( const std::string& template_name ) ;
+        /** Gets the STL template name */
+        std::string getSTLTemplateName() const ;
+        /** Returns the string representation of the STL type enumeration */
+        std::string getSTLTypeEnumString() ;
+        /** Returns the string representation of the STL element type enumeration */
+        std::string getSTLElementTypeEnumString() ;
+        /** Returns the string representation of the STL element type. */
+        std::string getSTLElementTypeName() ;
+        /** Sets the STL element type name extracted from Clang template arguments */
+        void setSTLElementTypeName( const std::string& element_type_name ) ;
+        /** Sets whether the STL element type is an enumeration (determined by Clang AST) */
+        void setSTLElementEnum( bool yes_no ) ;
+        /** Returns whether the STL element type is an enumeration */
+        bool isSTLElementEnum() const ;
         void setSTLClear( bool yes_no ) ;
         bool hasSTLClear() ;
         void setStatic( bool yes_no ) ;
@@ -125,6 +142,9 @@ class FieldDescription : public ConstructValues {
 
         /** Name of the type, will be canonical, resolving all typedefs and adding default template args */
         std::string type_name ;
+
+        /** Name of the STL contianer element type */
+        std::string stl_element_type_name ;
 
         /** Name of the type */
         std::string mangled_type_name ;
@@ -180,6 +200,12 @@ class FieldDescription : public ConstructValues {
         /** is an stl */
         bool is_stl ;
 
+        /** is the STL element type an enumeration (determined by Clang AST analysis) */
+        bool is_stl_elem_enum ;
+
+        /** STL template name (e.g., "vector", "map") extracted from Clang AST */
+        std::string stl_template_name ;
+
         /** does this stl have a clear */
         bool has_stl_clear ;
 
@@ -194,6 +220,15 @@ class FieldDescription : public ConstructValues {
 
         /** Internal function to execute regular expression */
         std::string get_regex_field(std::string input , const char * expr , unsigned int index) ;
+
+        /** Maps a type name to its corresponding TRICK_TYPE enum string */
+        std::string mapTypeNameToTrickEnum(const std::string& type_name) ;
+
+        /** Helper function to check if a type name represents an STL container */
+        bool isSTLContainer(const std::string& type_name) ;
+
+        /** Helper function to check if a type name represents a user-defined type */
+        bool isUserDefinedType(const std::string& type_name) ;
 
         static ut_system * u_system ;
 } ;

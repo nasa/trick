@@ -18,6 +18,18 @@
 
 Trick::FrameLog * the_fl = NULL ;
 
+
+int frame_log_on(Trick::DR_Buffering bufferType)
+{
+
+    if (the_fl != NULL) {
+        return the_fl->framelog_on(bufferType) ;
+    }
+    return(0) ;
+}
+
+
+
 //Constructor.
 Trick::FrameLog::FrameLog(Trick::Clock & in_clock) : 
  frame_log_flag(false),
@@ -112,6 +124,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
              (! all_jobs_vector[ii]->job_class_name.compare("integration")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("derivative")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("dynamic_event")) ||
+             (! all_jobs_vector[ii]->job_class_name.compare("pre_integration")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("post_integration")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("system_thread_sync")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("top_of_frame")) ||
@@ -249,13 +262,13 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
 -# Call add_data_record_group for drg_trick
 -# Call add_data_record_group for drg_frame
 */
-void Trick::FrameLog::add_recording_groups_to_sim() {
+void Trick::FrameLog::add_recording_groups_to_sim(Trick::DR_Buffering bufferType) {
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
     for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; ++fdrg_it ) {
         add_data_record_group( *fdrg_it , Trick::DR_Ring_Buffer) ;
     }
-    add_data_record_group(drg_trick, Trick::DR_Ring_Buffer) ;
-    add_data_record_group(drg_frame, Trick::DR_Ring_Buffer) ;
+    add_data_record_group(drg_trick, bufferType) ;
+    add_data_record_group(drg_frame, bufferType) ;
 }
 
 /**
@@ -384,6 +397,7 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
                     mode = Run;
                 }
             }
+
             /** @li Save all cyclic job start & stop times for this frame into timeline structure. */
             if ((mode==Run) || (mode==Step)) {                            // cyclic job
                 if (tl_count[thread] < tl_max_samples) {
@@ -391,6 +405,8 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
                     timeline[thread][tl_count[thread]].start = target_job->rt_start_time;
                     timeline[thread][tl_count[thread]].stop  = target_job->rt_stop_time;
                     timeline[thread][tl_count[thread]].trick_job = target_job->tags.count("TRK");
+                    timeline[thread][tl_count[thread]].isEndOfFrame = target_job->isEndOfFrame;
+                    timeline[thread][tl_count[thread]].isTopOfFrame = target_job->isTopOfFrame;
                     tl_count[thread]++;
                 }
             /** @li Save all non-cyclic job start & stop times for this frame into timeline_other structure. */
@@ -426,7 +442,7 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
 -# Enable the recording groups
 -# Set the frame log flag to true
 */
-int Trick::FrameLog::framelog_on() {
+int Trick::FrameLog::framelog_on(Trick::DR_Buffering bufferType) {
 
     if ( frame_log_flag == true ) {
         return(0) ;
@@ -436,7 +452,7 @@ int Trick::FrameLog::framelog_on() {
     // We do this in framelog_on so we don't add unnecessary jobs and create
     // log_rt files until we have to.
     if ( get_data_record_group(drg_trick->get_group_name()) == NULL ) {
-        add_recording_groups_to_sim() ;
+        add_recording_groups_to_sim(bufferType) ;
         init_recording_groups() ;
     }
     add_instrument_jobs() ;
@@ -582,8 +598,41 @@ int Trick::FrameLog::shutdown() {
         return(0) ;
     }
 
+
+// ================================================================
+// NEW Time-line for Jperf
+// ================================================================
+    for (int thread_num = 0; thread_num < num_threads; thread_num ++) {
+
+        if (thread_num == 0) {
+            snprintf(log_buff, sizeof(log_buff), "%s/log_newtimeline.csv", command_line_args_get_output_dir());
+        } else {
+            snprintf(log_buff, sizeof(log_buff), "%s/log_newtimelineC%d.csv", command_line_args_get_output_dir(), thread_num);
+        }
+
+        FILE *fp_log;
+        if ((fp_log = fopen(log_buff, "w")) == NULL) {
+            message_publish(MSG_ERROR, "Could not open log_timeline.csv file for Job Timeline Logging\n") ;
+            exit(0);
+        }
+
+        fprintf(fp_log,"jobID,startTime,stopTime\n");
+
+        time_scale = 1.0 / exec_get_time_tic_value();
+        tl = timeline[thread_num];
+        for ( ii = 0 ; ii < tl_count[thread_num] ; ii++ ) {
+            start = tl[ii].start * time_scale;
+            stop =  tl[ii].stop  * time_scale;
+            fprintf(fp_log,"%5.2f, %f, %f\n", tl[ii].id, start, stop);
+        }
+        fflush(fp_log);
+        fclose(fp_log);
+    }
+
     /** @li Manually create the log_timeline and log_timeline_init files from saved timeline data. */
     if (fp_time_main == NULL) {
+
+
         snprintf(log_buff, sizeof(log_buff), "%s/log_timeline.csv", command_line_args_get_output_dir());
         if ((fp_time_main = fopen(log_buff, "w")) == NULL) {
             message_publish(MSG_ERROR, "Could not open log_timeline.csv file for Job Timeline Logging\n") ;
@@ -591,10 +640,13 @@ int Trick::FrameLog::shutdown() {
         }
         fprintf(fp_time_main, "trick_frame_log.frame_log.job_time {s},");
         fprintf(fp_time_main, "trick_frame_log.frame_log.job_trick_id {--},frame_log.frame_log.job_user_id {--}");
+
         for (jj=1; jj<num_threads; jj++) {
             fprintf(fp_time_main, ",trick_frame_log.frame_log.job_userC%d_id {--}",jj);
         }
         fprintf(fp_time_main, "\n");
+
+
 
         snprintf(log_buff, sizeof(log_buff), "%s/log_timeline_init.csv", command_line_args_get_output_dir());
         if ((fp_time_other = fopen(log_buff, "w")) == NULL) {
@@ -603,6 +655,9 @@ int Trick::FrameLog::shutdown() {
         }
         fprintf(fp_time_other, "trick_frame_log.frame_log.job_init_time {s},");
         fprintf(fp_time_other, "trick_frame_log.frame_log.job_trickinit_id {--},trick_frame_log.frame_log.job_userinit_id {--}\n");
+
+
+
     }
 
     time_scale = 1.0 / exec_get_time_tic_value();
@@ -614,17 +669,20 @@ int Trick::FrameLog::shutdown() {
             //               stop  job time, 0, 0
     /** @li print a 0 id before each start time & after each stop time for a stairstep effect in plot. */
     // cyclic jobs
+
     for ( thread = 0 ; thread < num_threads ; thread++ ) {
         tl = timeline[thread];
         for ( ii = 0 ; ii < tl_count[thread] ; ii++ ) {
             // start & stop time are in tics, so convert to seconds
             start = tl[ii].start * time_scale;
             stop =  tl[ii].stop  * time_scale;
+
             fprintf(fp_time_main,      "%f,0", start);        // start stairstep
             for (jj=0; jj<num_threads; jj++) {
                 fprintf(fp_time_main,  ",0");
             }
             fprintf(fp_time_main,      "\n");
+
             if (tl[ii].trick_job) {
                 fprintf(fp_time_main, "%f,%f", start, tl[ii].id);    // trick job start
                 for (jj=0; jj<num_threads; jj++) {

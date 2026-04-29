@@ -91,6 +91,7 @@ param: NAME {
     $$.num_index = 0;
     $$.units = NULL;
     $$.pointer_present = 0;
+    $$.stl_present = 0;
     $$.ref_type = REF_ADDRESS;
     $$.create_add_path = 1 ;
     $$.address_path = DLL_Create() ;
@@ -116,6 +117,7 @@ param: NAME {
       $$.num_index = 0;
       $$.units = NULL;
       $$.pointer_present = 0;
+      $$.stl_present = 0;
       $$.ref_type = REF_ADDRESS;
       $$.create_add_path = 1 ;
       $$.address_path = DLL_Create() ;

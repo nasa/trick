@@ -19,7 +19,10 @@
 
 Trick::InputProcessor * the_ip ;
 
-Trick::InputProcessor::InputProcessor() {
+Trick::InputProcessor::InputProcessor()
+ : verify_input(0)
+ , save_input(0)
+{
 
     the_ip = this ;
 
@@ -45,6 +48,11 @@ int Trick::InputProcessor::process_sim_args() {
         if (!strcmp("-d", argv[i])) {
             /* Set the 'input verification only' and echo input flags */
             verify_input = 1 ;
+        }
+
+        if (!strcmp("--save-input-file", argv[i])) {
+            /* Set the 'save processed input file lines' flag */
+            save_input = 1 ;
         }
     }
 

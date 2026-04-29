@@ -1,0 +1,737 @@
+#!/usr/bin/perl
+
+use warnings ;
+use strict ;
+
+#clear certain environment variables.
+#these vars cause conflicts when trick-ify is invoked from the sim makefile
+$ENV{TRICK_EXT_LIB_DIRS} = "";
+
+#store the base env from the shell
+#need to restore the env later to run S_overrides.mk in a clean environment
+our %SHELL_ENV = %ENV;
+
+our $my_path;
+BEGIN
+{
+    $my_path = $0 ;
+    $my_path =~ s/trick-ify// ;
+}
+
+use File::Basename ;
+use File::Find ;
+use File::Path qw(make_path) ;
+use Getopt::Long ;
+use Cwd ;
+use lib "$my_path../libexec/trick/pm" ;
+use get_makefile_vars ;
+use Term::ANSIColor ;
+
+sub printc($$)
+{
+    my ($color, $text) = @_ ;
+    print color($color) ;
+    print $text ;
+    print color('reset') ;
+}
+
+sub find_file_by_ext($$)
+{
+    my ($dirs_ref, $ext) = @_ ;
+    our @files_found = () ;
+    my $wanted = sub
+    {
+        if($_ =~ /\Q$ext\E$/)
+        {
+            push @files_found, $File::Find::name ;
+        }
+    };
+    find($wanted, @$dirs_ref) ;
+}
+our @files_found ;
+
+sub exclude_paths($$)
+{
+    my ($file_refs, $excl) = @_ ;
+    my @pruned_list ;
+    foreach my $file (@$file_refs)
+    {
+        if(($file =~ /^\Q$excl\E/) ne 1)
+        {
+            push @pruned_list, $file ;
+        }
+    }
+    @$file_refs = @pruned_list ;
+}
+
+sub filter_paths($$)
+{
+    my ($file_refs, $filters) = @_ ;
+    if(@$filters eq 0)
+    {
+       return 0 ;
+    }
+
+    my @pruned_list ;
+    foreach my $file (@$file_refs)
+    {
+        my $include = 0 ;
+        foreach my $filter (@$filters)
+        {
+            if(($file =~ /^\Q$filter\E/) eq 1)
+            {
+                $include = 1 ;
+            }
+        }
+
+        if($include)
+        {
+            push @pruned_list, $file ;
+        }
+    }
+    @$file_refs = @pruned_list ;
+}
+
+our @header_ext = (".h", ".hh", ".hpp", ".H", ".hxx", ".h++") ;
+our @source_ext_cpp = (".cpp", ".cc", ".cxx", ".c++") ;
+our @source_ext_c   = (".c", ".C") ;
+our @source_ext     = (@source_ext_cpp, @source_ext_c) ;
+our @trick_build_files = ("build/", "buildmodels/", "DP_Product/", "makefile", "python", "S_main_Linux_8.5_x86_64.exe", "S_sie.resource", "S_source.hh", "trick.zip", ".trick") ;
+our $tmp_trick_build = "trickifying_tmp" ;
+
+#Variables to store cmd line args
+my $build_dir = getcwd ;                                                     # Where to build trickify artifacts
+my $source_dirs = "" ;                                                       # User source code directories
+my $source_make_call = "" ;                                                  # Make call to build object files
+my $source_make_args = "" ;                                                  # Args to pass into default object make
+my $trickify_make_args = "" ;                                                # Arguments to pass into the trickify make
+my $trickify_make_path = "$my_path../share/trick/makefiles/" ;               # Path of the trickify make file
+my $full_build = 1 ;                                                         # Whether to build only ICG/Swig artifacts or entire source
+my $name = "trickified" ;                                                    # Name of the library
+my $build_type = "o" ;                                                       # Type of library to be built (o, a , so)
+my $debug = 0 ;                                                              # Debug info flag
+my $trick_home = "$my_path.." ;                                              # Trick directory to use for building
+my $no_source_build = 0 ;                                                    # Arg to disable building source files
+my $no_clean_obj = 0 ;                                                       # Don't rebuild trickify_obj_list
+my $no_clean_src = 0 ;                                                       # Don't rebuild trickify_src_list
+my $no_clean_s_source = 0 ;                                                  # Don't rebuild S_source.hh
+my $s_overrides = "" ;                                                       # Optional S_override make file
+my $include = "" ;                                                           # Directories to include when building source/ICG/SWIG files
+my $exclude_arg = "" ;                                                       # Directories to exclude from trickification
+my $s_define = "" ;                                                          # S_define to pull files from
+my $s_define_filter = "" ;                                                   # Only use files from the S_define under these dirs
+
+our $stage = 1;
+sub logStage()
+{
+    open my $fh, '>>', "$build_dir/trickify_stage_$stage" ;
+    $stage++ ;
+}
+
+#Re-create the command line call
+our @cmdline ;
+push @cmdline, basename($0) ;
+my $build_dir_found = 0;
+foreach my $arg (@ARGV)
+{
+    #Since the makefile will be in the build dir, no need to pass the build directory. Can only cause problems.
+    if ( $build_dir_found )
+    {
+        $build_dir_found = 0 ;
+        next ;
+    }
+    if ( $arg =~ /\Q-build\E/ )
+    {
+        $build_dir_found = 1 ;
+        next ;
+    }
+
+    #restore quotes
+    if ( $arg !~ /^\-/ )
+    {
+        push @cmdline, "\"$arg\"" ;
+    }
+    else
+    {
+        push @cmdline, $arg ;
+    }
+}
+our $cmdline = join ' ', @cmdline ;
+
+#Process cmd line args
+our %cmd_args ;
+our @cmd_args ;
+$cmd_args{"d=s"}                        = \$source_dirs;                    # User source code directories
+$cmd_args{"no_clean_s_source"}          = \$no_clean_s_source;              # Don't rebuild S_source.hh
+$cmd_args{"no_clean_src_list"}          = \$no_clean_src;                   # Don't rebuild trickify_src_list
+$cmd_args{"no_clean_obj_list"}          = \$no_clean_obj;                   # Don't rebuild trickify_obj_list
+$cmd_args{"no_source"}                  = \$no_source_build;                # Arg to disable building source files
+$cmd_args{"source_make=s"}              = \$source_make_call;               # Make call to build object files
+$cmd_args{"source_make_args=s"}         = \$source_make_args;               # Default make call args to build object files
+$cmd_args{"trickify_args=s"}            = \$trickify_make_args;             # Trickify make args
+$cmd_args{"trickify_make=s"}            = \$trickify_make_path;             # Set trickify make path
+$cmd_args{"n=s"}                        = \$name;                           # Set the library name
+$cmd_args{"b=s"}                        = \$build_type;                     # Set library build type
+$cmd_args{"v"}                          = \$debug;                          # Verbose, print debug info
+$cmd_args{"trick_home=s"}               = \$trick_home;                     # Set trick home directory
+$cmd_args{"s_overrides=s"}              = \$s_overrides;                    # Optional S_override make file
+$cmd_args{"include=s"}                  = \$include;                        # Directories to include when building source/ICG/SWIG files
+$cmd_args{"ex=s"}                       = \$exclude_arg;                    # Directories to exclude from trickification
+$cmd_args{"build=s"}                    = \$build_dir;                      # Where to build trickify artifacts
+$cmd_args{"s_define=s"}                 = \$s_define;                       # S_define to pull files from
+$cmd_args{"s_define_filter=s"}          = \$s_define_filter;                # Only use files from the S_define under these dirs
+foreach my $arg (sort keys %cmd_args)
+{
+    push @cmd_args, $arg ;
+    push @cmd_args, $cmd_args{$arg} ;
+}
+GetOptions(@cmd_args) ;
+
+chdir Cwd::abs_path($build_dir) or die "Error changing to the build directory: $build_dir\n" ;
+# Since we have already rebuilt the cmd line call, convert all paths into absolute paths to simplify everything
+$source_dirs = join ' ', (map {Cwd::abs_path($_)} (split ' ', $source_dirs)) ;
+$trick_home = join ' ', (map {Cwd::abs_path($_)} (split ' ', $trick_home)) ;
+$s_overrides = join ' ', (map {Cwd::abs_path($_)} (split ' ', $s_overrides)) ;
+$include = join ' ', (map {Cwd::abs_path($_)} (split ' ', $include)) ;
+$exclude_arg = join ' ', (map {Cwd::abs_path($_)} (split ' ', $exclude_arg)) ;
+$build_dir = join ' ', (map {Cwd::abs_path($_)} (split ' ', $build_dir)) ;
+$s_define = join ' ', (map {Cwd::abs_path($_)} (split ' ', $s_define)) ;
+$s_define_filter = join ' ', (map {Cwd::abs_path($_)} (split ' ', $s_define_filter)) ;
+$trickify_make_path = join ' ', (map {Cwd::abs_path($_)} (split ' ', $trickify_make_path)) ;
+
+# If we are trickifying, tells trick-CP to stop after trickify_deps is built
+$ENV{'AM_I_TRICKIFYING'} = 1 ;
+logStage(); #Stage 1
+
+# Ensure build dir exists
+unless(-d $build_dir)
+{
+    make_path($build_dir) or die "Could not create build dir: $build_dir, $!\n";
+}
+
+# If user provided an S_define, run a partial trick-CP and retrieve the lib dependencies
+my $s_define_dir = "" ;
+my @lib_deps_header;
+my @lib_deps_source;
+if($s_define ne "")
+{
+    
+    $s_define_dir = dirname($s_define) ;
+    chdir Cwd::abs_path($s_define_dir) or die "Error changing to the s_define directory: $s_define_dir\n" ;
+    
+    # If the user has already built the sim, push it somewhere else
+    map 
+    {
+        if(-e $_)
+        {
+            system("mv $_ $tmp_trick_build$_") == 0 or die "Could not move $_\n" ;
+        }
+    }
+    @trick_build_files;    
+
+    my $cmd_ret = `$my_path/trick-CP 2>&1` ;
+    if($cmd_ret ne "") 
+    {
+        print "$cmd_ret" ;
+    }
+    -e "build/trickify_deps" or die "Failed to create trickify_deps from S_define.\n" ;
+
+    open (my $fh, "build/trickify_deps") or die "Could not open trickify_deps" ;
+    while (my $line = <$fh>) 
+    {
+        chomp $line ;
+        if($line =~ /\QS_source.hh\E$/)
+        {
+            next ;
+        }
+        if(scalar grep {$line =~ /\Q$_\E$/} @source_ext)
+        {
+            push @lib_deps_source, $line ;
+        }
+        else
+        {
+            push @lib_deps_header, $line ;
+        }
+    }
+    close ($fh) ;
+
+    # Clear up the partial build dir we just made
+    system("make clean") == 0 or die "Could not clean up tmp build dir\n" ;
+
+    map 
+    {
+        if(-e "$tmp_trick_build$_")
+        {
+            system("mv $tmp_trick_build$_ $_") == 0 or die "Could not move $_\n" ;
+        }
+    }
+    @trick_build_files; 
+}
+my @filters = split ' ', $s_define_filter ;
+filter_paths(\@lib_deps_source, \@filters) ;
+filter_paths(\@lib_deps_header, \@filters) ;
+
+chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
+
+# Split the s_overrides path into a dir and file name
+my $s_overrides_dir  = "" ;
+if ($s_overrides ne "")
+{
+    $s_overrides_dir  = dirname($s_overrides) ;
+}
+
+$full_build = !$no_source_build ;
+
+if( !(($build_type eq "o") or ($build_type eq "a") or ($build_type eq "so") or ($build_type eq "dylib")) )
+{
+    print "Invalid build type {$build_type}, valid build types are {o, a, so}\n" ;
+    exit 1 ;
+}
+
+if($s_define eq "")
+{
+    if($source_dirs eq "" and $full_build)
+    {
+        print "Must provide source directories or S_define\n" ;
+        exit 1 ;
+    }
+}
+
+#Build list of includes for compilation.
+my $include_arg = "";
+my @incl_dirs = split ' ', $include ;
+foreach my $dir (@incl_dirs)
+{
+    $include_arg .= "-I$dir " ;
+}
+
+#Set Environment Variables
+if ($full_build)
+{
+    $ENV{'FULL_TRICKIFY_BUILD'} = "1" ;
+}
+my @src_dirs = split ' ', $source_dirs ;
+my $source_dir_args = "" ;
+foreach my $dir (@src_dirs)
+{
+    $source_dir_args .= "-I" . $dir . " " ;
+}
+$ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I$trick_home -I$trick_home/include/trick/compat -I${trick_home}/include -I$trick_home/trick_source -I$trick_home/trick_source/er7_utils -I$trick_home/trick_source/er7_utils $include_arg " . $ENV{"TRICK_CFLAGS"} . " " . $ENV{"TRICK_CXXFLAGS"} ;
+$ENV{'TRICKIFY_OBJECT_NAME'} = "$build_dir/$name.$build_type" ;
+$ENV{'TRICKIFY_BUILD'} = "$build_dir/" ;
+$ENV{'TRICKIFY_PYTHON_DIR'} = "$build_dir/python" ;
+$ENV{'TRICKIFY_S_OVERRIDES'} = "$s_overrides" ;
+our @exclude_list = split ' ', $exclude_arg ;
+if ( $build_type eq "o" )
+{
+    $ENV{'TRICKIFY_BUILD_TYPE'}  = "PLO" ;
+}
+elsif ( $build_type eq "a" )
+{
+    $ENV{'TRICKIFY_BUILD_TYPE'}  = "STATIC" ;
+}
+elsif ( $build_type eq "so" || $build_type eq "dylib" )
+{
+    $ENV{'TRICKIFY_BUILD_TYPE'}  = "SHARED" ;
+    if ($^O eq "linux")
+    {
+        $source_make_args .= " -fPIC" ;
+    }
+}
+
+#Build the S_overrides_trickify.mk
+print "Building S_overrides_trickify.mk\n" ;  
+my $ext_lib_dir ;
+$ext_lib_dir    .= join '', (map {":$_"} (split ' ', $source_dirs)) ;
+$ext_lib_dir    .= join '', (map {":$_"} @filters) ;
+my $ext_lib_dir_overrides = join '', (map {":$_"} @exclude_list) ;
+
+#if the user provides an s_define, we automatically exclude that dir from ext_lib_dirs
+if ($s_define_dir ne "")
+{
+    push @exclude_list, "$s_define_dir/build/" ;
+    push @exclude_list, "$s_define_dir/S_source.hh" ;
+}
+
+my $my_cwd = getcwd;
+#TODO: Might want to add an option to make this a relative path.        
+open (my $fh, ">", "S_overrides_trickify.mk") or die "Could not open S_overrides_trickify.mk\n" ;
+print $fh "ifndef AM_I_TRICKIFYING\n" ;  # Only want these parameters if we are doing normal sim builds, otherwise the ext libs will butcher the trickify_deps
+print $fh "SOT_LOCAL_DIR_$name := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n\n" ;
+print $fh "include $build_dir/trickify_dep.mk\n\n" ;
+print $fh "TRICKIFY_LDFLAGS := " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . "\n" ;
+print $fh "TRICK_EXT_LIB_DIRS += $ext_lib_dir\n" ;
+print $fh "TRICK_EXT_LIB_DIRS_OVERRIDES += ",$ext_lib_dir_overrides ,"\n" ;
+print $fh "TRICK_PYTHON_PATH += :" . $my_cwd . "/python\n" ;
+print $fh "TRICK_SWIG_FLAGS += -I" . $my_cwd . "\n" ;
+print $fh "\nclean_trickify_$name:\n" ;
+print $fh "\t-make -C \$(SOT_LOCAL_DIR_$name) clean_trickify\n" ;
+print $fh "\nclean_trickify: clean_trickify_$name\n" ;
+print $fh "\nnuke_trickify_$name:\n" ;
+print $fh "\t-make -C \$(SOT_LOCAL_DIR_$name) nuke_trickify\n" ;
+print $fh "\nnuke_trickify: nuke_trickify_$name\n" ;
+print $fh "\nrebuild_trickify: $build_dir/$name.$build_type\n" ;
+print $fh "\nTRICKIFIED_LIBS += $build_dir/$name.$build_type\n" ;
+print $fh "\nendif\n" ;
+close ($fh) ;
+
+open ($fh, ">", "makefile") or die "Could not create makefile\n" ;
+print $fh "\nrebuild_trickify: \n" ;
+print $fh "\t+$cmdline\n" ;
+print $fh "\nclean_trickify:\n" ;
+print $fh "\t-rm -rf build .trick\n" ;
+print $fh "\t-rm -f S_source.hh\n" ;
+print $fh "\t-rm -f trickify_obj_list\n" ;
+print $fh "\t-rm -f trickify_src_list\n" ;
+print $fh "\t-rm -f trickify_stage_*\n" ;
+print $fh "\t-rm -f trickify.log\n" ;
+print $fh "\t-rm -f get_vars.mk\n" ;
+print $fh "\t-rm -f var_dump.mk\n" ;
+print $fh "\t-rm -f *_list\n" ;
+print $fh "\t-rm -f python\n" ;
+print $fh "\t-rm -f *.a\n" ;
+print $fh "\t-rm -f *.o\n" ;
+print $fh "\t-rm -f *.so\n" ;
+print $fh "\nnuke_trickify: clean_trickify\n" ;
+print $fh "\t-rm -f S_overrides_trickify.mk\n" ;
+print $fh "\t-rm -f *.mk\n" ;
+close ($fh) ;
+
+
+#Build the S_source.hh
+if (!$no_clean_s_source)
+{
+    print "Building S_source.hh\n" ;
+
+    my @make_s_source ;
+    my @headers = split ' ', $source_dirs ;
+    foreach my $ext (@header_ext)
+    {
+        find_file_by_ext(\@headers, $ext) ;
+        push @make_s_source, @files_found ;
+    }
+    push @make_s_source, @lib_deps_header ;
+
+    foreach my $excl (@exclude_list)
+    {
+        exclude_paths(\@make_s_source, $excl) ;
+    }
+
+    open (my $fh, ">", "S_source.hh") or die "Could not open S_source.hh\n" ;
+    foreach my $header (@make_s_source)
+    {
+        print $fh "#include \"$header\"\n" ;
+    } 
+}
+
+#Build source file list, only if trickifying the entire library
+if (!$no_clean_src and $full_build)
+{
+    print "Building trickify_src_list\n" ;
+
+    my @make_src_list ;
+    my @sources = split ' ', $source_dirs ;
+    foreach my $ext (@source_ext)
+    {
+        find_file_by_ext(\@sources, $ext) ;
+        push @make_src_list, @files_found ;
+    }
+    push @make_src_list, @lib_deps_source ;
+
+    foreach my $excl (@exclude_list)
+    {
+        exclude_paths(\@make_src_list, $excl) ;
+    }
+
+    open (my $fh, ">", "trickify_src_list") or die "Could not open trickify_src_list\n" ;
+    foreach my $source (@make_src_list)
+    {
+        print $fh "$source\n" ;
+    }
+}
+
+#Build array of source files
+#We need to read in the file we just wrote to, because there is a no_clean_src option
+my @src_files ;
+if ($full_build)
+{
+    open (my $fh, "trickify_src_list") or die "Could not open trickify_src_list: $!" ;
+    while (my $line = <$fh>) 
+    {
+        chomp $line ;
+        push @src_files, $line ;
+    }
+    close ($fh) ;
+}
+logStage(); #Stage 2
+
+#Build object files from source file list
+if ($full_build)
+{
+    print "Building object files\n" ;
+    if($source_make_call eq "")
+    {
+        # Create a makefile for building source files
+        open (my $fh, ">", "trickify_src.mk") or die "Could not open trickify_src.mk: $!" ;
+        print $fh "ifneq (\$(TRICKIFY_S_OVERRIDES),)\n" ;
+        print $fh "\tinclude \$(TRICKIFY_S_OVERRIDES)\n" ;
+        print $fh "endif\n\n" ;
+        print $fh "include ${trickify_make_path}/Makefile.common\n\n" ;
+        print $fh ".SECONDEXPANSION:\n\n" ;
+
+        $ENV{'TRICKIFY_SRC_MAKE_ARGS'} = $source_make_args ;
+
+        my %files_by_ext;
+        foreach my $src (@src_files)
+        {
+            $src =~ /^([\w\W]*\/)([\w\W^\/]*)$/ ;
+            my $path = $1 ;
+            my $file = $2 ;
+
+            #create build directory
+            make_path("build$path") ;
+            -e "build$path" or die "Could not create dir: build$path, $!\n";
+
+            #Determine extension
+            $src =~ /^([^\s]*)(\.[^\s]*)$/ ; 
+            my $ext = $2 ;
+            grep { /^\Q$ext\E$/ } @source_ext or die "Invalid extension on $src: $ext\n" ;
+            push @{$files_by_ext{$ext}}, $1 ;
+        }
+        foreach my $ext (keys %files_by_ext)
+        {
+            print $fh "TRICKIFY_OBJECTS$ext :=  \\\n" ;
+            foreach my $src (@{$files_by_ext{$ext}})
+            {
+                print $fh "\t$build_dir/build$src.o \\\n" ;
+            }
+
+            if( grep { /^\Q$ext\E$/ } @source_ext_cpp )
+            {
+                print $fh "\n\${TRICKIFY_OBJECTS$ext} : $build_dir/build/%.o : /%$ext | \$\$(dir \$\$@)\n" ;
+                print $fh "\t\$(TRICK_CXX) \$(TRICKIFY_SRC_MAKE_ARGS) \$(TRICKIFY_CXX_FLAGS) \$(TRICK_CFLAGS) \$(TRICK_SFLAGS) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -c -o \$@ \$<\n" ;
+            }
+            else
+            {
+                print $fh "\n\${TRICKIFY_OBJECTS$ext} : $build_dir/build/%.o : /%$ext | \$\$(dir \$\$@)\n" ;
+                print $fh "\t\$(TRICK_CC) \$(TRICKIFY_SRC_MAKE_ARGS) \$(TRICKIFY_CXX_FLAGS) \$(TRICK_CFLAGS) \$(TRICK_SFLAGS) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -c -o \$@ \$<\n" ;
+            }
+        }
+
+        print $fh "\ntrickify_make:" ;
+        foreach my $ext (keys %files_by_ext)
+        {
+            print $fh " \$(TRICKIFY_OBJECTS$ext)" ;
+        }
+        close ($fh) ;
+
+        #If an s_overrides.mk is provided we need to build in that dir to preserve relative make paths
+        if($s_overrides_dir ne "")
+        {
+            chdir Cwd::abs_path($s_overrides_dir) or die "Error changing to s_overrides directory: $s_overrides_dir\n" ;
+        }
+
+        my $cmd = "make trickify_make -f $build_dir/trickify_src.mk" ;
+        my $cmd_ret = `$cmd 2>&1` ;
+        if($cmd_ret ne "") 
+        {
+            print "$cmd_ret" ;
+        }
+        if($? != 0)
+        {   
+            die $? ;
+        }
+        chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
+    }
+    else
+    {
+        print(`$source_make_call`) ;
+        if($? != 0)
+        {   
+            die $? ;
+        }
+    }
+}
+
+#Build object file list, only if trickifying the entire library
+if(!$no_clean_obj and $full_build)
+{
+    print "Building trickify_obj_list\n" ;
+    #Create list of source file names without dirs and extensions
+    my @src_files_base ;
+    foreach my $src (@src_files)
+    {
+        $src =~ s/\..*$// ;
+        push @src_files_base, basename($src) ;
+    }
+
+    #Create a list of all .o files under build
+    my @make_obj_list ;
+    my @build_dir = getcwd ;
+    find_file_by_ext(\@build_dir, ".o") ;
+    push @make_obj_list, @files_found ;
+
+    open (my $fh, ">", "trickify_obj_list") or die "Could not open trickify_obj_list\n" ;
+    foreach my $obj (@make_obj_list)
+    {
+        #remove the dir and extension
+        $obj =~ /^(.+?)\Q.o\E$/ ;
+        my $raw_filename = $1 ;
+        $raw_filename = basename($raw_filename) ;
+        
+        #only write .o that have a matching source file
+        #this ensures we don't grab swig and icg .o artifacts twice, those are pulled in later
+        my @is_present = grep (/\Q$raw_filename\E/, @src_files_base) ;
+        if(@is_present ne 0)
+        {
+            print $fh "$obj\n" ;
+        }
+    } 
+}
+logStage(); #Stage 3
+
+#Build trickify call
+print "Begin Trickification...\n" ;
+if($s_overrides_dir ne "")
+{
+    chdir Cwd::abs_path($s_overrides_dir) or die "Error changing to s_overrides directory: $s_overrides_dir\n" ;
+    dump_makefile_vars($s_overrides, $build_dir, \%SHELL_ENV, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS", "TRICK_SYSTEM_SWIG_CFLAGS", "TRICK_SWIG_CFLAGS")) ; 
+    chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
+    $ENV{"TRICKIFY_MAKE_DUMP"} = Cwd::abs_path("var_dump.mk") ;
+}
+my $trickify_make_call = "make $trickify_make_args -f $trickify_make_path/trickify.mk trickify" ;
+my $cmd_ret = `$trickify_make_call 2>&1` ;
+my $cmd_exit_code = $? ;
+if($cmd_ret ne "") 
+{
+    print "$cmd_ret" ;
+}
+
+if($cmd_exit_code != 0)
+{
+    die $cmd_exit_code ;
+}
+
+logStage(); #Stage 4
+
+
+#The full file list is dumped as one line. We need to clean it up (don't want to do that in bash lol)
+my @full_file_list ;
+if (-e "full_file")
+{
+    open ($fh, '<', "full_file") or die "Could not open full_file: $!" ;
+    my $line = <$fh> ;
+    chomp $line ;
+    @full_file_list = split ' ', $line ;
+    close ($fh) ;
+    print `rm full_file` ;
+
+
+    #py and io link lists use relative paths (start with build/)
+    #obj file list uses full file paths
+    #need to make them similar
+    @full_file_list = map 
+    {
+        my $ret = $_ ;
+        if( $_ !~ /^\Qbuild\/\E/ )
+        {
+            /^(.*)(\Qbuild\/\E.*)$/ ;
+           $ret =  $2 ;
+        }
+        $ret ;
+    } 
+    (@full_file_list) ;
+
+    open ($fh, '>', "full_file_list") or die "Could not open full_file_list: $!" ;
+    map { print $fh "$_\n" } @full_file_list ;
+    close ($fh) ;
+}
+
+#Generate dependency list
+#We need to generate a dependency list for the trickified lib
+#All explicity declared files are included, along with all their non-trick/system #include
+#We piggyback off of ICG's lists to track all #include in the lib
+my %trickify_dep_list;
+my @dep_lists = ("trickify_src_list", "build/ICG_processed", "build/ICG_no_found");
+foreach my $list (@dep_lists)
+{
+    open ($fh, $list) or die "Could not open $list: $!" ;
+    while (my $line = <$fh>) 
+    {
+        chomp $line ;
+        if($line !~ /\QS_source.hh\E$/)
+        {
+            $trickify_dep_list{$line} = 1 ;
+        }
+    }
+    close ($fh) ;
+}
+
+open ($fh, '>', "trickify_dep.mk") or die "Could not open trickify_dep.mk: $!" ;
+print $fh "TDMK_LOCAL_DIR_$name := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n\n" ;
+my $dep_rule = "$build_dir/$name.$build_type:\\\n" ;
+$dep_rule .= (join "\n", map { "\t$_\\" } (sort keys %trickify_dep_list)) . "\n" ;
+print $fh "ifeq (\$(TRICKIFY_AUTO_REBUILD), 0)\n" ;
+print $fh $dep_rule ;
+print $fh "\n\t\@echo Trickify rebuild disabled.\n" ;
+print $fh "else\n" ;
+print $fh "\$(eval \\\n$dep_rule;\\" ;
+print $fh "\n\tmake -C \$(TDMK_LOCAL_DIR_$name) rebuild_trickify\\\n)\n" ;
+print $fh "endif\n" ;
+close ($fh) ;
+
+open ($fh, '>', "trickify_dep_list") or die "Could not open trickify_dep_list: $!" ;
+print $fh (join "\n", (sort keys %trickify_dep_list)) ;
+close ($fh) ;
+
+#look for files outside the selected dirs/s_define filter
+my @extra_file_list = grep 
+{
+    my $ret = 0 ;
+    s/^\Qbuild\E//; #strip the leading build from the file path
+    my $file = $_ ;
+    my @valid_dirs = ((split ' ', $s_define_filter), (split ' ', $source_dirs)) ; #all paths provided by the user for source
+
+    #if the file does not start with a s_define filter or source dir
+    if( (grep { $file =~ /^\Q$_\E/ } (@valid_dirs)) == 0 )
+    {
+        $ret = 1 ;
+    }
+
+    #if the file starts with an excluded path
+    if( grep { $file =~ /^\Q$_\E/ } (@exclude_list) )
+    {
+        $ret = 1 ;
+    }
+
+    $ret;
+} 
+(sort keys %trickify_dep_list) ;
+
+open ($fh, '>', "extra_file_list") or die "Could not open extra_file_list: $!" ;
+map { print $fh "$_\n" } @extra_file_list ;
+close ($fh) ;
+
+#Print warnings and additional info
+if ( @extra_file_list )
+{
+    printc("yellow", "WARNING: Extra files were processed to build trickified library. Check extra_file_list in the build directory.\n") ;
+}
+
+if($debug) {
+    print 
+   "TRICKIFY BUILD INFO:
+    source_dirs = $source_dirs
+    source_make_call = $source_make_call
+    trickify_make_args = $trickify_make_args
+    trickify_make_path = $trickify_make_path
+    build_s_source = $no_clean_s_source
+    full_build = $full_build
+    name = $name
+    build_type = $build_type
+    trick_home = $trick_home
+    TRICKIFY_CXX_FLAGS = $ENV{'TRICKIFY_CXX_FLAGS'}\n" ;
+}
+
+system("rm trickify_stage*") ;
+printc("green", "Trickification complete!\n") ;

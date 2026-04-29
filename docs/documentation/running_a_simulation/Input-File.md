@@ -148,9 +148,11 @@ Structure and class variables do not carry around units, and therefore the units
 ## Creating New Objects and Allocating Memory
 
 It is possible to create new objects and allocate new memory for structures directly in the Python
-input file.  There are at least two ways to allocate memory.
+input file.  Three different ways are described below.
 
-The first method is to call the `Trick::MemoryManager` routines to allocate memory.  This is the preferred method.
+### 1. Call ```Trick::MemoryManager``` Allocation Routines Directly
+
+The first method is to call the `Trick::MemoryManager` routines to allocate memory.  
 There are 3 `Trick::MemoryManager` calls with varying arguments that can be used to allocate memory
 
 ```python
@@ -188,7 +190,80 @@ food[2] = trick.alloc_type(6, "double")
 
 Memory allocated using the above routines are tracked by the memory manager and is checkpointable and data recordable.
 
-The second method is to call the wrapped constructor of the class directly.  This is analogous to declaring local
+### 2. Use a Factory Function
+The benefit of this method is flexibility in how objects are initialized. For example, we might want to initialize our objects with a non-default constructor. So, the requirements for our factory function are:
+
+1. Allocate a memory object via the Trick Memory Manager, and
+2. Call a constructor to initialize the object (using placement-new)
+
+#### A Few Words About Placement-new
+In C++ one often instanciates a class object using the **new** operator, for example:
+
+```
+MyClass * p = new MyClass(a,b,c);
+```
+
+This form of **new**
+
+1. allocates memory, and then
+2. calls a constructor.
+
+Another form of **new**, is called "placement-new". Rather than allocating and calling a constructor to initialize memory, placement-new simply calls a constructor to initialize memory that has already been allocated (e.g., from the Memory Manager). 
+
+If ```p``` points to allocated memory, then we can initialize that memory with **placement-new** : 
+
+```
+new (p) MyClass(a,b,c); 
+```
+
+In our factory function we'll pass the object pointer we got from the Memory Manager to our placement-new call, to initialize it.
+
+#### Example Factory Function from ```SIM_contact```
+SIM_contact simulates collisions between moving balls (think "pool balls"). From the input file, one or more balls can be added to the simulation. Each ball is initialized with a mass, a size, a position, and a velocity. The Ball class also includes a (non-default) constructor.
+
+```C++
+class Ball {
+    public:
+        Ball(){}
+        double pos[2];
+        double vel[2];
+        double mass;
+        double radius;
+        
+        // A Non-Default Constructor
+        Ball(double x, double y, double vx, double vy, double r, double m);
+};
+```
+To create and initialize a new Ball object, we have the function ```make_Ball```.
+
+```C++
+// Factory function Implementation
+Ball* make_Ball(double x, double y, double vx, double vy, double r, double m) {
+    Ball* b = (Ball*)TMM_declare_var_s("Ball");
+    return (new (b) Ball(x,y,vx,vy,r,m));
+}
+```
+
+Because this function is bound to Python by SWIG, it can be called from the input file.
+For example :
+
+##### From ```RUN_Newtons_cradle/input.py```
+```Python
+dyn.contact.nballs = 7
+dyn.contact.balls = trick.TMM_declare_var_1d("Ball*", dyn.contact.nballs)
+dyn.contact.balls[0] = trick.make_Ball(-4.00, 0.0, 2.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[1] = trick.make_Ball(-1.00, 0.0, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[2] = trick.make_Ball( 0.01, 0.0, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[3] = trick.make_Ball( 1.02, 0.0, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[4] = trick.make_Ball( 2.03, 0.0, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[5] = trick.make_Ball( 7.00, 0.0, 0.0, 0.0, 1.0, 1000000.0)
+dyn.contact.balls[6] = trick.make_Ball(-7.00, 0.0, 0.0, 0.0, 1.0, 1000000.0)
+```
+
+This creates and initializes seven *Ball* objects needed to configure a Newton's cradle.
+
+### 3. Call the Wrapped Class Constructor Directly
+The third method is to call the wrapped constructor of the class directly.  This is analogous to declaring local
 variables in C/C++ routines.  And like local variables in C/C++ if the python variable goes out of scope in the
 input file, then python will try and free the memory associated with the local object.  Memory allocated this
 way is not checkpointable or data recordable.

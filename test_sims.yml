@@ -1,8 +1,6 @@
 # Compile only sims
 SIM_alloc_test:
   path: test/SIM_alloc_test
-SIM_alloc_test:
-  path: test/SIM_alloc_test
 SIM_anon_enum:
   path: test/SIM_anon_enum
 SIM_default_member_initializer:
@@ -21,6 +19,8 @@ SIM_parse_s_define:
   path: test/SIM_parse_s_define
 SIM_target_specific_variables:
   path: test/SIM_target_specific_variables
+SIM_swig_template_scoping:
+  path: test/SIM_swig_template_scoping
 SIM_test_abstract:
   path: test/SIM_test_abstract
 SIM_test_inherit:
@@ -86,6 +86,20 @@ SIM_test_io:
       returns: 0
 SIM_test_ip:
   path: test/SIM_test_ip
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_ip_stl:
+  path: test/SIM_test_ip_stl
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_multidt:
+  path: test/SIM_test_multidt
   build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
@@ -182,6 +196,22 @@ SIM_Ball++_L1:
   runs:
     RUN_test/unit_test.py:
       returns: 0
+SIM_sat2d:
+  path: trick_sims/SIM_sat2d
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_sat2d_multidt:
+  path: trick_sims/SIM_sat2d_multidt
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+    RUN_singlerate/unit_test.py:
+      returns: 0
 SIM_sun:
   path: trick_sims/SIM_sun
   build_args: "-t"
@@ -227,9 +257,9 @@ SIM_test_dr:
     RUN_test/unit_test.py:
       returns: 0
       compare:
-      - test/SIM_test_dr/RUN_test/log_DR_bitfieldsASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
-      - test/SIM_test_dr/RUN_test/log_DR_typesASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_typesASCII_Master.csv
-      - test/SIM_test_dr/RUN_test/log_DR_bitfieldsBINARY.trk vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsBINARY.trk
+        - test/SIM_test_dr/RUN_test/log_DR_bitfieldsASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
+        - test/SIM_test_dr/RUN_test/log_DR_typesASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_typesASCII_Master.csv
+        - test/SIM_test_dr/RUN_test/log_DR_bitfieldsBINARY.trk vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsBINARY.trk
 
 # All the dump.py runs dump a checkpoint
 # All the unit_test.py runs load that checkpoint and then compare against expected logs
@@ -243,7 +273,10 @@ SIM_checkpoint_data_recording:
       returns: 0
     RUN_test6/dump.py:
       returns: 0
-    RUN_test[7-8]/dump.py:
+    RUN_test[7-9]/dump.py:
+      phase: -1
+      returns: 0
+    RUN_test11/dump.py:
       phase: -1
       returns: 0
 
@@ -254,7 +287,7 @@ SIM_checkpoint_data_recording:
         - test/SIM_checkpoint_data_recording/RUN_test1/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test1/log_foo.csv
     RUN_test2/unit_test.py:
       returns: 0
-      analyze: './test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh'
+      analyze: "./test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh"
     RUN_test3/unit_test.py:
       returns: 0
       compare:
@@ -269,16 +302,34 @@ SIM_checkpoint_data_recording:
         - test/SIM_checkpoint_data_recording/RUN_test5/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test5/log_foo.csv
     RUN_test6/unit_test.py:
       returns: 0
-      compare: 
+      compare:
         - test/SIM_checkpoint_data_recording/RUN_test6/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test6/log_foo2.csv
     RUN_test7/unit_test.py:
       returns: 0
-      compare: 
+      compare:
         - test/SIM_checkpoint_data_recording/RUN_test7/ref_log_fooChange.csv vs. test/SIM_checkpoint_data_recording/RUN_test7/log_fooChange.csv
     RUN_test8/unit_test.py:
       returns: 0
-      compare: 
+      compare:
         - test/SIM_checkpoint_data_recording/RUN_test8/ref_log_fooChange2.csv vs. test/SIM_checkpoint_data_recording/RUN_test8/log_fooChange2.csv
+    RUN_test9/unit_test.py:
+      returns: 0
+      compare:
+        - test/SIM_checkpoint_data_recording/RUN_test9/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test9/log_foo2.csv
+    RUN_test11_redirect/unit_test.py:
+      returns: 0
+      compare:
+        - test/SIM_checkpoint_data_recording/RUN_test11/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11/log_foo.csv
+        - test/SIM_checkpoint_data_recording/RUN_test11_redirect/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11_redirect/log_foo.csv
+
+SIM_mtv:
+  path: test/SIM_mtv
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/input.py:
+      phase: 1
+      returns: 0
 
 SIM_events:
   path: test/SIM_events
@@ -286,7 +337,7 @@ SIM_events:
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
-      returns: 0 
+      returns: 0
     RUN_test/unit_test_error1.py:
       returns: 255
     RUN_test/unit_test_error2.py:
@@ -294,18 +345,14 @@ SIM_events:
     RUN_test/unit_test_error3.py:
       returns: 255
 
-
-
 SIM_test_output_dir:
   path: test/SIM_test_output_dir
-  build_args: "-t"  
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
-    RUN_test/input.py -OO sim_output --read-only-sim:
+    RUN_test/unit_test.py -OO sim_output --read-only-sim:
       returns: 0
-      analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource test/SIM_test_output_dir/S_sie.resource'
-      analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource test/SIM_test_output_dir/sim_output/RUN_test/S_sie.resource'
-
+      analyze: "python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource test/SIM_test_output_dir/S_sie.resource && python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource test/SIM_test_output_dir/sim_output/RUN_test/S_sie.resource"
 
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
 

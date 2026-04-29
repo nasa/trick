@@ -30,7 +30,6 @@ if ret == 0:  # Successful generation
 
 import sys, os
 
-import send_hs
 import argparse, glob
 
 import subprocess, errno

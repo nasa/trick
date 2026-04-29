@@ -31,7 +31,7 @@ import trick.common.TrickApplication;
 /**
  * SimSniffer displays the currently running simulations. It constantly monitors the multicast
  * channel over which all sims broadcast their existance. The user can choose to launch Sim Control
- * Panel or Trick View and connect to any Trick 10 sim.
+ * Panel or Trick View and connect to any Trick sim.
  *
  * @author Derek Bankieris
  */
@@ -187,17 +187,6 @@ public class SimSnifferApplication extends TrickApplication {
         }};
     }
 
-    /**
-     * determines if the specified row represents a Trick 10 simulation
-     *
-     * @param row the row to be tested
-     *
-     * @return the Trick 10-ness of the sim
-     */
-    boolean isTrick10Sim(int row) {
-        return simulations.get(row).version.startsWith("1");
-    }
-
     @Override
     protected JComponent createMainPanel() {
         simTable = new JXTable(new DefaultTableModel() {
@@ -279,17 +268,15 @@ public class SimSnifferApplication extends TrickApplication {
             setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             setColumnControlVisible(true);
 
-            // Provide alternate row coloring, and change the color of non-Trick 10 simulations.
+            // Provide alternate row coloring.
             setHighlighters(
-              HighlighterFactory.createSimpleStriping(),
-              new EnabledHighlighter(new PatternPredicate("\\A(?!1)",
-              getColumnModel().getColumnIndex("Version"))));
+              HighlighterFactory.createSimpleStriping());
             }
 
             @Override
             public void changeSelection(int row, int column, boolean toggle, boolean extend) {
                 super.changeSelection(row, column, toggle, extend);
-                boolean enable = row != -1 && isTrick10Sim(convertRowIndexToModel(row));
+                boolean enable = row != -1;
                 controlPanelAction.setEnabled(enable);
                 trickViewAction.setEnabled(enable);
                 malfunctionTrickViewAction.setEnabled(enable);

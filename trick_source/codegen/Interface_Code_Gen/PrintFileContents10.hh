@@ -47,16 +47,22 @@ class PrintFileContents10 : public PrintFileContentsBase {
         virtual void printEnumMap(std::ostream & out, EnumValues * ev) ;
         virtual void printEnumMapFooter(std::ostream & out) ;
 
+        /** stores template argument header dependencies to be printed */
+        virtual void addTemplateArgumentHeaderDependency(const std::string& header, const std::string& dependency);
+
     private:
 
         /** Prints enumeration attributes */
         void print_enum_attr(std::ostream & outfile , EnumValues * in_enum) ;
 
         /** Prints attributes for a field */
-        void print_field_attr(std::ostream & outfile , FieldDescription & fdes ) ;
+        void print_field_attr(std::ostream & outfile , FieldDescription & fdes , ClassValues * cv = NULL) ;
+
+        /** Prints forward declarations for STL accessor functions */
+        void print_stl_declarations(std::ostream & outfile , ClassValues * in_class ) ;
 
         /** Prints class attributes */
-        void print_class_attr(std::ostream & outfile , ClassValues * in_class) ;
+        void print_class_attr(std::ostream & outfile , ClassValues * in_class ) ;
 
         /** Prints init_attr function for each class */
         void print_field_init_attr_stmts(std::ostream & outfile , FieldDescription * fdes ,
@@ -101,7 +107,32 @@ class PrintFileContents10 : public PrintFileContentsBase {
         /** Prints stl clear function */
         void print_clear_stl(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
 
-        void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues);
+        /** Prints stl get_size function */
+        void print_get_stl_size(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        /** Prints stl get_element function */
+        void print_get_stl_element(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        /** Prints stl set_element function (for vector<bool> write-back) */
+        void print_set_stl_element(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues, const std::string& returnType = "void");
+
+        /** Prints #include statements requried by tempalte arguments for the specified header */
+        void print_template_argument_header_dependencies(std::ostream & outfile, std::string header_file_name) ;
+
+        /** Struct contains the header path and whether it's printed already */
+        struct HeaderInfo {
+            std::string header_path;
+            bool printed;
+            HeaderInfo(const std::string& path) : header_path(path), printed(false) {}
+            // comparison operator for std::set
+            bool operator<(const HeaderInfo& other) const {
+                return header_path < other.header_path;
+            }
+        };
+        /** The key is the header that have template argument header dependencies */
+        std::map<std::string, std::set<HeaderInfo>> template_argument_header_dependencies;
 } ;
 
 #endif

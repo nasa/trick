@@ -70,6 +70,117 @@ TEST_F( ScheduledJobQueueTest , PushJobsbyJobOrder ) {
     EXPECT_TRUE( sjq.empty() ) ;
 }
 
+TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex0 ) {
+
+    Trick::JobData * job_ptr ;
+
+    EXPECT_EQ( sjq.size() , (unsigned int)0) ;
+    EXPECT_TRUE( sjq.empty() ) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ;
+    job_ptr->sim_object_id = 4 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+
+    EXPECT_EQ( sjq.size() , (unsigned int)1) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)0) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ;
+    job_ptr->sim_object_id = 3 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+    
+    EXPECT_EQ( sjq.size() , (unsigned int)2) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)0) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ;
+    job_ptr->sim_object_id = 2 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+    
+    EXPECT_EQ( sjq.size() , (unsigned int)3) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)0) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ;
+    job_ptr->sim_object_id = 1 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+    
+    EXPECT_EQ( sjq.size() , (unsigned int)4) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)0) ;
+
+    job_ptr = sjq.get_next_job() ;
+    EXPECT_STREQ( job_ptr->name.c_str() , "job_1") ;
+
+    job_ptr = sjq.get_next_job() ;
+    EXPECT_STREQ( job_ptr->name.c_str() , "job_2") ;
+
+    job_ptr = sjq.get_next_job() ;
+    EXPECT_STREQ( job_ptr->name.c_str() , "job_3") ;
+
+    job_ptr = sjq.get_next_job() ;
+    EXPECT_STREQ( job_ptr->name.c_str() , "job_4") ;
+
+    sjq.clear() ;
+    EXPECT_EQ( sjq.size() , (unsigned int)0) ;
+    EXPECT_TRUE( sjq.empty() ) ;
+}
+
+TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex1 ) {
+	
+    Trick::JobData * job_ptr ;
+
+    EXPECT_EQ( sjq.size() , (unsigned int)0) ;
+    EXPECT_TRUE( sjq.empty() ) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ;
+    job_ptr->sim_object_id = 1 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+
+    sjq.get_next_job() ;
+
+    EXPECT_EQ( sjq.size() , (unsigned int)1) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)1) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ;
+    job_ptr->sim_object_id = 4 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+    
+    EXPECT_EQ( sjq.size() , (unsigned int)2) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)1) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ;
+    job_ptr->sim_object_id = 3 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+    
+    EXPECT_EQ( sjq.size() , (unsigned int)3) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)1) ;
+
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ;
+    job_ptr->sim_object_id = 2 ;
+    job_ptr->job_class = 100 ;
+    sjq.push(job_ptr) ;
+    
+    EXPECT_EQ( sjq.size() , (unsigned int)4) ;
+    EXPECT_EQ( sjq.get_curr_index() , (unsigned int)1) ;
+
+    job_ptr = sjq.get_next_job() ;
+    EXPECT_STREQ( job_ptr->name.c_str() , "job_2") ;
+
+    job_ptr = sjq.get_next_job() ;
+    EXPECT_STREQ( job_ptr->name.c_str() , "job_3") ;
+
+    job_ptr = sjq.get_next_job() ;
+    EXPECT_STREQ( job_ptr->name.c_str() , "job_4") ;
+
+    sjq.clear() ;
+    EXPECT_EQ( sjq.size() , (unsigned int)0) ;
+    EXPECT_TRUE( sjq.empty() ) ;
+}
+
 TEST_F( ScheduledJobQueueTest , PushJobsbySimObjectOrder ) {
 	//req.add_requirement("512154259");
 

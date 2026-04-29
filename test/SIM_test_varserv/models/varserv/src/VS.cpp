@@ -13,6 +13,7 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013)
 
 #include "../include/VS.hh"
 #include "trick/exec_proto.h"
+#include "trick/memorymanager_c_intf.h"
 
 VSTest::VSTest() {}
 VSTest::~VSTest() {}
@@ -36,8 +37,8 @@ int VSTest::default_vars() {
 		n[i] = i;
 	}
 	o = std::string("You will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
-	p = "I am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?";
-	q = L"This breeze, which has travelled from the regions towards which I am advancing, gives me a foretaste of those icy climes. Inspirited by this wind of promise, my daydreams become more fervent and vivid.";
+	p = const_cast<char *>("I am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
+	q = const_cast<wchar_t *>(L"This breeze, which has travelled from the regions towards which I am advancing, gives me a foretaste of those icy climes. Inspirited by this wind of promise, my daydreams become more fervent and vivid.");
 
 	for (int i = 0; i < 4000; i++) {
 		large_arr[i] = i;
@@ -53,6 +54,198 @@ int VSTest::default_vars() {
 
 	blocked_from_input = 500;
 	blocked_from_output = 1000;
+
+    // Initialize dynamic array of Points
+    point_dyn_array = (Point*)TMM_declare_var_s("Point[3]");
+    point_dyn_array[0] = Point(1.1, 2.2);
+    point_dyn_array[0].point_label_obj = PointLabel();
+    snprintf(point_dyn_array[0].point_label_obj.label_text, sizeof(point_dyn_array[0].point_label_obj.label_text), "Label 1 for Array Point 1");
+    point_dyn_array[0].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    point_dyn_array[0].point_dyn_label_array[0] = PointLabel();
+    point_dyn_array[0].point_dyn_label_array[1] = PointLabel();
+    snprintf(point_dyn_array[0].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[0].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 1");
+    snprintf(point_dyn_array[0].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[0].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 1");
+    snprintf(point_dyn_array[0].point_static_label_array[0].label_text, sizeof(point_dyn_array[0].point_static_label_array[0].label_text), "Static Label 1 for Array Point 1");
+    snprintf(point_dyn_array[0].point_static_label_array[1].label_text, sizeof(point_dyn_array[0].point_static_label_array[1].label_text), "Static Label 2 for Array Point 1");
+
+    point_dyn_array[1] = Point(3.3, 4.4);
+    point_dyn_array[1].point_label_obj = PointLabel();
+    snprintf(point_dyn_array[1].point_label_obj.label_text, sizeof(point_dyn_array[1].point_label_obj.label_text), "Label 1 for Array Point 2");
+    point_dyn_array[1].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    point_dyn_array[1].point_dyn_label_array[0] = PointLabel();
+    point_dyn_array[1].point_dyn_label_array[1] = PointLabel();
+    snprintf(point_dyn_array[1].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[1].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 2");
+    snprintf(point_dyn_array[1].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[1].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 2");
+    snprintf(point_dyn_array[1].point_static_label_array[0].label_text, sizeof(point_dyn_array[1].point_static_label_array[0].label_text), "Static Label 1 for Array Point 2");
+    snprintf(point_dyn_array[1].point_static_label_array[1].label_text, sizeof(point_dyn_array[1].point_static_label_array[1].label_text), "Static Label 2 for Array Point 2");
+
+    point_dyn_array[2] = Point(5.5, 6.6);
+    point_dyn_array[2].point_label_obj = PointLabel();
+    snprintf(point_dyn_array[2].point_label_obj.label_text, sizeof(point_dyn_array[2].point_label_obj.label_text), "Label 1 for Array Point 3");
+    point_dyn_array[2].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_dyn_array[2].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[2].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 3");
+    snprintf(point_dyn_array[2].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[2].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 3");
+
+    // Initialize static array of Points
+    point_static_array[0] = Point(7.7, 8.8);
+    point_static_array[0].point_label_obj = PointLabel();
+    snprintf(point_static_array[0].point_label_obj.label_text, sizeof(point_static_array[0].point_label_obj.label_text), "Label 1 for Static Point 1");
+    point_static_array[0].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_static_array[0].point_dyn_label_array[0].label_text, sizeof(point_static_array[0].point_dyn_label_array[0].label_text), "Dyn Label 1 for Static Point 1");
+    snprintf(point_static_array[0].point_dyn_label_array[1].label_text, sizeof(point_static_array[0].point_dyn_label_array[1].label_text), "Dyn Label 2 for Static Point 1");
+    snprintf(point_static_array[0].point_static_label_array[0].label_text, sizeof(point_static_array[0].point_static_label_array[0].label_text), "Static Label 1 for Static Point 1");
+    snprintf(point_static_array[0].point_static_label_array[1].label_text, sizeof(point_static_array[0].point_static_label_array[1].label_text), "Static Label 2 for Static Point 1");
+
+    // Initialize vector containers
+    vec_int.push_back(10);
+    vec_int.push_back(20);
+    vec_int.push_back(30);
+
+    vec_string.push_back("Hello");
+    vec_string.push_back("Variable");
+    vec_string.push_back("Server");
+
+    vec_double.push_back(1.1);
+    vec_double.push_back(2.2);
+    vec_double.push_back(3.3);
+    vec_double.push_back(4.4);
+
+    vec_bool.push_back(true);
+    vec_bool.push_back(false);
+    vec_bool.push_back(true);
+    vec_bool.push_back(true);
+    vec_bool.push_back(false);
+
+    vec_short.push_back(-100);
+    vec_short.push_back(-200);
+    vec_short.push_back(-300);
+
+    vec_ushort.push_back(100);
+    vec_ushort.push_back(200);
+    vec_ushort.push_back(300);
+
+    vec_uint.push_back(1000u);
+    vec_uint.push_back(2000u);
+    vec_uint.push_back(3000u);
+
+    vec_long.push_back(10000L);
+    vec_long.push_back(20000L);
+    vec_long.push_back(30000L);
+
+    vec_ulong.push_back(100000UL);
+    vec_ulong.push_back(200000UL);
+    vec_ulong.push_back(300000UL);
+
+    vec_float.push_back(1.5f);
+    vec_float.push_back(2.5f);
+    vec_float.push_back(3.5f);
+
+    vec_llong.push_back(1000000LL);
+    vec_llong.push_back(2000000LL);
+    vec_llong.push_back(3000000LL);
+
+    vec_ullong.push_back(10000000ULL);
+    vec_ullong.push_back(20000000ULL);
+    vec_ullong.push_back(30000000ULL);
+
+    // Initialize deque containers
+    deq_float.push_back(1.5f);
+    deq_float.push_back(2.5f);
+    deq_float.push_back(3.5f);
+    deq_float.push_back(4.5f);
+
+    deq_uint.push_back(100u);
+    deq_uint.push_back(200u);
+    deq_uint.push_back(300u);
+
+    deq_string.push_back("Deque");
+    deq_string.push_back("of");
+    deq_string.push_back("Strings");
+
+    deq_short.push_back(-10);
+    deq_short.push_back(-20);
+    deq_short.push_back(-30);
+
+    deq_llong.push_back(111111LL);
+    deq_llong.push_back(222222LL);
+    deq_llong.push_back(333333LL);
+
+    // Initialize array containers
+    arr_long = {1000L, 2000L, 3000L, 4000L, 5000L};
+    arr_ushort = {10u, 20u, 30u, 40u};
+    arr_string = {"Array", "of", "Strings"};
+    arr_double = {10.5, 20.5, 30.5, 40.5};
+    arr_int = {100, 200, 300};
+
+    // Initialize enum containers
+    vec_enum.push_back(COLOR_RED);
+    vec_enum.push_back(COLOR_GREEN);
+    vec_enum.push_back(COLOR_BLUE);
+
+    deq_enum.push_back(COLOR_GREEN);
+    deq_enum.push_back(COLOR_YELLOW);
+    deq_enum.push_back(COLOR_RED);
+
+    arr_enum = {COLOR_BLUE, COLOR_RED, COLOR_GREEN, COLOR_YELLOW};
+
+    // Initialize Point (structured type) containers
+    vec_point.push_back(Point(1.0, 2.0));
+    vec_point.push_back(Point(3.0, 4.0));
+    vec_point.push_back(Point(5.0, 6.0));
+
+    // vector<class>.vector<supported_type> not supported yet
+    //vec_point[0].coords = {1.1, 1.2, 1.3};
+    //vec_point[1].coords = {2.1, 2.2, 2.3, 2.4, 2.5};
+    //vec_point[2].coords = {3.1, 3.2, 3.3};
+
+    deq_point.push_back(Point(10.0, 20.0));
+    deq_point.push_back(Point(30.0, 40.0));
+    deq_point.push_back(Point(50.0, 60.0));
+
+    arr_point = {Point(100.0, 200.0), Point(300.0, 400.0), Point(500.0, 600.0)};
+
+    // Initialize vector of Point pointers
+    Point* p1 = (Point*)TMM_declare_var_s("Point");
+    p1->x = 11.0;
+    p1->y = 22.0;
+    p1->point_label_obj = PointLabel();
+    snprintf(p1->point_label_obj.label_text, sizeof(p1->point_label_obj.label_text), "Point 1 (%6.6f, %6.6f)", p1->x, p1->y);
+    p1->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    p1->point_dyn_label_array[0] = PointLabel();
+    snprintf(p1->point_dyn_label_array[0].label_text, sizeof(p1->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 1");
+    snprintf(p1->point_static_label_array[0].label_text, sizeof(p1->point_static_label_array[0].label_text), "Static Label 1 for Point 1");
+    p1->point_dyn_label_array[1] = PointLabel();
+    snprintf(p1->point_dyn_label_array[1].label_text, sizeof(p1->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 1");
+    snprintf(p1->point_static_label_array[1].label_text, sizeof(p1->point_static_label_array[1].label_text), "Static Label 2 for Point 1");
+    vec_point_ptr.push_back(p1);
+
+    Point* p2 = (Point*)TMM_declare_var_s("Point");
+    p2->x = 33.0;
+    p2->y = 44.0;
+    p2->point_label_obj = PointLabel();
+    snprintf(p2->point_label_obj.label_text, sizeof(p2->point_label_obj.label_text), "Point 2 (%6.6f, %6.6f)", p2->x, p2->y);
+    p2->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    p2->point_dyn_label_array[0] = PointLabel();
+    snprintf(p2->point_dyn_label_array[0].label_text, sizeof(p2->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 2");
+    snprintf(p2->point_static_label_array[0].label_text, sizeof(p2->point_static_label_array[0].label_text), "Static Label 1 for Point 2");
+    p2->point_dyn_label_array[1] = PointLabel();
+    snprintf(p2->point_dyn_label_array[1].label_text, sizeof(p2->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 2");
+    snprintf(p2->point_static_label_array[1].label_text, sizeof(p2->point_static_label_array[1].label_text), "Static Label 2 for Point 2");
+    vec_point_ptr.push_back(p2);
+
+    Point* p3 = (Point*)TMM_declare_var_s("Point");
+    p3->x = 55.0;
+    p3->y = 66.0;
+    p3->point_label_obj = PointLabel();
+    snprintf(p3->point_label_obj.label_text, sizeof(p3->point_label_obj.label_text), "Point 3 (%6.6f, %6.6f)", p3->x, p3->y);
+    p3->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    p3->point_dyn_label_array[0] = PointLabel();
+    snprintf(p3->point_dyn_label_array[0].label_text, sizeof(p3->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 3");
+    snprintf(p3->point_static_label_array[0].label_text, sizeof(p3->point_static_label_array[0].label_text), "Static Label 1 for Point 3");
+    p3->point_dyn_label_array[1] = PointLabel();
+    snprintf(p3->point_dyn_label_array[1].label_text, sizeof(p3->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 3");
+    snprintf(p3->point_static_label_array[1].label_text, sizeof(p3->point_static_label_array[1].label_text), "Static Label 2 for Point 3");
+    vec_point_ptr.push_back(p3);
 
 	return 0;
 }

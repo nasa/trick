@@ -14,7 +14,7 @@ AC_DEFUN([TR_HDF5_HOME],[
                   )
                 )],
                  [
-                   AC_CHECK_HEADER(hdf5.h, [HDF5_HOME="/usr"], [HDF5_HOME=""])
+                   AC_CHECK_HEADER(hdf5.h, [HDF5_HOME="/usr"], [AC_CHECK_FILE([/opt/homebrew/include/hdf5.h], [HDF5_HOME="/opt/homebrew"],[HDF5_HOME=""])])
                  ]
                )
     AS_IF([test "$HDF5_HOME" != ""],

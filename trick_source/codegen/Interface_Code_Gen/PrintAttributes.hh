@@ -67,6 +67,9 @@ class PrintAttributes {
         bool isHeaderExcluded(const std::string& header, bool exclude_ext_libs = true);
         void markHeaderAsVisited(const std::string& header);
 
+        /** Version specific attributes printer */
+        PrintFileContentsBase * printer ;
+
     protected:
 
         const bool verboseBuild = (getenv("TRICK_VERBOSE_BUILD") || getenv("VERBOSE"));
@@ -92,9 +95,6 @@ class PrintAttributes {
 
         /** Compiler instance */
         clang::CompilerInstance & ci ;
-
-        /** Version specific attributes printer */
-        PrintFileContentsBase * printer ;
 
         /** Force all io_src files to be written */
         bool force ;

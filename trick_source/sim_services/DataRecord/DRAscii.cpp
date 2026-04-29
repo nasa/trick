@@ -18,7 +18,7 @@ PROGRAMMERS:
 #include "trick/message_type.h"
 #include "trick/bitfield_proto.h"
 
-Trick::DRAscii::DRAscii( std::string in_name ) : Trick::DataRecordGroup( in_name ) {
+Trick::DRAscii::DRAscii( std::string in_name, Trick::DR_Type dr_type ) : Trick::DataRecordGroup( in_name, dr_type ) {
 
     ascii_float_format = "%20.8g" ;
     ascii_double_format = "%20.16g" ;
@@ -191,10 +191,11 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
             break;
 
         case TRICK_UNSIGNED_CHARACTER:
-#if ( __linux | __sgi )
-        case TRICK_BOOLEAN:
-#endif
             snprintf(buf, writer_buf_spare, "%u", *((unsigned char *) address));
+            break;
+
+        case TRICK_BOOLEAN:
+            snprintf(buf, writer_buf_spare, "%u", *((bool *) address));
             break;
 
         case TRICK_STRING:
@@ -211,9 +212,6 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
 
         case TRICK_ENUMERATED:
         case TRICK_INTEGER:
-#if ( __sun | __APPLE__ )
-        case TRICK_BOOLEAN:
-#endif
             snprintf(buf, writer_buf_spare, "%d", *((int *) address));
             break;
 

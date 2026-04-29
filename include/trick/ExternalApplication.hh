@@ -295,13 +295,6 @@ namespace Trick {
         /** Command to execute when starting this application. */
         std::string command;
 
-        /** Pointer to alloc'd command c str for use with external application c_intf */
-        char * command_c_str;
-
-        /** alloc'd addresses to be deallocated during app destruction (currently only
-        used by command_c_str) */
-        std::vector<char*> allocations;
-
         private:
 
         /** Prevent SWIG from trying to invoke operator= on ostringstream. */

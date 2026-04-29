@@ -62,6 +62,7 @@ export TRICK_ICG_IGNORE_TYPES := $(TRICK_ICG_IGNORE_TYPES)
 export TRICK_ICG_NOCOMMENT := $(TRICK_ICG_NOCOMMENT)
 export TRICK_SWIG_EXCLUDE := $(TRICK_SWIG_EXCLUDE)
 export TRICK_EXT_LIB_DIRS := $(TRICK_EXT_LIB_DIRS)
+export TRICK_EXT_LIB_DIRS_OVERRIDES := $(TRICK_EXT_LIB_DIRS_OVERRIDES)
 export TRICK_PYTHON_PATH := $(TRICK_PYTHON_PATH)
 export TRICK_GTE_EXT := $(TRICK_GTE_EXT)
 export TRICK_HOST_CPU := $(shell TRICK_FORCE_32BIT=$(TRICK_FORCE_32BIT) $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
@@ -195,7 +196,7 @@ export TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
 TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
 TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
 
-TRICK_TEST_FLAGS += -Wall -Wextra $(TRICK_ADDITIONAL_TEST_FLAGS)
+TRICK_TEST_FLAGS += -Wall -Wextra $(GTEST_CXXSTD)
 
 TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i and $$i ne "/usr/include")}') \
                  $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')

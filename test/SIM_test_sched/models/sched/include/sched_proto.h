@@ -1,26 +1,26 @@
 /************************TRICK HEADER*************************
  * PURPOSE:
-      (This comment lists out the other object files that are not included from c++ headers)
-      LIBRARY DEPENDENCIES:
-          (
-               (sched/src/sched_amf.o)
-               (sched/src/sched_async.o)
-               (sched/src/sched_deriv.o)
-               (sched/src/sched_dyn_event.o)
-               (sched/src/sched_effector.o)
-               (sched/src/sched_effector_emitter.o)
-               (sched/src/sched_effector_receiver.o)
-               (sched/src/sched_environment.o)
-               (sched/src/sched_init.o)
-               (sched/src/sched_integ.o)
-               (sched/src/sched_logging.o)
-               (sched/src/sched_scheduled.o)
-               (sched/src/sched_sensor.o)
-               (sched/src/sched_sensor_emitter.o)
-               (sched/src/sched_sensor_receiver.o)
-               (sched/src/sched_sensor_reflector.o)
-               (sched/src/sched_default_data.o)
-                                                     )
+ *     (This comment lists out the other object files that are not included from c++ headers)
+ * LIBRARY DEPENDENCIES:
+ *         (
+ *              (sched/src/sched_amf.o)
+ *              (sched/src/sched_async.o)
+ *              (sched/src/sched_deriv.o)
+ *              (sched/src/sched_dyn_event.o)
+ *              (sched/src/sched_effector.o)
+ *              (sched/src/sched_effector_emitter.o)
+ *              (sched/src/sched_effector_receiver.o)
+ *              (sched/src/sched_environment.o)
+ *              (sched/src/sched_init.o)
+ *              (sched/src/sched_integ.o)
+ *              (sched/src/sched_logging.o)
+ *              (sched/src/sched_scheduled.o)
+ *              (sched/src/sched_sensor.o)
+ *              (sched/src/sched_sensor_emitter.o)
+ *              (sched/src/sched_sensor_receiver.o)
+ *              (sched/src/sched_sensor_reflector.o)
+ *              (sched/src/sched_default_data.o)
+ *         )
 *************************************************************/
 
 #ifndef SCHED_PROTO_H

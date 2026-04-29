@@ -112,10 +112,17 @@ if hasattr(top.cvar, 'trick_data_record'):
 # the value based on the type in val.  The 6 argument is a default
 # type to use
 def var_get(name):
+    # Create the ref object 
     ref = trick.ref_attributes(name)
-    ref.thisown = True
+    # Don't set thisown to True as ref is manually deleted below.
+    # If let thisown be True and var_get is called multiple times in the input file,
+    # then swig/python memory leak warning message would be printed due to 
+    # the same 'ref' variable name being used multiple times.
+    # ref.thisown = True
     val = trick.V_DATA()
     trick.ref_to_value(ref, val)
+    # Manually delete the ref object
+    del ref
     return {
         '1': trick.vval_char(val),
         '2': trick.vval_char(val),

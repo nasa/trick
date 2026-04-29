@@ -30,6 +30,15 @@
     }
 }
 
+// Typemap to convert char** return from command_line_args_get_argv to Python list
+%typemap(out) char** command_line_args_get_argv {
+    int argc = command_line_args_get_argc();
+    $result = PyList_New(argc);
+    for (int i = 0; i < argc; i++) {
+        PyList_SetItem($result, i, PyUnicode_FromString($1[i]));
+    }
+}
+
 %inline %{
 #include "trick/swig/swig_global_vars.hh"
 
@@ -82,6 +91,8 @@
 #include "trick/IntegLoopScheduler.hh"
 #include "trick/IntegLoopManager.hh"
 #include "trick/IntegLoopSimObject.hh"
+#include "trick/MultiDtIntegLoopScheduler.hh"
+#include "trick/MultiDtIntegLoopSimObject.hh"
 #include "trick/Integrator.hh"
 #include "trick/regula_falsi.h"
 
@@ -184,5 +195,28 @@ def traceit(frame, event, arg):
             line = linecache.getline(filename, lineno)
             print (filename,":",lineno,": ",line.rstrip())
     return traceit
+
+file_object = None
+
+def open_input_file_log():
+    global file_object
+    file_object = open(command_line_args_get_output_dir()+"/S_input_file.log", "w")
+
+def close_input_file_log():
+    global file_object
+    file_object.close()
+
+def traceittofile(frame, event, arg):
+    global file_object
+    if event == "line":
+        lineno = frame.f_lineno
+        filename = frame.f_code.co_filename
+        if ( not filename.startswith(exclude_dir) and not filename.startswith("/usr") and not filename.startswith("/opt") and not filename.startswith("<") and not filename.startswith(".trick/") ):
+            if (filename.endswith(".pyc") or
+                filename.endswith(".pyo")):
+                filename = filename[:-1]
+            line = linecache.getline(filename, lineno)
+            file_object.write(filename+":"+str(lineno)+": "+line.rstrip()+"\n")
+    return traceittofile
 %}
 

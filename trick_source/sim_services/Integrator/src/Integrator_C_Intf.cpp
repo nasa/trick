@@ -22,11 +22,20 @@ extern "C" int integrate_2nd_order_ode(const double* acc, double* vel, double * 
 }
 
 extern "C" double get_integ_time() {
-    return (trick_curr_integ->time);
+	return (trick_curr_integ->time);
+}
+
+extern "C" double get_integ_dt(void) {
+	return (trick_curr_integ->dt);
+}
+
+extern "C" double get_integ_target_time(void) {
+	return (trick_curr_integ->target_integ_time);
 }
 
 extern "C" void set_integ_time(double time_value) {
     trick_curr_integ->time = time_value;
+    trick_curr_integ->target_integ_time = time_value;
 }
 
 extern "C" void reset_state() {

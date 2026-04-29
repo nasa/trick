@@ -444,7 +444,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
         contentPane.setEditable(false);
         contentPane.setContentType("text/html");
             
-        FindBar findBar = new FindBar(contentPane.getSearchable());
+        FindBar findBar = new FindBar(contentPane);
         contentPanel.add(findBar, BorderLayout.SOUTH);
             
         // Add all the desired components to the comp

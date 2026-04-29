@@ -8,7 +8,11 @@
 
 
 ICGDiagnosticConsumer::ICGDiagnosticConsumer(llvm::raw_ostream &os, clang::DiagnosticOptions *diags, clang::CompilerInstance &in_ci, HeaderSearchDirs &in_hsd) 
+#if LLVM_VERSION_MAJOR >= 21
+                                                : clang::TextDiagnosticPrinter(os, *diags, false), ci(in_ci), hsd(in_hsd) {
+#else
                                                 : clang::TextDiagnosticPrinter(os, diags), ci(in_ci), hsd(in_hsd) {
+#endif
     error_in_user_code = false;
 };
 ICGDiagnosticConsumer::~ICGDiagnosticConsumer() {

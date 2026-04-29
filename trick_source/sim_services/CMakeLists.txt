@@ -3,7 +3,7 @@
 set( SS_SRC
   CheckPointAgent/CheckPointAgent
   CheckPointAgent/ChkPtParseContext
-  CheckPointAgent/ClassicCheckPointerAgent
+  CheckPointAgent/ClassicCheckPointAgent
   CheckPointAgent/PythonPrint
   CheckPointRestart/CheckPointRestart
   CheckPointRestart/CheckPointRestart_c_intf
@@ -114,6 +114,8 @@ set( SS_SRC
   Integrator/src/IntegLoopManager
   Integrator/src/IntegLoopScheduler
   Integrator/src/IntegLoopSimObject
+  Integrator/src/MultiDtIntegLoopScheduler
+  Integrator/src/MultiDtIntegLoopSimObject
   Integrator/src/Integrator
   Integrator/src/Integrator_C_Intf
   Integrator/src/getIntegrator
@@ -242,4 +244,3 @@ target_include_directories( sim_services_objs PUBLIC ${UDUNITS2_INCLUDES} )
 
 add_subdirectory(MemoryManager)
 add_subdirectory(InputProcessor)
-

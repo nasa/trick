@@ -1,0 +1,5 @@
+|L   3|2024/11/21,15:54:06|myworkstation| |T 0|0.000000| TrickParamCopy(UserCodeExample): Failed to resolve parameter 'fsw_out.fswOut_block.fswOut.fsw1HzOut.domain.subdomain.variable'
+|L   2|2024/11/21,15:54:06|myworkstation| |T 0|0.000000| TrickParamCopy(UserCodeExample): Mismatched data types for 'fsw_out.fswOut_block.fswOut.fsw1HzOut.domain.subdomain.variable' -> 'another_structure.myvariable'
+|L   2|2024/11/21,15:54:07|myworkstation| |T 0|0.000000| Could not find Data Record variable flex.flex_Obj.flexMode.
+|L   2|2024/11/21,15:54:07|myworkstation| |T 0|0.000000| Could not find Data Record variable flex.flex_Obj.myarray[0].
+|L   2|2024/11/21,15:54:07|myworkstation| |T 0|0.000000| Could not find Data Record variable foo.bar.yippy.skippy.axial_sep_distance.

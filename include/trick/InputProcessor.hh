@@ -15,6 +15,7 @@ namespace Trick {
         public:
 
             int verify_input ;                    /* -- verify input */
+            int save_input;                       /* -- save input while running */
 
             std::string input_file ;              /* -- Simulation input data file name */
 

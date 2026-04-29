@@ -1248,9 +1248,10 @@ class TrickWorkflow(WorkflowCommon):
         """
         def __init__(self, test_data, baseline_data):
             """
-            Initialize this instance.
+            Initialize this instance. Environment variables used within the test data and baseline data paths will be expanded.
 
             >>> c = TrickWorkflow.Comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/log_a.csv')
+            >>> c = TrickWorkflow.Comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/${TRICK_HOST_TYPE}/log_a.csv')
 
             Parameters
             ----------
@@ -1259,8 +1260,8 @@ class TrickWorkflow(WorkflowCommon):
             baseline_data : str
                 Path to a single baseline logged data file
             """
-            self.test_data = test_data           # Test data file with respect to project top level
-            self.baseline_data = baseline_data   # Baseline data file with respect to project top level
+            self.test_data = os.path.expandvars(test_data)           # Test data file with respect to project top level
+            self.baseline_data = os.path.expandvars(baseline_data)   # Baseline data file with respect to project top level
             self.status = Job.Status.NOT_STARTED # Status of comparison
             self.error = None                    # Error details if found
             self.missing = []                    # List of Strings with details of missing files if any

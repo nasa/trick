@@ -34,6 +34,7 @@ Trick::MemoryManager::MemoryManager()
     defaultCheckPointAgent = new ClassicCheckPointAgent( this);
     defaultCheckPointAgent->set_reduced_checkpoint( reduced_checkpoint);
     defaultCheckPointAgent->set_hexfloat_checkpoint( hexfloat_checkpoint);
+    defaultCheckPointAgent->set_hexfloat_decimal_comment_checkpoint( hexfloat_decimal_comment_checkpoint);
     defaultCheckPointAgent->set_debug_level( debug_level);
 
     currentCheckPointAgent = defaultCheckPointAgent;

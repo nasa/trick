@@ -36,7 +36,7 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     // Add clang specific include directory first.  Only required on linux systems. :(
     // This is so that ICG will find clang friendly headers first.  gcc headers cause
     // all kinds of problems.  On macs all headers are clang friendly.
-#if __linux
+#if __linux__
     std::stringstream icg_dir ;
     icg_dir << LLVM_HOME << "/lib/clang/" ;
     icg_dir << LIBCLANG_MAJOR << "." << LIBCLANG_MINOR ;
@@ -209,6 +209,7 @@ void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs,
     AddDirsAndFiles("TRICK_SYSTEM_ICG_EXCLUDE", icg_exclude_dirs) ;
     AddDirsAndFiles("TRICK_EXCLUDE", exclude_dirs) ;
     AddDirsAndFiles("TRICK_EXT_LIB_DIRS", ext_lib_dirs) ;
+    AddDirsAndFiles("TRICK_EXT_LIB_DIRS_OVERRIDES", ext_lib_dirs_overrides) ;
     AddDirsAndFiles("TRICK_ICG_NOCOMMENT", icg_nocomment_dirs) ;
 
     char * compat15_contents = getenv("TRICK_ICG_COMPAT15") ;
@@ -304,6 +305,20 @@ bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
     for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; ++vit ) {
+        if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
+            if ( ! isPathInExtLibOverrides(in_dir) ) {
+                return true ;
+            }
+        }
+    }
+
+    return false ;
+}
+
+bool HeaderSearchDirs::isPathInExtLibOverrides (const std::string& in_dir ) {
+
+    std::vector<std::string>::iterator vit ;
+    for ( vit = ext_lib_dirs_overrides.begin() ; vit != ext_lib_dirs_overrides.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return true ;
         }

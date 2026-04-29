@@ -306,9 +306,9 @@ void* Trick::MemoryManager::declare_var( const char *element_definition, int n_e
     return ( address);
 }
 
-// PUBLIC MEMBER FUNCTION: void* Trick::MemoryManager::declare_operatornew_var(std::string user_type_name, unsigned int alloc_size , unsigned int element_size );
+// PUBLIC MEMBER FUNCTION: void* Trick::MemoryManager::declare_operatornew_var(std::string user_type_name, unsigned int alloc_size , unsigned int element_size, std::string alloc_name );
 
-void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name, unsigned int alloc_size , unsigned int element_size ) {
+void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name, unsigned int alloc_size , unsigned int element_size , std::string alloc_name ) {
     TRICK_TYPE type = TRICK_STRUCTURED ;
     int size_ref = 1 ;
     void* address;
@@ -345,7 +345,11 @@ void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name,
 
         new_alloc->start = (char *)address + aligned ;
         new_alloc->end = ( (char*)new_alloc->start) + alloc_size - 1 - aligned ;
-        new_alloc->name = NULL;
+        if (alloc_name != "") {
+            new_alloc->name = strdup(alloc_name.c_str());
+        } else {
+            new_alloc->name = NULL;
+        }
         new_alloc->stcl = TRICK_LOCAL;
         new_alloc->size = element_size ;
         new_alloc->sentinel_bytes = aligned ;
@@ -365,6 +369,11 @@ void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name,
         /** @li Insert the <address, ALLOC_INFO> key-value pair into the alloc_info_map.*/
         pthread_mutex_lock(&mm_mutex);
         alloc_info_map[address] = new_alloc;
+        /** @li If this is a named allocation: then insert the <variable-name, ALLOC_INFO>
+            key-value pair into the variable map.*/
+        if (new_alloc->name) {
+            variable_map[new_alloc->name] = new_alloc;
+        }
         pthread_mutex_unlock(&mm_mutex);
     } else {
         emitError("Out of memory.") ;

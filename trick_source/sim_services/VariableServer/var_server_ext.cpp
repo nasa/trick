@@ -64,6 +64,17 @@ int var_exists(std::string in_name) {
     return(0) ;
 }
 
+int var_get_stl_size(std::string in_name)
+{
+    Trick::VariableServerSession *session = get_session();
+
+    if (session != NULL)
+    {
+        session->var_get_stl_size(in_name);
+    }
+    return (0);
+}
+
 int var_send_once(std::string in_name) {
     Trick::VariableServerSession * session = get_session();
     
@@ -292,7 +303,7 @@ int var_set_client_tag( std::string text ) {
 
         vst->set_client_tag(text);
         
-#if __linux
+#if __linux__
 #ifdef __GNUC__
 #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
         std::string short_str = std::string("VS_") + text.substr(0,12) ;
@@ -543,10 +554,11 @@ int var_set_base( const char  * var , T value , const char * units ) {
                 ref->units = NULL ;
             }
             ref_assignment(ref , &v_tree) ;
-            if(ref->units != NULL) {
-                free(ref->units) ;
-                ref->units = NULL;
-            }
+
+            // Free allocated memory within a REF2 structure. Does not free the REF2 itself
+            ref_free(ref) ;
+
+            // Free the REF2 structure itself
             free(ref) ;
             ref = NULL;
         } else {

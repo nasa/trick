@@ -53,6 +53,8 @@
 #include "trick/IntegLoopScheduler.hh"
 #include "trick/IntegLoopManager.hh"
 #include "trick/IntegLoopSimObject.hh"
+#include "trick/MultiDtIntegLoopScheduler.hh"
+#include "trick/MultiDtIntegLoopSimObject.hh"
 #include "trick/ABM_Integrator.hh"
 #include "trick/Euler_Cromer_Integrator.hh"
 #include "trick/Euler_Integrator.hh"

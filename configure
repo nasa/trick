@@ -623,15 +623,20 @@ LIBOBJS
 USE_ER7_UTILS
 USE_CIVETWEB
 CIVETWEB_HOME
+GTEST_CXXSTD
+GTEST_VERSION
 GTEST_HOME
+PKG_CONFIG_LIBDIR
+PKG_CONFIG_PATH
+PKG_CONFIG
 GSL_HOME
 HDF5_HOME
 UDUNITS_EXCLUDE
 UDUNITS_LDFLAGS
 UDUNITS_INCLUDES
 UDUNITS_HOME
-CLANG_VERSION
 ICG_CLANGLIBS
+CLANG_VERSION
 LLVM_HOME
 CLANG
 LLVM_CONFIG
@@ -771,7 +776,10 @@ CFLAGS
 PYTHON_VERSION
 JAVA_CC
 JAVA_CC_FLAGS
-CPP'
+CPP
+PKG_CONFIG
+PKG_CONFIG_PATH
+PKG_CONFIG_LIBDIR'
 
 
 # Initialize some variables set by options.
@@ -1435,6 +1443,11 @@ Some influential environment variables:
   JAVA_CC_FLAGS
               java compiler flags
   CPP         C preprocessor
+  PKG_CONFIG  path to pkg-config utility
+  PKG_CONFIG_PATH
+              directories to add to pkg-config's search path
+  PKG_CONFIG_LIBDIR
+              path overriding pkg-config's built-in search path
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -3696,23 +3709,23 @@ $as_echo "$ac_cv_file__usr_local_include_Xm_Xm_h" >&6; }
 if test "x$ac_cv_file__usr_local_include_Xm_Xm_h" = xyes; then :
   MOTIF_HOME="/usr/local"
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /sw/include/Xm/Xm.h" >&5
-$as_echo_n "checking for /sw/include/Xm/Xm.h... " >&6; }
-if ${ac_cv_file__sw_include_Xm_Xm_h+:} false; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/Xm/Xm.h" >&5
+$as_echo_n "checking for /opt/homebrew/include/Xm/Xm.h... " >&6; }
+if ${ac_cv_file__opt_homebrew_include_Xm_Xm_h+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   test "$cross_compiling" = yes &&
   as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "/sw/include/Xm/Xm.h"; then
-  ac_cv_file__sw_include_Xm_Xm_h=yes
+if test -r "/opt/homebrew/include/Xm/Xm.h"; then
+  ac_cv_file__opt_homebrew_include_Xm_Xm_h=yes
 else
-  ac_cv_file__sw_include_Xm_Xm_h=no
+  ac_cv_file__opt_homebrew_include_Xm_Xm_h=no
 fi
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__sw_include_Xm_Xm_h" >&5
-$as_echo "$ac_cv_file__sw_include_Xm_Xm_h" >&6; }
-if test "x$ac_cv_file__sw_include_Xm_Xm_h" = xyes; then :
-  MOTIF_HOME="/sw"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_Xm_Xm_h" >&5
+$as_echo "$ac_cv_file__opt_homebrew_include_Xm_Xm_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_Xm_Xm_h" = xyes; then :
+  MOTIF_HOME="/opt/homebrew"
 else
   as_fn_error $? "could not find Xm/Xm.h" "$LINENO" 5
 fi
@@ -7189,8 +7202,10 @@ fi
 
 else
 
-                 # Extract the first word of "llvm-config", so it can be a program name with args.
-set dummy llvm-config; ac_word=$2
+                 for ac_prog in llvm-config
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if ${ac_cv_path_LLVM_CONFIG+:} false; then :
@@ -7202,7 +7217,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy=""/bin:/usr/bin:/usr/local/bin:/sw/bin:/usr/local/opt/llvm/bin""
+as_dummy=""/usr/lib64/llvm20/bin:/usr/lib64/llvm/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin:/opt/homebrew/opt/llvm/bin""
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
@@ -7217,7 +7232,6 @@ done
   done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_LLVM_CONFIG" && ac_cv_path_LLVM_CONFIG="no-llvm-config"
   ;;
 esac
 fi
@@ -7230,6 +7244,10 @@ else
 $as_echo "no" >&6; }
 fi
 
+
+  test -n "$LLVM_CONFIG" && break
+done
+test -n "$LLVM_CONFIG" || LLVM_CONFIG="no-llvm-config"
 
                  if test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"; then :
   as_fn_error $? "could not find llvm-config" "$LINENO" 5
@@ -7337,7 +7355,108 @@ if test "$ac_cv_path_CLANG" = "noclang"; then :
 fi
 
 
-OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"
+
+  CLANG_VERSION=""
+  ax_cv_clang_version="`$CLANG --version | grep "version" | sed "s/.*version \(0-9*\.0-9*\.0-9*\).*/\1/"`"
+  if test "x$ax_cv_clang_version" = "x"; then :
+
+    ax_cv_clang_version=""
+
+fi
+  CLANG_VERSION=$ax_cv_clang_version
+
+
+if test "x$CLANG_VERSION" = "x"; then :
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking clang version >= 3.4.2" >&5
+$as_echo_n "checking clang version >= 3.4.2... " >&6; }
+
+
+
+  # Used to indicate true or false condition
+  ax_compare_version=false
+
+  # Convert the two version strings to be compared into a format that
+  # allows a simple string comparison.  The end result is that a version
+  # string of the form 1.12.5-r617 will be converted to the form
+  # 0001001200050617.  In other words, each number is zero padded to four
+  # digits, and non digits are removed.
+
+  ax_compare_version_A=`echo "$CLANG_VERSION" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+  ax_compare_version_B=`echo "3.4.2" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+    ax_compare_version=`echo "x$ax_compare_version_A
+x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version_A}/true/;s/x${ax_compare_version_B}/false/;1q"`
+
+
+
+    if test "$ax_compare_version" = "true" ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    as_fn_error $? "Trick requires llvm/clang version >= 3.4.2" "$LINENO" 5
+
+  fi
+
+
+fi
+
+if test "x$CLANG_VERSION" = "x"; then :
+
+else
+
+
+
+  # Used to indicate true or false condition
+  ax_compare_version=false
+
+  # Convert the two version strings to be compared into a format that
+  # allows a simple string comparison.  The end result is that a version
+  # string of the form 1.12.5-r617 will be converted to the form
+  # 0001001200050617.  In other words, each number is zero padded to four
+  # digits, and non digits are removed.
+
+  ax_compare_version_A=`echo "$CLANG_VERSION" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+  ax_compare_version_B=`echo "18.0.0" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+    ax_compare_version=`echo "x$ax_compare_version_A
+x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version_A}/true/;s/x${ax_compare_version_B}/false/;1q"`
+
+
+
+    if test "$ax_compare_version" = "true" ; then
+    OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangASTMatchers -lclangAPINotes -lclangLex -lclangBasic"
+    else OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"
+
+  fi
+
+
+fi
+
 NEW_CLANG_LIBS="-lclang-cpp"
 as_ac_File=`$as_echo "ac_cv_file_$LLVM_LIB_DIR/libclangFrontend.a" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $LLVM_LIB_DIR/libclangFrontend.a" >&5
@@ -7464,65 +7583,6 @@ fi
 
 
 
-
-
-  CLANG_VERSION=""
-  ax_cv_clang_version="`$CLANG --version | grep "version" | sed "s/.*version \(0-9*\.0-9*\.0-9*\).*/\1/"`"
-  if test "x$ax_cv_clang_version" = "x"; then :
-
-    ax_cv_clang_version=""
-
-fi
-  CLANG_VERSION=$ax_cv_clang_version
-
-
-if test "x$CLANG_VERSION" = "x"; then :
-
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking clang version >= 3.4.2" >&5
-$as_echo_n "checking clang version >= 3.4.2... " >&6; }
-
-
-
-  # Used to indicate true or false condition
-  ax_compare_version=false
-
-  # Convert the two version strings to be compared into a format that
-  # allows a simple string comparison.  The end result is that a version
-  # string of the form 1.12.5-r617 will be converted to the form
-  # 0001001200050617.  In other words, each number is zero padded to four
-  # digits, and non digits are removed.
-
-  ax_compare_version_A=`echo "$CLANG_VERSION" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
-                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
-                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
-                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
-                     -e 's/[^0-9]//g'`
-
-
-  ax_compare_version_B=`echo "3.4.2" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
-                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
-                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
-                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
-                     -e 's/[^0-9]//g'`
-
-
-    ax_compare_version=`echo "x$ax_compare_version_A
-x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version_A}/true/;s/x${ax_compare_version_B}/false/;1q"`
-
-
-
-    if test "$ax_compare_version" = "true" ; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    as_fn_error $? "Trick requires llvm/clang version >= 3.4.2" "$LINENO" 5
-
-  fi
-
-
-fi
 
 #
 # Handle user hints
@@ -7675,12 +7735,41 @@ if test "$UDUNITS_HOME" = ""; then :
   ac_fn_cxx_check_header_mongrel "$LINENO" "udunits2.h" "ac_cv_header_udunits2_h" "$ac_includes_default"
 if test "x$ac_cv_header_udunits2_h" = xyes; then :
   UDUNITS_INCLUDES=
+    UDUNITS_LDFLAGS=-ludunits2
 else
   ac_fn_cxx_check_header_mongrel "$LINENO" "udunits2/udunits2.h" "ac_cv_header_udunits2_udunits2_h" "$ac_includes_default"
 if test "x$ac_cv_header_udunits2_udunits2_h" = xyes; then :
   UDUNITS_INCLUDES=-I/usr/include/udunits2
+      UDUNITS_LDFLAGS=-ludunits2
 else
-  as_fn_error $? "could not find udunits development headers" "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/udunits2.h" >&5
+$as_echo_n "checking for /opt/homebrew/include/udunits2.h... " >&6; }
+if ${ac_cv_file__opt_homebrew_include_udunits2_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/opt/homebrew/include/udunits2.h"; then
+  ac_cv_file__opt_homebrew_include_udunits2_h=yes
+else
+  ac_cv_file__opt_homebrew_include_udunits2_h=no
+fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_udunits2_h" >&5
+$as_echo "$ac_cv_file__opt_homebrew_include_udunits2_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_udunits2_h" = xyes; then :
+  UDUNITS_HOME="/opt/homebrew"
+       UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
+       UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
+       UDUNITS_EXCLUDE=$UDUNITS_HOME
+       LDFLAGS="${LDFLAGS} ${UDUNITS_LDFLAGS}"
+
+else
+  as_fn_error $? "could not find udunits2.h" "$LINENO" 5
+
+fi
+
+
 fi
 
 
@@ -7688,7 +7777,6 @@ fi
 fi
 
 
-  UDUNITS_LDFLAGS=-ludunits2
 
 else
 
@@ -7846,7 +7934,27 @@ else
 if test "x$ac_cv_header_hdf5_h" = xyes; then :
   HDF5_HOME="/usr"
 else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/hdf5.h" >&5
+$as_echo_n "checking for /opt/homebrew/include/hdf5.h... " >&6; }
+if ${ac_cv_file__opt_homebrew_include_hdf5_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/opt/homebrew/include/hdf5.h"; then
+  ac_cv_file__opt_homebrew_include_hdf5_h=yes
+else
+  ac_cv_file__opt_homebrew_include_hdf5_h=no
+fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_hdf5_h" >&5
+$as_echo "$ac_cv_file__opt_homebrew_include_hdf5_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_hdf5_h" = xyes; then :
+  HDF5_HOME="/opt/homebrew"
+else
   HDF5_HOME=""
+fi
+
 fi
 
 
@@ -7955,7 +8063,27 @@ else
 if test "x$ac_cv_header_gsl_gsl_rng_h" = xyes; then :
   GSL_HOME="/usr"
 else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/gsl/gsl_rng.h" >&5
+$as_echo_n "checking for /opt/homebrew/include/gsl/gsl_rng.h... " >&6; }
+if ${ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/opt/homebrew/include/gsl/gsl_rng.h"; then
+  ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h=yes
+else
+  ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h=no
+fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h" >&5
+$as_echo "$ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h" = xyes; then :
+  GSL_HOME="/opt/homebrew"
+else
   GSL_HOME=""
+fi
+
 fi
 
 
@@ -8012,6 +8140,126 @@ fi
 
 
 
+
+
+
+
+
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
+set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PKG_CONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PKG_CONFIG=$ac_cv_path_PKG_CONFIG
+if test -n "$PKG_CONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
+$as_echo "$PKG_CONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_path_PKG_CONFIG"; then
+  ac_pt_PKG_CONFIG=$PKG_CONFIG
+  # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_ac_pt_PKG_CONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $ac_pt_PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
+if test -n "$ac_pt_PKG_CONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_pt_PKG_CONFIG" >&5
+$as_echo "$ac_pt_PKG_CONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_pt_PKG_CONFIG" = x; then
+    PKG_CONFIG=""
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    PKG_CONFIG=$ac_pt_PKG_CONFIG
+  fi
+else
+  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
+fi
+
+fi
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=0.9.0
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking pkg-config is at least version $_pkg_min_version" >&5
+$as_echo_n "checking pkg-config is at least version $_pkg_min_version... " >&6; }
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	else
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+		PKG_CONFIG=""
+	fi
+fi
+
+
 # Check whether --with-gtest was given.
 if test "${with_gtest+set}" = set; then :
   withval=$with_gtest; GTEST_HOME="$withval"
@@ -8061,12 +8309,86 @@ else
 if test "x$ac_cv_header_gtest_gtest_h" = xyes; then :
   GTEST_HOME="/usr"
 else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/gtest/gtest.h" >&5
+$as_echo_n "checking for /opt/homebrew/include/gtest/gtest.h... " >&6; }
+if ${ac_cv_file__opt_homebrew_include_gtest_gtest_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/opt/homebrew/include/gtest/gtest.h"; then
+  ac_cv_file__opt_homebrew_include_gtest_gtest_h=yes
+else
+  ac_cv_file__opt_homebrew_include_gtest_gtest_h=no
+fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_gtest_gtest_h" >&5
+$as_echo "$ac_cv_file__opt_homebrew_include_gtest_gtest_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_gtest_gtest_h" = xyes; then :
+  GTEST_HOME="/opt/homebrew"
+else
   GTEST_HOME=""
 fi
 
+fi
+
 
 
 fi
+
+
+        GTEST_CXXSTD=""
+    if test -n "$GTEST_HOME"; then :
+
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtest\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "gtest") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+
+            GTEST_VERSION=`$PKG_CONFIG --modversion gtest 2>/dev/null`
+            if test -n "$GTEST_VERSION"; then :
+
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking gtest version" >&5
+$as_echo_n "checking gtest version... " >&6; }
+                { $as_echo "$as_me:${as_lineno-$LINENO}: result: $GTEST_VERSION" >&5
+$as_echo "$GTEST_VERSION" >&6; }
+
+                                GTEST_MAJOR=`echo $GTEST_VERSION | cut -d. -f1`
+                GTEST_MINOR=`echo $GTEST_VERSION | cut -d. -f2`
+
+                                                if test "$GTEST_MAJOR" -gt 1 -o \( "$GTEST_MAJOR" -eq 1 -a "$GTEST_MINOR" -ge 17 \); then :
+
+                    GTEST_CXXSTD="-std=c++17"
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: gtest >= 1.17.0 detected, setting C++ standard to C++17" >&5
+$as_echo "$as_me: gtest >= 1.17.0 detected, setting C++ standard to C++17" >&6;}
+
+else
+
+                                        GTEST_CXXSTD="-std=c++14"
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: gtest < 1.17.0 detected, setting C++ standard to C++14" >&5
+$as_echo "$as_me: gtest < 1.17.0 detected, setting C++ standard to C++14" >&6;}
+
+fi
+
+else
+
+                { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Could not determine gtest version via pkg-config" >&5
+$as_echo "$as_me: WARNING: Could not determine gtest version via pkg-config" >&2;}
+
+fi
+
+else
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: pkg-config gtest not found, version detection skipped" >&5
+$as_echo "$as_me: WARNING: pkg-config gtest not found, version detection skipped" >&2;}
+
+fi
+
+fi
+
+
 
 
 
@@ -9343,4 +9665,3 @@ fi
 
 
 printf "\033[32mconfigure script successfully completed\033[0m\n"
-

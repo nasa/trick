@@ -1,0 +1,42 @@
+trick.stop(15)
+
+trick.sie_append_runtime_objs()
+
+from trick.unit_test import *
+
+trick_utest.unit_tests.enable()
+trick_utest.unit_tests.set_file_name(
+    os.getenv("TRICK_HOME") + "/trick_test/SIM_test_output_dir.xml"
+)
+trick_utest.unit_tests.set_test_name("CommandLineArgumentsTests")
+
+test_suite = "command_line_arguments"
+
+cpu = os.getenv("TRICK_HOST_CPU")
+
+expected_argv = [
+    f"./T_main_{cpu}_test.exe",
+    "RUN_test/unit_test.py",
+    "-OO",
+    "sim_output",
+    "--read-only-sim",
+]
+expected_argc = len(expected_argv)
+
+argc = trick.command_line_args_get_argc()
+argv = trick.command_line_args_get_argv()
+
+
+TRICK_EXPECT_EQ(expected_argc, argc, test_suite, "Expected argument count to match")
+
+TRICK_EXPECT_EQ(expected_argv, argv, test_suite, "Expected argument values to match")
+
+TRICK_EXPECT_EQ(expected_argv[0], argv[0], test_suite, "Expected first argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[1], argv[1], test_suite, "Expected second argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[2], argv[2], test_suite, "Expected third argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[3], argv[3], test_suite, "Expected fourth argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[4], argv[4], test_suite, "Expected fifth argument to match")

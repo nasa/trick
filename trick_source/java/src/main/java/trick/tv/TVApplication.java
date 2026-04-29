@@ -368,6 +368,18 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
     };
 
+    /** reset the variable table to its default order */
+    protected AbstractAction resetSortingAction = new AbstractAction("Reset Table Sorting",
+      new ImageIcon(TVApplication.class.getResource("resources/resetsorting.png"))) {
+        {
+        putValue(SHORT_DESCRIPTION, "Reset the variable table to its default order.");
+        putValue(MNEMONIC_KEY, KeyEvent.VK_B);
+        }
+        public void actionPerformed(ActionEvent actionEvent) {
+            variableTable.getRowSorter().setSortKeys(null);
+        }
+    };
+
     /** clear logs action */
     protected AbstractAction clearLogsAction = new AbstractAction("Clear All Logged Values") {
         {
@@ -405,7 +417,12 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         // Initialze the variable tree.
         variableTree = new TVVariableTree() {{
-            setEnabled(false);
+            // don't disable it here due to a known issue with the Apple Aqua Look and Feel 
+            // when using custom Look and Feel components on Mac. The NullPointerException 
+            // occurs in the AquaMenuPainter class when it tries to paint a border but 
+            // gets a null value from com.apple.laf.AquaMenuPainter$RecyclableBorder.get() 
+            // returns null
+            // setEnabled(false);
 
             try {
                 setSorting(Enum.valueOf(Sorting.class, trickProperties.getProperty(
@@ -425,9 +442,9 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                         ArrayList<Variable<TrickViewFluent>> pendingVariables =
                           new ArrayList<Variable<TrickViewFluent>>();
                         for (TreePath path : getSelectionPaths()) {
-                            for (SieTemplate sieTemplate : (SieTemplate)path.getLastPathComponent()) {
+                            for (SieTemplate sieTemplate : (SieTemplate)path.getLastPathComponent() ) {
                                 pendingVariables.add(createVariableFromTemplate(
-                                  SieTreeModel.getPathName(path) + sieTemplate, sieTemplate));
+                                  SieTreeModel.getPathName(path) + sieTemplate.getVsName(), sieTemplate));
                             }
                         }
                         addVariableDialog.launch(pendingVariables);
@@ -440,7 +457,14 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         searchPanel = new SearchPanel() {{
             setVisible(Boolean.parseBoolean(trickProperties.getProperty(
               searchPanelVisibleKey, Boolean.toString(true))));
-            setEnabled(false);
+
+            // don't disable it here due to a known issue with the Apple Aqua Look and Feel 
+            // when using custom Look and Feel components on Mac. The NullPointerException 
+            // occurs in the AquaMenuPainter class when it tries to paint a border but 
+            // gets a null value from com.apple.laf.AquaMenuPainter$RecyclableBorder.get() 
+            // returns null
+            // setEnabled(false);
+
             setFontSize(Float.parseFloat(trickProperties.getProperty(
               fontSizeKey, Integer.toString(getFont().getSize()))));
             setAction(new AbstractAction("Add") {
@@ -452,7 +476,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                       new ArrayList<Variable<TrickViewFluent>>();
                     for (SieTemplate variableTemplate : getSelectedValues()) {
                         pendingVariables.add(variableTree.createVariableFromTemplate(
-                          variableTemplate.toString(), variableTemplate));
+                          variableTemplate.getVsName(), variableTemplate));
                     }
                     addVariableDialog.launch(pendingVariables);
                 }
@@ -1052,7 +1076,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
     @Override
     protected void connect() throws IOException {
-        super.connect();
+        super.connect(varServerTimeout);
 
         //variableServerConnection.setDebugLevel(3);
         variableServerConnection.setClientTag("TRICK_TV_DATA_CHANNEL");
@@ -1609,6 +1633,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(new JMenuItem(monitorAction));
             add(new JMenuItem(stripChartAction));
             add(new JMenuItem(removeAction));
+            add(new JMenuItem(resetSortingAction));
             add(new JMenuItem(clearLogsAction));
         }}, 1);
 
@@ -1667,6 +1692,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(Box.createHorizontalGlue());
             add(stripChartAction);
             add(removeAction);
+            add(resetSortingAction);
         }};
     }
 
@@ -1934,12 +1960,6 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     }
 
     @Override
-    protected void changeLookAndFeel(String lookAndFeelName) {
-        // Some of TV's elements don't respond well to look and feel changes,
-        // so I'm not supporting it for now.
-    }
-
-    @Override
     protected void shutdown() {
         trickProperties.setProperty(positionKey, position.toString());
         trickProperties.setProperty(sortingKey, determineSorting().name());
@@ -2155,9 +2175,41 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 add(Box.createHorizontalStrut(5));
 
                 segments = pattern.split(variable.name);
+                int dimensionIndex = 0;
                 while (matcher.find()) {
                     int arraySize = Integer.parseInt(matcher.group());
-                    indices.add(arraySize == 0 ? new IndexTextField() : new DoubleComboBox(arraySize));
+                    // TODO: determin the variable type to see if it's an STL container instead of always querying
+                    // If arraySize is 0, try to query the actual STL container size
+                    if (arraySize == 0) {
+                        // Build the base variable name up to this dimension
+                        String varName = segments[0];
+                        if (varName.endsWith("[")) {
+                            varName = varName.substring(0, varName.length() - 1);
+                        }
+
+                        // Add indices for previous dimensions
+                        for (int i = 0; i < dimensionIndex; i++) {
+                            varName += "[0]";
+                            String segment = segments[i + 1];
+                            if (segment.startsWith("]")) {
+                                segment = segment.substring(1);
+                            }
+                            if (segment.endsWith("[")) {
+                                segment = segment.substring(0, segment.length() - 1);
+                            }
+                            varName += segment;
+                        }
+
+                        // Query the actual size using var_get_stl_size
+                        int actualSize = querySTLSize(varName);
+
+                        // If we got a valid size, create DoubleComboBox, otherwise fallback to IndexTextField
+                        indices.add(actualSize > 0 ? new DoubleComboBox(actualSize) : new IndexTextField());
+                    } else {
+                        indices.add(new DoubleComboBox(arraySize));
+                    }
+
+                    dimensionIndex++;
                 }
 
                 add(new JXLabel() {{
@@ -2215,6 +2267,45 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         }
 
+    }
+
+    /**
+     * queries the actual size of an STL container (vector/deque/array) from the Variable Server
+     *
+     * @param baseVariableName the base variable name (before indexing)
+     * @return the size of the container, or 0 if query fails
+     */
+    private int querySTLSize(String baseVariableName) {
+        if (!getConnectionState()) {
+            return 0;
+        }
+
+        try {
+            // Use a separate connection for the query to avoid interfering with cyclic data
+            VariableServerConnection queryChannel = new VariableServerConnection(getHostName(), getPort());
+            queryChannel.setClientTag("TRICK_TV_STL_SIZE_QUERY");
+
+            // Send the query command
+            queryChannel.put("trick.var_get_stl_size(\"" + baseVariableName + "\")");
+
+            // Read the response
+            String response = queryChannel.get();
+
+            // Close the connection
+            queryChannel.close();
+
+            // Parse response format: "message_type\tvalue"
+            String[] parts = response.split("\t");
+            if (parts.length >= 2) {
+                String value = parts[1].trim();
+                if (!value.equals("BAD_REF")) {
+                    return Integer.parseInt(value);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to query STL size for " + baseVariableName + ": " + e.getMessage());
+        }
+        return 0;
     }
 
     /**

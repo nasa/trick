@@ -395,8 +395,11 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
         const clang::FileEntry * fe = (*fi).first ;
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
         std::string header_file_name = fe->getName() ;
-#else
+#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18) 
         std::string header_file_name = fe->getName().str() ;
+#else
+        const clang::FileEntryRef fer = fi->first ;
+        std::string header_file_name = fer.getName().str();
 #endif
 
         if ( visited_files.find(header_file_name) != visited_files.end() ) {
@@ -492,7 +495,11 @@ void PrintAttributes::printIOMakefile() {
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
         io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
-        trickify_io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
+        std::string ssrc = (*mit).second.substr(0,found) ;
+        if(ssrc.substr( ssrc.length()-11, ssrc.length()) != "io_S_source" )
+        {
+            trickify_io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
+        }
         ICG_processed << (*mit).first << std::endl ;
     }
     makefile_ICG.close() ;

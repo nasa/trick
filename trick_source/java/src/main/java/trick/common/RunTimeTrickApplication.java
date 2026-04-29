@@ -106,6 +106,20 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
         }
     }
 
+    /** attempts to connect to the simulation specified by the current host name, port, and timeout
+     * @throws IOException IOException
+     */
+    protected void connect(int timeout) throws IOException {
+        if (!connected) {
+            variableServerConnection = new VariableServerConnection(
+              getHostName(), getPort(), timeout);
+            setConnectionState(true);
+        }
+        else {
+            throw new IOException("Already connected.");
+        }
+    }
+
     /** attempts to disconnect from the simulation
      * @throws IOException IOException
      */
@@ -463,11 +477,6 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
     protected JMenuBar createMenuBar() {
         JMenuBar menuBar = super.createMenuBar();
         JMenu menu = menuBar.getMenu(0);
-
-        // Remove look and feel menu item.
-        for (int i = 0; i < 2; ++i) {
-            menu.remove(0);
-        }
 
         menu.add(new JSeparator(), 0);
 
