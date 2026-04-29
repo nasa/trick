@@ -3,6 +3,8 @@
 #include <iostream>
 #include "trick/VariableServer.hh"
 #include "trick/tc_proto.h"
+#include "trick/Message_proto.hh"
+#include "trick/message_proto.h"
 
 Trick::VariableServer * the_vs ;
 
@@ -16,7 +18,37 @@ Trick::VariableServer::VariableServer() :
     the_vs = this ;
     pthread_mutex_init(&map_mutex, NULL);
 
-    ip_whitelist.insert("127.0.0.1");
+    add_ip("127.0.0.1");
+
+    // Add your network IPs to the whitelist
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) != 0) {
+        return;
+    }
+
+    struct addrinfo hints{}, *res, *p;
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int status = getaddrinfo(hostname, nullptr, &hints, &res);
+    if (status != 0) {
+        return;
+    }
+
+    char ipstr[INET6_ADDRSTRLEN];
+    for (p = res; p != nullptr; p = p->ai_next) {
+        void *addr;
+
+        if (p->ai_family == AF_INET) {
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+            addr = &(ipv4->sin_addr);
+        } else {
+            continue;
+        }
+
+        inet_ntop(p->ai_family, addr, ipstr, sizeof(ipstr));
+        add_ip(ipstr);
+    }
 }
 
 Trick::VariableServer::~VariableServer() {
@@ -53,6 +85,10 @@ bool Trick::VariableServer::get_enabled() {
 
 void Trick::VariableServer::set_enabled(bool on_off) {
     enabled = on_off ;
+
+    if(enabled) {
+        message_publish(MSG_INFO, "Trick VariableServer: Enabling the Variable Server.\n");
+    }
 }
 
 bool Trick::VariableServer::get_info_msg() {
@@ -185,6 +221,10 @@ bool Trick::VariableServer::get_allow_connections() {
 }
 
 bool Trick::VariableServer::set_bypass_ip_check(const bool& b) {
+    if(bypass_ip_check) {
+        message_publish(MSG_WARNING, "Trick VariableServer: BYPASSING IP SECURITY CHECK. ANYONE ON THE NETWORK CAN CONNECT TO YOUR PYTHON INTERPRETER!\n\tYOU BETTER KNOW WHAT YOU'RE DOING!\n");
+    }
+
     return bypass_ip_check = b ;
 }
 
@@ -197,9 +237,50 @@ const std::set<std::string>& Trick::VariableServer::get_ip_whitelist() {
 }
 
 void Trick::VariableServer::add_ip(const std::string& ip) {
+    std::string msg = "Trick VariableServer: Adding " + ip + " to the white list.\n" ;
+    message_publish(MSG_INFO, msg.c_str()) ;
+
     ip_whitelist.insert(ip) ;
 }
 
 void Trick::VariableServer::remove_ip(const std::string& ip) {
+    std::string msg = "Trick VariableServer: Removing " + ip + " from the white list.\n" ;
+    message_publish(MSG_INFO, msg.c_str()) ;
+
     ip_whitelist.erase(ip) ;
+}
+
+bool Trick::VariableServer::check_ip(const std::string& ip) {
+    bool valid = false;
+    for (std::set<std::string>::iterator it = ip_whitelist.begin(); it != ip_whitelist.end(); ++it) {
+        std::string entry = *it;
+        size_t slash;
+
+        struct in_addr addr;
+        if (inet_pton(AF_INET, ip.c_str(), &addr) != 1) {
+           return false;
+        }
+        uint32_t ipVal = ntohl(addr.s_addr);
+
+        if( (slash = entry.find('/')) != std::string::npos ) {
+            std::string network = entry.substr(0, slash);
+            int prefix = std::stoi(entry.substr(slash + 1));
+
+            if (inet_pton(AF_INET, network.c_str(), &addr) != 1) {
+                continue;
+            }
+            uint32_t netVal = ntohl(addr.s_addr);
+
+            uint32_t mask = (prefix == 0) ? 0 : (~0u << (32 - prefix));
+
+            valid = (ipVal & mask) == (netVal & mask);
+        }
+        else {
+            valid = (ip == entry);
+        }
+
+        if (valid) break ;
+    }
+
+    return valid;
 }

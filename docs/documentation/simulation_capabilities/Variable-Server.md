@@ -2,11 +2,11 @@
 |------------------------------------------------------------------|
 
 As of version ..., the variable server is now disabled by default for security reasons. Unless
- enabled prior to initialization, the variable server will not be available for the rest of a sim
+enabled prior to initialization, the variable server will not be available for the rest of a sim
 run, even if enabled later on. The reason driving this change is the powerful nature of the 
 variable server. Anyone who can secure a connection with a sim's variable server has access to an 
-unrestricted python interpeter on that sim's host. For this reason, it is advised to only enable the 
-varibale server as needed.
+unrestricted python interpreter on that sim's host. For this reason, it is advised to only enable the 
+variable server as needed.
 
 If enabled, a server called the "variable server" is always up and listening in a separate
 thread of execution. The variable server is privy to simulation parameters and their
@@ -53,10 +53,10 @@ int var_get_allow_connections();
 ```
 
 These commands allow for configuring the white list of IPs allowed to connect to the variable server. 
-By default, the only allowed IP is local host (127.0.0.1). 
+By default, the only allowed IPs are local host (127.0.0.1), and any other IPs your sim host goes by. 
 
-The white list allows for prefix matching to specify a range of allowed IPs with a single entry. For 
-example, the entry "10.0" would allow for any IP in the form of 10.0.*.* to connect to your variable server.
+The white list allows for either standard IPv4 entries (x.x.x.x) or CIDR IPv4 entries (x.x.x.x/x).
+Standard addresses are treated as /32 CIDR addresses.
 
 Remember, this is the final line of defense for your variable server. Any IP on the white list can 
 connect to your sim host and execute arbitrary python commands. Use with caution.
@@ -82,7 +82,7 @@ listening for incoming connections (on the white list only).
 int var_allow_connections() ;
 int var_disable_connections() ;
 ```
-This command is a shortcut to enable the varibale server, enable incoming connections, and disable 
+This command is a shortcut to enable the variable server, enable incoming connections, and disable 
 the white list check. This option will open your variable server to any visible hosts on the network. 
 Previous warnings apply, only use this option if your host is on a secure network.
 
@@ -586,7 +586,7 @@ Error messages printed by python to stderr may be sent in multiple messages.
 
 To connect to the variable server for any simulation, a client needs to know the
 hostname and port.  As of 10.5, the port number is determined by the OS.  For external
-applications the best way to find a varible server port is to listen to the variable
+applications the best way to find a variable server port is to listen to the variable
 server broadcast channel.  Every simulation variable server will broadcast the host and port
 number to the broadcast channel.  The channel is address 224.3.14.15 port 9265.  All simulations
 on your network sends it's information to this address and port so there may be multiple

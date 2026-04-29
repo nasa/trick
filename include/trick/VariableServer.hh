@@ -331,6 +331,11 @@ namespace Trick {
             */
             void remove_ip(const std::string& ip) ;
 
+            /**
+             @brief Compare an ip against the whitelist.
+            */
+            bool check_ip(const std::string& ip) ;
+
         protected:
 
             /** Toggle to enable/disable the variable server.\n */

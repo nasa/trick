@@ -26,6 +26,7 @@ Trick::VariableServerListenThread::VariableServerListenThread(TCPClientListener 
  _listener(listener),
  _multicast(new MulticastGroup())
 {
+
     if (_listener != NULL) {
         // If we were passed a listener
         // We assume it is already initialized
