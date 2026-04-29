@@ -1,7 +1,8 @@
 
 trick_sys.sched.set_enable_freeze(True)
 
-trick.var_allow_all_connections()
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 """ Sim Control Panel """
 simControlPanel = trick.SimControlPanel()

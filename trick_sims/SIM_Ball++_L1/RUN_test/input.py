@@ -14,7 +14,8 @@ def main():
     drg0.thisown = 0
     trick.add_data_record_group(drg0, trick.DR_Buffer)
 
-    trick.var_allow_all_connections()
+    trick.var_allow_connections()
+trick.var_resolve_hostname()
 
     my_integ_loop.getIntegrator( trick.Runge_Kutta_2, 4 );
 

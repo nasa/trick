@@ -3,7 +3,8 @@ import os
 exec(open("Modified_data/realtime.py").read())
 #exec(open("Modified_data/Satellite.dr").read())
 
-trick.var_allow_all_connections()
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 18)
 

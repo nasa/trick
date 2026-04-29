@@ -1,7 +1,8 @@
 import math
 exec(open("Modified_data/realtime.py").read())
 
-trick.var_allow_all_connections()
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 # Initialize the position (CG) of the vehicle 3 meters about the
 # surface of the water so that it drops into the water.

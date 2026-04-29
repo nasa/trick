@@ -11,7 +11,8 @@ web.server.document_root = "www"
 varServerPort = trick.var_server_get_port();
 CannonDisplay_path = "../models/graphics/dist/CannonDisplay.jar"
 
-trick.var_allow_all_connections()
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 print("pos: ", dyn.cannon.pos[0])
 

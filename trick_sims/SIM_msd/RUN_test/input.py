@@ -2,7 +2,8 @@ dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 4)
 trick.var_debug(3)
 exec(open("Modified_data/realtime.py").read())
 
-trick.var_allow_all_connections()
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 #==========================================
 # Start the display VarServer Client

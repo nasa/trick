@@ -3,7 +3,8 @@ exec(open("Modified_data/parachutist.dr").read())
 trick.TMM_reduced_checkpoint(0)
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 2)
 
-trick.var_allow_all_connections()
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 # The ground is a 1000 meters above sea level.
 dyn.groundAltitude = 1000

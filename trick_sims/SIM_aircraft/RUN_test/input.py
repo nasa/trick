@@ -1,6 +1,7 @@
 exec(open("Modified_data/realtime.py").read())
 
-trick.var_allow_all_connections()
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 6)
 dyn_integloop.set_integ_cycle(0.01)
