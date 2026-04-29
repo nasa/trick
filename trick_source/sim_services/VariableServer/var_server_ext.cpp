@@ -606,6 +606,10 @@ int var_allow_all_connections() {
     return 1 ;
 }
 
+void var_resolve_hostname() {
+    the_vs->resolve_hostname() ;
+}
+
 int var_set_allow_connections(bool b) {
     return the_vs->set_allow_connections(b) ;
 }

@@ -336,6 +336,9 @@ namespace Trick {
             */
             bool check_ip(const std::string& ip) ;
 
+            /** Resolves the hostname, and updates the whitelist with all identified IPs.\n */
+            void resolve_hostname() ;
+
         protected:
 
             /** Toggle to enable/disable the variable server.\n */
@@ -438,6 +441,7 @@ int var_server_log_off() ;
 int var_allow_connections() ;
 int var_disable_connections() ;
 int var_allow_all_connections() ;
+void var_resolve_hostname() ;
 
 int var_set_allow_connections(bool b) ;
 int var_get_allow_connections() ;

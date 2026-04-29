@@ -19,36 +19,6 @@ Trick::VariableServer::VariableServer() :
     pthread_mutex_init(&map_mutex, NULL);
 
     add_ip("127.0.0.1");
-
-    // Add your network IPs to the whitelist
-    char hostname[256];
-    if (gethostname(hostname, sizeof(hostname)) != 0) {
-        return;
-    }
-
-    struct addrinfo hints{}, *res, *p;
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-
-    int status = getaddrinfo(hostname, nullptr, &hints, &res);
-    if (status != 0) {
-        return;
-    }
-
-    char ipstr[INET6_ADDRSTRLEN];
-    for (p = res; p != nullptr; p = p->ai_next) {
-        void *addr;
-
-        if (p->ai_family == AF_INET) {
-            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-            addr = &(ipv4->sin_addr);
-        } else {
-            continue;
-        }
-
-        inet_ntop(p->ai_family, addr, ipstr, sizeof(ipstr));
-        add_ip(ipstr);
-    }
 }
 
 Trick::VariableServer::~VariableServer() {
@@ -87,7 +57,7 @@ void Trick::VariableServer::set_enabled(bool on_off) {
     enabled = on_off ;
 
     if(enabled) {
-        message_publish(MSG_INFO, "Trick VariableServer: Enabling the Variable Server.\n");
+        message_publish(MSG_WARNING, "Trick VariableServer: Enabling the Variable Server. See Trick documentation for associated security concerns\n");
     }
 }
 
@@ -213,6 +183,10 @@ void Trick::VariableServer::set_copy_and_write_freeze_job( Trick::JobData * in_j
 }
 
 bool Trick::VariableServer::set_allow_connections(const bool& b) {
+    if(b) {
+        message_publish(MSG_WARNING, "Trick VariableServer: Enabling Variable Server Connectivity\n");
+    }
+
     return allow_connections = b ;
 }
 
@@ -221,7 +195,7 @@ bool Trick::VariableServer::get_allow_connections() {
 }
 
 bool Trick::VariableServer::set_bypass_ip_check(const bool& b) {
-    if(bypass_ip_check) {
+    if(b) {
         message_publish(MSG_WARNING, "Trick VariableServer: BYPASSING IP SECURITY CHECK. ANYONE ON THE NETWORK CAN CONNECT TO YOUR PYTHON INTERPRETER!\n\tYOU BETTER KNOW WHAT YOU'RE DOING!\n");
     }
 
@@ -283,4 +257,38 @@ bool Trick::VariableServer::check_ip(const std::string& ip) {
     }
 
     return valid;
+}
+
+void Trick::VariableServer::resolve_hostname() {
+    if(enabled) {
+        // Add your network IPs to the whitelist
+        char hostname[256];
+        if (gethostname(hostname, sizeof(hostname)) != 0) {
+            return;
+        }
+
+        struct addrinfo hints{}, *res, *p;
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+
+        int status = getaddrinfo(hostname, nullptr, &hints, &res);
+        if (status != 0) {
+            return;
+        }
+
+        char ipstr[INET6_ADDRSTRLEN];
+        for (p = res; p != nullptr; p = p->ai_next) {
+            void *addr;
+
+            if (p->ai_family == AF_INET) {
+                struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+                addr = &(ipv4->sin_addr);
+            } else {
+                continue;
+            }
+
+            inet_ntop(p->ai_family, addr, ipstr, sizeof(ipstr));
+            add_ip(ipstr);
+        }
+    }
 }

@@ -90,6 +90,19 @@ Previous warnings apply, only use this option if your host is on a secure networ
 int var_allow_all_connections() ;
 ```
 
+This command attempts to resolve your sim host's hostname to any associated IPs using the system call getaddrinfo().
+The idenfitied IPs are added to the white list. Use only on a trusted secure network, as the system can pull results
+from multiple different locations, including a DNS server.
+
+<b> Many Trick applications (such as the control panel), do not access the variable server through 127.0.0.1, but rather use a hostname
+lookup and access the server through the network (even when the Trick application is running on the sim host). For this reason, bringing
+the variable server up with just 127.0.0.1 on the white list is not sufficient for many built-in Trick applications. As such, this
+command is intended to provide a covenient way to ensure the sim host IP is included on the white list.</b>
+
+```c
+void var_resolve_hostname() ;
+```
+
 ### Messaging
 
 These commands are for toggling information messages from the variable server (i.e., commands received from <i>ALL</i> clients).

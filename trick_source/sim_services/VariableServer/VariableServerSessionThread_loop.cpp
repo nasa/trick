@@ -37,7 +37,7 @@ void * Trick::VariableServerSessionThread::thread_body() {
 
         if ( !valid_ip ) {
             std::string err_msg = "ILLEGAL IP CONNECTION ATTEMPTED: " + new_ip + "\n";
-            perror(err_msg.c_str()) ;
+            message_publish(MSG_ERROR, err_msg.c_str()) ;
             status = CONNECTION_FAIL ;
         }
     }
