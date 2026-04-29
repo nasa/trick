@@ -108,7 +108,7 @@ TEST_F(VariableServer_test, set_enabled) {
     vs.set_enabled(true);
 
     // ASSERT
-    EXPECT_EQ(vs.get_enabled(), false);
+    EXPECT_EQ(vs.get_enabled(), true);
 }
 
 TEST_F(VariableServer_test, info_msg_off_by_default) {
