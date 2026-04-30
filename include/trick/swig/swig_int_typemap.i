@@ -93,6 +93,42 @@
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_int"), SWIG_POINTER_OWN);
 }
 
+#ifdef USE_ER7_UTILS_INTEGRATORS
+// Special handling for er7_utils::Integration enums.
+// These enums are nested inside a class and are not recognized by SWIG
+// as standard enums in generated modules, so provide explicit
+// scalar conversion support.
+
+%typemap(in) er7_utils::Integration::Technique ,
+             er7_utils::Integration::ODEProblemType {
+    int ret ;
+    ret = typemap_in_scalar<$1_ltype >( $1 , $input , "$symname") ;
+    if ( ret != 0 ) {
+        SWIG_exception_fail(SWIG_TypeError,"Right hand side could not be converted proper scalar type");
+    }
+}
+
+%typemap(out) er7_utils::Integration::Technique ,
+              er7_utils::Integration::ODEProblemType {
+    swig_int* t = new swig_int;
+    t->value = (long long)result;
+    t->units = Trick::UnitsMap::units_map()->get_units(std::string("$symname", sizeof("$symname") - 5));
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_int"), SWIG_POINTER_OWN);
+}
+
+%typemap(out) er7_utils::Integration::Technique & ,
+              er7_utils::Integration::ODEProblemType & {
+    size_t offsetRemainder;
+    ATTRIBUTES attr = { };
+    trick_MM->get_attributes_for_address((void*)$1, attr, offsetRemainder);
+
+    swig_int* t = new swig_int;
+    t->value = (long long)*result;
+    test_attr_units_and_set(*t, attr, "$symname");
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_int"), SWIG_POINTER_OWN);
+}
+#endif
+
 %typemap(out) double , float {
     // DOUBLE OUT
     // swig_int_typemap.i : 98
