@@ -1129,5 +1129,148 @@ TEST_F(MM_write_checkpoint, WrappedStl ) {
             "{10, 20, 30, 40};", result.c_str()), 0);
 }
 
+// ================================================================================
+TEST_F(MM_write_checkpoint, enum_u32_singleton) {
+
+    std::stringstream ss;
+    std::string s;
+
+    Enum_u32 *enum_p = (Enum_u32*)memmgr->declare_var("Enum_u32 enum_u32_singleton");
+    *enum_p = Enum32_1;
+
+    memmgr->write_checkpoint( ss, "enum_u32_singleton");
+    s = ss.str();
+
+    int result = strcmp_IgnoringWhiteSpace(
+        "// Variable Declarations."
+        "Enum_u32 enum_u32_singleton;"
+        "// Clear all allocations to 0."
+        "clear_all_vars();"
+        "// Variable Assignments."
+        "enum_u32_singleton = Enum32_1;"
+        , s.c_str());
+
+    EXPECT_EQ(result, 0);
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, enum_u16_singleton) {
+
+    std::stringstream ss;
+    std::string s;
+
+    Enum_u16 *enum_p = (Enum_u16*)memmgr->declare_var("Enum_u16 enum_u16_singleton");
+    *enum_p = Enum_u16::Enum16_1;
+
+    memmgr->write_checkpoint( ss, "enum_u16_singleton");
+    s = ss.str();
+
+    int result = strcmp_IgnoringWhiteSpace(
+        "// Variable Declarations."
+        "Enum_u16 enum_u16_singleton;"
+        "// Clear all allocations to 0."
+        "clear_all_vars();"
+        "// Variable Assignments."
+        "enum_u16_singleton = Enum16_1;"
+        , s.c_str());
+
+    EXPECT_EQ(result, 0);
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, enum_u8_singleton) {
+
+    std::stringstream ss;
+    std::string s;
+
+    Enum_u8 *enum_p = (Enum_u8*)memmgr->declare_var("Enum_u8 enum_u8_singleton");
+    *enum_p = Enum8_1;
+
+    memmgr->write_checkpoint( ss, "enum_u8_singleton");
+    s = ss.str();
+
+    int result = strcmp_IgnoringWhiteSpace(
+        "// Variable Declarations."
+        "Enum_u8 enum_u8_singleton;"
+        "// Clear all allocations to 0."
+        "clear_all_vars();"
+        "// Variable Assignments."
+        "enum_u8_singleton = Enum8_1;"
+        , s.c_str());
+
+    EXPECT_EQ(result, 0);
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, enum_s32_singleton) {
+
+    std::stringstream ss;
+    std::string s;
+
+    Enum_s32 *enum_p = (Enum_s32*)memmgr->declare_var("Enum_s32 enum_s32_singleton");
+    *enum_p = Enum_s32::EnumS32_1;
+
+    memmgr->write_checkpoint( ss, "enum_s32_singleton");
+    s = ss.str();
+
+    int result = strcmp_IgnoringWhiteSpace(
+        "// Variable Declarations."
+        "Enum_s32 enum_s32_singleton;"
+        "// Clear all allocations to 0."
+        "clear_all_vars();"
+        "// Variable Assignments."
+        "enum_s32_singleton = EnumS32_1;"
+        , s.c_str());
+
+    EXPECT_EQ(result, 0);
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, enum_s16_singleton) {
+
+    std::stringstream ss;
+    std::string s;
+
+    Enum_s16 *enum_p = (Enum_s16*)memmgr->declare_var("Enum_s16 enum_s16_singleton");
+    *enum_p = EnumS16_1;
+
+    memmgr->write_checkpoint( ss, "enum_s16_singleton");
+    s = ss.str();
+
+    int result = strcmp_IgnoringWhiteSpace(
+        "// Variable Declarations."
+        "Enum_s16 enum_s16_singleton;"
+        "// Clear all allocations to 0."
+        "clear_all_vars();"
+        "// Variable Assignments."
+        "enum_s16_singleton = EnumS16_1;"
+        , s.c_str());
+
+    EXPECT_EQ(result, 0);
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, enum_s8_singleton) {
+
+    std::stringstream ss;
+    std::string s;
+
+    Enum_s8 *enum_p = (Enum_s8*)memmgr->declare_var("Enum_s8 enum_s8_singleton");
+    *enum_p = Enum_s8::EnumS8_1;
+
+    memmgr->write_checkpoint( ss, "enum_s8_singleton");
+    s = ss.str();
+
+    int result = strcmp_IgnoringWhiteSpace(
+        "// Variable Declarations."
+        "Enum_s8 enum_s8_singleton;"
+        "// Clear all allocations to 0."
+        "clear_all_vars();"
+        "// Variable Assignments."
+        "enum_s8_singleton = EnumS8_1;"
+        , s.c_str());
+
+    EXPECT_EQ(result, 0);
+}
 
 
