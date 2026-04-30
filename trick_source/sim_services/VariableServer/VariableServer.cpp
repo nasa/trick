@@ -278,17 +278,13 @@ void Trick::VariableServer::resolve_hostname() {
 
         char ipstr[INET6_ADDRSTRLEN];
         for (p = res; p != nullptr; p = p->ai_next) {
-            void *addr;
-
             if (p->ai_family == AF_INET) {
                 struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-                addr = &(ipv4->sin_addr);
-            } else {
-                continue;
+                inet_ntop(p->ai_family, &(ipv4->sin_addr), ipstr, sizeof(ipstr));
+                add_ip(ipstr);
             }
-
-            inet_ntop(p->ai_family, addr, ipstr, sizeof(ipstr));
-            add_ip(ipstr);
         }
+
+        freeaddrinfo(res);
     }
 }
