@@ -206,27 +206,27 @@ bool Trick::VariableServer::get_bypass_ip_check() {
     return bypass_ip_check ;
 }
 
-const std::set<std::string>& Trick::VariableServer::get_ip_whitelist() {
-    return ip_whitelist ;
+const std::set<std::string>& Trick::VariableServer::get_ip_allowlist() {
+    return ip_allowlist ;
 }
 
 void Trick::VariableServer::add_ip(const std::string& ip) {
-    std::string msg = "Trick VariableServer: Adding " + ip + " to the white list.\n" ;
+    std::string msg = "Trick VariableServer: Adding " + ip + " to the allowlist.\n" ;
     message_publish(MSG_INFO, msg.c_str()) ;
 
-    ip_whitelist.insert(ip) ;
+    ip_allowlist.insert(ip) ;
 }
 
 void Trick::VariableServer::remove_ip(const std::string& ip) {
-    std::string msg = "Trick VariableServer: Removing " + ip + " from the white list.\n" ;
+    std::string msg = "Trick VariableServer: Removing " + ip + " from the allowlist.\n" ;
     message_publish(MSG_INFO, msg.c_str()) ;
 
-    ip_whitelist.erase(ip) ;
+    ip_allowlist.erase(ip) ;
 }
 
 bool Trick::VariableServer::check_ip(const std::string& ip) {
     bool valid = false;
-    for (std::set<std::string>::iterator it = ip_whitelist.begin(); it != ip_whitelist.end(); ++it) {
+    for (std::set<std::string>::iterator it = ip_allowlist.begin(); it != ip_allowlist.end(); ++it) {
         std::string entry = *it;
         size_t slash;
 
@@ -261,7 +261,7 @@ bool Trick::VariableServer::check_ip(const std::string& ip) {
 
 void Trick::VariableServer::resolve_hostname() {
     if(enabled) {
-        // Add your network IPs to the whitelist
+        // Add your network IPs to the allowlist
         char hostname[256];
         if (gethostname(hostname, sizeof(hostname)) != 0) {
             return;

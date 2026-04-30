@@ -319,24 +319,24 @@ namespace Trick {
             /**
              @brief Check the allow all connections flag.
             */
-            const std::set<std::string>& get_ip_whitelist() ;
+            const std::set<std::string>& get_ip_allowlist() ;
 
             /**
-             @brief Add ip to the whitelist.
+             @brief Add ip to the allowlist.
             */
             void add_ip(const std::string& ip) ;
 
             /**
-             @brief Remove ip from the whitelist.
+             @brief Remove ip from the allowlist.
             */
             void remove_ip(const std::string& ip) ;
 
             /**
-             @brief Compare an ip against the whitelist.
+             @brief Compare an ip against the allowlist.
             */
             bool check_ip(const std::string& ip) ;
 
-            /** Resolves the hostname, and updates the whitelist with all identified IPs.\n */
+            /** Resolves the hostname, and updates the allowlist with all identified IPs.\n */
             void resolve_hostname() ;
 
         protected:
@@ -374,12 +374,12 @@ namespace Trick {
             std::map < pthread_t , VariableServerListenThread * > additional_listen_threads ; /**<  trick_io(**) */
 
             /** List of IPs to accept connections from.\n */
-            std::set<std::string> ip_whitelist ;
+            std::set<std::string> ip_allowlist ;
             
             /** Flag to allow connections to the VS. Off by default for security reasons.\n */
             bool allow_connections ;
 
-            /** Skip checks against white list. Allow any connections to VS. UNSECURE MODE.\n */
+            /** Skip checks against allowlist. Allow any connections to VS. UNSECURE MODE.\n */
             bool bypass_ip_check ;
 
     } ;

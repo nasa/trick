@@ -30,7 +30,7 @@ void * Trick::VariableServerSessionThread::thread_body() {
     int status = _connection->start();
 
     std::string new_ip = _connection->getClientHostname() ;
-    //check against white list
+    //check against allowlist
     //skip this check if connection failed, don't want an erroneous error
     if (!_vs->get_bypass_ip_check() && status != CONNECTION_FAIL) {
         bool valid_ip = _vs->check_ip(new_ip);

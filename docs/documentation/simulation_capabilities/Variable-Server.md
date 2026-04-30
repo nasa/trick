@@ -52,13 +52,13 @@ int var_set_allow_connections(bool);
 int var_get_allow_connections();
 ```
 
-These commands allow for configuring the white list of IPs allowed to connect to the variable server. 
+These commands allow for configuring the allowlist of IPs allowed to connect to the variable server. 
 By default, the only allowed IPs are local host (127.0.0.1), and any other IPs your sim host goes by. 
 
-The white list allows for either standard IPv4 entries (x.x.x.x) or CIDR IPv4 entries (x.x.x.x/x).
+The allowlist allows for either standard IPv4 entries (x.x.x.x) or CIDR IPv4 entries (x.x.x.x/x).
 Standard addresses are treated as /32 CIDR addresses.
 
-Remember, this is the final line of defense for your variable server. Any IP on the white list can 
+Remember, this is the final line of defense for your variable server. Any IP on the allowlist can 
 connect to your sim host and execute arbitrary python commands. Use with caution.
 
 ```c
@@ -76,14 +76,14 @@ int var_set_ip_check_bypass(bool b) ;
 int var_get_ip_check_bypass() ;
 ```
 These options are a shortcut, to both enable/disable the variable server and 
-listening for incoming connections (on the white list only).
+listening for incoming connections (on the allowlist only).
 
 ```c
 int var_allow_connections() ;
 int var_disable_connections() ;
 ```
 This command is a shortcut to enable the variable server, enable incoming connections, and disable 
-the white list check. This option will open your variable server to any visible hosts on the network. 
+the allowlist check. This option will open your variable server to any visible hosts on the network. 
 Previous warnings apply, only use this option if your host is on a secure network.
 
 ```c
@@ -91,13 +91,13 @@ int var_allow_all_connections() ;
 ```
 
 This command attempts to resolve your sim host's hostname to any associated IPs using the system call getaddrinfo().
-The idenfitied IPs are added to the white list. Use only on a trusted secure network, as the system can pull results
+The idenfitied IPs are added to the allowlist. Use only on a trusted secure network, as the system can pull results
 from multiple different locations, including a DNS server.
 
 <b> Many Trick applications (such as the control panel), do not access the variable server through 127.0.0.1, but rather use a hostname
 lookup and access the server through the network (even when the Trick application is running on the sim host). For this reason, bringing
-the variable server up with just 127.0.0.1 on the white list is not sufficient for many built-in Trick applications. As such, this
-command is intended to provide a covenient way to ensure the sim host IP is included on the white list.</b>
+the variable server up with just 127.0.0.1 on the allowlist is not sufficient for many built-in Trick applications. As such, this
+command is intended to provide a covenient way to ensure the sim host IP is included on the allowlist.</b>
 
 ```c
 void var_resolve_hostname() ;
