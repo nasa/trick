@@ -375,7 +375,7 @@ namespace Trick {
 
             /** List of IPs to accept connections from.\n */
             std::set<std::string> ip_allowlist ;
-            
+
             /** Flag to allow connections to the VS. Off by default for security reasons.\n */
             bool allow_connections ;
 
@@ -438,9 +438,9 @@ int var_set( const char * var , void * value , const char * units = NULL ) ;
 int var_server_log_on() ;
 int var_server_log_off() ;
 
-int var_allow_connections() ;
-int var_disable_connections() ;
-int var_allow_all_connections() ;
+void var_allow_connections() ;
+void var_disable_connections() ;
+void var_allow_all_connections() ;
 void var_resolve_hostname() ;
 
 int var_set_allow_connections(bool b) ;
@@ -451,4 +451,3 @@ void var_add_ip(const std::string& ip) ;
 void var_remove_ip(const std::string& ip) ;
 
 #endif
-
