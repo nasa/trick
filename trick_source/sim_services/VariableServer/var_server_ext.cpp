@@ -607,11 +607,11 @@ void var_resolve_hostname() {
     the_vs->resolve_hostname() ;
 }
 
-int var_set_allow_connections(bool b) {
+bool var_set_allow_connections(bool b) {
     return the_vs->set_allow_connections(b) ;
 }
 
-int var_get_allow_connections() {
+bool var_get_allow_connections() {
     return the_vs->get_allow_connections() ;
 }
 

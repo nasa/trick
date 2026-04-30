@@ -443,8 +443,8 @@ void var_disable_connections() ;
 void var_allow_all_connections() ;
 void var_resolve_hostname() ;
 
-int var_set_allow_connections(bool b) ;
-int var_get_allow_connections() ;
+bool var_set_allow_connections(bool b) ;
+bool var_get_allow_connections() ;
 int var_set_ip_check_bypass(bool b) ;
 int var_get_ip_check_bypass() ;
 void var_add_ip(const std::string& ip) ;
