@@ -18,7 +18,8 @@ class VariableServer_test : public ::testing::Test {
         Trick::VariableServer vs;
 
 		VariableServer_test() { 
-
+            vs.set_allow_connections(1);
+            vs.set_bypass_ip_check(1);
         }
 
 		~VariableServer_test() {
@@ -98,16 +99,16 @@ TEST_F(VariableServer_test, enabled_by_default) {
     // ARRANGE
     // ACT
     // ASSERT
-    EXPECT_EQ(vs.get_enabled(), true);
+    EXPECT_EQ(vs.get_enabled(), false);
 }
 
 TEST_F(VariableServer_test, set_enabled) {
     // ARRANGE
     // ACT
-    vs.set_enabled(false);
+    vs.set_enabled(true);
 
     // ASSERT
-    EXPECT_EQ(vs.get_enabled(), false);
+    EXPECT_EQ(vs.get_enabled(), true);
 }
 
 TEST_F(VariableServer_test, info_msg_off_by_default) {

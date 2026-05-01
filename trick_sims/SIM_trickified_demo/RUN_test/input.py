@@ -3,6 +3,9 @@ import trick
 
 def main():
 
+    trick.var_allow_connections()
+    trick.var_resolve_hostname()
+
     # Data recording HDF5 test
     drg0 = trick.DRAscii("Ball")
     for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :

@@ -21,7 +21,7 @@ Trick::VariableServerSession * get_session() {
 
 int var_add(std::string in_name) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_add(in_name) ;
     }
@@ -30,7 +30,7 @@ int var_add(std::string in_name) {
 
 int var_add(std::string in_name, std::string in_units) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_add(in_name, in_units) ;
     }
@@ -39,7 +39,7 @@ int var_add(std::string in_name, std::string in_units) {
 
 int var_remove(std::string in_name) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_remove(in_name) ;
     }
@@ -48,7 +48,7 @@ int var_remove(std::string in_name) {
 
 int var_units(std::string var_name , std::string units_name) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_units(var_name , units_name) ;
     }
@@ -57,7 +57,7 @@ int var_units(std::string var_name , std::string units_name) {
 
 int var_exists(std::string in_name) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_exists(in_name) ;
     }
@@ -77,7 +77,7 @@ int var_get_stl_size(std::string in_name)
 
 int var_send_once(std::string in_name) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_send_once(in_name, 1) ;
     }
@@ -86,7 +86,7 @@ int var_send_once(std::string in_name) {
 
 int var_send_once(std::string in_name, int num) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_send_once(in_name, num) ;
     }
@@ -95,7 +95,7 @@ int var_send_once(std::string in_name, int num) {
 
 int var_send() {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_send() ;
     }
@@ -104,7 +104,7 @@ int var_send() {
 
 int var_clear() {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_clear() ;
     }
@@ -115,7 +115,7 @@ int var_clear() {
 
 int var_cycle(double in_rate) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_cycle(in_rate) ;
     }
@@ -124,7 +124,7 @@ int var_cycle(double in_rate) {
 
 int var_pause() {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->set_pause(true) ;
     }
@@ -134,7 +134,7 @@ int var_pause() {
 
 int var_unpause() {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->set_pause(false) ;
     }
@@ -144,7 +144,7 @@ int var_unpause() {
 
 int var_exit() {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_exit() ;
     }
@@ -153,7 +153,7 @@ int var_exit() {
 
 int var_validate_address(int on_off) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_validate_address((bool)on_off) ;
     }
@@ -162,7 +162,7 @@ int var_validate_address(int on_off) {
 
 int var_debug(int level) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_debug(level) ;
     }
@@ -171,7 +171,7 @@ int var_debug(int level) {
 
 int var_ascii() {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_ascii() ;
     }
@@ -180,7 +180,7 @@ int var_ascii() {
 
 int var_binary() {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_binary() ;
     }
@@ -194,7 +194,7 @@ int var_retry_bad_ref() {
 
 int var_binary_nonames() {
     Trick::VariableServerSession * session  = get_session();
-    
+
     if (session != NULL ) {
         session->var_binary_nonames() ;
     }
@@ -203,7 +203,7 @@ int var_binary_nonames() {
 
 int var_set_copy_mode(int mode) {
     Trick::VariableServerSession * session = get_session();
-    
+
     if (session != NULL ) {
         session->var_set_copy_mode(mode) ;
         if ( mode == VS_COPY_SCHEDULED ) {
@@ -302,7 +302,7 @@ int var_set_client_tag( std::string text ) {
     if (vst != NULL) {
 
         vst->set_client_tag(text);
-        
+
 #if __linux__
 #ifdef __GNUC__
 #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
@@ -586,4 +586,47 @@ int var_set( const char  * var , const char * value , const char * units ) {
 
 int var_set( const char  * var , void * value , const char * units ) {
     return var_set_base(var, value, units) ;
+}
+
+void var_allow_connections() {
+    var_server_set_enabled(true) ;
+    the_vs->set_allow_connections(true) ;
+}
+
+void var_disable_connections() {
+    var_server_set_enabled(false) ;
+    the_vs->set_allow_connections(false) ;
+}
+
+void var_allow_all_connections() {
+    var_allow_connections() ;
+    the_vs->set_bypass_ip_check(true) ;
+}
+
+void var_resolve_hostname() {
+    the_vs->resolve_hostname() ;
+}
+
+bool var_set_allow_connections(bool b) {
+    return the_vs->set_allow_connections(b) ;
+}
+
+bool var_get_allow_connections() {
+    return the_vs->get_allow_connections() ;
+}
+
+int var_set_ip_check_bypass(bool b) {
+    return the_vs->set_bypass_ip_check(b) ;
+}
+
+int var_get_ip_check_bypass() {
+    return the_vs->get_bypass_ip_check() ;
+}
+
+void var_add_ip(const std::string& ip) {
+    the_vs->add_ip(ip) ;
+}
+
+void var_remove_ip(const std::string& ip) {
+    the_vs->remove_ip(ip) ;
 }

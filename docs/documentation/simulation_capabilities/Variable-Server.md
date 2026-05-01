@@ -1,14 +1,16 @@
 | [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Variable Server |
 |------------------------------------------------------------------|
 
-When running a Trick simulation, unless specifically turned off, a server called the
-"variable server" is always up and listening in a separate thread of execution. The
-variable server is privy to simulation parameters and their values since it resides
-in an asynchronous simulation thread. Threads share the same address space as their
-siblings and parent. Clients connect to the variable server in order to set/get
-values of Trick processed variables. You may already be familiar with the Trick
-applications that use the variable server: the simulation control panel, Trick
-View (TV) , [Event/Malfunction Trick View](/trick/documentation/running_a_simulation/runtime_guis/MalfunctionsTrickView) (MTV) , and the stripchart.
+If enabled, a server called the "variable server" is always up and listening in a separate
+thread of execution. The variable server is privy to simulation parameters and their
+values since it resides in an asynchronous simulation thread. Threads share the same
+address space as their siblings and parent. Clients connect to the variable server in
+order to set/get values of Trick processed variables. You may already be familiar with
+the Trick applications that use the variable server: the simulation control panel,
+Trick View (TV) , [Event/Malfunction Trick View](/trick/documentation/running_a_simulation/runtime_guis/MalfunctionsTrickView) (MTV) , and the stripchart.
+
+As of version 25.1.0, the variable server is now disabled by default for security reasons.  Unless
+enabled prior to initialization, the variable server will not be available and there will be no way to enable it from outside of the simulation itself.  This update is to address the security concerns associated with the variable server and the way it interacts with the system on which it is running.  Anyone who can secure a connection with a sim's variable server can execute arbitrary python commands on the simulation host as the user that started the simulation.  To help mitigate this effect, the variable is off by default and the user must manually enable it before initialization.
 
 The variable server is a convenient way for external applications to interact with
 the simulation. Any application that needs to set or get simulation parameters may
@@ -18,16 +20,83 @@ TCP/IP socket.
 
 ## User accessible routines
 
+### Access Control
+
 These commands are for enabling/disabling the variable server, and for getting its status.
-The variable server is enabled by default.
+The variable server is disabled by default.
+
+The variable server must be enabled prior to initialization. A good place to do this is in the input file.
+
+<b>Running with the variable server disabled will render all Trick runtime GUIs (simulation
+control panel, TV, MTV, and stripchart) unusable.</b>
 
 ```c
 int var_server_set_enabled(int on_off);
 int var_server_get_enabled();
 ```
 
-<b>Disabling the variable server will disable all Trick runtime GUIs: simulation
-control panel, TV, MTV, and stripchart.</b>
+The following commands are for enabling/disabling the variable server listening for connections. By default,
+the variable server will not listen for connections. 
+
+Given that the variable server opens the possibility of any user on the network being able to run Python commands as the sim user on the sim host machine, the variable server should only be enabled and allowing connections in a secure environment.
+
+```c
+int var_set_allow_connections(bool true/false);
+int var_get_allow_connections();
+```
+
+The following commands allow for configuring the allowlist of IPs which are allowed to connect to the variable server. 
+By default, the only allowed IPs are local host (127.0.0.1), and any other IPs your sim host goes by. 
+
+The allowlist allows for either standard IPv4 entries (x.x.x.x) or CIDR IPv4 entries (x.x.x.x/x).
+Standard addresses are treated as /32 CIDR addresses.
+
+Remember, this is the final line of defense for your variable server. Any IP on the allowlist can 
+connect to your sim host and execute arbitrary python commands as the simulation user. Use with caution.
+
+```c
+void var_add_ip(const std::string& ip) ;
+void var_remove_ip(const std::string& ip) ;
+```
+The following commands allow for disabling/enabling the IP check for incoming connections to the variable 
+server. If the IP check is bypassed, any machine able to see your sim host will be able to establish 
+a connection to the variable server.
+
+Should only be used when the sim host is on a secured network. This is a very powerful option, use sparingly.
+
+```c
+int var_set_ip_check_bypass(bool b) ;
+int var_get_ip_check_bypass() ;
+```
+The following options are a shortcut, to both enable/disable the variable server and 
+listening for incoming connections (on the allowlist only).
+
+```c
+int var_allow_connections() ;
+int var_disable_connections() ;
+```
+This command is a shortcut to enable the variable server, enable incoming connections, and disable 
+the allowlist check. This option will open your variable server to any visible hosts on the network. 
+Previous warnings apply, only use this option if your host is on a secure network.
+
+```c
+int var_allow_all_connections() ;
+```
+
+The following command attempts to resolve your sim host's hostname to any associated IPs using the system call getaddrinfo().
+The idenfitied IPs are added to the allowlist. Use only on a trusted secure network, as the system can pull results
+from multiple different locations, including a DNS server.
+
+<b> Many Trick applications (such as the control panel), do not access the variable server through 127.0.0.1, but rather use a hostname
+lookup and access the server through the network (even when the Trick application is running on the sim host). For this reason, bringing
+the variable server up with just 127.0.0.1 on the allowlist is not sufficient for many built-in Trick applications. As such, this
+command is intended to provide a covenient way to ensure the sim host IP is included on the allowlist.</b>
+
+```c
+void var_resolve_hostname() ;
+```
+
+### Messaging
 
 These commands are for toggling information messages from the variable server (i.e., commands received from <i>ALL</i> clients).
 The messages go to the terminal, the simulation control panel, and the "send_hs" file in the RUN directory.
@@ -523,7 +592,7 @@ Error messages printed by python to stderr may be sent in multiple messages.
 
 To connect to the variable server for any simulation, a client needs to know the
 hostname and port.  As of 10.5, the port number is determined by the OS.  For external
-applications the best way to find a varible server port is to listen to the variable
+applications the best way to find a variable server port is to listen to the variable
 server broadcast channel.  Every simulation variable server will broadcast the host and port
 number to the broadcast channel.  The channel is address 224.3.14.15 port 9265.  All simulations
 on your network sends it's information to this address and port so there may be multiple

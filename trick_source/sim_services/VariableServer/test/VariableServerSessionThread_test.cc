@@ -67,6 +67,10 @@ class VariableServerSessionThread_test : public ::testing::Test {
         MockMessagePublisher message_publisher;
 
 		VariableServerSessionThread_test() { 
+            varserver->set_enabled(1);
+            varserver->set_allow_connections(1);
+            varserver->set_bypass_ip_check(1);
+
             // Set up dependencies that haven't been broken
             varserver = new Trick::VariableServer;
             Trick::VariableServerSessionThread::set_vs_ptr(varserver);
