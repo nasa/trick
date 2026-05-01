@@ -27,6 +27,8 @@ namespace Trick {
   This class provides variable server setup.
   @author Alex Lin
  */
+    class VariableServer;  // forward declare
+    std::ostream& operator<<(std::ostream& s, VariableServer& vs);
 
     class VariableServer {
 

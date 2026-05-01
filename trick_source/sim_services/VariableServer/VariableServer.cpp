@@ -17,8 +17,6 @@ Trick::VariableServer::VariableServer() :
 {
     the_vs = this ;
     pthread_mutex_init(&map_mutex, NULL);
-
-    add_ip("127.0.0.1");
 }
 
 Trick::VariableServer::~VariableServer() {
@@ -185,6 +183,7 @@ void Trick::VariableServer::set_copy_and_write_freeze_job( Trick::JobData * in_j
 bool Trick::VariableServer::set_allow_connections(const bool& b) {
     if(b) {
         message_publish(MSG_WARNING, "Trick VariableServer: Enabling Variable Server Connectivity\n");
+        add_ip("127.0.0.1");
     }
 
     return allow_connections = b ;
@@ -196,7 +195,7 @@ bool Trick::VariableServer::get_allow_connections() {
 
 bool Trick::VariableServer::set_bypass_ip_check(const bool& b) {
     if(b) {
-        message_publish(MSG_WARNING, "Trick VariableServer: BYPASSING IP SECURITY CHECK. ANYONE ON THE NETWORK CAN CONNECT TO YOUR PYTHON INTERPRETER!\n\tYOU BETTER KNOW WHAT YOU'RE DOING!\n");
+        message_publish(MSG_WARNING, "Trick VariableServer:\nBYPASSING IP SECURITY CHECK.\nANYONE ON THE NETWORK CAN CONNECT TO YOUR PYTHON INTERPRETER!\nYOU BETTER KNOW WHAT YOU'RE DOING!\n");
     }
 
     return bypass_ip_check = b ;
