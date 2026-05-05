@@ -10,7 +10,7 @@ the Trick applications that use the variable server: the simulation control pane
 Trick View (TV) , [Event/Malfunction Trick View](/trick/documentation/running_a_simulation/runtime_guis/MalfunctionsTrickView) (MTV) , and the stripchart.
 
 As of version 25.1.0, the variable server is now disabled by default for security reasons.  Unless
-enabled prior to initialization, the variable server will not be available and there will be no way to enable it from outside of the simulation itself.  This update is to address the security concerns associated with the variable server and the way it interacts with the system on which it is running.  Anyone who can secure a connection with a sim's variable server can execute arbitrary python commands on the simulation host as the user that started the simulation.  To help mitigate this effect, the variable is off by default and the user must manually enable it before initialization.
+enabled prior to initialization, the variable server will not be available and there will be no way to enable it from outside of the simulation itself.  This update is to address the security concerns associated with the variable server and the way it interacts with the system on which it is running.  Anyone who can secure a connection with a sim's variable server can execute arbitrary python commands on the simulation host as the user that started the simulation.  To help mitigate this effect, the variable server is off by default and the user must manually enable it before initialization.
 
 The variable server is a convenient way for external applications to interact with
 the simulation. Any application that needs to set or get simulation parameters may
