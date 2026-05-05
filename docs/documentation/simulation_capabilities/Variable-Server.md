@@ -46,7 +46,7 @@ int var_get_allow_connections();
 ```
 
 The following commands allow for configuring the allowlist of IPs which are allowed to connect to the variable server. 
-By default, the only allowed IPs are local host (127.0.0.1), and any other IPs your sim host goes by. 
+By default, the only allowed IPs are local host (127.0.0.1). 
 
 The allowlist allows for either standard IPv4 entries (x.x.x.x) or CIDR IPv4 entries (x.x.x.x/x).
 Standard addresses are treated as /32 CIDR addresses.
