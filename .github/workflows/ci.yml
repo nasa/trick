@@ -141,11 +141,11 @@ jobs:
 
           FAILED=0
           for f in "${PYTHON_FILES[@]}"; do
-            if ! ruff format --check --diff "$f"; then
+            if ! ruff format --preview --check --diff "$f"; then
               echo "::error file=$f::$f is not ruff-formatted."
               FAILED=1
             fi
-            if ! ruff check --select I --diff "$f"; then
+            if ! ruff check --preview --select I --diff "$f"; then
               echo "::error file=$f::$f has unsorted imports."
               FAILED=1
             fi
@@ -154,7 +154,7 @@ jobs:
           if [ $FAILED -ne 0 ]; then
             echo ""
             echo "::error::Changed Python files have formatting or import issues."
-            echo "::error::To fix, run: ruff check --select I --fix <file> && ruff format <file>"
+            echo "::error::To fix, run: ruff check --preview --select I --fix <file> && ruff format --preview <file>"
             exit 1
           fi
           echo "All changed Python files are correctly formatted."
