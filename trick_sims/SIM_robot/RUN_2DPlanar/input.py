@@ -1,6 +1,9 @@
 exec(open("./Modified_data/realtime.py").read())
 
 # Variable Server Data should be copied at top of frame.
+trick.var_allow_connections()
+trick.var_resolve_hostname()
+
 trick.var_set_copy_mode(2)
 
 Manip2D.robot.kinemat.joint_q[0] = trick.attach_units("degrees",45.0)

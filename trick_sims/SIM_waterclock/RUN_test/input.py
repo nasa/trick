@@ -1,5 +1,8 @@
 exec(open("Modified_data/my_waterclock.dr").read())
 
+trick.var_allow_connections()
+trick.var_resolve_hostname()
+
 trick.frame_log_on()
 trick.real_time_enable()
 trick.exec_set_software_frame(0.1)

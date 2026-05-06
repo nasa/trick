@@ -7,6 +7,9 @@ def main():
 
     buggy_so.buggy.wheel_width = 0.2
 
+    trick.var_allow_connections()
+    trick.var_resolve_hostname()
+
     trick.sim_control_panel_set_enabled(True)
     trick.real_time_enable()
     trick.itimer_enable()

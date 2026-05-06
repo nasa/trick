@@ -64,7 +64,7 @@ sub read_files_to_process() {
             next if ( $word =~ /^\/usr\/local\/include/ ) ;
 
             # skip Trick headers
-            my $trick_home = $ENV{'TRICK_HOME'} ;
+            my $trick_home = abs_path($ENV{'TRICK_HOME'}) ;
             next if ( $word =~ /^\Q$trick_home\/include/ ) ;
             next if ( $word =~ /^\Q$trick_home\/trick_source/ ) ;
 

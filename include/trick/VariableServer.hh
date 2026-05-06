@@ -9,6 +9,7 @@
 #include <map>
 #include <queue>
 #include <vector>
+#include <set>
 #include <string>
 #include <iostream>
 #include <pthread.h>
@@ -26,6 +27,8 @@ namespace Trick {
   This class provides variable server setup.
   @author Alex Lin
  */
+    class VariableServer;  // forward declare
+    std::ostream& operator<<(std::ostream& s, VariableServer& vs);
 
     class VariableServer {
 
@@ -295,6 +298,49 @@ namespace Trick {
             */
             void set_copy_and_write_freeze_job( Trick::JobData * ) ;
 
+            /**
+             @brief Enable/Disable the allow connections flag.
+            */
+            bool set_allow_connections(const bool& b) ;
+
+            /**
+             @brief Check the allow connections flag.
+            */
+            bool get_allow_connections() ;
+
+            /**
+             @brief Enable/Disable the allow all connections flag.
+            */
+            bool set_bypass_ip_check(const bool& b) ;
+
+            /**
+             @brief Check the allow all connections flag.
+            */
+            bool get_bypass_ip_check() ;
+
+            /**
+             @brief Check the allow all connections flag.
+            */
+            const std::set<std::string>& get_ip_allowlist() ;
+
+            /**
+             @brief Add ip to the allowlist.
+            */
+            void add_ip(const std::string& ip) ;
+
+            /**
+             @brief Remove ip from the allowlist.
+            */
+            void remove_ip(const std::string& ip) ;
+
+            /**
+             @brief Compare an ip against the allowlist.
+            */
+            bool check_ip(const std::string& ip) ;
+
+            /** Resolves the hostname, and updates the allowlist with all identified IPs.\n */
+            void resolve_hostname() ;
+
         protected:
 
             /** Toggle to enable/disable the variable server.\n */
@@ -329,6 +375,14 @@ namespace Trick {
             /** Map of additional listen threads created by create_tcp_socket.\n */
             std::map < pthread_t , VariableServerListenThread * > additional_listen_threads ; /**<  trick_io(**) */
 
+            /** List of IPs to accept connections from.\n */
+            std::set<std::string> ip_allowlist ;
+
+            /** Flag to allow connections to the VS. Off by default for security reasons.\n */
+            bool allow_connections ;
+
+            /** Skip checks against allowlist. Allow any connections to VS. UNSECURE MODE.\n */
+            bool bypass_ip_check ;
 
     } ;
 
@@ -386,5 +440,16 @@ int var_set( const char * var , void * value , const char * units = NULL ) ;
 int var_server_log_on() ;
 int var_server_log_off() ;
 
-#endif
+void var_allow_connections() ;
+void var_disable_connections() ;
+void var_allow_all_connections() ;
+void var_resolve_hostname() ;
 
+bool var_set_allow_connections(bool b) ;
+bool var_get_allow_connections() ;
+int var_set_ip_check_bypass(bool b) ;
+int var_get_ip_check_bypass() ;
+void var_add_ip(const std::string& ip) ;
+void var_remove_ip(const std::string& ip) ;
+
+#endif
