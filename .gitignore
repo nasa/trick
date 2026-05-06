@@ -46,4 +46,3 @@ coverage.info
 *.dSYM
 *.log
 .cache/
-share/trick/trickops/makefile
