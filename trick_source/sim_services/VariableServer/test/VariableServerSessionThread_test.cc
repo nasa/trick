@@ -67,8 +67,13 @@ class VariableServerSessionThread_test : public ::testing::Test {
         MockMessagePublisher message_publisher;
 
 		VariableServerSessionThread_test() { 
-            // Set up dependencies that haven't been broken
+            
             varserver = new Trick::VariableServer;
+			
+			varserver->set_enabled(1);
+            varserver->set_allow_connections(1);
+            varserver->set_bypass_ip_check(1);
+
             Trick::VariableServerSessionThread::set_vs_ptr(varserver);
 
             // Set up mocks
@@ -79,6 +84,7 @@ class VariableServerSessionThread_test : public ::testing::Test {
 
 		~VariableServerSessionThread_test() { 
             delete varserver; 
+			delete session;
         }
 
 		void SetUp() {}

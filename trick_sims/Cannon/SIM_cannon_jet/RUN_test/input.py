@@ -1,3 +1,6 @@
+trick.var_allow_connections()
+trick.var_resolve_hostname()
+
 dyn.baseball.pos[0] = 16.0
 dyn.baseball.pos[1] = 0.1
 dyn.baseball.pos[2] = 2.0
