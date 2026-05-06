@@ -47,12 +47,9 @@ key_t my_ftok(const char* path, int proj_id) {
 
 static void cleanup_trickshm_pairs(void)
 {
-    if (g_TrickShmPairs != NULL)
-    {
-        free(g_TrickShmPairs);
-        g_TrickShmPairs    = NULL;
-        g_numTrickShmPairs = 0;
-    }
+    free(g_TrickShmPairs);
+    g_TrickShmPairs    = NULL;
+    g_numTrickShmPairs = 0;
 }
 
 static int check_projid_limits(TSMDevice* shm_device, const char* err_prefix)
@@ -120,7 +117,13 @@ int tsm_init(TSMDevice * shm_device)
         }
         if (foundPair == NULL)
         {
-            g_TrickShmPairs = realloc(g_TrickShmPairs, sizeof(TRICK_SHM_PAIRS) * (g_numTrickShmPairs + 1));
+            TRICK_SHM_PAIRS *tmp = realloc(g_TrickShmPairs, sizeof(TRICK_SHM_PAIRS) * (g_numTrickShmPairs + 1));
+            if (tmp == NULL) {
+            // g_TrickShmPairs still valid here — handle error, log, return/exit
+                return (TSM_FAIL);
+            }
+            g_TrickShmPairs = tmp;
+            //g_TrickShmPairs = realloc(g_TrickShmPairs, sizeof(TRICK_SHM_PAIRS) * (g_numTrickShmPairs + 1));
             memset(&g_TrickShmPairs[g_numTrickShmPairs], 0, sizeof(TRICK_SHM_PAIRS));
             strncpy(g_TrickShmPairs[g_numTrickShmPairs].key_file, shm_device->key_file, sizeof(shm_device->key_file));
             g_TrickShmPairs[g_numTrickShmPairs].proj_id = 1;
