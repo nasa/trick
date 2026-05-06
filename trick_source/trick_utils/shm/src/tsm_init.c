@@ -119,11 +119,9 @@ int tsm_init(TSMDevice * shm_device)
         {
             TRICK_SHM_PAIRS *tmp = realloc(g_TrickShmPairs, sizeof(TRICK_SHM_PAIRS) * (g_numTrickShmPairs + 1));
             if (tmp == NULL) {
-            // g_TrickShmPairs still valid here — handle error, log, return/exit
                 return (TSM_FAIL);
             }
             g_TrickShmPairs = tmp;
-            //g_TrickShmPairs = realloc(g_TrickShmPairs, sizeof(TRICK_SHM_PAIRS) * (g_numTrickShmPairs + 1));
             memset(&g_TrickShmPairs[g_numTrickShmPairs], 0, sizeof(TRICK_SHM_PAIRS));
             strncpy(g_TrickShmPairs[g_numTrickShmPairs].key_file, shm_device->key_file, sizeof(shm_device->key_file));
             g_TrickShmPairs[g_numTrickShmPairs].proj_id = 1;
