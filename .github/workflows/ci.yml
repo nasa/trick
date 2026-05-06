@@ -202,6 +202,8 @@ jobs:
   test-linux:
     name: Linux (${{ matrix.cfg.os }} ${{ matrix.cfg.tag }})
     needs: [style]
+    # TODO: Remove always() once style enforcement is stable — ideally builds only run on clean style.
+    if: always()
     runs-on: ubuntu-latest
     container: docker://${{ matrix.cfg.image }}:${{ matrix.cfg.tag }}
     strategy:
@@ -340,7 +342,9 @@ jobs:
   test-macos:
     name: macOS
     needs: [style]
-    runs-on: macos-15
+    # TODO: Remove always() once style enforcement is stable — ideally builds only run on clean style.
+    if: always()
+    runs-on: macos-26
     env:
       MAKEFLAGS: -j4
     steps:
@@ -388,6 +392,8 @@ jobs:
   trickops:
     name: TrickOps (${{ matrix.name }})
     needs: [style]
+    # TODO: Remove always() once style enforcement is stable — ideally builds only run on clean style.
+    if: always()
     runs-on: ubuntu-latest
     container: ${{ matrix.image }}
     strategy:
@@ -440,6 +446,8 @@ jobs:
   code-coverage:
     name: Code Coverage
     needs: [style]
+    # TODO: Remove always() once style enforcement is stable — ideally builds only run on clean style.
+    if: always()
     runs-on: ubuntu-latest
     env:
       CFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
