@@ -37,9 +37,12 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y clang-format perltidy
+          sudo apt-get install -y clang-format perltidy python3-pip
+          pip3 install --break-system-packages ruff
 
-      - name: Check formatting of changed lines
+      - name: Check clang-format on changed C/C++ lines
+        id: clang_format
+        continue-on-error: true
         run: |
           set -euo pipefail
 
@@ -62,6 +65,8 @@ jobs:
           echo "All changed C/C++ lines are correctly formatted."
 
       - name: Check perltidy on changed Perl files
+        id: perltidy
+        continue-on-error: true
         run: |
           set -euo pipefail
 
@@ -104,9 +109,65 @@ jobs:
           fi
           echo "All changed Perl files are correctly formatted."
 
+      - name: Check ruff formatting on changed Python files
+        id: ruff
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            git fetch origin master
+            BASE=$(git merge-base origin/master HEAD)
+          fi
+
+          # Collect changed Python files: by extension and by shebang
+          PYTHON_FILES=()
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              *.py) PYTHON_FILES+=("$f") ;;
+              *) if head -1 "$f" 2>/dev/null | grep -q '^#!.*python'; then
+                   PYTHON_FILES+=("$f")
+                 fi ;;
+            esac
+          done < <(git diff --diff-filter=ACMR --name-only "$BASE")
+
+          if [ ${#PYTHON_FILES[@]} -eq 0 ]; then
+            echo "No changed Python files to check."
+            exit 0
+          fi
+
+          FAILED=0
+          for f in "${PYTHON_FILES[@]}"; do
+            if ! ruff format --check --diff "$f"; then
+              echo "::error file=$f::$f is not ruff-formatted."
+              FAILED=1
+            fi
+            if ! ruff check --select I --diff "$f"; then
+              echo "::error file=$f::$f has unsorted imports."
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -ne 0 ]; then
+            echo ""
+            echo "::error::Changed Python files have formatting or import issues."
+            echo "::error::To fix, run: ruff check --select I --fix <file> && ruff format <file>"
+            exit 1
+          fi
+          echo "All changed Python files are correctly formatted."
+
+      - name: Fail if any style check failed
+        if: steps.clang_format.outcome == 'failure' || steps.perltidy.outcome == 'failure' || steps.ruff.outcome == 'failure'
+        run: exit 1
+
       # TODO: Once the codebase is fully formatted, switch to whole-file checking:
       #
       # - name: Check formatting of changed files
+      #   id: clang_format
+      #   continue-on-error: true
       #   run: |
       #     set -euo pipefail
       #
