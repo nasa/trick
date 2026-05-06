@@ -3,8 +3,8 @@
         (CheckPointRestart)
 */
 
-#ifndef MMWRAPPER_HH
-#define MMWRAPPER_HH
+#ifndef CHECKPOINTRESTART_HH
+#define CHECKPOINTRESTART_HH
 
 #include <string>
 #include <vector>
@@ -310,4 +310,3 @@ namespace Trick {
 }
 
 #endif
-
