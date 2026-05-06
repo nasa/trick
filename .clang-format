@@ -1,7 +1,7 @@
 ---
 BasedOnStyle: WebKit
 AccessModifierOffset: -2
-AlignConsecutiveAssignments: AcrossEmptyLines
+AlignConsecutiveAssignments: Consecutive
 AlignTrailingComments:
   Kind: Always
 BreakBeforeBraces: Allman
