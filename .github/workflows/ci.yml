@@ -53,7 +53,7 @@ jobs:
             BASE=$(git merge-base origin/master HEAD)
           fi
 
-          DIFF=$(git clang-format --diff "$BASE" --extensions c,h,cpp,hpp,cc,hh)
+          DIFF=$(git clang-format --diff "$BASE" --extensions c,h,cpp,hpp,cc,hh) || true
 
           if echo "$DIFF" | grep -q '^diff'; then
             echo "$DIFF"
