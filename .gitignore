@@ -1,3 +1,5 @@
+compile_commands.json
+*~
 config.status*
 config.log
 share/trick/makefiles/config_user.mk

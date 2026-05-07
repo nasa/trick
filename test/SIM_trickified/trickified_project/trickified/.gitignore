@@ -1,5 +1,6 @@
 build
 python
 trick
+full_file
 *.o
 full_file

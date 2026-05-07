@@ -1,0 +1,15 @@
+# .perltidyrc — Trick project Perl formatting rules
+-l=120
+-i=4
+-ci=4
+-xci
+-mci
+-nst
+-b
+-bext='/'
+-se
+-nolq
+-pt=1
+-sbt=1
+-bt=1
+-conv
