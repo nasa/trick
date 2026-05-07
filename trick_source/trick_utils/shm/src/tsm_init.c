@@ -130,11 +130,13 @@ int tsm_init(TSMDevice * shm_device)
         }
         else
         {
-            shm_device->proj_id = ++foundPair->proj_id;
-        }
-        if (check_projid_limits(shm_device, "(shm lib managed)"))
-        {
-            return (TSM_FAIL);
+            int next_id = foundPair->proj_id + 1;
+            shm_device->proj_id = next_id;
+            if (check_projid_limits(shm_device, "(shm lib managed)"))
+            {
+                return (TSM_FAIL);
+            }
+            foundPair->proj_id = next_id;
         }
     }
     else
