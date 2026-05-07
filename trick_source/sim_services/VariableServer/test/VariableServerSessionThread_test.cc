@@ -83,8 +83,8 @@ class VariableServerSessionThread_test : public ::testing::Test {
         }
 
 		~VariableServerSessionThread_test() { 
-            delete varserver; 
-			delete session;
+            delete varserver;
+			// session is owned and cleaned up by the VariableServerSessionThread
         }
 
 		void SetUp() {}
