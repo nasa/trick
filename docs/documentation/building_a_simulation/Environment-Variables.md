@@ -183,7 +183,7 @@ bash/sh
 UNIX Prompt> export MAKEFLAGS=-j<number of processors>
 
 csh/tcsh
-UNIX Prompt> setenv MAKEFLAGS –j<number of processors>
+UNIX Prompt> setenv MAKEFLAGS -j<number of processors>
 ```
 
 [Continue to Simulation Definition File](Simulation-Definition-File)
