@@ -1,6 +1,8 @@
 ---
 BasedOnStyle: WebKit
 AccessModifierOffset: -2
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
 AlignConsecutiveAssignments: Consecutive
 AlignTrailingComments:
   Kind: Always
