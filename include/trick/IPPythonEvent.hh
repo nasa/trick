@@ -411,7 +411,7 @@ namespace Trick {
                any events instantiated yet */
             static void set_python_processor(Trick::IPPython * in_ip) ;
             static void set_mtv(Trick::MTV * in_mtv) ;
-  
+
         private:
 
             /* A static pointer to the python input processor set at the S_define level */

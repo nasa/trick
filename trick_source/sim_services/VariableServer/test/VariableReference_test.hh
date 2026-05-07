@@ -44,9 +44,9 @@ class VariableReference_test : public ::testing::Test {
 	protected:
 	    Trick::MemoryManager *memmgr;
         Trick::UdUnits * udunits;
-		VariableReference_test() { 
-            memmgr = new Trick::MemoryManager; 
-            udunits = new Trick::UdUnits; 
+		VariableReference_test() {
+            memmgr = new Trick::MemoryManager;
+            udunits = new Trick::UdUnits;
 
             udunits->read_default_xml();
         }

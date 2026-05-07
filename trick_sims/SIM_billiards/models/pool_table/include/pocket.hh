@@ -17,7 +17,7 @@ class Pocket {
 
         Vec pos;
         double radius;
-    
+
 };
 
 #endif

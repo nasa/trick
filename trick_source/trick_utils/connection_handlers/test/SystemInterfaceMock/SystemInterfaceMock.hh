@@ -43,7 +43,7 @@ typedef std::function<in_addr_t (const char *)> inet_addr_func_type;
 class SystemInferfaceMock : public SystemInterface {
     public:
         SystemInferfaceMock () {
-            
+
             real_socket_impl();
             real_setsockopt_impl();
             real_bind_impl();
@@ -61,9 +61,9 @@ class SystemInferfaceMock : public SystemInterface {
             real_recvfrom_impl();
             real_inet_addr_impl();
         }
-        
+
         void set_all_real () {
-            
+
             real_socket_impl();
             real_setsockopt_impl();
             real_bind_impl();
@@ -83,7 +83,7 @@ class SystemInferfaceMock : public SystemInterface {
         }
 
         void set_all_noop() {
-            
+
             noop_socket_impl();
             noop_setsockopt_impl();
             noop_bind_impl();
@@ -102,7 +102,7 @@ class SystemInferfaceMock : public SystemInterface {
             noop_inet_addr_impl();
         }
 
-   
+
    // socket implementation
    public:
        virtual int  socket (int domain, int type, int protocol) override { return socket_impl( domain,  type,  protocol); }
@@ -111,7 +111,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_socket_impl () { socket_impl = [](int domain, int type, int protocol) -> int  { return 0; }; }
    private:
        socket_func_type socket_impl;
-   
+
    // setsockopt implementation
    public:
        virtual int  setsockopt (int socket, int level, int option_name, const void * option_value, socklen_t option_len) override { return setsockopt_impl( socket,  level,  option_name,  option_value,  option_len); }
@@ -120,7 +120,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_setsockopt_impl () { setsockopt_impl = [](int socket, int level, int option_name, const void * option_value, socklen_t option_len) -> int  { return 0; }; }
    private:
        setsockopt_func_type setsockopt_impl;
-   
+
    // bind implementation
    public:
        virtual int  bind (int socket, const struct sockaddr * address, socklen_t address_len) override { return bind_impl( socket,  address,  address_len); }
@@ -129,7 +129,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_bind_impl () { bind_impl = [](int socket, const struct sockaddr * address, socklen_t address_len) -> int  { return 0; }; }
    private:
        bind_func_type bind_impl;
-   
+
    // getsockname implementation
    public:
        virtual int  getsockname (int socket, struct sockaddr * address, socklen_t * address_len) override { return getsockname_impl( socket,  address,  address_len); }
@@ -138,7 +138,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_getsockname_impl () { getsockname_impl = [](int socket, struct sockaddr * address, socklen_t * address_len) -> int  { return 0; }; }
    private:
        getsockname_func_type getsockname_impl;
-   
+
    // listen implementation
    public:
        virtual int  listen (int socket, int backlog) override { return listen_impl( socket,  backlog); }
@@ -147,7 +147,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_listen_impl () { listen_impl = [](int socket, int backlog) -> int  { return 0; }; }
    private:
        listen_func_type listen_impl;
-   
+
    // select implementation
    public:
        virtual int  select (int nfds, fd_set * readfds, fd_set * writefds, fd_set * errorfds, struct timeval * timeout) override { return select_impl( nfds,  readfds,  writefds,  errorfds,  timeout); }
@@ -156,7 +156,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_select_impl () { select_impl = [](int nfds, fd_set * readfds, fd_set * writefds, fd_set * errorfds, struct timeval * timeout) -> int  { return 0; }; }
    private:
        select_func_type select_impl;
-   
+
    // close implementation
    public:
        virtual int  close (int fildes) override { return close_impl( fildes); }
@@ -165,7 +165,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_close_impl () { close_impl = [](int fildes) -> int  { return 0; }; }
    private:
        close_func_type close_impl;
-   
+
    // getaddrinfo implementation
    public:
        virtual int  getaddrinfo (const char * hostname, const char * servname, const struct addrinfo * hints, struct addrinfo ** res) override { return getaddrinfo_impl( hostname,  servname,  hints,  res); }
@@ -174,7 +174,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_getaddrinfo_impl () { getaddrinfo_impl = [](const char * hostname, const char * servname, const struct addrinfo * hints, struct addrinfo ** res) -> int  { return 0; }; }
    private:
        getaddrinfo_func_type getaddrinfo_impl;
-   
+
    // fcntl implementation
    public:
        virtual int  fcntl (int fildes, int cmd, int arg) override { return fcntl_impl( fildes,  cmd,  arg); }
@@ -183,7 +183,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_fcntl_impl () { fcntl_impl = [](int fildes, int cmd, int arg) -> int  { return 0; }; }
    private:
        fcntl_func_type fcntl_impl;
-   
+
    // shutdown implementation
    public:
        virtual int  shutdown (int socket, int how) override { return shutdown_impl( socket,  how); }
@@ -192,7 +192,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_shutdown_impl () { shutdown_impl = [](int socket, int how) -> int  { return 0; }; }
    private:
        shutdown_func_type shutdown_impl;
-   
+
    // accept implementation
    public:
        virtual int  accept (int socket, struct sockaddr * address, socklen_t * address_len) override { return accept_impl( socket,  address,  address_len); }
@@ -201,7 +201,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_accept_impl () { accept_impl = [](int socket, struct sockaddr * address, socklen_t * address_len) -> int  { return 0; }; }
    private:
        accept_func_type accept_impl;
-   
+
    // send implementation
    public:
        virtual ssize_t  send (int socket, const void * buffer, size_t length, int flags) override { return send_impl( socket,  buffer,  length,  flags); }
@@ -210,7 +210,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_send_impl () { send_impl = [](int socket, const void * buffer, size_t length, int flags) -> ssize_t  { return 0; }; }
    private:
        send_func_type send_impl;
-   
+
    // sendto implementation
    public:
        virtual ssize_t  sendto (int socket, const void * buffer, size_t length, int flags, const struct sockaddr * dest_addr, socklen_t dest_len) override { return sendto_impl( socket,  buffer,  length,  flags,  dest_addr,  dest_len); }
@@ -219,7 +219,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_sendto_impl () { sendto_impl = [](int socket, const void * buffer, size_t length, int flags, const struct sockaddr * dest_addr, socklen_t dest_len) -> ssize_t  { return 0; }; }
    private:
        sendto_func_type sendto_impl;
-   
+
    // recv implementation
    public:
        virtual ssize_t  recv (int socket, void * buffer, size_t length, int flags) override { return recv_impl( socket,  buffer,  length,  flags); }
@@ -228,7 +228,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_recv_impl () { recv_impl = [](int socket, void * buffer, size_t length, int flags) -> ssize_t  { return 0; }; }
    private:
        recv_func_type recv_impl;
-   
+
    // recvfrom implementation
    public:
        virtual ssize_t  recvfrom (int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) override { return recvfrom_impl( socket,  buffer,  length,  flags,  address,  address_len); }
@@ -237,7 +237,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_recvfrom_impl () { recvfrom_impl = [](int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) -> ssize_t  { return 0; }; }
    private:
        recvfrom_func_type recvfrom_impl;
-   
+
    // inet_addr implementation
    public:
        virtual in_addr_t  inet_addr (const char * cp) override { return inet_addr_impl( cp); }
@@ -246,7 +246,7 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_inet_addr_impl () { inet_addr_impl = [](const char * cp) -> in_addr_t  { return 0; }; }
    private:
        inet_addr_func_type inet_addr_impl;
-   
+
 };
 
 #endif

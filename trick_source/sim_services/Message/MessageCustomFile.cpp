@@ -41,7 +41,7 @@ void Trick::MessageCustomFile::set_level(int level) {
 void Trick::MessageCustomFile::set_name(std::string name) {
     if (name == "") {
         name = "CustomLog" + std::to_string(_this_level);
-    }    
+    }
     this->name = name;
 }
 void Trick::MessageCustomFile::set_file_name(std::string file_name) {

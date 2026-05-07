@@ -87,7 +87,7 @@ int Trick::VariableServerSession::var_remove(std::string in_name) {
 
 }
 
-int Trick::VariableServerSession::var_units(std::string var_name, std::string units_name) {    
+int Trick::VariableServerSession::var_units(std::string var_name, std::string units_name) {
     VariableReference * variable = find_session_variable(var_name);
 
     if (variable == NULL) {
@@ -351,7 +351,7 @@ int Trick::VariableServerSession::set_send_stdio(bool on_off) {
 }
 
 int Trick::VariableServerSession::send_list_size() {
-    
+
     unsigned int msg_type = VS_LIST_SIZE;
     int var_count = _session_variables.size();
 
@@ -448,7 +448,7 @@ int Trick::VariableServerSession::send_file(std::string file_name) {
 int Trick::VariableServerSession::send_sie_resource() {
     sie_append_runtime_objs() ;
     //return transmit_file(std::string(command_line_args_get_default_dir()) + "/S_sie.resource") ;
-    // Use the runtime sie dir instead of the default dir as sie_append_runtime_objs() 
+    // Use the runtime sie dir instead of the default dir as sie_append_runtime_objs()
     // may have moved the sie resource file and also always uses the runtime sie dir.
     return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/S_sie.resource") ;
 }

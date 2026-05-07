@@ -96,7 +96,7 @@ int Trick::TCPConnection::read  (std::string& message, int max_len) {
     } else {
         nbytes = 0 ;
     }
-    
+
     std::stringstream msg_stream;
 
     if ( nbytes > 0 ) {
@@ -125,7 +125,7 @@ int Trick::TCPConnection::disconnect () {
     _system_interface->close (_socket);
     _connected = false;
 
-    return 0; 
+    return 0;
 }
 
 int Trick::TCPConnection::setBlockMode(bool blocking) {

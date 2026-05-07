@@ -40,19 +40,19 @@ class testSimObject : public Trick::SimObject {
     double dynamic_event() {
         return 1.1;
     }
-    
+
     testSimObject() {
         int ii = 0;
-        add_job(0, ii++, "derivative", NULL, 1, "derivative", "TRK") ; 
-        add_job(0, ii++, "integration", NULL, 1, "integration", "TRK") ; 
-        add_job(0, ii++, "dynamic_event", NULL, 1, "dynamic_event", "TRK") ; 
-        add_job(0, ii++, "pre_integration", NULL, 1, "pre_integration", "TRK") ; 
-        add_job(0, ii++, "post_integration", NULL, 1, "post_integration", "TRK") ; 
+        add_job(0, ii++, "derivative", NULL, 1, "derivative", "TRK") ;
+        add_job(0, ii++, "integration", NULL, 1, "integration", "TRK") ;
+        add_job(0, ii++, "dynamic_event", NULL, 1, "dynamic_event", "TRK") ;
+        add_job(0, ii++, "pre_integration", NULL, 1, "pre_integration", "TRK") ;
+        add_job(0, ii++, "post_integration", NULL, 1, "post_integration", "TRK") ;
     }
 
     virtual int call_function(Trick::JobData* curr_job);
     virtual double call_function_double( Trick::JobData* curr_job);
-}; 
+};
 
 int testSimObject::call_function( Trick::JobData *curr_job) {
     int trick_ret = 0;
@@ -71,7 +71,7 @@ int testSimObject::call_function( Trick::JobData *curr_job) {
         break;
         default:
             trick_ret = -1;
-    }        
+    }
     return trick_ret ;
 }
 
@@ -93,7 +93,7 @@ class IntegratorTest : public ::testing::Test {
     //Trick::RequirementScribe req;
     IntegratorTest() { memmgr = new Trick::MemoryManager;}
     ~IntegratorTest() { delete memmgr;   }
-    virtual void SetUp() {} 
+    virtual void SetUp() {}
     virtual void TearDown() {}
 
 };
@@ -102,12 +102,12 @@ class IntegratorLoopTest : public ::testing::Test {
     protected:
     Trick::Executive exec;
     Trick::IntegLoopScheduler* IntegLoop ;
-    testSimObject uno; 
+    testSimObject uno;
     Trick::MemoryManager *memmgr;
     //Trick::RequirementScribe req;
     IntegratorLoopTest() { memmgr = new Trick::MemoryManager;  IntegLoop = new Trick::IntegLoopScheduler(0.01, &uno) ;}
     ~IntegratorLoopTest() { delete memmgr; delete IntegLoop;   }
-    virtual void SetUp() {} 
+    virtual void SetUp() {}
     virtual void TearDown() {}
 
     Trick::ScheduledJobQueue* get_derivative_queue() { return &IntegLoop->deriv_jobs ; }
@@ -162,10 +162,10 @@ void deriv(BALL *B) {
 }
 
 void init(BALL *B) {
-   
+
     const double initial_speed = 50.0 ;
     const double initial_angle = 30.0 ;
- 
+
     B->pos[0] = 0.0;
     B->pos[1] = 0.0;
     B->vel[0] = initial_speed * sin(initial_angle * RAD_PER_DEG);
@@ -182,10 +182,10 @@ BALL Ball_sim( Trick::Integrator *integrator) {
     init(&ball);
 
     // Simulation Loop
-    do { 
+    do {
         sim_time = tick * integrator->dt ;
         // Integration Loop
-        do { 
+        do {
             integrator->time = sim_time;
             deriv( &ball);
             integrator->state_in( &ball.pos[0], &ball.pos[1], &ball.vel[0], &ball.vel[1], NULL);
@@ -208,7 +208,7 @@ BALL Ball_eulercromer_sim( Trick::Euler_Cromer_Integrator *integrator ) {
     init(&ball);
 
     // Simulation Loop
-    do { 
+    do {
         sim_time = tick * integrator->dt ;
         // Integration Loop
         do {
@@ -225,12 +225,12 @@ BALL Ball_eulercromer_sim( Trick::Euler_Cromer_Integrator *integrator ) {
     return ball;
 }
 
-void verify_ball_sim_results(BALL *ball, 
-                             const double tolerance, 
-                             const double pos0, 
-                             const double pos1, 
+void verify_ball_sim_results(BALL *ball,
+                             const double tolerance,
+                             const double pos0,
+                             const double pos1,
                              const double vel0,
-                             const double vel1) 
+                             const double vel1)
 {
     EXPECT_NEAR( ball->pos[0], pos0, tolerance) ;
     EXPECT_NEAR( ball->pos[1], pos1, tolerance);
@@ -244,7 +244,7 @@ TEST_F(IntegratorTest, Ball_Euler) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( Euler, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -264,15 +264,15 @@ TEST_F(IntegratorTest, Ball_Euler) {
 
     memmgr->delete_var( integrator);
 }
-  
+
 TEST_F(IntegratorTest, Ball_Euler_Cromer) {
 
     //req.add_requirement("215930604");
 
-    Trick::Euler_Cromer_Integrator *integrator = 
+    Trick::Euler_Cromer_Integrator *integrator =
            (Trick::Euler_Cromer_Integrator *) Trick::getIntegrator( Euler_Cromer, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -292,14 +292,14 @@ TEST_F(IntegratorTest, Ball_Euler_Cromer) {
 
     memmgr->delete_var( integrator);
 }
-#if 0  
+#if 0
 TEST_F(IntegratorTest, Ball_Nystrom_Lear_2) {
-    
+
     req.add_requirement("2963568341");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Nystrom_Lear_2, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -327,7 +327,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_2) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_2, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -354,7 +354,7 @@ TEST_F(IntegratorTest, Ball_Modified_Midpoint_4) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( Modified_Midpoint_4, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -381,7 +381,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_4) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_4, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -408,7 +408,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_Gill_4) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_Gill_4, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -435,7 +435,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_Fehlberg_45) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_Fehlberg_45, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -462,7 +462,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_Fehlberg_78) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_Fehlberg_78, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -490,7 +490,7 @@ TEST_F(IntegratorTest, Ball_ABM) {
 
     Trick::Integrator *integrator = Trick::getIntegrator( ABM_Method, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,4); 
+    EXPECT_EQ(integrator->num_state,4);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);
@@ -536,7 +536,7 @@ TEST_F(IntegratorTest, Ball_UserDefined) {
     Trick::Donna_Integrator *integrator = INTEG_NEW(Trick::Donna_Integrator);
     integrator = new (integrator) Trick::Donna_Integrator(0, 0.1);
     ASSERT_TRUE( (void*)integrator != NULL);
-    EXPECT_EQ(integrator->num_state,0); 
+    EXPECT_EQ(integrator->num_state,0);
     EXPECT_EQ(integrator->intermediate_step,0);
     EXPECT_EQ(integrator->first_step_deriv,1);
     EXPECT_EQ(integrator->last_step_deriv,0);

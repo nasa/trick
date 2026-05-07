@@ -64,8 +64,8 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         };
 
         // Check if element type is supported
-        if (std::find(supported_stl_elem_types.begin(), 
-                      supported_stl_elem_types.end(), 
+        if (std::find(supported_stl_elem_types.begin(),
+                      supported_stl_elem_types.end(),
                       R->attr->stl_elem_type) == supported_stl_elem_types.end())
         {
             emitError("Unsupported STL element type in ref_dim.");

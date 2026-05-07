@@ -7,7 +7,7 @@
 #include "Utilities.hh"
 
 
-ICGDiagnosticConsumer::ICGDiagnosticConsumer(llvm::raw_ostream &os, clang::DiagnosticOptions *diags, clang::CompilerInstance &in_ci, HeaderSearchDirs &in_hsd) 
+ICGDiagnosticConsumer::ICGDiagnosticConsumer(llvm::raw_ostream &os, clang::DiagnosticOptions *diags, clang::CompilerInstance &in_ci, HeaderSearchDirs &in_hsd)
 #if LLVM_VERSION_MAJOR >= 21
                                                 : clang::TextDiagnosticPrinter(os, *diags, false), ci(in_ci), hsd(in_hsd) {
 #else
@@ -22,7 +22,7 @@ ICGDiagnosticConsumer::~ICGDiagnosticConsumer() {
 
 /**
  * @details
- * -# Check the diagnostic level to see if an error is from user code. 
+ * -# Check the diagnostic level to see if an error is from user code.
  * -# Terminate the build if yes, continue otherwise.
 */
 void ICGDiagnosticConsumer::HandleDiagnostic(clang::DiagnosticsEngine::Level DiagLevel, const clang::Diagnostic &Info) {

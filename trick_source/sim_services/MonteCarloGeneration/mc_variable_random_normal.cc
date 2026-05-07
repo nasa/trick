@@ -47,21 +47,21 @@ MonteCarloVariableRandomNormal::generate_assignment()
 
   if (truncated_low && truncated_high) {
     if (min_value > max_value) {
-      std::string message = 
+      std::string message =
         std::string("File: ") + __FILE__ + ", Line: " +
         std::to_string(__LINE__) + ",  Illegal configuration\nFor variable " +
         variable_name.c_str() + " the specified minimum allowable value (" +
         std::to_string(min_value) + ") >= the specified maximum allowable" +
-        + " value (" + std::to_string(max_value) + ").\nOne or both of the" 
+        + " value (" + std::to_string(max_value) + ").\nOne or both of the"
         " limits must be changed to generate a random value.\n";
         message_publish(MSG_ERROR, message.c_str());
       exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
     }
     else if (Trick::dbl_is_near( min_value, max_value, 0.0)) {
-      std::string message = 
+      std::string message =
         std::string("File: ") + __FILE__ + ", Line: " +
-        std::to_string(__LINE__) + ", Overconstrained configuration\nFor " + 
-        "variable" + variable_name.c_str() + "  the specified minimum " + 
+        std::to_string(__LINE__) + ", Overconstrained configuration\nFor " +
+        "variable" + variable_name.c_str() + "  the specified minimum " +
         "allowable value and \nthe specified maximum allowable value are "
         "equal (" + std::to_string(min_value) + ").\nThe distribution " +
         " collapses  to a point.\n";
@@ -78,12 +78,12 @@ MonteCarloVariableRandomNormal::generate_assignment()
       num_tries++;
     }
     else {
-      std::string message = 
-        std::string("File: ") + __FILE__ + ", Line: " + 
-        std::to_string(__LINE__) + " Random value truncation failure\n" + 
+      std::string message =
+        std::string("File: ") + __FILE__ + ", Line: " +
+        std::to_string(__LINE__) + " Random value truncation failure\n" +
         "Could not generate a value for " + variable_name.c_str() +
         "  within the specified domain within\nthe specified maximum " +
-        "number of tries (" + 
+        "number of tries (" +
         std::to_string(max_num_tries) + ").\nAssuming a value equal to:\n" +
         " - midpoint value for a distribution truncated at both ends\n - " +
         "truncation value for a distribution truncated at only one end.\n";
@@ -130,10 +130,10 @@ MonteCarloVariableRandomNormal::truncate(
 {
   if (limit < 0)
   {
-    std::string message = 
-      std::string("File: ") + __FILE__ + ", Line " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ", Line " +
       std::to_string(__LINE__) + ", Out-of-domain error\nNegative " +
-      "double-sided truncation specified for variable " + 
+      "double-sided truncation specified for variable " +
       std::to_string(max_num_tries) + "\ntruncate() must receive either " +
       "two limits or one positive limit!\nUsing absolute value of limit." +
       "\nUsing absolute value of limit.\n";
@@ -143,10 +143,10 @@ MonteCarloVariableRandomNormal::truncate(
 
   if (Trick::dbl_is_near(limit, 0.0, 0.0))
   {
-    std::string message = 
-      std::string("File: ") + __FILE__ + ", Line " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ", Line " +
       std::to_string(__LINE__) + ",  Configuration error\nZero truncation " +
-      "for specified for variable " + variable_name.c_str() + "  which " + 
+      "for specified for variable " + variable_name.c_str() + "  which " +
       "will produce a fixed point\n";
     message_publish(MSG_WARNING, message.c_str());
   }
@@ -192,10 +192,10 @@ MonteCarloVariableRandomNormal::truncate_low(
     break;
    // Unreachable code.  All types are covered.
    default:
-     std::string message = 
+     std::string message =
        std::string("File: ") + __FILE__ + ", Line " +
        std::to_string(__LINE__) + ", Invalid TruncationType\nInvalid " +
-       "truncation type passed to truncate_low for variable " + 
+       "truncation type passed to truncate_low for variable " +
        variable_name.c_str() + ".\nMinimum will not be applied.\n";
      message_publish(MSG_ERROR, message.c_str());
     return;
@@ -222,10 +222,10 @@ MonteCarloVariableRandomNormal::truncate_high( double max,
     break;
    // Unreachable code.  All types are covered.
    default:
-     std::string message = 
-      std::string("File: ") + __FILE__ + ", Line: " + 
+     std::string message =
+      std::string("File: ") + __FILE__ + ", Line: " +
       std::to_string(__LINE__) + ", Invalid TruncationType\nInvalid " +
-      "truncation type passed to truncate_high for variable " + 
+      "truncation type passed to truncate_high for variable " +
       variable_name.c_str() + ".\nMaximum will not be applied.\n";
       message_publish(MSG_ERROR, message.c_str());
     return;

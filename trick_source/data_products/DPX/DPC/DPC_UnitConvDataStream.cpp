@@ -11,7 +11,7 @@ DPC_UnitConvDataStream::DPC_UnitConvDataStream(DataStream* ds, const char *ToUni
 
     ut_unit * to = NULL ;
     ut_unit * from = NULL ;
-    
+
     std::string recorded_units = ds->getUnit();
 
     source_ds = ds;

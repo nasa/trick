@@ -58,7 +58,7 @@ void PrintFileContents10::print_enum_attr(std::ostream & ostream , EnumValues * 
     // if unsigned {"name", value, 0x40000000}
     // if signed {"name", value, 0x0}
     for (auto& pair : e->getPairs()) {
-        ostream << "{\"" << name << pair.first << "\", " << pair.second << ", 0x" 
+        ostream << "{\"" << name << pair.first << "\", " << pair.second << ", 0x"
                 << std::hex << mods_value << std::dec << "},\n" ;
     }
     ostream << "{\"\", 0, 0x0}\n};\n" ;
@@ -86,15 +86,15 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
     } else {
         // print size of the underlying type
         // for STL containers such as std::vector<double>:
-        // print sizeof(double) instead of sizeof(std::vector<double>) 
+        // print sizeof(double) instead of sizeof(std::vector<double>)
         // however, ATTRIBUTES size attribute is not used for TRICK_STL
         // use the form such as sizeof(std::vector<double>) as is
         // but keep the code here in case it is needed in the future
-        /*if ( fdes.isSTL() && 
-             (fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR" || 
+        /*if ( fdes.isSTL() &&
+             (fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
               fdes.getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
               fdes.getSTLTypeEnumString() == "TRICK_STL_ARRAY") &&
-             fdes.getSTLElementTypeEnumString() != "TRICK_NUMBER_OF_TYPES " && 
+             fdes.getSTLElementTypeEnumString() != "TRICK_NUMBER_OF_TYPES " &&
              fdes.getSTLElementTypeName() != "") { // if STL, print size of the element type
             ostream << ", sizeof(" << fdes.getSTLElementTypeName() << ")" ;
         } else { // else print size of the type*/
@@ -255,12 +255,12 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
         // Add accessor function pointers for STL vectors
         if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
             fdes->getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
-            fdes->getSTLTypeEnumString() == "TRICK_STL_ARRAY") 
+            fdes->getSTLTypeEnumString() == "TRICK_STL_ARRAY")
         {
             ostream << prefix << "get_stl_size = get_stl_size_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
             ostream << prefix << "get_stl_element = get_stl_element_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
             // Only vector<bool> needs a setter function
-            if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" && fdes->getSTLElementTypeName() == "bool") 
+            if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" && fdes->getSTLElementTypeName() == "bool")
             {
                 ostream << prefix << "set_stl_element = set_stl_element_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
             }
@@ -432,10 +432,10 @@ void PrintFileContents10::print_get_stl_element(std::ostream & ostream , FieldDe
     printStlFunction("get_stl_element", "void* start_address, size_t index", element_access, ostream, *fdes, *cv, "void*");
 }
 
-void PrintFileContents10::print_set_stl_element(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) 
+void PrintFileContents10::print_set_stl_element(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv )
 {
     // Only generate setter for vector<bool> - other containers can be written directly via get_stl_element
-    if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" && fdes->getSTLElementTypeName() == "bool") 
+    if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" && fdes->getSTLElementTypeName() == "bool")
     {
         // vector<bool> needs a setter to write back the value from temp buffer to actual vector
         std::string element_write = "(*stl)[index] = *(bool*)value_ptr";

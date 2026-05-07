@@ -70,7 +70,7 @@ void Trick::LoggingCycle::set_rate(double rate_in)
     if((curr_tic % cycle_tics) != 0)
     {
         next_cycle_in_tics = (curr_tic/cycle_tics) * cycle_tics + cycle_tics;
-    } else 
+    } else
     {
         next_cycle_in_tics = curr_tic;
     }
@@ -217,7 +217,7 @@ int Trick::DataRecordGroup::set_max_file_size( uint64_t bytes ) {
     if(bytes == 0) {
         max_file_size = UINT64_MAX ;
     } else {
-    max_file_size = bytes ; 
+    max_file_size = bytes ;
     }
     return(0) ;
 }
@@ -277,7 +277,7 @@ int Trick::DataRecordGroup::add_variable( std::string in_name , std::string alia
 }
 
 void Trick::DataRecordGroup::remove_variable( std::string in_name ) {
-    // Trim leading spaces++ 
+    // Trim leading spaces++
     in_name.erase( 0, in_name.find_first_not_of( " \t" ) );
     // Trim trailing spaces
     in_name.erase( in_name.find_last_not_of( " \t" ) + 1);
@@ -365,7 +365,7 @@ bool Trick::DataRecordGroup::isSupportedType(REF2 * ref2, std::string& message) 
         message = "Cannot Data Record variable " + std::string(ref2->reference) + " of unsupported type " + std::to_string(ref2->attr->type);
         return false;
     }
-    
+
     // If this is an array and not a single value, don't record it
     if (ref2->num_index != ref2->attr->num_index) {
         message = "Cannot Data Record arrayed variable " + std::string(ref2->reference);
@@ -562,7 +562,7 @@ int Trick::DataRecordGroup::checkpoint() {
 }
 
 void Trick::DataRecordGroup::clear_checkpoint_vars() {
-    
+
     if ( variable_names ) {
         for(unsigned int jj = 0; jj < num_variable_names; jj++) {
             TMM_delete_var_a(variable_names[jj]);
@@ -824,7 +824,7 @@ long long Trick::DataRecordGroup::calculate_next_logging_tic(long long min_tic)
     long long ticOfCycleToProcess = std::numeric_limits<long long>::max();
 
     // Loop over all the logging rates. If the logging rate's next tic is equal to the min_tic, test against
-    // that rate's next cycle from min. Find the smallest next tic 
+    // that rate's next cycle from min. Find the smallest next tic
     for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
     {
         long long logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
@@ -892,7 +892,7 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
 
         if(!max_size_warning && (total_bytes_written > max_file_size)) {
             std::cerr << "WARNING: Data record max file size " << (static_cast<double>(max_file_size))/(1<<20) << "MB reached.\n"
-            "https://nasa.github.io/trick/documentation/simulation_capabilities/Data-Record#changing-the-max-file-size-of-a-data-record-group-ascii-and-binary-only" 
+            "https://nasa.github.io/trick/documentation/simulation_capabilities/Data-Record#changing-the-max-file-size-of-a-data-record-group-ascii-and-binary-only"
             << std::endl;
             max_size_warning = true;
         }

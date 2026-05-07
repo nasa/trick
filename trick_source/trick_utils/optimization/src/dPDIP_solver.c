@@ -165,7 +165,7 @@ int dPDIP_linear_solver(int      num_variables,       /* total number of variabl
                 step_size = beta*step_size;
                 for(j=0; j < num_variables; j++) {
                     updatedx[j] = x[j] + step_size * deltax[j];
-                } 
+                }
             }
         }
         int backtrack_cycle = 0;

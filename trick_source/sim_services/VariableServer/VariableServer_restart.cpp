@@ -35,7 +35,7 @@ int Trick::VariableServer::suspendPreCheckpointReload() {
 
     // Suspend session threads
     pthread_mutex_lock(&map_mutex) ;
-    for (const auto& vst_it : var_server_threads ) {    
+    for (const auto& vst_it : var_server_threads ) {
         vst_it.second->preload_checkpoint() ;
     }
     pthread_mutex_unlock(&map_mutex) ;

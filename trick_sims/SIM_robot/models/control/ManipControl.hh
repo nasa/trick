@@ -30,7 +30,7 @@ class ManipControl
 
         /* Manual Control Mode data */
         double manualCommandRate[2];        /* m/s command rate of EE in manual mode */
-        
+
         /* EEPos Control Mode data */
         double desiredPos[2];               /* m Desired EE position in TaskFrame of EE for EEPos control mode */
         double Kp;                          /* -- Proportional gain for EEPos tracking */

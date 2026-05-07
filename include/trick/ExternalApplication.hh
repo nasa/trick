@@ -289,7 +289,7 @@ namespace Trick {
 
         /** Creates a string containing the arguements that this application explicitly supports. */
         virtual std::string create_arguments_string();
-        
+
         protected:
 
         /** Command to execute when starting this application. */

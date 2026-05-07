@@ -16,20 +16,20 @@ size_t ucodepoint_to_utf32(unsigned int codePoint, int32_t *out);
 /* Convert Unicode codepoint to UTF-16.
    Returns the number of UTF-16 elements (1..2) necessary to represent the codepoint,
    or 0 on failure.
- */ 
+ */
 size_t ucodepoint_to_utf16(unsigned int codePoint, int16_t (*out)[2]);
 
 /* Convert Unicode codepoint to UTF-8.
    Returns the number of UTF_8 elements (1..4) )necessary to represent the codepoint,
    or 0 on failure.
- */ 
+ */
 size_t ucodepoint_to_utf8(unsigned int codePoint, char (*out)[4]);
 
 /* Escape ('\' escape codes) all unicode and non-printable ASCII characters
    in a UTF-8 character string to an all-ASCII representation.
    Returns the number of elements in the character string, or 0 on failure.
  */
-size_t escape_to_ascii(const char *in, char *out, size_t outSize); 
+size_t escape_to_ascii(const char *in, char *out, size_t outSize);
 
 /* Return the length of the array that would be produced if it were converted,
    or 0 on failure.
@@ -40,7 +40,7 @@ size_t escape_to_ascii_len(const char *in);
    in an ASCII character array, producing a UTF-8 character array.
    Returns the number of elements in the character string, or 0 on failure.
 */
-size_t unescape_to_utf8(const char *in, char *out, size_t outSize); 
+size_t unescape_to_utf8(const char *in, char *out, size_t outSize);
 
 /* Return the length of the array that would be produced if it were converted,
    or 0 on failure.

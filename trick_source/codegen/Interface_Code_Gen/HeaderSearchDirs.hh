@@ -65,7 +65,7 @@ class HeaderSearchDirs {
         bool isPathInICGExclude (const std::string& path) ;
 
         /** Returns true if directory is a subdirectory of an external library directory listed
-            in the TRICK_EXT_LIB_DIRS environment variable, and is also not a subdirectory listed 
+            in the TRICK_EXT_LIB_DIRS environment variable, and is also not a subdirectory listed
             in TRICK_EXT_LIB_DIRS_OVERRIDES
             @param path = directory path to be checked
             @return true = path is in a system directory, false = not in system directory.

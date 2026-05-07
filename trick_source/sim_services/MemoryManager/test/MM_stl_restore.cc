@@ -39,7 +39,7 @@ class MM_stl_restore : public ::testing::Test {
 TEST_F(MM_stl_restore, i_vec ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_vec")->attr;
 
 
@@ -64,7 +64,7 @@ TEST_F(MM_stl_restore, i_vec ) {
 TEST_F(MM_stl_restore, i_s_vec ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_s_vec")->attr;
 
 
@@ -76,7 +76,7 @@ TEST_F(MM_stl_restore, i_s_vec ) {
     int start_index = 0;
     memmgr->declare_extern_var(&my_alloc_i_s_vec, "std::string my_alloc_i_s_vec[6]");
     for (unsigned int i = 0; i < lengths.size(); i++) {
-        // std::string var_name = 
+        // std::string var_name =
         my_alloc_i_s_vec[i] = "my_alloc_i_s_vec_" + std::to_string(i);
 
         std::string temp_var_name = "int my_alloc_i_s_vec_" + std::to_string(i) + "[" + std::to_string(lengths[i]) + "]";
@@ -96,7 +96,7 @@ TEST_F(MM_stl_restore, i_s_vec ) {
     ASSERT_EQ(testbed->i_s_vec.size(), lengths.size());
     start_index = 0;
     for (unsigned int i = 0; i < lengths.size(); i++) {
-        ASSERT_EQ(testbed->i_s_vec[i].size(), lengths[i]); 
+        ASSERT_EQ(testbed->i_s_vec[i].size(), lengths[i]);
         EXPECT_EQ(testbed->i_s_vec[i], std::vector<int>(test_data.begin()+start_index, test_data.begin()+start_index+lengths[i]));
         start_index += lengths[i];
     }
@@ -112,7 +112,7 @@ TEST_F(MM_stl_restore, i_s_vec ) {
 TEST_F(MM_stl_restore, s_vec ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<int> test_data = get_test_data<int>(40);
 
@@ -154,7 +154,7 @@ TEST_F(MM_stl_restore, s_vec ) {
 TEST_F(MM_stl_restore, string_vec ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<std::string> test_data = get_test_data<std::string>(20);
 
@@ -180,7 +180,7 @@ TEST_F(MM_stl_restore, string_vec ) {
 TEST_F(MM_stl_restore, i_i_pair ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     double test_first  = random<double>();
     float  test_second = random<float> ();
@@ -210,14 +210,14 @@ TEST_F(MM_stl_restore, i_i_pair ) {
 TEST_F(MM_stl_restore, i_s_pair ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     double test_first  = random<double>();
     std::vector<bool> test_second = get_test_data<bool>(20);
 
     // Register the expected temporary variables with the memory manager
     double * first_data = (double *) memmgr->declare_var("double my_alloc_i_s_pair_first");
-    std::string * second_link = (std::string *) memmgr->declare_var("std::string my_alloc_i_s_pair_second"); 
+    std::string * second_link = (std::string *) memmgr->declare_var("std::string my_alloc_i_s_pair_second");
     bool * second_data = (bool *) memmgr->declare_var("bool my_alloc_i_s_pair_second_inner[20]");
 
     *first_data = test_first;
@@ -248,7 +248,7 @@ TEST_F(MM_stl_restore, i_s_pair ) {
 TEST_F(MM_stl_restore, s_i_pair ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<bool> test_first = get_test_data<bool>(20);
     double test_second  = random<double>();
@@ -287,7 +287,7 @@ TEST_F(MM_stl_restore, s_i_pair ) {
 TEST_F(MM_stl_restore, s_s_pair ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<int> test_first = get_test_data<int>(20);
     std::vector<float> test_second = get_test_data<float>(20);
@@ -333,7 +333,7 @@ TEST_F(MM_stl_restore, s_s_pair ) {
 TEST_F(MM_stl_restore, pair_pair ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     int test_first_first  = random<int>();
     int test_first_second  = random<int>();
@@ -372,7 +372,7 @@ TEST_F(MM_stl_restore, pair_pair ) {
 TEST_F(MM_stl_restore, i_i_map ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<int> test_keys = get_test_data<int>(20);
     std::vector<double> test_data = get_test_data<double>(20);
@@ -405,7 +405,7 @@ TEST_F(MM_stl_restore, i_i_map ) {
 TEST_F(MM_stl_restore, i_s_map ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<int> test_keys = get_test_data<int>(10);
     std::vector<std::string> test_data = get_test_data<std::string>(60);
@@ -453,7 +453,7 @@ TEST_F(MM_stl_restore, i_s_map ) {
 TEST_F(MM_stl_restore, s_i_map ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<int> test_keys = get_test_data<int>(30);
     std::vector<std::string> test_data = get_test_data<std::string>(10);
@@ -503,7 +503,7 @@ TEST_F(MM_stl_restore, s_i_map ) {
 TEST_F(MM_stl_restore, s_s_map ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     int map_size = 10;
     std::vector<int> test_keys = get_test_data<int>(20);
@@ -570,7 +570,7 @@ TEST_F(MM_stl_restore, s_s_map ) {
 TEST_F(MM_stl_restore, i_queue ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_queue")->attr;
 
 
@@ -598,7 +598,7 @@ TEST_F(MM_stl_restore, i_queue ) {
 TEST_F(MM_stl_restore, s_queue ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES * attr =  memmgr->ref_attributes("my_alloc.s_queue")->attr;
 
     std::vector<int> test_first= get_test_data<int>(20);
@@ -641,7 +641,7 @@ TEST_F(MM_stl_restore, s_queue ) {
 TEST_F(MM_stl_restore, nested_list_queue ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.nested_list_queue")->attr;
 
     std::vector<float> test_data = get_test_data<float>(50);
@@ -650,7 +650,7 @@ TEST_F(MM_stl_restore, nested_list_queue ) {
 
     // Register the expected temporary variables with the memory manager
     std::queue<std::list<float>> expected;
-    
+
     int start_index = 0;
     std::string * nested_list_links = (std::string *) memmgr->declare_var( "std::string my_alloc_nested_list_queue[6]");
     for (unsigned int i = 0; i < lengths.size(); i++) {
@@ -687,7 +687,7 @@ TEST_F(MM_stl_restore, nested_list_queue ) {
 TEST_F(MM_stl_restore, i_stack ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_stack")->attr;
 
 
@@ -716,7 +716,7 @@ TEST_F(MM_stl_restore, i_stack ) {
 TEST_F(MM_stl_restore, s_stack ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES * attr =  memmgr->ref_attributes("my_alloc.s_stack")->attr;
 
     std::vector<short> test_first= get_test_data<short>(20);
@@ -760,7 +760,7 @@ TEST_F(MM_stl_restore, s_stack ) {
 TEST_F(MM_stl_restore, nested_list_stack ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.nested_list_stack")->attr;
 
     std::vector<float> test_data = get_test_data<float>(50);
@@ -813,7 +813,7 @@ TEST_F(MM_stl_restore, nested_list_stack ) {
 TEST_F(MM_stl_restore, i_set ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_set")->attr;
 
 
@@ -845,10 +845,10 @@ TEST_F(MM_stl_restore, i_set ) {
 }
 
 
-TEST_F(MM_stl_restore, s_set ) { 
+TEST_F(MM_stl_restore, s_set ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES * attr =  memmgr->ref_attributes("my_alloc.s_set")->attr;
 
     std::vector<int> test_first= get_test_data<int>(20);
@@ -888,10 +888,10 @@ TEST_F(MM_stl_restore, s_set ) {
     }
 }
 
-TEST_F(MM_stl_restore, vector_set ) { 
+TEST_F(MM_stl_restore, vector_set ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.vector_set")->attr;
 
     std::vector<int> test_data = get_test_data<int>(50);
@@ -934,10 +934,10 @@ TEST_F(MM_stl_restore, vector_set ) {
     }
 }
 
-TEST_F(MM_stl_restore, nested_map_set ) { 
+TEST_F(MM_stl_restore, nested_map_set ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.nested_map_set")->attr;
 
     std::vector<short> test_keys = get_test_data<short>(60);
@@ -986,7 +986,7 @@ TEST_F(MM_stl_restore, nested_map_set ) {
 TEST_F(MM_stl_restore, i_multiset ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_multiset")->attr;
 
 
@@ -1019,10 +1019,10 @@ TEST_F(MM_stl_restore, i_multiset ) {
 }
 
 
-TEST_F(MM_stl_restore, s_multiset ) { 
+TEST_F(MM_stl_restore, s_multiset ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES * attr =  memmgr->ref_attributes("my_alloc.s_multiset")->attr;
 
     std::vector<int> test_first= get_test_data<int>(20);
@@ -1065,10 +1065,10 @@ TEST_F(MM_stl_restore, s_multiset ) {
     }
 }
 
-TEST_F(MM_stl_restore, vector_multiset ) { 
+TEST_F(MM_stl_restore, vector_multiset ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.vector_multiset")->attr;
 
     std::vector<int> test_data = get_test_data<int>(50);
@@ -1113,10 +1113,10 @@ TEST_F(MM_stl_restore, vector_multiset ) {
     }
 }
 
-TEST_F(MM_stl_restore, nested_map_multiset ) { 
+TEST_F(MM_stl_restore, nested_map_multiset ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.nested_map_multiset")->attr;
 
     std::vector<short> test_keys = get_test_data<short>(60);
@@ -1164,7 +1164,7 @@ TEST_F(MM_stl_restore, nested_map_multiset ) {
 TEST_F(MM_stl_restore, i_array ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_array")->attr;
 
     std::vector<char> test_data = get_test_data<char>(10);
@@ -1191,7 +1191,7 @@ TEST_F(MM_stl_restore, i_array ) {
 TEST_F(MM_stl_restore, pair_array ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES * attr =  memmgr->ref_attributes("my_alloc.pair_array")->attr;
 
     std::vector<int> test_first= get_test_data<int>(10);
@@ -1234,7 +1234,7 @@ TEST_F(MM_stl_restore, pair_array ) {
 TEST_F(MM_stl_restore, string_array ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.string_array")->attr;
 
     std::vector<std::string> test_data = get_test_data<std::string>(10);
@@ -1261,7 +1261,7 @@ TEST_F(MM_stl_restore, string_array ) {
 TEST_F(MM_stl_restore, vec_array ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.vec_array")->attr;
 
 
@@ -1273,7 +1273,7 @@ TEST_F(MM_stl_restore, vec_array ) {
     int start_index = 0;
     memmgr->declare_extern_var(&my_alloc_vec_array, "std::string my_alloc_vec_array[10]");
     for (unsigned int i = 0; i < lengths.size(); i++) {
-        // std::string var_name = 
+        // std::string var_name =
         my_alloc_vec_array[i] = "my_alloc_vec_array_" + std::to_string(i);
 
         std::string temp_var_name = "int my_alloc_vec_array_" + std::to_string(i) + "[" + std::to_string(lengths[i]) + "]";
@@ -1293,7 +1293,7 @@ TEST_F(MM_stl_restore, vec_array ) {
     ASSERT_EQ(testbed->vec_array.size(), lengths.size());
     start_index = 0;
     for (unsigned int i = 0; i < lengths.size(); i++) {
-        ASSERT_EQ(testbed->vec_array[i].size(), lengths[i]); 
+        ASSERT_EQ(testbed->vec_array[i].size(), lengths[i]);
         EXPECT_EQ(testbed->vec_array[i], std::vector<int>(test_data.begin()+start_index, test_data.begin()+start_index+lengths[i]));
         start_index += lengths[i];
     }
@@ -1309,7 +1309,7 @@ TEST_F(MM_stl_restore, vec_array ) {
 TEST_F(MM_stl_restore, vec_user_defined ) {
     // ARRANGE
     // make a testbed object
-    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
     ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.vec_user_defined")->attr;
 
     int numObj = 10;

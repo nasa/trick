@@ -437,7 +437,7 @@ TEST_F(MM_write_checkpoint, enum_pointer) {
     MONTH *enum_p = (MONTH*)memmgr->declare_var("MONTH enum_array[2]");
 
     *enum_pp = enum_p;
-    enum_p[0] = MARCH; 
+    enum_p[0] = MARCH;
     enum_p[1] = APRIL;
 
     memmgr->write_checkpoint( ss, "enum_pointer");
@@ -1117,7 +1117,7 @@ TEST_F(MM_write_checkpoint, WrappedStl ) {
     std::string result= ss.str();
     ASSERT_NE (result.size(), 0);
 
-    EXPECT_EQ( strcmp_IgnoringWhiteSpace(            
+    EXPECT_EQ( strcmp_IgnoringWhiteSpace(
             "// Variable Declarations."
             "VectorWrapper vec_allocation;"
             "int vec_allocation_vec[4];"

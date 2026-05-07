@@ -38,18 +38,18 @@ template <class T, typename U> struct FooTemplate2 {};
 
 class ParseTest {
     std::string str;
-    
+
     public:
     ParseTest(std::string s) {
         str = s;
     }
-    
+
     ParseTest() {
         str = "COMMENT PARSE //TEST"; // \
 test comment
         str = "COMMENT PARSE /*TEST";
         str = "COMMENT PARSE */TEST";
-        str = 
+        str =
 "COMMENT PARSE TEST";
     }
 };

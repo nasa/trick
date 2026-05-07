@@ -11,7 +11,7 @@ class VarTableWidget : public QTableWidget {
     // Constructors
     VarTableWidget(QWidget* parent = 0);
 
-    void addRecord( Qt::CheckState checkState, std::string name, std::string type, std::string units );  
+    void addRecord( Qt::CheckState checkState, std::string name, std::string type, std::string units );
     bool isChecked(int index);
     int recordCount();
     void scrollToRecord(int index);

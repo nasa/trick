@@ -78,7 +78,7 @@ class PoolTable {
 
         // Sim constants that should be user-controllable
         double frictionRolling = 0.05;
-        double frictionSliding = 0.25; 
+        double frictionSliding = 0.25;
         double frictionScale = 1;
         double frictionTolerance = 0.0005;
         double coefficientOfElasticity = .95;

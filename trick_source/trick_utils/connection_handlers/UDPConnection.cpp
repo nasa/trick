@@ -66,7 +66,7 @@ int Trick::UDPConnection::initialize(const std::string& in_hostname, int in_port
         perror("UDP socket: Could not bind to socket");
         _system_interface->close (_socket);
         return -1;
-    } 
+    }
 
     // Check that correct port was bound to
     _system_interface->getsockname( _socket , (struct sockaddr *)&s_in, &s_in_size) ;
@@ -80,7 +80,7 @@ int Trick::UDPConnection::initialize(const std::string& in_hostname, int in_port
 
     // Save port number
     _port = bound_port;
-    
+
     setBlockMode(false);
 
     // Done!
@@ -152,7 +152,7 @@ int Trick::UDPConnection::read  (std::string& message, int max_len) {
     } else {
         nbytes = 0 ;
     }
-    
+
     std::stringstream msg_stream;
 
     if ( nbytes > 0 ) {
@@ -182,7 +182,7 @@ int Trick::UDPConnection::disconnect () {
     _initialized = false;
     _started = false;
 
-    return 0; 
+    return 0;
 }
 
 int Trick::UDPConnection::setBlockMode(bool blocking) {

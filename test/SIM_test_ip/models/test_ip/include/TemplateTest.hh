@@ -46,11 +46,11 @@ class TemplateTest {
 
 //Verify we can build templates/intsantiations defined in different combinations of namespaces
 template <class T>
-struct TemplateNoNS {T x;}; 
+struct TemplateNoNS {T x;};
 
 namespace NS1 {
 	template <class T>
-	struct TemplateNS {T y;}; 
+	struct TemplateNS {T y;};
 }
 
 class ClassNoNS {
@@ -68,10 +68,10 @@ namespace NS2 {
 }
 
 //Verify we can build templates/intsantiations defined in the same namespace
-namespace a { 
+namespace a {
 
 	template <class T>
-	struct Bar {T z;}; 
+	struct Bar {T z;};
 
 	class Foo {
 	  public:
@@ -81,7 +81,7 @@ namespace a {
 }
 
 //Verify we can build templates/intsantiations defined in different namespaces
-namespace b { 
+namespace b {
 
 	class Foo2 {
 	  public:

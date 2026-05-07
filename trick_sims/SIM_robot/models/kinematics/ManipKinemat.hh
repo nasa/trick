@@ -26,8 +26,8 @@ class ManipKinemat
         double **R_base_task;           /* -- rotation matrix base->task */
 
         //(first index is base->joint_0 expressed in base)
-        double **P_joint_joint;     /* m  link_i+1->link_i in frame i */ 
-        
+        double **P_joint_joint;     /* m  link_i+1->link_i in frame i */
+
         double *P_joint_ee;           /* m  link_n-1 -> ee in frame n-1 */
         double **P_task_joint;      /* m  task->link_i in task frame */
         double *P_task_ee;            /* m  task->ee in task frame */

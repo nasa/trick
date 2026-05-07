@@ -48,21 +48,21 @@ void VariableServerSession::updateNextTime(long long simTimeTics) {
 void VariableServerSession::marshallData() {
     long long simulation_time_tics = exec_get_time_tics();
     SIM_MODE new_mode = the_exec->get_mode();
-    
+
     if(new_mode == Freeze) {
     	simulation_time_tics += exec_get_freeze_time_tics();
 	}
-    
+
     if(new_mode != mode) {
     	mode = new_mode;
         updateNextTime(simulation_time_tics);
     }
-	
+
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
         stageValues();
         updateNextTime(simulation_time_tics);
     }
-    	
+
 }
 
 /* Base class virtual function: sendMessage
@@ -274,7 +274,7 @@ int VariableServerSession::sendUnitsMessage(const char* vname) {
                 (
                     (
                         (*it)->getUnits() != NULL
-                    ) && 
+                    ) &&
                     (
                         (*it)->getUnits()[0] != '\0'
                     )

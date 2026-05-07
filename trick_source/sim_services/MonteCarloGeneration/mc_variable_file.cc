@@ -55,13 +55,13 @@ MonteCarloVariableFile::initialize_file()
   // smallest column number:
   MonteCarloVariableFile * first_var =dependents.front();
   if (first_column_number > first_var->get_column_number()) {
-    std::string message = 
-      std::string("File: ") + __FILE__ + ", Line: " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ", Line: " +
       std::to_string(__LINE__) + ",  Configuration Error\nIn configuring " +
-      "the file for variable " + first_var->get_variable_name().c_str() + 
+      "the file for variable " + first_var->get_variable_name().c_str() +
       ", it was identified that\nit was specified to draw data from column " +
       std::to_string(first_var->get_column_number()) + ", but that the " +
-      "first\ncolumn was identified as having index " + 
+      "first\ncolumn was identified as having index " +
       std::to_string(first_column_number) + ".\n";
     message_publish(MSG_ERROR, message.c_str());
     exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
@@ -71,8 +71,8 @@ MonteCarloVariableFile::initialize_file()
   file.open(filename);
 
   if (file.fail()) {
-    std::string message = 
-      std::string("File: ") + __FILE__ + ",  Line: " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ",  Line: " +
       std::to_string(__LINE__) + ", I/O error\nUnable to open file " +
       filename.c_str() + " for reading.\nRequired for variable " +
       variable_name.c_str() + ".\n";
@@ -84,9 +84,9 @@ MonteCarloVariableFile::initialize_file()
   do {
     // if reached the end of the file, not found anything good.  Fail out.
     if (file.eof()) {
-      std::string message = 
-        std::string("File: ") + __FILE__ + ", Line: " + 
-        std::to_string(__LINE__) + " Invalid data file\nData file " + 
+      std::string message =
+        std::string("File: ") + __FILE__ + ", Line: " +
+        std::to_string(__LINE__) + " Invalid data file\nData file " +
         filename.c_str() + " contains no recognized lines of data\n" +
         "Required for variable " + variable_name.c_str() + ".\n";
       message_publish(MSG_ERROR, message.c_str());
@@ -131,37 +131,37 @@ MonteCarloVariableFile::register_dependent(
     MonteCarloVariableFile * new_var)
 {
   if (new_var == NULL) {
-    std::string message = 
-      std::string("File: ") + __FILE__ + ", line " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ", line " +
       std::to_string(__LINE__) + ",  Invalid call\nAttempted to register " +
-      "a dependent identified with NULL pointer with \nthe " + 
-      "MonteCarloVariableFile for variable " + variable_name.c_str() + 
+      "a dependent identified with NULL pointer with \nthe " +
+      "MonteCarloVariableFile for variable " + variable_name.c_str() +
       ".\nThis is not a valid action.\nRegistration failed, exiting " +
       "without action.\n";
       message_publish(MSG_ERROR, message.c_str());
     return;
   }
   if (new_var->has_dependents()) {
-    std::string message = 
+    std::string message =
       std::string("File: ") + __FILE__ + ", Line: " +
       std::to_string(__LINE__) + ", Invalid configuration\nError in " +
-      "attempting to make " + new_var->get_variable_name().c_str() + 
-      " be dependent on " + variable_name.c_str() + ".\n" + 
-      new_var->get_variable_name().c_str() + " cannot be marked as " + 
+      "attempting to make " + new_var->get_variable_name().c_str() +
+      " be dependent on " + variable_name.c_str() + ".\n" +
+      new_var->get_variable_name().c_str() + " cannot be marked as " +
       "dependent when it has dependencies of its own.\nThe dependency " +
       "hierarchy can only be one level deep.";
     message_publish(MSG_ERROR, message.c_str());
     exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
   }
   if (new_var->max_skip != max_skip) {
-    std::string message = 
-      std::string("File: ") + __FILE__ + ", Line: " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ", Line: " +
       std::to_string(__LINE__) + ", Invalid configuration\nIt is not " +
       "permissible for two variables looking at the same file to\noperate " +
-      "under different line-selection criteria.\n" + 
+      "under different line-selection criteria.\n" +
       new_var->get_variable_name().c_str() + "\nwill be switched to the " +
       "behavior of\n" + variable_name.c_str() + ",\nwhich " +
-      "as a setting for the maximum number of lines to skip of " + 
+      "as a setting for the maximum number of lines to skip of " +
       std::to_string(max_skip) + "\n";
     message_publish(MSG_ERROR, message.c_str());
   }
@@ -246,13 +246,13 @@ MonteCarloVariableFile::process_line()
     // a problem
     if (current_column_number < next_column_needed) {
       std::string message =
-        std::string("File: ") + __FILE__ + ", Line: " + 
+        std::string("File: ") + __FILE__ + ", Line: " +
         std::to_string(__LINE__) + ", Malformed data file\nData file " +
-        "for variable " +  variable_name.c_str() +  " includes this line:\n" + 
-        line.c_str() + "\nWhich has only " + 
+        "for variable " +  variable_name.c_str() +  " includes this line:\n" +
+        line.c_str() + "\nWhich has only " +
         std::to_string(current_column_number-1) + " values.\nVariable " +
         variable_name.c_str() + "  uses the value from position " +
-        std::to_string(column_number) + 
+        std::to_string(column_number) +
         ", which does not exist in this line\n";
       exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
     }

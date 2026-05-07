@@ -22,7 +22,7 @@ std::string Trick::MonteVarCalculated::describe_variable()
     std::stringstream ss;
 
     ss << "#NAME:\t" << this->name << "\n"
-       << "#TYPE:\tCALCULATED\n" 
+       << "#TYPE:\tCALCULATED\n"
        << "#UNIT:\t" << this->unit << "\n";
 
     return ss.str();

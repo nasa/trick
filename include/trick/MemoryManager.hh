@@ -876,7 +876,7 @@ namespace Trick {
             void clear_arrayed_class( char* address, ATTRIBUTES* A, int curr_dim, int offset);
 
             /**
-             Write the given alloc_info data structure in a human readable to stdout. 
+             Write the given alloc_info data structure in a human readable to stdout.
              */
             void debug_write_alloc_info( ALLOC_INFO *alloc_info);
 

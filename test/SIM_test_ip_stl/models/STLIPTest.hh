@@ -1,5 +1,5 @@
 /*
-    PURPOSE: (Defines the STLIPTest class, which serves as a testbed for various STL 
+    PURPOSE: (Defines the STLIPTest class, which serves as a testbed for various STL
               container types instantiated with C++ types such as int, double, char, etc.)
     LIBRARY_DEPENDENCIES: (
       ()
@@ -40,7 +40,7 @@ struct TestStructure
 
 };
 
-class STLIPTest 
+class STLIPTest
 {
     friend class InputProcessor;
 

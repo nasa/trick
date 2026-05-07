@@ -91,7 +91,7 @@ void Trick::VariableServerSessionThread::preload_checkpoint() {
         // Let the thread complete any data copying it has to do
         // and then suspend data copying until the checkpoint is reloaded.
         _session->pause_copy();
-        
+
         // Save the pause state of this thread.
         _saved_pause_cmd = _session->get_pause();
 

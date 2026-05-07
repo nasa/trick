@@ -32,7 +32,7 @@ class PlanarManip
         ManipKinemat kinemat;      /* -- class the calculates for/inv kinematics */
         ManipControl controller;   /* -- controller class */
 
-        PlanarManip(int numDof); 
+        PlanarManip(int numDof);
 
         void calcKinematics();      /* -- call kinematics routines */
         void control();             /* -- call control routines */

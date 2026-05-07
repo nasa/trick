@@ -56,7 +56,7 @@ int dLDLt_solver(double **A,  /* In:  Input matrix [A] */
             }
             y[i] = (b[i] - total) / L[i][i];
         }
-    
+
         x[n-1] = y[n-1]/(D[n-1] * L[n-1][n-1]);
         for(i=n-2; i>=0; i--)
         {

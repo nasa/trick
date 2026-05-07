@@ -71,7 +71,7 @@ namespace Trick {
         static int _bad_ref_int;
         static int _do_not_resolve_bad_ref_int;
 
-        REF2 * _var_info;  
+        REF2 * _var_info;
         void * _address;                      // -- address of data copied to buffer
         int    _size;                         // -- size of data copied to buffer
         bool   _deref;                        // -- indicates whether variable is pointer that needs to be dereferenced
@@ -83,10 +83,10 @@ namespace Trick {
         bool _write_ready;
 
         void *_stage_buffer;
-        void *_write_buffer;  
+        void *_write_buffer;
 
         std::string _base_units;
-        std::string _requested_units; 
+        std::string _requested_units;
         std::string _name;
     };
 

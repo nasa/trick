@@ -2,7 +2,7 @@
 #include "trick/VariableServer.hh"
 
 int Trick::VariableServer::shutdown() {
-    
+
     // Shutdown all listen threads
     listen_thread.cancel_thread() ;
     for (auto& listen_it : additional_listen_threads) {

@@ -126,7 +126,7 @@ void Trick::VariableServerSession::log_connection_opened() {
         if (!is_session_log_open()) {
             open_session_log();
         }
-    
+
         message_publish(_session_log_msg_stream, "Variable Server Session started with %s:%d\n", _connection->getClientHostname().c_str(), _connection->getClientPort());
     }
 }
@@ -137,7 +137,7 @@ void Trick::VariableServerSession::log_received_message(const std::string& msg) 
     }
 
     if (_session_log) {
-        if (!is_session_log_open()) 
+        if (!is_session_log_open())
             open_session_log();
 
         message_publish(_session_log_msg_stream, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
@@ -150,7 +150,7 @@ void Trick::VariableServerSession::log_received_message(const std::string& msg) 
     if (_debug >= 1 || _info_msg) {
         message_publish(MSG_DEBUG, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
     }
-    
+
 }
 
 int Trick::VariableServerSession::handle_message() {

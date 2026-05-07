@@ -10,7 +10,7 @@
 
 
 namespace Trick {
-    
+
     class UDPConnection : public ClientConnection {
         public:
 
@@ -41,7 +41,7 @@ namespace Trick {
 
             virtual std::string getClientHostname() override;
             virtual int getClientPort() override;
-            
+
         protected:
             bool _initialized;
             bool _started;

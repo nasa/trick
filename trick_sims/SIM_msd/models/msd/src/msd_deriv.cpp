@@ -9,6 +9,6 @@ PROGRAMMERS:
 int MSD::state_deriv(void) {
     /* system equation for second derivitive */
     a = (F - b*v - k*x)/m;
-    
+
     return(0);
 }

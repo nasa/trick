@@ -174,7 +174,7 @@ namespace Trick {
             /** Next scheduled jobs call time.\n */
             long long job_call_time_tics;   /**< trick_units(--) */
 
-            /** stream to record elapsed time of default_data, 
+            /** stream to record elapsed time of default_data,
                 input_processor, and initialization queues \n */
             std::ofstream init_log_stream; /**< trick_units(--) */
 
@@ -1330,7 +1330,7 @@ namespace Trick {
              @return always 0
             */
             virtual int exec_terminate(const char *file_name, const char *error);
-            
+
             /* deleted functions  */
       private:
             /* SWIG doesn't like the Executive assignment operator because of ofstream init_log_stream */

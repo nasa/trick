@@ -341,7 +341,7 @@ bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_dir ) {
         }
         icg_nocomment_files[in_dir] = false ;
         return false;
-    }   
+    }
 }
 
 bool HeaderSearchDirs::isPathInCompat15 (const std::string& in_dir ) {

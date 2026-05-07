@@ -78,7 +78,7 @@ DocWindow::DocWindow(TRK_DataLog* data_log )
 
     int recordCount = datalog->parameterCount();
     for (int ii = 0; ii < recordCount; ii++) {
-        varTable->addRecord( Qt::Checked, 
+        varTable->addRecord( Qt::Checked,
                              datalog->parameterName(ii),
                              datalog->parameterType(ii),
                              datalog->parameterUnits(ii));
@@ -95,7 +95,7 @@ DocWindow::DocWindow(TRK_DataLog* data_log )
 
 void DocWindow::load() {
 
-    QString newFileName; 
+    QString newFileName;
 
     newFileName = QFileDialog::getOpenFileName(this,
     tr("Open Data File"), ".", tr("Data Files (*.trk)"));
@@ -112,7 +112,7 @@ void DocWindow::load() {
 }
 
 void DocWindow::formattedSave(LogFormatter &formatter) {
-     
+
     QFileInfo trkFileInfo( datalog->getFileName().c_str());
 
     QString outFileName = trkFileInfo.canonicalPath();
@@ -129,7 +129,7 @@ void DocWindow::formattedSave(LogFormatter &formatter) {
             datalog->selectParameter(index);
         } else {
             datalog->deselectParameter(index);
-        }         
+        }
     }
 
     FILE *fp;
@@ -158,12 +158,12 @@ void DocWindow::unCheckAll() {
 
 void DocWindow::findAgain(int direction) {
     if (foundItemIndex >= 0) {
-        varTable->unHighLightRecord(foundItemIndex);      
+        varTable->unHighLightRecord(foundItemIndex);
         int count = varTable->recordCount();
         int startIndex = (count + foundItemIndex + direction) % count;
         if ((foundItemIndex = textSearch(searchPattern, startIndex, direction)) >= 0) {
-            varTable->scrollToRecord(foundItemIndex);      
-            varTable->highLightRecord(foundItemIndex);      
+            varTable->scrollToRecord(foundItemIndex);
+            varTable->highLightRecord(foundItemIndex);
         }
     }
 }
@@ -180,11 +180,11 @@ void DocWindow::find() {
     searchPattern = searchLineEdit->text();
 
     if (foundItemIndex >= 0) {
-        varTable->unHighLightRecord(foundItemIndex);      
+        varTable->unHighLightRecord(foundItemIndex);
     }
     if ((foundItemIndex = textSearch(searchPattern, 0, 1)) >= 0) {
-        varTable->scrollToRecord(foundItemIndex);      
-        varTable->highLightRecord(foundItemIndex);      
+        varTable->scrollToRecord(foundItemIndex);
+        varTable->highLightRecord(foundItemIndex);
     }
 }
 

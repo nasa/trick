@@ -5,7 +5,7 @@
 #include <gmock/gmock.h>
 
 class MockVariableServerSession : public Trick::VariableServerSession {
-    public: 
+    public:
         MOCK_METHOD0(handle_message, int());
         MOCK_METHOD0(write_data, int());
         MOCK_METHOD0(get_exit_cmd, bool());

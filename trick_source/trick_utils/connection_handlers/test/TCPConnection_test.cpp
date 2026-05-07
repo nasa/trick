@@ -113,7 +113,7 @@ TEST_F( TCPConnectionTest, setBlockMode_fcntl_getfl_fail) {
         return -1;
     });
     // ACT
-    
+
     int status = connection.setBlockMode(true);
 
     // ASSERT
@@ -225,7 +225,7 @@ TEST_F( TCPConnectionTest, write_binary_buf_uninitialized ) {
 TEST_F( TCPConnectionTest, read_nonewline ) {
     // ARRANGE
     std::string data_to_read = "Here is an incomplete message from a socket";
-    
+
     system_context->register_accept_impl([&](int socket, struct sockaddr * address, socklen_t * address_len) -> int {
         return 6;
     });
@@ -251,7 +251,7 @@ TEST_F( TCPConnectionTest, read_nonewline ) {
 TEST_F( TCPConnectionTest, read ) {
     // ARRANGE
     std::string data_to_read = "Here is a complete message from a socket\n This part is incomplete";
-    
+
     system_context->register_accept_impl([&](int socket, struct sockaddr * address, socklen_t * address_len) -> int {
         return 6;
     });
@@ -276,7 +276,7 @@ TEST_F( TCPConnectionTest, read ) {
 
 
 TEST_F( TCPConnectionTest, read_nodata ) {
-    // ARRANGE    
+    // ARRANGE
     system_context->register_accept_impl([&](int socket, struct sockaddr * address, socklen_t * address_len) -> int {
         return 6;
     });
@@ -299,7 +299,7 @@ TEST_F( TCPConnectionTest, read_nodata ) {
 }
 
 TEST_F( TCPConnectionTest, read_other_error ) {
-    // ARRANGE    
+    // ARRANGE
     system_context->register_accept_impl([&](int socket, struct sockaddr * address, socklen_t * address_len) -> int {
         return 6;
     });

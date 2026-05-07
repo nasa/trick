@@ -89,7 +89,7 @@ TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex0 ) {
     job_ptr->sim_object_id = 3 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
-    
+
     EXPECT_EQ( sjq.size() , (unsigned int)2) ;
     EXPECT_EQ( sjq.get_curr_index() , (unsigned int)0) ;
 
@@ -97,7 +97,7 @@ TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex0 ) {
     job_ptr->sim_object_id = 2 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
-    
+
     EXPECT_EQ( sjq.size() , (unsigned int)3) ;
     EXPECT_EQ( sjq.get_curr_index() , (unsigned int)0) ;
 
@@ -105,7 +105,7 @@ TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex0 ) {
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
-    
+
     EXPECT_EQ( sjq.size() , (unsigned int)4) ;
     EXPECT_EQ( sjq.get_curr_index() , (unsigned int)0) ;
 
@@ -127,7 +127,7 @@ TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex0 ) {
 }
 
 TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex1 ) {
-	
+
     Trick::JobData * job_ptr ;
 
     EXPECT_EQ( sjq.size() , (unsigned int)0) ;
@@ -147,7 +147,7 @@ TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex1 ) {
     job_ptr->sim_object_id = 4 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
-    
+
     EXPECT_EQ( sjq.size() , (unsigned int)2) ;
     EXPECT_EQ( sjq.get_curr_index() , (unsigned int)1) ;
 
@@ -155,7 +155,7 @@ TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex1 ) {
     job_ptr->sim_object_id = 3 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
-    
+
     EXPECT_EQ( sjq.size() , (unsigned int)3) ;
     EXPECT_EQ( sjq.get_curr_index() , (unsigned int)1) ;
 
@@ -163,7 +163,7 @@ TEST_F( ScheduledJobQueueTest , PushJobOntoSameIndex_CurrIndex1 ) {
     job_ptr->sim_object_id = 2 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
-    
+
     EXPECT_EQ( sjq.size() , (unsigned int)4) ;
     EXPECT_EQ( sjq.get_curr_index() , (unsigned int)1) ;
 

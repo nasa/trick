@@ -614,7 +614,7 @@ int swig_ref::__setitem__( int ii, PyObject * obj1 ) {
             } else {
                 // Original 1D assignment code for fixed-size arrays
                 first_node = curr_node = ( V_TREE * )calloc( 1 , sizeof(V_TREE) ) ;
-                
+
                 for( jj = 0 ; jj < size ; jj++ ) {
                     PyObject *o = PyTuple_GetItem( obj1 , jj ) ;
                     newVTreeNode(&curr_node) ;

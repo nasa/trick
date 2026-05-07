@@ -351,7 +351,7 @@ void Trick::ThreadBase::thread_shutdown(void (*exit_handler) (void *), void * ex
         exit_handler(exit_arg);
     }
 
-    pthread_exit(0); 
+    pthread_exit(0);
 }
 
 void * Trick::ThreadBase::thread_helper( void * context ) {

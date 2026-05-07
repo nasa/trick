@@ -1320,7 +1320,7 @@ int LogGroup::getValueAtTime( const char *paramName,
         if(rr > 0){
             *value = vv ;
         }
-        
+
         return(rr);
 
 }

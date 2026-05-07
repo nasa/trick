@@ -14,7 +14,7 @@ namespace FooNamespace
 {
 
 // RestartableStateIntegrator
-template<int T> 
+template<int T>
 class FooA
 {
 public:

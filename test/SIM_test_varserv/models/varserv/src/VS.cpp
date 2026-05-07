@@ -4,7 +4,7 @@ REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( VS.o )
-PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) 
+PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013)
 								(Jackie Deans) (CACI) (11-30-2022) )
 *******************************************************************************/
 #include <iostream>
@@ -251,18 +251,18 @@ int VSTest::default_vars() {
 }
 
 int VSTest::init() {
-	status = 2; 
+	status = 2;
 	return (0);
 }
 
 int VSTest::fail() {
-    status = 1; 
+    status = 1;
 	return 0;
 }
 
 int VSTest::success() {
     status = 0;
-	return 0; 
+	return 0;
 }
 
 void VSTest::throw_exception() {
@@ -278,6 +278,6 @@ int VSTest::shutdown() {
 	}
 
     exec_terminate_with_return( status , __FILE__ , __LINE__ , status_messages[status] ) ;
-	
+
 	return(0);
 }

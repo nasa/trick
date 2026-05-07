@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /* Returns atmospheric density (kg/m^3) at the given altitude (m).*/
-double US_STD_density ( double alt_m ); 
+double US_STD_density ( double alt_m );
 
 /* Returns acceleration of gravity (m/s^2) at the given altitude (m).*/
 double US_STD_gravity( double alt_m);

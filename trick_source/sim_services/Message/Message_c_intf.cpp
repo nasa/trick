@@ -24,7 +24,7 @@ int message_subscribe( Trick::MessageSubscriber * in_ms ) {
     the_message_publisher->subscribe(in_ms) ;
     return(0) ;
 }
- 
+
 /**
  @relates Trick::MessagePublisher
  @copydoc Trick::MessagePublisher::unsubscribe
@@ -43,7 +43,7 @@ extern "C" int message_add_subscriber( void * in_ms ) {
     the_message_publisher->subscribe((Trick::MessageSubscriber *)in_ms) ;
     return(0) ;
 }
- 
+
 /**
  @relates Trick::MessagePublisher
  @copydoc Trick::MessagePublisher::unsubscribe

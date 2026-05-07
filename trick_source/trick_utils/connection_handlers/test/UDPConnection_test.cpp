@@ -75,9 +75,9 @@ TEST_F( UDPConnectionTest, initialize_invalid_hostname ) {
 
 TEST_F( UDPConnectionTest, failed_socket ) {
     // ARRANGE
-    system_context->register_socket_impl([](int a, int b, int c) { 
+    system_context->register_socket_impl([](int a, int b, int c) {
         errno = EPERM;
-        return -1; 
+        return -1;
     });
 
     // ACT
@@ -89,9 +89,9 @@ TEST_F( UDPConnectionTest, failed_socket ) {
 
 TEST_F( UDPConnectionTest, failed_setsockopt_reuseaddr ) {
     // ARRANGE
-    system_context->register_setsockopt_impl([](int sockfd, int level, int optname, const void *optval, socklen_t optlen) { 
+    system_context->register_setsockopt_impl([](int sockfd, int level, int optname, const void *optval, socklen_t optlen) {
         errno = EINVAL;
-        return -1; 
+        return -1;
     });
 
     // ACT
@@ -103,7 +103,7 @@ TEST_F( UDPConnectionTest, failed_setsockopt_reuseaddr ) {
 
 TEST_F( UDPConnectionTest, failed_bind ) {
     // ARRANGE
-    system_context->register_bind_impl([](int sockfd, const struct sockaddr *addr,socklen_t addrlen) { 
+    system_context->register_bind_impl([](int sockfd, const struct sockaddr *addr,socklen_t addrlen) {
         errno = EADDRINUSE;
         return -1;
     });
@@ -194,7 +194,7 @@ TEST_F( UDPConnectionTest, setBlockMode_fcntl_getfl_fail) {
     });
 
     // ACT
-    
+
     int status = connection.setBlockMode(true);
 
     // ASSERT
@@ -304,7 +304,7 @@ TEST_F( UDPConnectionTest, write_binary_buf_uninitialized ) {
 TEST_F( UDPConnectionTest, read_nonewline ) {
     // ARRANGE
     std::string data_to_read = "Here is an incomplete message from a socket";
-    
+
     system_context->noop_fcntl_impl();
     system_context->register_recvfrom_impl([&](int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) -> ssize_t {
         int data_to_read_size = data_to_read.size() < length ? data_to_read.size() : length;
@@ -329,7 +329,7 @@ TEST_F( UDPConnectionTest, read_nonewline ) {
 TEST_F( UDPConnectionTest, read ) {
     // ARRANGE
     std::string data_to_read = "Here is a complete message from a socket\n This part is incomplete";
-    
+
     system_context->noop_fcntl_impl();
     system_context->register_recvfrom_impl([&](int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) -> ssize_t {
         int data_to_read_size = data_to_read.size() < length ? data_to_read.size() : length;
@@ -353,7 +353,7 @@ TEST_F( UDPConnectionTest, read ) {
 
 
 TEST_F( UDPConnectionTest, read_nodata ) {
-    // ARRANGE    
+    // ARRANGE
     system_context->noop_fcntl_impl();
     system_context->register_recvfrom_impl([&](int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) -> ssize_t {
         errno = EAGAIN;
@@ -373,7 +373,7 @@ TEST_F( UDPConnectionTest, read_nodata ) {
 }
 
 TEST_F( UDPConnectionTest, read_other_error ) {
-    // ARRANGE    
+    // ARRANGE
     system_context->noop_fcntl_impl();
     system_context->register_recvfrom_impl([&](int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) -> ssize_t {
         errno = EBADF;

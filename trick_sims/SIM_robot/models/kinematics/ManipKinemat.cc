@@ -16,7 +16,7 @@ ManipKinemat::ManipKinemat(int numDof):ndof(numDof)
 
     int i,j;
 
-    /* These vectors and matrices don't explicitly depend on the 
+    /* These vectors and matrices don't explicitly depend on the
      * number of degrees of freedom */
     V_ee          = (double *)TMM_declare_var_1d("double",2);
     P_task_base   = (double *)TMM_declare_var_1d("double",2);
@@ -30,7 +30,7 @@ ManipKinemat::ManipKinemat(int numDof):ndof(numDof)
     jacobian      = (double **)TMM_declare_var_1d("double*",2);
     R_ee_task     = (double **)TMM_declare_var_1d("double*",2);
 
-    /* total number of degrees of freedom determines the size of all of these 
+    /* total number of degrees of freedom determines the size of all of these
      * vectors and matrices, so we size them accordingly */
 
     joint_u       = (double *)TMM_declare_var_1d("double",ndof);
@@ -78,7 +78,7 @@ ManipKinemat::ManipKinemat(int numDof):ndof(numDof)
         }
 
     }
- 
+
     /* base relative to task in task frame*/
     P_task_base[0] = 0;
     P_task_base[1] = 0;
@@ -113,7 +113,7 @@ ManipKinemat::ManipKinemat(int numDof):ndof(numDof)
     R_ee_joint[0][1] = 0;
     R_ee_joint[1][0] = 0;
     R_ee_joint[1][1] = 1;
-    
+
     jacobian[0][0] = 0;
     jacobian[0][1] = 0;
     jacobian[1][0] = 0;
@@ -185,7 +185,7 @@ void ManipKinemat::forwardKinPos()
     }
 
     // Calculate vector from task to EE in task
-    
+
     utils.MVMult(P_task_ee,R_ee_task,joint_ee);
     utils.VAdd(P_task_ee,P_task_ee,P_task_joint[ndof-1]);
 
@@ -196,7 +196,7 @@ void ManipKinemat::forwardKinPos()
 void ManipKinemat::forwardKinVel()
 {
 
-    /* like the jacobian, these are hand-calculated for a 2-dof planar.  
+    /* like the jacobian, these are hand-calculated for a 2-dof planar.
      * Anything more would require velocity propagation to determine the
      * velocity of the end-effector and intermediate points */
 
@@ -222,17 +222,17 @@ void ManipKinemat::forwardKinVel()
 void ManipKinemat::calcJacobian()
 {
 
-    /* These are hand-calculated due to the simplicity of the manipulator 
-     * system.  The algorithmic method of determining the elements of 
+    /* These are hand-calculated due to the simplicity of the manipulator
+     * system.  The algorithmic method of determining the elements of
      * the jacobian, while efficient and generic, are difficult to read in
      * code and are beyond the scope of a simple robotic tutorial
      */
 
     double s1,c1,s12,c12;
     s1  = sin(joint_q[0]);
-    s12 = sin(joint_q[0]+joint_q[1]); 
+    s12 = sin(joint_q[0]+joint_q[1]);
     c1  = cos(joint_q[0]);
-    c12 = cos(joint_q[0]+joint_q[1]); 
+    c12 = cos(joint_q[0]+joint_q[1]);
 
     double l1, l2;
     l1 = joint_l[0][0];

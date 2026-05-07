@@ -24,7 +24,7 @@ int Satellite::state_deriv() {
 
    double d = sqrt( pos[0]*pos[0] + pos[1]*pos[1]);
    acc[0] = -pos[0] * GRAVITATIONAL_CONSTANT * EARTH_MASS / (d*d*d);
-   acc[1] = -pos[1] * GRAVITATIONAL_CONSTANT * EARTH_MASS / (d*d*d); 
+   acc[1] = -pos[1] * GRAVITATIONAL_CONSTANT * EARTH_MASS / (d*d*d);
    return(0);
 }
 

@@ -37,7 +37,7 @@ int Fibonacci_time::scheduled_job_1() {
     double time_in_seconds = (double)exec_get_time_tics() / tics_per_second;
     std::cout << ISO_6429_Green_Foreground
               << "Scheduled Job Time = " << time_in_seconds
-              << ISO_6429_Restore_Default << std::endl; 
+              << ISO_6429_Restore_Default << std::endl;
 
     return(0);
 }
@@ -47,7 +47,7 @@ int Fibonacci_time::automatic_job_1() {
     double time_in_seconds = (double)exec_get_time_tics() / tics_per_second;
     std::cout << ISO_6429_Red_Foreground
               << "Automatic Job Time = " << time_in_seconds
-              << ISO_6429_Restore_Default << std::endl; 
+              << ISO_6429_Restore_Default << std::endl;
 
     N++;
     double next_time = Fibonacci(N);

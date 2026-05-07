@@ -14,7 +14,7 @@ namespace potato {
     template <class T>
     class Potato {
         public:
-        class Inner {}; 
+        class Inner {};
         Inner inner;
     };
 }

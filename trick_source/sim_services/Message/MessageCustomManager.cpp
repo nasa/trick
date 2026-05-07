@@ -22,7 +22,7 @@ Trick::MessageCustomManager::MessageCustomManager() {
 
 Trick::MessageCustomManager::~MessageCustomManager() {
     the_message_custom_manager = NULL;
-    
+
     for (Trick::MessageCustomFile *  message_file : _custom_message_files) {
         TMM_delete_var_a(message_file);
     }

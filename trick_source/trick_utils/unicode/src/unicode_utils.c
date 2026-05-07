@@ -27,8 +27,8 @@ size_t ucodepoint_to_utf16(unsigned int codePoint, int16_t (*out)[2]) {
         fprintf(stderr,"%s:ERROR: Invalid Unicode value (too big): 0x%04x.\n", __FUNCTION__, codePoint);
         return 0;
     } else if (codePoint > 0xffff) {
-        /* High-surrogate code points are in the range U+D800–U+DBFF. 
-         * Low-surrogate code points are in the range U+DC00–U+DFFF. 
+        /* High-surrogate code points are in the range U+D800–U+DBFF.
+         * Low-surrogate code points are in the range U+DC00–U+DFFF.
          * A high-surrogate code point followed by a low-surrogate code point form a
          * surrogate pair in UTF-16 to represent code points greater than U+FFFF.
          */
@@ -100,7 +100,7 @@ size_t escape_to_ascii(const char *in, char *out, size_t outSize) {
                 } else if (ch >= 0x80) {   // We should never find a continuation byte in isolation.
                     fprintf(stderr,"%s:ERROR: UTF8 string (in) appears to be corrupted.\n", __FUNCTION__);
                     state = ERROR_STATE;
-                } else {                   // ASCII        
+                } else {                   // ASCII
                     if (ch == '\a') {
                         snprintf(ascii_elements, sizeof(ascii_elements), "\\a");
                     } else if (ch == '\b') {
@@ -137,9 +137,9 @@ size_t escape_to_ascii(const char *in, char *out, size_t outSize) {
                     codePoint = (codePoint << 6) | (ch & 0x3f); // Extract low 6 bits
                     state = 0;
                     if (codePoint <= 0xffff) {
-                        snprintf(ascii_elements, sizeof(ascii_elements), "\\u%04x", codePoint); 
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\u%04x", codePoint);
                     } else {
-                        snprintf(ascii_elements, sizeof(ascii_elements), "\\U%08x", codePoint); 
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\U%08x", codePoint);
                     }
                     size_t n_elements = strlen(ascii_elements);
                     if (out != NULL) {
@@ -174,7 +174,7 @@ size_t escape_to_ascii(const char *in, char *out, size_t outSize) {
                     state = ERROR_STATE;
                 }
             } break;
-            default: { 
+            default: {
                 state = ERROR_STATE;
             } break;
         }
@@ -183,7 +183,7 @@ size_t escape_to_ascii(const char *in, char *out, size_t outSize) {
     /* If we didn't finished in state 0, then we had an error. */
     if (state != 0) {
         out_len = 0;
-    } 
+    }
     if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
     return out_len;
 }
@@ -261,14 +261,14 @@ size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
                                     " \\x, \\u, or \\U escape code in char string (in).\n", __FUNCTION__);
                      state = ERROR_STATE;
                  }
-                 if (digit >= 0) { 
+                 if (digit >= 0) {
                      codePoint = codePoint * 16 + digit;
                      digitsExpected -- ;
                      if ( digitsExpected == 0 ) {
                         char utf8_bytes[4];
                         size_t n_elements = ucodepoint_to_utf8(codePoint, &utf8_bytes);
                         state = 0;
-                        if (out != NULL) { 
+                        if (out != NULL) {
                             if (out_len + n_elements < outSize) {
                                 memcpy( &out[out_len], utf8_bytes, sizeof(char) * n_elements );
                             } else {
@@ -309,21 +309,21 @@ size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
                 }
             } break;
 
-            default: { 
+            default: {
                 state = ERROR_STATE;
             } break;
-        } 
+        }
         in ++;
     }
     if (state != 0) { /* If we didn't finished in state 0, then we had an error. */
         out_len = 0;
-    } 
+    }
     if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
     return out_len;
 }
 
 size_t unescape_to_utf8_len(const char *in) {
-    return unescape_to_utf8( in, NULL, (size_t)0); 
+    return unescape_to_utf8( in, NULL, (size_t)0);
 }
 
 size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
@@ -356,8 +356,8 @@ size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
                     fprintf(stderr,"%s:ERROR: UTF8 string (in) appears to be corrupted.\n", __FUNCTION__);
                     state = ERROR_STATE;
                 } else {
-                    codePoint = ch;        // ASCII        
-                    if (out != NULL) { 
+                    codePoint = ch;        // ASCII
+                    if (out != NULL) {
                         if ((out_len + 1) < outSize) {
                             out[out_len] = (wchar_t)codePoint;
                         } else {
@@ -370,7 +370,7 @@ size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
             } break;
             case 1: { /* Expecting one continuation byte. */
                 if ((ch & 0xc0) == 0x80) {
-                    codePoint = (codePoint << 6) | (ch & 0x3f); // Extract lower 6 bits 
+                    codePoint = (codePoint << 6) | (ch & 0x3f); // Extract lower 6 bits
                     state = 0;
 
                     if (sizeof(wchar_t) == 4) { // wchar_t is UTF-32
@@ -386,7 +386,7 @@ size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
                             }
                             out_len++;
                         } else {
-                            /* ucodepoint_to_utf32() will have, in this case produced an error message. */  
+                            /* ucodepoint_to_utf32() will have, in this case produced an error message. */
                             state = ERROR_STATE;
                         }
                     } else if (sizeof(wchar_t) == 2) { // wchar_t is UTF-16
@@ -403,7 +403,7 @@ size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
                             }
                             out_len += n_elements;
                         } else {
-                            /* ucodepoint_to_utf16() will have, in this case produced an error message. */  
+                            /* ucodepoint_to_utf16() will have, in this case produced an error message. */
                             state = ERROR_STATE;
                         }
                     } else {
@@ -442,7 +442,7 @@ size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
     }
     if (state != 0) { /* If we didn't finish in state 0, it's an error. */
         out_len = 0;
-    } 
+    }
     if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
     return out_len;
 }
@@ -494,7 +494,7 @@ size_t wchar_to_utf8(const wchar_t *in, char *out, size_t outSize ) {
     }
     if (state != 0) { /* If we didn't finish in state 0, it's an error. */
         out_len = 0;
-    } 
+    }
     if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
     return out_len;
 }

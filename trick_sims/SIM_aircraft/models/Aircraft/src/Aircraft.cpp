@@ -16,7 +16,7 @@ int Aircraft::default_data() {
     pos[1] = 0.0;
     vel[0] = 100.0;       // m/s
     vel[1] = 0.0;
-    
+
     mass = 5000;              // kg
     thrust_mag_max = 45000;   // N
     K_drag = 0.72;
@@ -144,7 +144,7 @@ int Aircraft::control() {
             if (distanceToWaypoint < 100.0) {
                 cWP = (cWP + 1) % flightPath.size();
             }
-        } 
+        }
     }
     return 0;
 }

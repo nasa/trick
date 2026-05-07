@@ -44,8 +44,8 @@ int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string va
     typename STL::iterator iter ;
     int status ;
 
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
     typename STL::key_type * keys = nullptr ;
@@ -123,8 +123,8 @@ int checkpoint_map_ik_sd(STL & in_map , std::string object_name , std::string va
     typename STL::iterator iter ;
     int status ;
 
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
     typename STL::key_type * keys = nullptr ;
@@ -204,8 +204,8 @@ int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string va
     typename STL::iterator iter ;
     int status ;
 
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
     std::string * keys = nullptr ;
@@ -284,8 +284,8 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
     std::ostringstream var_declare ;
     typename STL::iterator iter ;
 
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
     std::string * keys = nullptr ;

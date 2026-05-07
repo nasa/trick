@@ -85,7 +85,7 @@ int Trick::TCPClientListener::initialize(std::string in_hostname, int in_port) {
         perror("Server: Could not bind to socket");
         _system_interface->close (_listen_socket);
         return LISTENER_ERROR;
-    } 
+    }
 
     // Check that correct port was bound to
     _system_interface->getsockname( _listen_socket , (struct sockaddr *)&s_in, &s_in_size) ;
@@ -99,7 +99,7 @@ int Trick::TCPClientListener::initialize(std::string in_hostname, int in_port) {
 
     // Save port number
     _port = bound_port;
-    
+
 
     // Start listening
     if (_system_interface->listen(_listen_socket, SOMAXCONN) < 0) {
@@ -195,7 +195,7 @@ int Trick::TCPClientListener::disconnect() {
     _system_interface->close (_listen_socket);
     _initialized = false;
 
-    return 0; 
+    return 0;
 }
 
 bool Trick::TCPClientListener::validateSourceAddress(std::string in_hostname) {
@@ -267,4 +267,4 @@ int Trick::TCPClientListener::restart () {
     _system_interface = new SystemInterface();
     return 0;
 }
- 
+

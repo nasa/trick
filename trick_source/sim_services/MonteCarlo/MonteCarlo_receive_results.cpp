@@ -172,7 +172,7 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
                 break;
         }
     }
-    
+
     tc_disconnect(&connection_device);
 
     /** <li> Update the slave's state. */

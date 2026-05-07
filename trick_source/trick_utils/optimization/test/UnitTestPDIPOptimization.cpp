@@ -45,7 +45,7 @@ TEST_F(PDIPOptimizationTest, pdip_solver)
     */
 
     int result;
-    double eqarr[5][7] = {{9.5, 4, 1, 0, 0, 0, 0}, 
+    double eqarr[5][7] = {{9.5, 4, 1, 0, 0, 0, 0},
                           {1, 0, 0, 1, 0, 0, 0},
                           {1, 1, 0, 0, -1, 0, 0},
                           {1, -2, 0, 0, 0, -1, 0},

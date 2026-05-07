@@ -137,7 +137,7 @@ namespace Trick {
 
             /** Maximum file size for data record file in bytes.\n */
             uint64_t max_file_size;    /**< trick_io(**) trick_units(--) */
-           
+
             /** Current file size for data record file in bytes.\n */
             uint64_t total_bytes_written;    /**< trick_io(**) trick_units(--) */
 
@@ -149,7 +149,7 @@ namespace Trick {
 
             /** Size of the writer_buff. */
             size_t writer_buff_size;
- 
+
             /**  Little_endian or big_endian indicator.\n */
             std::string byte_order;          /**< trick_io(*io) trick_units(--) */
 
@@ -468,7 +468,7 @@ namespace Trick {
             /**
              * Loop through the required logging rates and advance the next cycle tics of matching rates
              * @param curr_tic_in - time in tics to match and advance the next cycle tic
-             */ 
+             */
             void advance_log_tics_given_curr_tic(long long curr_tic_in);
     } ;
 

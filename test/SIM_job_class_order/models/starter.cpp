@@ -34,11 +34,11 @@ void Starter::end() {
     end_calls++;
 }
 
-void Starter::deriv() {    
+void Starter::deriv() {
     deriv_calls++;
 }
 
-int Starter::integ() {    
+int Starter::integ() {
     integ_calls++;
 
     return 0;

@@ -42,11 +42,11 @@ MonteCarloVariable::insert_units()
   // called immediately after generate_command, which cannot possibly generate
   // an empty string.
   if (command.empty()) {
-    std::string message = 
-      std::string("File: ") + __FILE__ + ", Line: " + 
-      std::to_string(__LINE__) + ", Sequencing error\nVariable " + 
-      variable_name.c_str() + "  has units specified (" + units.c_str() + 
-      ") but no command generated.\nThe command must be generated before " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ", Line: " +
+      std::to_string(__LINE__) + ", Sequencing error\nVariable " +
+      variable_name.c_str() + "  has units specified (" + units.c_str() +
+      ") but no command generated.\nThe command must be generated before " +
       "applying units.Will attempt to generate the command to "
       "avoid terminal fault but this\nmay not be what was intended.\n";
     message_publish(MSG_ERROR, message.c_str());
@@ -58,9 +58,9 @@ MonteCarloVariable::insert_units()
       // called immediately after generate_command, and even if all else fails,
       // generate_command produces a command with an = symbol in it, So an =
       // will always be found.
-    std::string message = 
-      std::string("File: ") + __FILE__ + ", Line: " + 
-      std::to_string(__LINE__) + " Invalid command\nFor variable " + 
+    std::string message =
+      std::string("File: ") + __FILE__ + ", Line: " +
+      std::to_string(__LINE__) + " Invalid command\nFor variable " +
       variable_name.c_str() + ", the command is poorly formed.\nCannot " +
       "apply units to this command.\n";
     message_publish(MSG_ERROR, message.c_str());

@@ -44,7 +44,7 @@ namespace Trick {
             */
             VariableServerSessionThread() ;
             VariableServerSessionThread(VariableServerSession * session) ;
-            
+
             virtual ~VariableServerSessionThread() ;
             /**
              @brief static routine called from S_define to set the VariableServer pointer for all threads.

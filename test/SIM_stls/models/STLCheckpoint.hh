@@ -73,7 +73,7 @@ class STLCheckpoint {
         std::set< int > int_set ;
         std::set< std::string > string_set ;
         std::set< std::vector<int> > vector_set;
-        std::set< std::pair<std::string, int> > pair_set;    
+        std::set< std::pair<std::string, int> > pair_set;
         std::set<std::map<short,double>> nested_map_set;
 
 

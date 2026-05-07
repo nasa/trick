@@ -16,7 +16,7 @@ typedef struct {
     *         2) When the timing bucket is filled, a siphon will drain it instaneously
     *         3) Buckets are cylindrical
     */
- 
+
     /*    DESCRIPTION
     *         This is a simulation of a simple water clock. The clock consists of two cylinders (buckets).
     *         The first bucket is known as the intake bucket. It receives water from an unspecified external source (like a stream).

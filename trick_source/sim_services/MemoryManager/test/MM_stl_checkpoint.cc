@@ -13,7 +13,7 @@ class MM_stl_checkpoint : public ::testing::Test {
 
 protected:
     Trick::MemoryManager *memmgr;
-    
+
     MM_stl_checkpoint() {
         try {
             memmgr = new Trick::MemoryManager;
@@ -25,7 +25,7 @@ protected:
         delete memmgr;
     }
     void SetUp() {}
-    void TearDown() {} 
+    void TearDown() {}
 };
 
 template <typename T>
@@ -39,7 +39,7 @@ void validate_single (Trick::MemoryManager * memmgr, std::string object_name, st
     ASSERT_TRUE(data != NULL);
 
     EXPECT_EQ(*data, expected_data);
-    
+
     free (data_ref);
 }
 
@@ -124,7 +124,7 @@ void validate_temp_set (Trick::MemoryManager * memmgr, std::string object_name, 
     for (unsigned int i = 0; i < expected_data.size(); i++) {
         reconstructed.insert(data[i]);
     }
-    
+
     EXPECT_EQ(reconstructed, expected_data);
 
     free (data_ref);
@@ -270,9 +270,9 @@ TEST_F(MM_stl_checkpoint, string_vec ) {
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->string_vec, "my_alloc", vec_attr->name) ;
     std::string var_name = "string_vec";
-    
+
     // ASSERT
-    validate_temp_sequence<std::string>(memmgr, std::string("my_alloc"), std::string("string_vec"), test_data);   
+    validate_temp_sequence<std::string>(memmgr, std::string("my_alloc"), std::string("string_vec"), test_data);
 }
 
 TEST_F(MM_stl_checkpoint, s_vec ) {
@@ -290,11 +290,11 @@ TEST_F(MM_stl_checkpoint, s_vec ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->s_vec, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
     for (unsigned int i = 0; i < test_data.size()/2; i++) {
         std::string var_name = "s_vec_" + std::to_string(i);
-        validate_temp_pair<int, int>(memmgr, std::string("my_alloc"), var_name, std::pair<int,int>(test_data[i*2], test_data[i*2+1]));   
+        validate_temp_pair<int, int>(memmgr, std::string("my_alloc"), var_name, std::pair<int,int>(test_data[i*2], test_data[i*2+1]));
     }
 
     validate_links_pairs(memmgr, std::string("my_alloc"), std::string("s_vec"), test_data.size()/2);
@@ -318,9 +318,9 @@ TEST_F(MM_stl_checkpoint, i_i_pair ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->i_i_pair, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
-    validate_temp_pair<double,float>(memmgr, std::string("my_alloc"), vec_attr->name, std::pair<double,float>(test_data[0], test_data[1]));  
+    validate_temp_pair<double,float>(memmgr, std::string("my_alloc"), vec_attr->name, std::pair<double,float>(test_data[0], test_data[1]));
 }
 
 TEST_F(MM_stl_checkpoint, i_s_pair ) {
@@ -341,9 +341,9 @@ TEST_F(MM_stl_checkpoint, i_s_pair ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->i_s_pair, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
-    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("i_s_pair_second_inner"), test_val);  
+    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("i_s_pair_second_inner"), test_val);
     validate_link_from_pair(memmgr, std::string("my_alloc"), std::string("i_s_pair_second"));
 }
 
@@ -365,9 +365,9 @@ TEST_F(MM_stl_checkpoint, s_i_pair ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->s_i_pair, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
-    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("s_i_pair_first_inner"), test_key);  
+    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("s_i_pair_first_inner"), test_key);
     validate_link_from_pair(memmgr, std::string("my_alloc"), std::string("s_i_pair_first"));
 }
 
@@ -391,9 +391,9 @@ TEST_F(MM_stl_checkpoint, i_v_pair ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->i_v_pair, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
-    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("i_v_pair_second_inner"), test_val);  
+    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("i_v_pair_second_inner"), test_val);
     validate_link_from_pair(memmgr, std::string("my_alloc"), std::string("i_v_pair_second"));
 }
 
@@ -414,7 +414,7 @@ TEST_F(MM_stl_checkpoint, pair_pair ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->pair_pair, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
     validate_single(memmgr, std::string("my_alloc"), std::string("pair_pair_second"), 3);
     validate_temp_pair(memmgr, std::string("my_alloc"), std::string("pair_pair_first_inner"), std::pair<int,int>(1, 2));
@@ -444,9 +444,9 @@ TEST_F(MM_stl_checkpoint, i_i_map ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->i_i_map, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
-    validate_temp_map(memmgr, std::string("my_alloc"), std::string("i_i_map"), test_map);  
+    validate_temp_map(memmgr, std::string("my_alloc"), std::string("i_i_map"), test_map);
 }
 
 TEST_F(MM_stl_checkpoint, i_s_map ) {
@@ -474,7 +474,7 @@ TEST_F(MM_stl_checkpoint, i_s_map ) {
     // ACT
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->i_s_map, "my_alloc", vec_attr->name) ;
-    
+
     // ASSERT
     validate_temp_set(memmgr, std::string("my_alloc"), std::string("i_s_map_keys"), keyset);
 
@@ -485,7 +485,7 @@ TEST_F(MM_stl_checkpoint, i_s_map ) {
         while (!it.second.empty()) {
             expected_data.push_back(it.second.top());
             it.second.pop();
-        }        
+        }
         std::string var_name = "i_s_map_data_" + std::to_string(i++);
         validate_temp_sequence(memmgr, std::string("my_alloc"), var_name, expected_data);
         sorted_lengths.push_back(expected_data.size());
@@ -520,7 +520,7 @@ TEST_F(MM_stl_checkpoint, s_i_map ) {
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->s_i_map, "my_alloc", vec_attr->name) ;
 
-    
+
     // the ordering of the map is making life hard
     // ASSERT
     int i = 0;
@@ -811,7 +811,7 @@ TEST_F(MM_stl_checkpoint, vector_set ) {
     int index = 0;
     std::vector<int> sizes_in_right_order;
     for (std::vector<int> vec : expected_data) {
-        std::string var_name = "vector_set_" + std::to_string(index++); 
+        std::string var_name = "vector_set_" + std::to_string(index++);
         validate_temp_sequence<int>(memmgr, std::string("my_alloc"), var_name, vec);
         sizes_in_right_order.push_back(vec.size());
     }
@@ -860,7 +860,7 @@ TEST_F(MM_stl_checkpoint, nested_map_set ) {
     std::vector<short> test_keys = get_test_data<short>(100);
     std::vector<double> test_vals = get_test_data<double>(100);
     // Prepare the STL to be tested
-    
+
     // Make a copy to deal with ordering mess
     std::set<std::map<short,double>> expected;
 
@@ -954,7 +954,7 @@ TEST_F(MM_stl_checkpoint, vector_multiset ) {
     int index = 0;
     std::vector<int> sizes_in_right_order;
     for (std::vector<int> vec : expected_data) {
-        std::string var_name = "vector_multiset_" + std::to_string(index++); 
+        std::string var_name = "vector_multiset_" + std::to_string(index++);
         validate_temp_sequence<int>(memmgr, std::string("my_alloc"), var_name, vec);
         sizes_in_right_order.push_back(vec.size());
     }
@@ -1004,7 +1004,7 @@ TEST_F(MM_stl_checkpoint, nested_map_multiset ) {
     std::vector<short> test_keys = get_test_data<short>(100);
     std::vector<double> test_vals = get_test_data<double>(100);
     // Prepare the STL to be tested
-    
+
     // Make a copy to deal with ordering mess
     std::multiset<std::map<short,double>> expected;
 
@@ -1203,7 +1203,7 @@ TEST_F(MM_stl_checkpoint, vec_user_defined ) {
         EXPECT_EQ(ptr_data->b, test_longs[i]);
 
         EXPECT_EQ(data[i].c, test_strings[i]);
-        EXPECT_EQ(ptr_data->c, test_strings[i]);   
+        EXPECT_EQ(ptr_data->c, test_strings[i]);
     }
 }
 
@@ -1228,7 +1228,7 @@ TEST_F(MM_stl_checkpoint, DISABLED_vec_user_defined_stl ) {
     (vec_attr->checkpoint_stl)((void *) &testbed->vec_user_defined_stl, "my_alloc", vec_attr->name) ;
 
     // ASSERT
-    
+
 }
 
 

@@ -32,7 +32,7 @@ Trick::MessagePublisher::~MessagePublisher() {
 
 void Trick::MessagePublisher::set_print_format() {
     num_digits = (int)round(log10((double)tics_per_sec)) ;
-    // use %06lu for tv_usec 
+    // use %06lu for tv_usec
     snprintf(print_format, sizeof(print_format), "|L %%3d|%%s.%%06lu|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;
 }
 
@@ -60,10 +60,10 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
 
     /** @li Create message header with level, date, host, sim name, process id, sim time. */
     gettimeofday(&time_val, NULL);
-    
+
     // tv_sec represents seconds since the epoch
     date = time_val.tv_sec;
-    
+
     strftime(date_buf, (size_t) 20, "%Y/%m/%d,%H:%M:%S", localtime(&date));
     (void) gethostname(hostname, (size_t) 48);
     // print_format has %lu for tv_usec, cast to unsigned long to avoid potential warning

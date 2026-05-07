@@ -33,11 +33,11 @@ class DynamicObj : public Trick::SimObject {
     virtual double call_function_double( Trick::JobData * curr_job ) {
         return 0;
     }
-        
+
 
     int a;
     std::string b;
     double * c;
 
-    
+
 };

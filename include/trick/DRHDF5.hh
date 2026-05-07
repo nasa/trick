@@ -134,17 +134,17 @@ GROUP "/" {
              Root group and header group in the HDF5 file.
              */
             hid_t root_group, header_group;  // trick_io(**)
-            
-            /** 
+
+            /**
              Parameter names array to be used in the HDF5 packet table.
              Each array item  is a string of the parameter name that is
              the copy of the reference name.
              This is needed so when the dataset is closed, the reference
-             name in rec_buffer is still valid and won't cause double 
+             name in rec_buffer is still valid and won't cause double
              deleting when variables are removed from rec_buffer.
-             */ 
+             */
             char** param_names;  // trick_io(**)
-         
+
             /**
              The dataset ids for each parameter.
              */

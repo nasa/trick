@@ -13,13 +13,13 @@ TEST(Interpolator_unittest, OneDimension) {
    bool exception_thrown;
    double result;
 
-   double BpA[] = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0}; 
+   double BpA[] = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0};
 
    double* break_point_arrays[1] = { BpA };
    unsigned int break_point_array_sizes[1] = { 11 };
    double table[] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
 
-   Trick::Interpolator* my_interpolator = new Trick::Interpolator( table, break_point_arrays, break_point_array_sizes, 1); 
+   Trick::Interpolator* my_interpolator = new Trick::Interpolator( table, break_point_arrays, break_point_array_sizes, 1);
 
    try {
        exception_thrown = false;
@@ -34,7 +34,7 @@ TEST(Interpolator_unittest, OneDimension) {
        result = my_interpolator->eval(0.0);
    } catch (std::logic_error e) {
        exception_thrown = true;
-   } 
+   }
    EXPECT_FALSE(exception_thrown);
    EXPECT_NEAR(result, 0.0, EXCEPTABLE_ERROR);
 
@@ -43,7 +43,7 @@ TEST(Interpolator_unittest, OneDimension) {
        result = my_interpolator->eval(0.1);
    } catch (std::logic_error e) {
        exception_thrown = true;
-   } 
+   }
    EXPECT_FALSE(exception_thrown);
    EXPECT_NEAR(result, 0.5, EXCEPTABLE_ERROR);
 
@@ -53,7 +53,7 @@ TEST(Interpolator_unittest, OneDimension) {
    result = my_interpolator->eval(0.2);
    } catch (std::logic_error e) {
        exception_thrown = true;
-   } 
+   }
    EXPECT_FALSE(exception_thrown);
    EXPECT_NEAR(result, 1.0, EXCEPTABLE_ERROR);
 
@@ -62,7 +62,7 @@ TEST(Interpolator_unittest, OneDimension) {
    result = my_interpolator->eval(0.3);
    } catch (std::logic_error e) {
        exception_thrown = true;
-   } 
+   }
    EXPECT_FALSE(exception_thrown);
    EXPECT_NEAR(result, 1.5, EXCEPTABLE_ERROR);
 
@@ -71,7 +71,7 @@ TEST(Interpolator_unittest, OneDimension) {
    result = my_interpolator->eval(2.0);
    } catch (std::logic_error e) {
        exception_thrown = true;
-   } 
+   }
    EXPECT_FALSE(exception_thrown);
    EXPECT_NEAR(result, 10.0, EXCEPTABLE_ERROR);
 
@@ -80,7 +80,7 @@ TEST(Interpolator_unittest, OneDimension) {
        result = my_interpolator->eval(3.0);
    } catch (std::logic_error e) {
        exception_thrown = true;
-   } 
+   }
    EXPECT_TRUE(exception_thrown);
 
 }
@@ -89,9 +89,9 @@ TEST(Interpolator_unittest, TwoDimension) {
    // Below is a Body Mass Index(BMI) table. BMI is a function of height and weight.
    // It is defined as:
    //
-   //                    BMI = mass(kg) / (height(m))^2 
+   //                    BMI = mass(kg) / (height(m))^2
    //
-   // Reference: http://en.wikipedia.org/wiki/Body_mass_index 
+   // Reference: http://en.wikipedia.org/wiki/Body_mass_index
    //
 
    //Trick::RequirementScribe req;
@@ -119,8 +119,8 @@ TEST(Interpolator_unittest, TwoDimension) {
        /* 150kg */ 66.67,  58.59,  51.90,  46.30,  41.55,   37.50,
        /* 160kg */ 71.11,  62.50,  55.36,  49.38,  44.32,   40.00
    };
-   
-   Trick::Interpolator* bmi_interpolator = new Trick::Interpolator( bmi_table, bmi_break_point_arrays, bmi_break_point_array_sizes, 2); 
+
+   Trick::Interpolator* bmi_interpolator = new Trick::Interpolator( bmi_table, bmi_break_point_arrays, bmi_break_point_array_sizes, 2);
    double bmi;
 
    bmi = bmi_interpolator->eval(175.0, 72.0);

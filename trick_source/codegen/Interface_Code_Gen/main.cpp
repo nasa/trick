@@ -90,7 +90,7 @@ void set_lang_opts(clang::CompilerInstance & ci) {
     // Activate C++14 parsing
 #if (LIBCLANG_MAJOR >= 6)
     ci.getLangOpts().CPlusPlus14 = true ;
-    ci.getLangOpts().DoubleSquareBracketAttributes = true ;    
+    ci.getLangOpts().DoubleSquareBracketAttributes = true ;
 #endif
 
 #if (LIBCLANG_MAJOR >= 6 && LIBCLANG_MAJOR < 10)
@@ -137,7 +137,7 @@ const char * gcc_version = "";
             // https://github.com/nasa/trick/issues/1519
             // Before LLVM 11, the flag was named CPlusPlus2a
             ci.getLangOpts().CPlusPlus2a = true ;
-            #else 
+            #else
             ci.getLangOpts().CPlusPlus20 = true ;
             #endif
         } else {
@@ -171,7 +171,7 @@ int main(int argc, char * argv[]) {
      * All other arguments will be ignored.
      *
      * Filter out -W because of LLVM cl option that has been enabled and cannot be disabled in LLVM 10 when linking libclang-cpp.so.
-     * TODO: Troubleshoot or contact LLVM for a fix.  
+     * TODO: Troubleshoot or contact LLVM for a fix.
      */
     std::vector<const char *> filtered_args;
     for ( unsigned int ii = 0;  ii < argc ; ii++ ) {
@@ -179,7 +179,7 @@ int main(int argc, char * argv[]) {
             filtered_args.push_back(argv[ii]);
         }
     }
-    
+
     llvm::cl::ParseCommandLineOptions(filtered_args.size(), filtered_args.data());
 
     if (input_file_names.empty()) {
@@ -199,8 +199,8 @@ int main(int argc, char * argv[]) {
     // llvm::IntrusiveRefCntPtr is LLVM's reference counting smart pointer
     // The smart pointer is used to manage objects that require reference counting such as VFS
     llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> vfs = llvm::vfs::getRealFileSystem();
-    // createDiagnostics(llvm::vfs::FileSystem &VFS, 
-    //                   DiagnosticConsumer * 	Client = nullptr, 
+    // createDiagnostics(llvm::vfs::FileSystem &VFS,
+    //                   DiagnosticConsumer * 	Client = nullptr,
     //                   bool 	ShouldOwnClient = true)
     // DiagnosticConsumer is set later in the code to our ICGDiagnosticConsumer and here is nullptr
     ci.createDiagnostics(*vfs); // Create diagnostics for clang 20+

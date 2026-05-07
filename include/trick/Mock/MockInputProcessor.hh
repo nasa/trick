@@ -6,7 +6,7 @@
 
 
 class MockInputProcessor : public Trick::InputProcessor {
-    public: 
+    public:
         MOCK_METHOD1(parse, int(std::string in_string));
 };
 

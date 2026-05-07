@@ -145,7 +145,7 @@ TEST_F(MM_declare_var, UINT64_T) {
         validate_alloc_info_local(memmgr, test_var, TRICK_UINT64, NULL, NULL, 1, 0, NULL);
 }
 #  endif
-#else 
+#else
 
 // Any OS other than linux is assumed to be 64 bit
 TEST_F(MM_declare_var, INT64_T) {

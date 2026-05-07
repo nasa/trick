@@ -119,7 +119,7 @@ extern "C" void dr_set_warning_level(int level)
         the_drd->set_warning_level(level);
     }
 }
-        
+
 
 extern "C" int dr_set_max_file_size ( uint64_t bytes ) {
     if ( the_drd != NULL ) {

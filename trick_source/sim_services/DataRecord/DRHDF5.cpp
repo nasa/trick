@@ -251,9 +251,9 @@ void append_var_packet_table(Trick::DataRecordBuffer *drb, char* buf, size_t rec
         case TRICK_BITFIELD:
             bf = GET_BITFIELD(buf, drb->ref->attr->size, drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
             data = malloc(records * sizeof(bf));
-            
+
             // Extract bitfield for each record from different segments of buf
-            for (size_t j = 0; j < records; j++) {               
+            for (size_t j = 0; j < records; j++) {
                 // Calculate the correct offset in buf for each record
                 // Each record in buf has size of rec_buffer[ii]->ref->attr->size
                 size_t offset = j * drb->ref->attr->size;
@@ -283,7 +283,7 @@ void append_var_packet_table(Trick::DataRecordBuffer *drb, char* buf, size_t rec
             data = malloc(records * sizeof(bf));
 
             // Extract bitfield for each record from different segments of buf
-            for (size_t j = 0; j < records; j++) {               
+            for (size_t j = 0; j < records; j++) {
                 // Calculate the correct offset in buf for each record
                 // Each record in buf has size of rec_buffer[ii]->ref->attr->size
                 size_t offset = j * drb->ref->attr->size;  // record_size would be the size of one record in buf

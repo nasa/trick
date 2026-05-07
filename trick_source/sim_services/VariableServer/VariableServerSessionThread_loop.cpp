@@ -99,7 +99,7 @@ void * Trick::VariableServerSessionThread::thread_body() {
             }
 
             // Tell session it's time to copy and write if the mode is correct
-            int ret =_session->copy_and_write_async(); 
+            int ret =_session->copy_and_write_async();
             if (ret < 0) {
                 break;
             }
@@ -116,7 +116,7 @@ void * Trick::VariableServerSessionThread::thread_body() {
     } catch (const std::exception &ex) {
         message_publish(MSG_ERROR, "\nVARIABLE SERVER caught std::exception\n  DIAGNOSTIC: %s\n" ,
          ex.what()) ;
-        
+
         exec_signal_terminate();
 
 #ifdef __linux__

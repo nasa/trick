@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include <vector> 
+#include <vector>
 #include <climits>
 #include <fcntl.h>
 #include "trick/var_binary_parser.hh"
@@ -157,7 +157,7 @@ TEST (BinaryParserTest, HandleUnexpectedEnd) {
         EXPECT_STREQ(ex.what(), "Message ends unexpectedly");
     } catch (...) {
         FAIL() << "Incorrect exception thrown";
-    }   
+    }
 }
 
 TEST (BinaryParserTest, ParseTwoVariables) {
@@ -825,7 +825,7 @@ TEST (BinaryParserTest, ParseUnsignedIntWrongType) {
 TEST (BinaryParserTest, ParseLong) {
     // Var variable;
 
-    // // This is hard bc 
+    // // This is hard bc
     // std::vector<unsigned char> bytes = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x80};
     // variable.setValue(bytes, 8, TRICK_LONG, false);
 
@@ -1053,7 +1053,7 @@ TEST (BinaryParserTest, ParseWChar) {
 
     wchar_t test_wchar = L'J';
     std::vector<unsigned char> bytes;
-    
+
     for (unsigned int i = 0; i < sizeof(wchar_t); i++) {
         bytes.push_back((unsigned char)((test_wchar >> (i*8)) & 0xFF));
     }
@@ -1067,11 +1067,11 @@ TEST (BinaryParserTest, ParseWCharWrongType) {
     Var variable;
     wchar_t test_wchar = L'J';
     std::vector<unsigned char> bytes;
-    
+
     for (unsigned int i = 0; i < sizeof(wchar_t); i++) {
         bytes.push_back((unsigned char)((test_wchar >> (i*8)) & 0xFF));
-    }    
-    
+    }
+
     variable.setValue(bytes, 8, TRICK_INTEGER, false);
 
     try {

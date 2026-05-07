@@ -181,7 +181,7 @@ int MyCivetServer::default_data() {
     installWebSocketSessionMaker("VariableServer", makeVariableServerSession);
     installHTTPGEThandler("vs_connections", handle_HTTP_GET_vs_connections);
     installHTTPGEThandler("alloc_info", handle_HTTP_GET_alloc_info);
-    
+
     return 0;
 }
 
@@ -249,7 +249,7 @@ int MyCivetServer::init() {
         memset(&callbacks, 0, sizeof(callbacks));
         //Add callback functions here
 
-        std::string port_str; 
+        std::string port_str;
         if (ssl_enable) {
             port_str = std::to_string(port) + "s"; //s at the end of the port specifies ssl.
             message_publish(MSG_INFO, "Trick Webserver: SSL is enabled\n");

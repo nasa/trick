@@ -48,16 +48,16 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
 
         // Check if this variable will fit in a message at all
         if (header_size + total_var_size > MAX_MSG_LEN) {
-            message_publish(MSG_WARNING, "tag=<%s> Variable Server buffer[%d] too small (need %d) for symbol %s, SKIPPING IT.\n", 
+            message_publish(MSG_WARNING, "tag=<%s> Variable Server buffer[%d] too small (need %d) for symbol %s, SKIPPING IT.\n",
                                 _connection->getClientTag().c_str(), MAX_MSG_LEN, header_size + total_var_size, var->getName().c_str());
-            
+
             continue;
         }
 
         // If this variable won't fit in the current message, truncate the message and plan to put this var in a new one
         if (total_size + total_var_size > MAX_MSG_LEN) {
             message_sizes_and_vars.emplace_back(MessageData(total_size, curr_message_vars));
-            
+
             if (_debug >= 2) {
                 message_publish(MSG_DEBUG, "%p tag=<%s> var_server buffer[%d] too small (need %d), sending multiple binary packets.\n",
                                 _connection, _connection->getClientTag().c_str(), MAX_MSG_LEN, total_size + total_var_size);
@@ -71,7 +71,7 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
     }
 
     message_sizes_and_vars.emplace_back(MessageData(total_size, curr_message_vars));
-    
+
     // Now write out all of these messages
     int var_index = 0;
     for (const auto& message_info : message_sizes_and_vars) {
@@ -94,8 +94,8 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         // <message_indicator><message_size><num_vars>
 
         // Write the header first
-        stream.write((char *)(&written_message_type), sizeof(int)); 
-        stream.write((char *)(&written_header_size), sizeof(int)); 
+        stream.write((char *)(&written_message_type), sizeof(int));
+        stream.write((char *)(&written_header_size), sizeof(int));
         stream.write((char *)(&written_num_vars), sizeof(int));
 
         // Write variables next
@@ -149,14 +149,14 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
         if (var_size + 2 > MAX_MSG_LEN) {
             message_publish(MSG_WARNING, "tag=<%s> Variable Server buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
                             _connection->getClientTag().c_str(), MAX_MSG_LEN, given_vars[i]->getName().c_str());
-            
+
             var_string = var_string.substr(0, MAX_MSG_LEN-2);
             var_size = var_string.size();
         }
 
         // Check that there's enough room for the next variable, tab character, and possible newline
         if (message_size + var_size + 2 > MAX_MSG_LEN) {
-    
+
             // Write out an incomplete message
             std::string message = message_stream.str();
 
@@ -201,7 +201,7 @@ int Trick::VariableServerSession::write_data() {
     return write_data(_session_variables, VS_VAR_LIST);
 }
 
-int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) { 
+int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
     // do not send anything when there are no variables!
     if ( given_vars.size() == 0) {
         return(0);

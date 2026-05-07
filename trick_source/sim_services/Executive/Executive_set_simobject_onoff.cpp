@@ -21,7 +21,7 @@ int Trick::Executive::set_sim_object_jobs_onoff(std::string sim_object_name, int
 
 
 int Trick::Executive::set_sim_object_onoff(std::string sim_object_name, int on) {
-    
+
     SimObject * sim_object = get_sim_object_by_name(sim_object_name);
     if (sim_object == NULL) {
         return -1;

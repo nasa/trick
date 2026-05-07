@@ -12,10 +12,10 @@ LIBRARY DEPENDENCIES:
 
 namespace Trick {
     class ClientConnection {
-        public: 
+        public:
 
             virtual ~ClientConnection() { }
-            
+
             static const unsigned int MAX_CMD_LEN = 200000 ;
 
             enum ConnectionType { TCP, UDP, MCAST, WS } ;

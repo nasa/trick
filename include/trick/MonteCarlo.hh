@@ -23,14 +23,14 @@
 
 /* strings to match ExitStatus enum in MonteRun */
 static const char* MC_exit_status_string[] = {
-            "Incomplete", 
+            "Incomplete",
             "Complete",
-            "Failed", 
-            "Core Dumped", 
+            "Failed",
+            "Core Dumped",
             "Timed Out",
-            "No Permission to Output Directory", 
+            "No Permission to Output Directory",
             "Bad Input",
-            "Unrecognized Return Code" 
+            "Unrecognized Return Code"
 } ;
 
 namespace Trick {
@@ -48,9 +48,9 @@ namespace Trick {
     class MonteRun {
 
         public:
-        /** 
+        /**
          * Details the manner in which this run exited. Update
-         * Strings in MC_exit_status_string above when editing enum. 
+         * Strings in MC_exit_status_string above when editing enum.
          */
         enum ExitStatus {
             MC_RUN_INCOMPLETE,          /**< not completed */

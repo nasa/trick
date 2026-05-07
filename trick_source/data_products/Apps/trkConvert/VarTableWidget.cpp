@@ -19,7 +19,7 @@ VarTableWidget::VarTableWidget (QWidget* parent)
   setShowGrid(false);
 }
 
-void VarTableWidget::addRecord( Qt::CheckState checkState, 
+void VarTableWidget::addRecord( Qt::CheckState checkState,
                                 std::string nameStr,
                                 std::string typeStr,
                                 std::string unitsStr ) {
@@ -32,7 +32,7 @@ void VarTableWidget::addRecord( Qt::CheckState checkState,
 
     Qt::ItemFlags flags;
 
-    QTableWidgetItem * const selectItem = new QTableWidgetItem; 
+    QTableWidgetItem * const selectItem = new QTableWidgetItem;
     flags = selectItem->flags();
     flags &= ~Qt::ItemIsSelectable & ~Qt::ItemIsEditable;
     if (row != 0)     // FIXME: This doesn't seem to work as expected. Row 0 still seems to be user editable.
@@ -41,14 +41,14 @@ void VarTableWidget::addRecord( Qt::CheckState checkState,
     selectItem->setCheckState(checkState);
     setItem(row, 0, selectItem);
 
-    QTableWidgetItem * const nameItem   = new QTableWidgetItem; 
+    QTableWidgetItem * const nameItem   = new QTableWidgetItem;
     flags = nameItem->flags();
     flags &= ~Qt::ItemIsSelectable & ~Qt::ItemIsEditable;
     nameItem->setFlags(flags);
     nameItem->setText(nameStr.c_str());
     setItem(row, 1, nameItem);
- 
-    QTableWidgetItem * const typeItem   = new QTableWidgetItem; 
+
+    QTableWidgetItem * const typeItem   = new QTableWidgetItem;
     flags = typeItem->flags();
     flags &= ~Qt::ItemIsSelectable & ~Qt::ItemIsEditable;
     typeItem->setFlags(flags);
@@ -56,7 +56,7 @@ void VarTableWidget::addRecord( Qt::CheckState checkState,
     typeItem->setText(typeStr.c_str());
     setItem(row, 2, typeItem);
 
-    QTableWidgetItem * const unitsItem  = new QTableWidgetItem; 
+    QTableWidgetItem * const unitsItem  = new QTableWidgetItem;
     flags = unitsItem->flags();
     flags &= ~Qt::ItemIsSelectable & ~Qt::ItemIsEditable;
     unitsItem->setFlags(flags);
@@ -68,12 +68,12 @@ void VarTableWidget::addRecord( Qt::CheckState checkState,
 
 void VarTableWidget::highLightRecord(int index) {
     QBrush brush(Qt::yellow);
-    item(index, 1)->setBackground(brush); 
+    item(index, 1)->setBackground(brush);
 }
 
 void VarTableWidget::unHighLightRecord(int index) {
     QBrush brush(Qt::white);
-    item(index, 1)->setBackground(brush); 
+    item(index, 1)->setBackground(brush);
 }
 
 void VarTableWidget::scrollToRecord(int index) {

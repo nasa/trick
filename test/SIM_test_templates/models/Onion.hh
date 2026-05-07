@@ -11,7 +11,7 @@ PURPOSE:
 #define ONION_HH
 
 namespace onion {
-    class Onion {}; 
+    class Onion {};
 }
 
 #endif /* ONION_HH */

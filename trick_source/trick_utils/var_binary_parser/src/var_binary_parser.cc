@@ -200,7 +200,7 @@ template <>
 std::string Var::getValue<std::string> () const {
     if (_trick_type != TRICK_STRING) {
         throw ParseTypeException();
-    }  
+    }
 
     std::stringstream stream;
     for (unsigned char character : value_bytes) {
@@ -214,7 +214,7 @@ template <>
 wchar_t Var::getValue<wchar_t> () const {
     if (_trick_type != TRICK_WCHAR) {
         throw ParseTypeException();
-    }  
+    }
 
     return getInterpreter().wchar_val;
 }
@@ -247,17 +247,17 @@ class MessageIterator {
             if (_index > _container.size() || slice_end > _container.size()) {
                 throw MalformedMessageException("Message ends unexpectedly");
             }
-            
+
             return std::vector<unsigned char>(_container.begin() + _index, _container.begin() + slice_end);
         }
 
         void operator+= (int n) {
             _index += n;
-        } 
+        }
 
     private:
         std::vector<unsigned char> _container;
-        unsigned int _index; 
+        unsigned int _index;
 };
 
 /**************************************************************************
@@ -311,7 +311,7 @@ int ParsedBinaryMessage::parse (const std::vector<unsigned char>& bytes) {
 
             variable.setName(name_length, messageIterator.slice(name_length));
             messageIterator += name_length;
-        } 
+        }
 
         // Parse the type first
         int var_type = bytesToInt(messageIterator.slice(variable_type_size), _byteswap);
@@ -337,7 +337,7 @@ void ParsedBinaryMessage::combine (const ParsedBinaryMessage& other) {
 
     // Combined size - subtract the header size from other message size
     _message_size += other._message_size - message_size_size - variable_num_size;
-    
+
     // Combine variables
     _num_vars += other._num_vars;
     variables.insert(variables.end(), other.variables.begin(), other.variables.end());
@@ -346,11 +346,11 @@ void ParsedBinaryMessage::combine (const ParsedBinaryMessage& other) {
 }
 
 Var ParsedBinaryMessage::getVariable(const std::string& name) {
-    if (_nonames) 
+    if (_nonames)
         throw IncorrectUsageException("Cannot fetch variables by name in noname message");
 
     for (auto variable : variables) {
-        if (variable.getName() == name) 
+        if (variable.getName() == name)
             return variable;
     }
 
@@ -374,7 +374,7 @@ unsigned int ParsedBinaryMessage::getMessageSize() const {
 }
 
 unsigned int ParsedBinaryMessage::getNumVars() const {
-    return _num_vars; 
+    return _num_vars;
 }
 
 // Static methods

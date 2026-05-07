@@ -6,7 +6,7 @@
 
 #include "trick/parameter_types.h"
 
-class IncorrectUsageException : public std::exception 
+class IncorrectUsageException : public std::exception
 {
     private:
         std::string _message;
@@ -32,7 +32,7 @@ class MalformedMessageException : public std::exception
 };
 
 typedef union Number {
-    unsigned char raw_bytes[sizeof(long long)];     // Raw bytes 
+    unsigned char raw_bytes[sizeof(long long)];     // Raw bytes
 
     uint8_t unsigned_char_val;
     int8_t char_val;
@@ -71,7 +71,7 @@ const static std::map<TRICK_TYPE, unsigned int> type_size_map = {{TRICK_CHARACTE
                                                                  {TRICK_WCHAR, sizeof (wchar_t)}
                                                                 };
 
-    
+
 class Var {
     public:
         Var () : _has_name(false) {};
@@ -83,7 +83,7 @@ class Var {
         template <typename T>
         T getValue() const;
         std::vector<unsigned char> getRawBytes() const;
-        
+
         int getArraySize() const;
         std::string getName() const;
         TRICK_TYPE getType() const;
@@ -110,7 +110,7 @@ class ParsedBinaryMessage {
         ParsedBinaryMessage (bool byteswap, bool nonames) : _message_type(0), _message_size(0), _num_vars(0), _byteswap(byteswap), _nonames(nonames) {}
 
         void combine (const ParsedBinaryMessage& message);
-        
+
         int parse (const std::vector<unsigned char>& bytes);
 
         int getMessageType() const;

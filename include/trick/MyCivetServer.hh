@@ -20,10 +20,10 @@ typedef void (*httpMethodHandler)(struct mg_connection *, void* cbdata);
 class MyCivetServer {
     public:
 
-        unsigned int port; 
+        unsigned int port;
         const char* document_root;
-        bool enable;       
-        bool debug;        
+        bool enable;
+        bool debug;
         bool time_homogeneous;
         const char* path_to_ssl_cert;
         bool ssl_enable;
@@ -73,7 +73,7 @@ class MyCivetServer {
 
         // void installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker);
 
-        
+
 };
 
 //struct Data {

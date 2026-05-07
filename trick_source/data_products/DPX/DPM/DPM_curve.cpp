@@ -234,7 +234,7 @@ const char * DPM_curve::getZVarName(unsigned int case_index) {
 std::string DPM_curve::getXCommonName() {
 
   std::string candidate_label;
-  
+
   int n_vars, i;
 
   candidate_label = x_varcase_list[0]->getShortName();
@@ -251,7 +251,7 @@ std::string DPM_curve::getXCommonName() {
 std::string DPM_curve::getYCommonName() {
 
   std::string candidate_label;
-  
+
   int n_vars, i;
 
   candidate_label = y_varcase_list[0]->getShortName();
@@ -268,7 +268,7 @@ std::string DPM_curve::getYCommonName() {
 std::string DPM_curve::getZCommonName() {
 
   std::string candidate_label;
-  
+
   int n_vars, i;
 
   candidate_label = z_varcase_list[0]->getShortName();

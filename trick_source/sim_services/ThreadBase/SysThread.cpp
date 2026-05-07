@@ -19,12 +19,12 @@ bool Trick::SysThread::shutdown_finished = false;
 pthread_mutex_t& Trick::SysThread::list_mutex() {
     static pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;
     return list_mutex;
-} 
+}
 
 pthread_cond_t& Trick::SysThread::list_empty_cv() {
     static pthread_cond_t list_empty_cv = PTHREAD_COND_INITIALIZER;
     return list_empty_cv;
-} 
+}
 
 std::vector<Trick::SysThread *>& Trick::SysThread::all_sys_threads() {
     static std::vector<SysThread *> all_sys_threads;
@@ -100,7 +100,7 @@ void Trick::SysThread::test_pause() {
         // Tell main thread that we're pausing
         _thread_has_paused = true;
         pthread_cond_signal(&_thread_has_paused_cv);
-        
+
         // Wait until we're told to wake up
         while (_thread_should_pause) {
             pthread_cond_wait(&_thread_wakeup_cv, &_restart_pause_mutex);

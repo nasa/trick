@@ -51,7 +51,7 @@ void CrewModuleShape::transformCoordinates( double (&rotation)[3][3], double (&p
     /*
        Calculate these unit vectors so they dont have to be calculated everytime we test a point.
     */
-    
+
     double scale;
     V_SUB(cone_vector_trans, position, cone_point_trans);
     scale = 1.0/V_MAG(cone_vector_trans);

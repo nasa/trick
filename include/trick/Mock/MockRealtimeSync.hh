@@ -12,7 +12,7 @@ Trick::GetTimeOfDayClock& my_static_clock() {
 }
 
 class MockRealtimeSync : public Trick::RealtimeSync {
-    public: 
+    public:
         MockRealtimeSync() : RealtimeSync(&(my_static_clock())) {}
 
         MOCK_METHOD0(is_active, bool());

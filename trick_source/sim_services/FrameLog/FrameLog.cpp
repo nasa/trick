@@ -31,7 +31,7 @@ int frame_log_on(Trick::DR_Buffering bufferType)
 
 
 //Constructor.
-Trick::FrameLog::FrameLog(Trick::Clock & in_clock) : 
+Trick::FrameLog::FrameLog(Trick::Clock & in_clock) :
  frame_log_flag(false),
  drg_trick(NULL),
  drg_frame(NULL),
@@ -374,7 +374,7 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
     Trick::JobData * target_job = (Trick::JobData *)curr_job->sup_class_data ;
     int thread, mode;
     double time_scale;
-    
+
     /** @par Detailed Design: */
     if ( target_job != NULL ) {
         if ( target_job->rt_start_time >= 0 ) {
@@ -775,7 +775,7 @@ int Trick::FrameLog::create_DP_Product_dir() {
         if (!std::string(command_line_args_get_user_output_dir()).empty()) {
             DP_dir = std::string(command_line_args_get_user_output_dir()) + "/DP_Product";
         }
-    } 
+    }
     ret = mkdir(DP_dir.c_str(), 0777);
     if (ret == -1) {
         if (errno == EEXIST) {

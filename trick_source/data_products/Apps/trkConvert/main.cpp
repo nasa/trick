@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
 
-    QStringList args = app.arguments(); 
+    QStringList args = app.arguments();
 
     QString programName = args.at(0);
     QString trkFilePath;
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
             trkFilePath = arg;
         } else {
             out << programName << ": Invalid argument \"" << arg << "\"." << endl;
-            usage(); 
+            usage();
             exit(1);
         }
         i++;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
         TRK_DataLog* datalog =
             new TRK_DataLog( trkFileInfo.absoluteFilePath().toStdString().c_str() );
 
-        DocWindow* w1 = new DocWindow(datalog); 
+        DocWindow* w1 = new DocWindow(datalog);
         w1->setWindowTitle( trkFileInfo.fileName());
         w1->resize(800, 500);
         w1->show();

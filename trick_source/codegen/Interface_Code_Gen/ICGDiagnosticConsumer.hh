@@ -11,11 +11,11 @@ class HeaderSearchDirs;
 
 /**
 
-  This class is passed to the clang parser as a DiagnosticConsumer. 
+  This class is passed to the clang parser as a DiagnosticConsumer.
   It will terminate the trick build if an error found is from user code.
 
   @date May 2024
-  
+
  */
 
 
@@ -36,7 +36,7 @@ protected:
 
     /** The header search directories. */
     HeaderSearchDirs &hsd ;
-    
+
 };
 
 #endif

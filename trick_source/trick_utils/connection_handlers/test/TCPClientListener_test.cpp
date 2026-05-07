@@ -86,9 +86,9 @@ TEST_F( TCPClientListenerTest, initialize_invalid_hostname ) {
 
 TEST_F( TCPClientListenerTest, failed_socket ) {
     // ARRANGE
-    system_context->register_socket_impl([](int a, int b, int c) { 
+    system_context->register_socket_impl([](int a, int b, int c) {
         errno = EPERM;
-        return -1; 
+        return -1;
     });
 
     // ACT
@@ -100,9 +100,9 @@ TEST_F( TCPClientListenerTest, failed_socket ) {
 
 TEST_F( TCPClientListenerTest, failed_setsockopt_reuseaddr ) {
     // ARRANGE
-    system_context->register_setsockopt_impl([](int sockfd, int level, int optname, const void *optval, socklen_t optlen) { 
+    system_context->register_setsockopt_impl([](int sockfd, int level, int optname, const void *optval, socklen_t optlen) {
         errno = EINVAL;
-        return -1; 
+        return -1;
     });
 
     // ACT
@@ -114,10 +114,10 @@ TEST_F( TCPClientListenerTest, failed_setsockopt_reuseaddr ) {
 
 TEST_F( TCPClientListenerTest, failed_setsockopt_buffering ) {
     // ARRANGE
-    system_context->register_setsockopt_impl([](int sockfd, int level, int optname, const void *optval, socklen_t optlen) { 
+    system_context->register_setsockopt_impl([](int sockfd, int level, int optname, const void *optval, socklen_t optlen) {
         if (level == IPPROTO_TCP && optname == TCP_NODELAY) {
             errno = ENOTSOCK;
-            return -1; 
+            return -1;
         }
 
         return 0;
@@ -132,7 +132,7 @@ TEST_F( TCPClientListenerTest, failed_setsockopt_buffering ) {
 
 TEST_F( TCPClientListenerTest, failed_bind ) {
     // ARRANGE
-    system_context->register_bind_impl([](int sockfd, const struct sockaddr *addr,socklen_t addrlen) { 
+    system_context->register_bind_impl([](int sockfd, const struct sockaddr *addr,socklen_t addrlen) {
         errno = EADDRINUSE;
         return -1;
     });
@@ -196,7 +196,7 @@ TEST_F( TCPClientListenerTest, checkForNewConnections ) {
 
     // ACT
     bool result = listener.checkForNewConnections();
-    
+
     // ASSERT
     EXPECT_EQ(result, true);
 }
@@ -343,7 +343,7 @@ TEST_F( TCPClientListenerTest, checkSocket) {
 
     // ACT
     int status = listener.checkSocket();
-    
+
     // ASSERT
     EXPECT_EQ(status, 0);
     EXPECT_EQ(listener.getPort(), port);
@@ -353,7 +353,7 @@ TEST_F( TCPClientListenerTest, checkSocket_uninitialized) {
     // ARRANGE
     // ACT
     int status = listener.checkSocket();
-    
+
     // ASSERT
     EXPECT_EQ(status, -1);
 }
@@ -364,7 +364,7 @@ TEST_F( TCPClientListenerTest, disconnect) {
 
     // ACT
     int status = listener.disconnect();
-    
+
     // ASSERT
     EXPECT_EQ(status, 0);
 }
@@ -373,7 +373,7 @@ TEST_F( TCPClientListenerTest, disconnect_uninitialized) {
     // ARRANGE
     // ACT
     int status = listener.disconnect();
-    
+
     // ASSERT
     EXPECT_EQ(status, -1);
 }
@@ -384,7 +384,7 @@ TEST_F( TCPClientListenerTest, setupNewConnection) {
 
     // ACT
     Trick::TCPConnection * connection = listener.setUpNewConnection();
-    
+
     // ASSERT
     EXPECT_TRUE(connection != NULL);
 }
@@ -394,7 +394,7 @@ TEST_F( TCPClientListenerTest, setupNewConnection_uninitialized) {
 
     // ACT
     Trick::TCPConnection * connection = listener.setUpNewConnection();
-    
+
     // ASSERT
     EXPECT_TRUE(connection == NULL);
 }

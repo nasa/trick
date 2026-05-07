@@ -28,7 +28,7 @@ int WaypointList::add(double n, double w, std::string i="images/defaultIcon.png"
         length++;
         return length-1;
     }
-    
+
     return -1;
 }
 
@@ -75,7 +75,7 @@ void WaypointList::append(std::string path) {
                 w = std::stod(str.substr(k+1));
                 add(n,w);
             }
-            
+
         }
         in.close();
     } else {

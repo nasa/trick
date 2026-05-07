@@ -74,7 +74,7 @@ std::string Trick::MonteVarRandom::describe_variable()
     std::stringstream ss;
 
     ss << "#NAME:\t\t\t" << this->name << "\n"
-       << "#TYPE:\t\t\tRANDOM\n" 
+       << "#TYPE:\t\t\tRANDOM\n"
        << "#UNIT:\t\t\t" << this->unit << "\n"
        << "#DISTRIBUTION:\t" << dist_list[this->randist.type] << "\n"
        << "#SEED:\t\t\t" << this->randist.seed << "\n"

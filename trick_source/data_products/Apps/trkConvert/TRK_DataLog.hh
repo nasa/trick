@@ -32,7 +32,7 @@ class TRK_DataLog {
 
     void selectAllParameters();
     void selectParameter(unsigned int index);
-    void selectParameter(const char * paramName); 
+    void selectParameter(const char * paramName);
     void deselectParameter(unsigned int index);
     void formattedWrite(FILE* out_fp, LogFormatter* formatter);
 

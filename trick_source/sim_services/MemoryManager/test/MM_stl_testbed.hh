@@ -43,7 +43,7 @@ public:
     // This class is intended to test the checkpoint, restore, and delete functions for each of the supported STL types.
     // These live in the include/trick directory in checkpoint_<containername>.hh
     // Each STL type has its own implementation of each function, so they must be tested separately.
-    // In addition, if the template argument is another STL container, a separate implementation is enabled to 
+    // In addition, if the template argument is another STL container, a separate implementation is enabled to
     // support recursion. (intrinsic:i vs stl:s in var names here)
     // Therefore, each of the 11 supported types presents 3 * 2^(num template args) implementations to test,
     // plus strings and pairs are sometimes handled strangely so those should probably be included here too

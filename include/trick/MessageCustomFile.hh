@@ -37,7 +37,7 @@ namespace Trick {
 
             /**
              * @brief Get the level
-             * 
+             *
              */
             virtual int get_level() const;
             virtual void set_level(int level);

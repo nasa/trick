@@ -1,7 +1,7 @@
 
 class Foo {
     public:
-    int a; 
+    int a;
     int b;
     int q;
 

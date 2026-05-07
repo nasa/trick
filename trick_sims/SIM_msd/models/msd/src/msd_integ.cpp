@@ -19,12 +19,12 @@ int MSD::state_integ(void) {
 	    	&v,
 	    	&a,
 	    	NULL);
-	    
+
 	    ipass = integrate();
 
 	    unload_state(
 	    	&x,
-	    	&v,	
+	    	&v,
 			NULL);
 
     return(ipass);

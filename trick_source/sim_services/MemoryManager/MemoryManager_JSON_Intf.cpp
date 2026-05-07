@@ -31,7 +31,7 @@ void Trick::MemoryManager::write_JSON_alloc_info(std::ostream& s, ALLOC_INFO *al
     for (int ii=0; ii<alloc_info->num_index; ii++) {
         if (ii != 0) {
             s << "," ;
-        } 
+        }
         s << alloc_info->index[ii] ;
     }
     s << "]}" << std::endl;
@@ -56,7 +56,7 @@ void Trick::MemoryManager::write_JSON_alloc_list(std::ostream& s, int chunk_star
         alloc_info = pos->second;
         if (count != 0) {
             s << ",\n";
-        } 
+        }
         write_JSON_alloc_info(s, alloc_info);
     }
     s << "]}" << std::endl;

@@ -958,7 +958,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
                 // empty array, causing a segfault when the checkpoint is reloaded.
                 if (attr->index[curr_dim + 1].size == 0 && ((curr_dim + 1) != attr->num_index)) {
                     use_quoted_string = 0;
-                } 
+                }
 
 
                 if ((attr->type == TRICK_CHARACTER) && use_quoted_string)  {
@@ -1098,7 +1098,7 @@ void Trick::ClassicCheckPointAgent::assign_rvalue(std::ostream& chkpnt_os, void*
             std::istringstream iss(decimal_str);
             std::string line;
             bool first_line = true;
-            
+
             while (std::getline(iss, line)) {
                 if (first_line) {
                     chkpnt_os << std::endl << "// " << lname << " = " << line;

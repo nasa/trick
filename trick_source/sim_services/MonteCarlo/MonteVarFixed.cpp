@@ -15,7 +15,7 @@ std::string Trick::MonteVarFixed::describe_variable()
     std::stringstream ss;
 
     ss << "#NAME:\t\t" << this->name << "\n"
-       << "#TYPE:\t\tFIXED\n" 
+       << "#TYPE:\t\tFIXED\n"
        << "#UNIT:\t\t" << this->unit << "\n"
        << "#VALUE:\t\t" << this->value << "\n";
 

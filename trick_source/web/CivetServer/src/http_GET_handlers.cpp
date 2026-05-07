@@ -137,7 +137,7 @@ void handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
     int count = strtol(count_str, NULL, 0);
     std::stringstream ss;
     trick_MM->write_JSON_alloc_list(ss, start, count);
-    
+
     std::string someJSON = ss.str();
     http_send(conn, someJSON.c_str(), someJSON.length(), 100);
 
@@ -167,7 +167,7 @@ void ws_ready_handler(struct mg_connection *conn, void *my_server)
         if (server->debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] OPENED. URI=\"%s\".\n", (void*)conn, uri.c_str()); }
         server->addWebSocketSession(conn, session);
     } else {
-        message_publish(MSG_ERROR, "Trick Webserver: No such web socket interface: \"%s\".\n", uri.c_str()); 
+        message_publish(MSG_ERROR, "Trick Webserver: No such web socket interface: \"%s\".\n", uri.c_str());
         mg_websocket_write(conn, MG_WEBSOCKET_OPCODE_CONNECTION_CLOSE, NULL, 0);
     }
 }
@@ -180,10 +180,10 @@ int ws_data_handler(struct mg_connection *conn, int bits,
     std::string msg(data, data_len);
     if (server->debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] RECIEVED: \"%s\".\n", (void*)conn, msg.c_str()); }
 
-	if (data_len > 0) { 
+	if (data_len > 0) {
         std::string msg(data, data_len);
 		server->handleWebSocketClientMessage(conn, msg);
-	} 
+	}
      return rvalue;
 }
 

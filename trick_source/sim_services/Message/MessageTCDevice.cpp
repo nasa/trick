@@ -82,7 +82,7 @@ void * Trick::MessageTCDeviceListenThread::thread_body() {
 
             if (status == TC_SUCCESS) {
                 mtcd->add_connection(new_connection) ;
-            } 
+            }
         }
     }
 

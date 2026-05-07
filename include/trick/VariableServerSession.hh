@@ -26,7 +26,7 @@ namespace Trick {
 
         /**
          * @brief Set the connection object
-         * 
+         *
          * @param connection - a pointer to a ClientConnection that is initialized and ready to go
          */
         virtual void set_connection(ClientConnection * connection);
@@ -66,7 +66,7 @@ namespace Trick {
         */
         virtual int set_send_stdio(bool on_off) ;
 
-        // Called from different types of Trick jobs. 
+        // Called from different types of Trick jobs.
         // Determines whether this session should be copying at that time, and calls internal copy methods if so
         int copy_and_write_freeze(long long curr_frame);
         int copy_and_write_freeze_scheduled(long long curr_tics);
@@ -453,10 +453,10 @@ namespace Trick {
         std::vector<VariableReference *> _session_variables; /**<  trick_io(**) */
 
         // Getters and setters for internal variables
-        virtual long long get_cycle_tics() const; 
+        virtual long long get_cycle_tics() const;
 
-        virtual void set_freeze_next_tics(long long tics); 
-        virtual void set_next_tics(long long tics); 
+        virtual void set_freeze_next_tics(long long tics);
+        virtual void set_next_tics(long long tics);
 
         virtual int get_frame_multiple () const;
         virtual int get_frame_offset () const;

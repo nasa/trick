@@ -13,7 +13,7 @@
 
 
 namespace Trick {
-    
+
     class TCPConnection;
 
     class TCPClientListener {
@@ -39,15 +39,15 @@ namespace Trick {
 
             virtual bool validateSourceAddress(std::string source_address);
 
-            virtual bool isInitialized(); 
-            
+            virtual bool isInitialized();
+
             virtual int restart();
 
             virtual std::string getHostname ();
             virtual int getPort();
-            
+
         protected:
-        
+
             int _listen_socket;
             std::string _hostname;
             int _port;

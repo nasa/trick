@@ -130,7 +130,7 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     // We need to detect two cases:
     // 1. Final attr is TRICK_STL AND we indexed it (e.g., vec[0]) - update type/size to element
     // 2. Pattern "]." in reference - we indexed something then accessed a member (e.g., point_vec[0].x)
-    // 
+    //
     // For case 1, we need to update _trick_type and _size to match the element type.
     // For case 2, the final attr is already the member's attributes (e.g., double x), so _trick_type
     // and _size are already correct - we just need to set the flag to skip follow_address_path().
@@ -305,7 +305,7 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         return -1 ;
     }
 
-    // if unitless ('--') then do not convert to udunits 
+    // if unitless ('--') then do not convert to udunits
     if (units_name.compare("--")) {
         // Check to see if this is an old style Trick unit that needs to be converted to new udunits
         std::string new_units = map_trick_units_to_udunits(units_name) ;
@@ -350,7 +350,7 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         } else {
             _conversion_factor = new_conversion_factor;
         }
-    
+
         // Set the requested units. This will cause the unit string to be printed in write_value_ascii
         _requested_units = new_units;
     }
@@ -434,7 +434,7 @@ bool Trick::VariableReference::validate() {
             (_trick_type != TRICK_WSTRING) and
             (_var_info->address != &_bad_ref_int) and
             (get_alloc_info_of(_address) == NULL) ) {
-        
+
         // This variable is broken, make it into an error ref
         tagAsInvalid();
         return false;
@@ -462,7 +462,7 @@ static void write_escaped_string( std::ostream& os, const char* s) {
                     // Replicating behavior from original vs_format_ascii
                     char temp_s[6];
                     sprintf(temp_s, "\\x%02x", s[ii]);
-                    os << temp_s ; 
+                    os << temp_s ;
                     break;
                 }
             }
@@ -504,7 +504,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                 // Single char
                 out << (int)cv_convert_double(_conversion_factor, *(char *)buf_ptr);
             } else {
-                // All but last dim specified, leaves a char array 
+                // All but last dim specified, leaves a char array
                 write_escaped_string(out, (const char *) buf_ptr);
                 bytes_written = _size ;
             }
@@ -514,7 +514,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                 // Single char
                 out << (unsigned int)cv_convert_double(_conversion_factor,*(unsigned char *)buf_ptr);
             } else {
-                // All but last dim specified, leaves a char array 
+                // All but last dim specified, leaves a char array
                 write_escaped_string(out, (const char *) buf_ptr);
                 bytes_written = _size ;
             }
@@ -581,7 +581,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         case TRICK_UNSIGNED_BITFIELD:
             out << (GET_UNSIGNED_BITFIELD(buf_ptr, _var_info->attr->size, _var_info->attr->index[0].start, _var_info->attr->index[0].size));
             break;
-            
+
         case TRICK_UNSIGNED_INTEGER:
             out << (unsigned int)cv_convert_double(_conversion_factor,*(unsigned int *)buf_ptr);
             break;
@@ -823,8 +823,8 @@ int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap
     }
 
     return _size;
-    
-}  
+
+}
 
 std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableReference& ref) {
     s << "      \"" << ref.getName() << "\"";

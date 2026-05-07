@@ -26,5 +26,5 @@ int cannon_analytic( CANNON* C ) {
     }
 
     C->time += 0.01 ; /* This should match rate of the job in the S_define. */
-    return 0 ; 
+    return 0 ;
 }

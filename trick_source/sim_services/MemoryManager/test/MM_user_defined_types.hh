@@ -110,7 +110,7 @@ class Foo {
 class VectorWrapper {
     public:
     int operator[] (int index) {
-        return vec[index];            
+        return vec[index];
     }
 
     void push_back(int val) {

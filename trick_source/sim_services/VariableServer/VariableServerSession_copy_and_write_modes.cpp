@@ -96,7 +96,7 @@ int Trick::VariableServerSession::copy_and_write_top(long long curr_frame) {
 int Trick::VariableServerSession::copy_and_write_async() {
     int ret = 0;
 
-    if (!get_enabled()) 
+    if (!get_enabled())
         return ret;
 
     if (get_copy_mode() == VS_COPY_ASYNC ) {
@@ -104,8 +104,8 @@ int Trick::VariableServerSession::copy_and_write_async() {
     }
 
     // Write data out to connection if async mode or non-realtime, and not paused
-    bool should_write_async = (get_write_mode() == VS_WRITE_ASYNC) || 
-                                ( get_copy_mode() == VS_COPY_ASYNC &&  get_write_mode() == VS_WRITE_WHEN_COPIED)|| 
+    bool should_write_async = (get_write_mode() == VS_WRITE_ASYNC) ||
+                                ( get_copy_mode() == VS_COPY_ASYNC &&  get_write_mode() == VS_WRITE_WHEN_COPIED)||
                                 (! is_real_time());
 
     if ( !get_pause() && should_write_async) {

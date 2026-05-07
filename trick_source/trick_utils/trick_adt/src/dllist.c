@@ -39,7 +39,7 @@ void DLL_Delete(DLLIST * list)
    If it does, return 1, otherwise return 0.
 */
 static int DLL_ListContainsPos( DLLPOS pos, DLLIST * list) {
-     
+
     if ((list == NULL) || (pos == NULL)) {
         return 0;
     }
@@ -206,7 +206,7 @@ void *DLL_SetAt(DLLPOS pos, void *info, DLLIST * list)
     }
     if ( !DLL_ListContainsPos(pos, list) ) {
         fprintf(stderr, "Error (%s): The specified list doesn't contain the specified node (pos).\n", __FUNCTION__);
-        fflush(stderr); 
+        fflush(stderr);
         return NULL;
     }
     void* prev_info = pos->info;
@@ -230,7 +230,7 @@ void *DLL_RemoveAt(DLLPOS pos, DLLIST * list)
 
     if ( !DLL_ListContainsPos(pos, list) ) {
         fprintf(stderr, "Error (%s): The specified list doesn't contain the specified node (pos).\n", __FUNCTION__);
-        fflush(stderr); 
+        fflush(stderr);
         return NULL;
     }
 

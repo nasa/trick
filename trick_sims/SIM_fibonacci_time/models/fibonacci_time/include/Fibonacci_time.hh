@@ -9,7 +9,7 @@ LIBRARY DEPENDENCIES:
 class Fibonacci_time {
 
     public:
-        int N; 
+        int N;
         int tics_per_second;
 
         int default_data();

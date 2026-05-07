@@ -5,7 +5,7 @@
 #include <gmock/gmock.h>
 
 class MockMessagePublisher : public Trick::MessagePublisher {
-    public: 
+    public:
         MOCK_METHOD2(publish, int(int level, std::string message));
 };
 

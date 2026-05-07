@@ -82,14 +82,14 @@ bool isInUserCode( clang::CompilerInstance & ci , clang::SourceLocation sl , Hea
 bool isInUserOrTrickCode( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) {
     bool ret = false ;
     char* resolved_path = getResolvedPath(ci, sl);
-    
+
     if ( resolved_path != NULL ) {
         if ( hsd.isPathInUserOrTrickDir(resolved_path)) {
             ret = true ;
         }
         free(resolved_path) ;
     }
-    
+
     return ret ;
 }
 
@@ -103,7 +103,7 @@ std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl
         }
         free(resolved_path);
     }
-    
+
     return file_name;
 }
 
@@ -116,14 +116,14 @@ char * getResolvedPath(clang::CompilerInstance & ci , clang::SourceLocation sl) 
         if ( fe != NULL ) {
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
         resolved_path = almostRealPath( fe->getName() ) ;
-#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18) 
+#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18)
         resolved_path = almostRealPath( fe->getName().str() ) ;
 #else
         const clang::CustomizableOptional<clang::FileEntryRef> cfer = ci.getSourceManager().getFileEntryRefForID(fid) ;
         if (cfer.has_value()) {
             resolved_path = almostRealPath( cfer->getName().str() ) ;
         }
-        
+
 #endif
         }
     }
@@ -151,7 +151,7 @@ char * almostRealPath( const char * in_path ) {
     char * final_path = NULL ;
     resolved_path = realpath( dir , resolved_path) ;
     if ( resolved_path != NULL ) {
-        size_t final_path_len = strlen(resolved_path) + strlen(file) + 2; 
+        size_t final_path_len = strlen(resolved_path) + strlen(file) + 2;
         final_path = (char *)malloc(final_path_len) ;
         snprintf(final_path, final_path_len, "%s/%s", resolved_path , file ) ;
         free(resolved_path) ;
@@ -196,10 +196,10 @@ std::string quote(const std::string& text) {
 }
 
 
-// This function will accept version numbers with Major, Major.Minor, or Major.Minor.Patch. 
+// This function will accept version numbers with Major, Major.Minor, or Major.Minor.Patch.
 // It removes non-numerical prefixes or postfixes to the version number. The return value
 // is an int with the format MMmmpp, which is what llvm LangOpts.gnucversion expects.
-// If there is a problem or no verno is provided, it returns the default value. 
+// If there is a problem or no verno is provided, it returns the default value.
 int gccVersionToIntOrDefault(const char* verno, int def) {
     const int buffersize = 32;
     // need mutable characters for strtok

@@ -1,4 +1,4 @@
- 
+
 /*
 PURPOSE:
     (Data record in ascii format.)
@@ -83,7 +83,7 @@ int Trick::DRAscii::format_specific_init() {
             out_stream << " {" << rec_buffer[0]->ref->attr->units << "}" ;
         }
     }
-    
+
     /* Write out specified recorded parameters */
     for (jj = 1; jj < rec_buffer.size() ; jj++) {
         out_stream << delimiter << rec_buffer[jj]->ref->reference ;

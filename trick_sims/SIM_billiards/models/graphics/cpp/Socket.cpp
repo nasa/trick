@@ -17,10 +17,10 @@ int Socket::init (std::string hostname, int port) {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port); // convert to weird network byte format
 
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) { 
-        std::cout << "Invalid address/ Address not supported" << std::endl; 
+    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) {
+        std::cout << "Invalid address/ Address not supported" << std::endl;
         return -1;
-    } 
+    }
 
     if (connect(_socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         std::cout << "Connection failed" << std::endl;

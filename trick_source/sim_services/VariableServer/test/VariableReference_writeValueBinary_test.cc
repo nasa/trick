@@ -14,7 +14,7 @@ TEST_F(VariableReference_test, writeValueBinary_int) {
     ref.prepareForWrite();
     ref.writeValueBinary(ss);
 
-    
+
     unsigned char expected_bytes[4] = {0xFF, 0x0F, 0x00, 0x00};
     char * actual_bytes = (char *) malloc (sizeof(int));
 
@@ -38,7 +38,7 @@ TEST_F(VariableReference_test, writeValueBinary_float) {
     ref.stageValue();
     ref.prepareForWrite();
     ref.writeValueBinary(ss);
-    
+
     unsigned char expected_bytes[4] = {0xcd, 0xcc, 0x23, 0x42};
 
     char * actual_bytes = (char *) malloc (sizeof(float));
@@ -188,7 +188,7 @@ TEST_F(VariableReference_test, writeValueBinaryByteswap_int) {
     ref.prepareForWrite();
     ref.writeValueBinary(ss, true);
 
-    
+
     unsigned char expected_bytes[4] = {0x00, 0x00, 0x0F, 0xFF};
     char * actual_bytes = (char *) malloc (sizeof(int));
 

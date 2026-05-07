@@ -18,7 +18,7 @@ extern "C" int message_publish_standalone(int level, const char * format_msg, ..
     // tv_sec represents seconds since the epoch and is used for time stamp without sub-second.
     // tv_usec are microseconds past the last second and is used for printing out sub-second.
     struct timeval time_val;
-    
+
     va_list args;
 
     va_start(args, format_msg);
@@ -26,10 +26,10 @@ extern "C" int message_publish_standalone(int level, const char * format_msg, ..
     va_end(args);
 
     gettimeofday(&time_val, NULL);
-    
+
     // tv_sec represents seconds since the epoch
     date = time_val.tv_sec;
-    
+
     strftime(date_buf, (size_t) 20, "%Y/%m/%d,%H:%M:%S", localtime(&date));
     (void) gethostname(hostname, (size_t) 48);
     // use %lu for tv_usec

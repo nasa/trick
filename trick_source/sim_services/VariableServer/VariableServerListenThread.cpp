@@ -121,11 +121,11 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
         /* The user has requested a different source address or port in the input file */
         _listener->disconnect();
         ret = _listener->initialize(_requested_source_address, _requested_port);
-        
+
         if (ret != 0) {
             message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
                 _requested_source_address.c_str(), _requested_port);
-            
+
             ret = -1;
         }
 
@@ -193,7 +193,7 @@ void * Trick::VariableServerListenThread::thread_body() {
                 }
                 pthread_mutex_unlock(&connectionMutex);
             }
-            
+
         } else if ( _broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];

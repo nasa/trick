@@ -159,7 +159,7 @@ int STLCheckpoint::addData() {
     m[1] = 100.1;
     std::map<short,double> m2;
     m2[5] = 5000.5;
-    m2[1] = 1000.1; 
+    m2[1] = 1000.1;
 
     nested_map_set.insert(m);
     nested_map_set.insert(m2);
@@ -371,7 +371,7 @@ int STLCheckpoint::addData() {
         temp.b = 8888888888;
         temp.c = "Here is a test string";
 
-        // We'll just make a pointer to the same stuff 
+        // We'll just make a pointer to the same stuff
 
         UserClass * user_class_ptr = (UserClass *) TMM_declare_var_s("UserClass");
         for (int j = 0; j < 5; j++) {
@@ -493,7 +493,7 @@ int STLCheckpoint::test() {
     TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[sister]" );
     TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[dog]" );
 
-    
+
     // The easiest way to test the multimaps is to just rebuild copies and compare
     std::multimap<int, int> int_multimap_copy;
     int_multimap_copy.insert(std::pair<int, int>(44,444)) ;
@@ -599,7 +599,7 @@ int STLCheckpoint::test() {
     m[1] = 100.1;
     std::map<short,double> m2;
     m2[5] = 5000.5;
-    m2[1] = 1000.1; 
+    m2[1] = 1000.1;
     nested_map_set_copy.insert(m);
     nested_map_set_copy.insert(m2);
     TRICK_EXPECT_EQ(nested_map_set, nested_map_set_copy, test_suite, "nested_map_set");
@@ -760,5 +760,5 @@ int STLCheckpoint::test() {
     }
 
     return 0;
-    
+
 }

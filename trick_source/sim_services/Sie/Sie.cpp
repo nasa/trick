@@ -73,7 +73,7 @@ int Trick::Sie::process_sim_args() {
         // Otherwise, go through the rest of the sim args and look for --read-only-sim
         for (int i = 1; i < argc; i++) {
             if ((strcmp("--read-only-sim", argv[i]) == 0))  {
-                // Set this flag to move runtime generation of sie into the output directory 
+                // Set this flag to move runtime generation of sie into the output directory
                 move_runtime_generation = true;
                 read_only = true;
                 break;

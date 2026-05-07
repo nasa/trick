@@ -78,13 +78,13 @@ TRK_DataLog::TRK_DataLog(std::string file_name) {
         trick_header_string[10] = 0;
 
         if (!strncmp( trick_header_string, "Trick-", 6)) {
-             
-            char version_txt[3];   
+
+            char version_txt[3];
             memcpy(version_txt, &trick_header_string[6], 2) ;
             version_txt[2] = 0;
             version = atoi(version_txt);
 
-            char endian_txt[2];   
+            char endian_txt[2];
             memcpy(endian_txt, &trick_header_string[9], 1) ;
             endian_txt[1] = 0;
 
@@ -96,7 +96,7 @@ TRK_DataLog::TRK_DataLog(std::string file_name) {
                 fprintf (stderr, "Trick header error. Endianness should be \"L\" or \"B\".");
             }
 
-            if (fread( &N_params, 1, 4, in_fp) != 4) 
+            if (fread( &N_params, 1, 4, in_fp) != 4)
                 throw std::runtime_error("fread() failed.");
 
             dataRecordSize = 0;
@@ -133,21 +133,21 @@ int TRK_DataLog::parameterCount() const {
 }
 
 const char* TRK_DataLog::parameterName(unsigned int n) const {
-    if (n < N_params) 
+    if (n < N_params)
         return paramDescriptions[n]->parameterName;
     else
         return "BadIndex";
 }
 
 const char* TRK_DataLog::parameterUnits(unsigned int n) const {
-    if (n < N_params) 
+    if (n < N_params)
         return paramDescriptions[n]->unitsName;
     else
         return "BadIndex";
 }
 
 const char* TRK_DataLog::parameterType(unsigned int n) const {
-    if (n < N_params) 
+    if (n < N_params)
         return TypeName[ paramDescriptions[n]->dataType ];
     else
         return "BadIndex";
@@ -187,11 +187,11 @@ void TRK_DataLog::deselectParameter(unsigned int index) {
 void TRK_DataLog::formattedWrite(FILE* out_fp, LogFormatter* formatter) {
 
     formatter->writeHeader(out_fp, version, endianness);
-    formatter->writeColumnLabel(out_fp, paramDescriptions[0]->parameterName, paramDescriptions[0]->unitsName); 
+    formatter->writeColumnLabel(out_fp, paramDescriptions[0]->parameterName, paramDescriptions[0]->unitsName);
     for (int ii = 1; ii < (int)N_params ; ii++) {
         if (paramSelected[ii]) {
             formatter->writeColumnLabelSeparator(out_fp);
-            formatter->writeColumnLabel(out_fp, paramDescriptions[ii]->parameterName, paramDescriptions[ii]->unitsName); 
+            formatter->writeColumnLabel(out_fp, paramDescriptions[ii]->parameterName, paramDescriptions[ii]->unitsName);
         }
     }
 

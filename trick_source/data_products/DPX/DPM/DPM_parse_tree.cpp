@@ -33,7 +33,7 @@ int DPM_parse_tree::Initialize(const char *XMLFileName) {
                      << "So, \"" << XMLFileName << "\" cannot be validated against it's DTD." << std::endl
                      << "It will therefore be parsed without validation." << std::endl << std::endl;
            doc = xmlCtxtReadFile( parser_context, XMLFileName, NULL, 0 );
-       } 
+       }
 
        if (doc == NULL) {
            std::cerr << "ERROR: Parse of XML file \"" << XMLFileName << "\"" << " failed." << std::endl;

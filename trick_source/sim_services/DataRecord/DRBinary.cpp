@@ -86,7 +86,7 @@ int Trick::DRBinary::format_specific_init() {
     byte_order_union.l = 1 ;
     if (byte_order_union.c[sizeof(long)-1] != 1) {
         bytes += write( fd , "Trick-10-L", (size_t)10 ) ;
-        
+
     } else {
         bytes += write( fd , "Trick-10-B", (size_t)10 ) ;
     }

@@ -22,7 +22,7 @@ int Trick::VariableServerSession::copy_sim_data(std::vector<VariableReference *>
     if ( pthread_mutex_trylock(&_copy_mutex) == 0 ) {
         // Get the simulation time we start this copy
         _time = (double)exec_get_time_tics() / exec_get_time_tic_value() ;
-        
+
 
         for (auto curr_var : given_vars ) {
             curr_var->stageValue();

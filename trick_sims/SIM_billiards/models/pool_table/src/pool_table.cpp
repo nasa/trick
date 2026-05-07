@@ -17,11 +17,11 @@ double dot(                  /* Return: Scalar dot or inner product */
                  double vec1[],        /* In: Vector 1 */
                  double vec2[],        /* In: Vector 2 */
                  int dim)
-{                  
+{
     double dot = 0;
     for (int i = 0; i < dim; i++) {
         dot += vec1[i] * vec2[i];
-    }                    
+    }
     return dot;
 }
 
@@ -47,7 +47,7 @@ int PoolTable::default_data() {
 
 // Input stage runs before this, which populates balls and bumpers
 int PoolTable::state_init() {
-    
+
     // Do regula falsi setup here
 
     // Vars for ball/ball collisions
@@ -136,7 +136,7 @@ int PoolTable::state_deriv() {
 }
 
 int PoolTable::state_integ() {
-    // Apply the acceleration by changing the velocity by the appropriate amount over the time step 
+    // Apply the acceleration by changing the velocity by the appropriate amount over the time step
 
     // How many state variables are needed for each ball
     int n = 6;
@@ -161,9 +161,9 @@ int PoolTable::state_integ() {
         load_indexed_deriv(n*i + inner_index++, balls[i]->vel[1]);
         load_indexed_deriv(n*i + inner_index++, balls[i]->vel[2]);
 
-        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[0]);   
-        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[1]);   
-        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[2]);   
+        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[0]);
+        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[1]);
+        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[2]);
 
     }
 
@@ -203,7 +203,7 @@ double closestPointOnLine(Line& line, Vec pos, Vec& result, bool print) {
 
     if (t < 0)
         t = 0;
-    
+
     if (t > 1)
         t = 1;
 
@@ -249,7 +249,7 @@ double PoolTable::collision() {
             ballAssociations[associationIndex].error = error;
 
             double this_tgo = regula_falsi( now, &(ballAssociations[associationIndex])) ;
-            
+
             if (this_tgo < event_tgo) {
                 event_tgo = this_tgo;
             }
@@ -345,7 +345,7 @@ double PoolTable::collision() {
                     // collision point is the same, so make sure only 1 gets applied. This is kind of hacky
                     continue;
                 }
-                    
+
                 Vec q1(ball->pos);
                 Vec q2(closestPointOnBumper);
 
@@ -449,7 +449,7 @@ void PoolTable::applyCueForce(double x_end, double y_end, double cueHorizontalDi
 
     double r = balls[cueIndex]->radius;
     double m = balls[cueIndex]->mass;
-    
+
     double a = cueHorizontalDisplacement * r;
     double b = cueVerticalDisplacement * r;
     double c = abs(sqrt(pow(r,2) - pow(a,2) - pow(b,2)));

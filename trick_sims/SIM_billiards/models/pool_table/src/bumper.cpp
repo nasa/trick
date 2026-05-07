@@ -7,7 +7,7 @@ Bumper::Bumper() {}
 
 Bumper::Bumper(int numPoints, double x1, double y1, double x2, double y2) :
                             border(Line(Vec(x1, y1), Vec(x2, y2))),
-                            numPoints(numPoints) 
+                            numPoints(numPoints)
 {
 }
 

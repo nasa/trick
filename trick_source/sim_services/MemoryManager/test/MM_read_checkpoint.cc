@@ -309,7 +309,7 @@ TEST_F(MM_read_checkpoint, encapsulated_stl_test) {
 
         EXPECT_EQ(my_foo_ptr->a, 5);
         EXPECT_EQ(my_foo_ptr->b, 5.5);
-        
+
         ASSERT_EQ(my_foo_ptr->c.size(), 3);
         EXPECT_EQ(my_foo_ptr->c[0], 1);
         EXPECT_EQ(my_foo_ptr->c[1], 2);
@@ -329,7 +329,7 @@ TEST_F(MM_read_checkpoint, encapsulated_stl_test_stl_disabled) {
 
         EXPECT_EQ(my_foo_ptr->a, 5);
         EXPECT_EQ(my_foo_ptr->b, 5.5);
-        
+
         // c should not be restored
         ASSERT_EQ(my_foo_ptr->c.size(), 0);
 }

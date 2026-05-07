@@ -69,7 +69,7 @@ class VSTest {
 		char * 				p;
 		wchar_t *			q; 	/**< -- trick_chkpnt_io(**) */
 
-		bitfield 			my_bitfield;	
+		bitfield 			my_bitfield;
 
 		int large_arr[4000];
 
@@ -110,11 +110,11 @@ class VSTest {
         std::vector<Color> vec_enum;
         std::deque<Color> deq_enum;
         std::array<Color, 4> arr_enum;
-        
+
         std::vector<Point> vec_point;
         std::deque<Point> deq_point;
         std::array<Point, 3> arr_point;
-        
+
         std::vector<Point*> vec_point_ptr;
 
         Point * point_dyn_array;
@@ -125,7 +125,7 @@ class VSTest {
 
 		int init();
 		int default_vars();
-		
+
 		int shutdown();
 
 		int success();

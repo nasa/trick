@@ -33,7 +33,7 @@ int Trick::Executive::init() {
         struct rusage cpu_usage_buf ;
         getrusage(RUSAGE_SELF, &cpu_usage_buf);
         user_cpu_start =   ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
-        
+
         /* command line args */
         process_sim_args();
 
@@ -63,7 +63,7 @@ int Trick::Executive::init() {
         /* Record both voluntary and involuntary context switches usage for initialization */
         v_context_switch_init = cpu_usage_buf.ru_nvcsw;
         iv_context_switch_init = cpu_usage_buf.ru_nivcsw;
-        
+
         initialization_complete = true ;
 
     /* Print as much error information avaiable for all exception and exit. */

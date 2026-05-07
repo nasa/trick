@@ -36,7 +36,7 @@ void ManipControl::manualControl()
 {
     int i = 0;
 
-    /* command_ee_rate should be input from the user and will be converted to 
+    /* command_ee_rate should be input from the user and will be converted to
      * motion in the Task Frame */
     if(manualFrame == EE)
     {
@@ -103,7 +103,7 @@ bool ManipControl::EEPositionAuto(double *curPos, double *curVel)
     }
 
     return(posReached);
-    
+
 
 }
 
@@ -122,4 +122,4 @@ void ManipControl::clearControlCommands()
         commandedJointRate[i]   = 0;
 
     }
-}    
+}

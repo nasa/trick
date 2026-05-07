@@ -40,7 +40,7 @@ int Starter::deriv() {
 int Starter::integ() {
 
   int ipass;
-  load_state( 
+  load_state(
     NULL /* list is NULL terminated */
   );
 

@@ -243,7 +243,7 @@ int Trick::IPPythonEvent::condition(int num, std::string str, std::string commen
         }
         condition_list[num] =
             (Trick::condition_t *)TMM_declare_var_s("Trick::condition_t");
-         
+
         condition_list[num]->fired_count = 0;
         condition_list[num]->fired_time = -1.0;
     }

@@ -18,7 +18,7 @@ public:
     void end();
     void automatic();
     void automatic_last();
-    void deriv(); 
+    void deriv();
     int integ();
     void test_calls();
 

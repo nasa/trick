@@ -104,7 +104,7 @@ int Trick::IPPython::init() {
     Py_Initialize();
 #endif
 
-    // The following PyRun_ calls do not require the PyGILState guards because no threads are launched 
+    // The following PyRun_ calls do not require the PyGILState guards because no threads are launched
     /* Import simulation specific routines into interpreter. */
     PyRun_SimpleString(
      "import sys\n"

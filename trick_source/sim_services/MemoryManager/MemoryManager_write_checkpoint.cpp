@@ -37,7 +37,7 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
             // Skip naming individual C-string allocations to eliminate unused declarations
             // Individual char arrays (size=1, num_index=1) represent single strings that are
             // included in char* arrays, so we don't need separate allocations for them
-            if ((alloc_info->type == TRICK_CHARACTER || alloc_info->type == TRICK_UNSIGNED_CHARACTER) && 
+            if ((alloc_info->type == TRICK_CHARACTER || alloc_info->type == TRICK_UNSIGNED_CHARACTER) &&
                 alloc_info->size == 1 && alloc_info->num_index == 1 && alloc_info->stcl == TRICK_LOCAL) {
                 // Skip naming this individual char array allocation to prevent unused declarations
                 continue;

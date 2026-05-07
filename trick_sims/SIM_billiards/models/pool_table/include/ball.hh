@@ -59,7 +59,7 @@ class Ball {
         Vec angularAccel;
 
         // double color[3];
-    
+
         double mass;
         double radius;
         bool fixed;

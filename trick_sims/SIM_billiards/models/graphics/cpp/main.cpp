@@ -7,8 +7,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <stdlib.h> 
-#include <string> 
+#include <stdlib.h>
+#include <string>
 
 #include "Socket.hh"
 
@@ -47,7 +47,7 @@ class RenderedShape {
     int getNumFaces() {
       return faces.size();
     }
-    
+
     std::vector<Eigen::Vector3i> getFacesWithBaseIndex(int newBase) {
       std::vector<Eigen::Vector3i> newFaces;
       int offset = newBase - baseIndex;
@@ -115,7 +115,7 @@ class Polygon {
     // Works with any simple convex polygon where the points are in order
     virtual RenderedShape* render() const {
       RenderedShape * shape = new RenderedShape();
-      
+
       if (!isValid()) {
         // Should maybe throw an error
         std::cout << "Generic has incorrect number of corners" << std::endl;
@@ -217,7 +217,7 @@ class Rectangle : public Polygon {
         std::cerr << "Rectangle has incorrect number of corners" << std::endl;
         return shape;
       }
-      
+
       // Add colors
       for (int i = 0; i < 6; i++) {
         shape->colors.emplace_back(color);
@@ -368,7 +368,7 @@ class Table {
         // std::cout << "Adding to moving shapes" << std::endl;
         movingShapes.emplace_back(shape);
       }
-      
+
 
       return 0;
     }
@@ -400,7 +400,7 @@ class Table {
       numStaticFaces = 0;
       int i = 0;
       staticRenderedShapes.clear();
-      
+
       for (Polygon* shape : staticShapes) {
         RenderedShape *renderedShape = shape->render();
         numStaticVertices += renderedShape->getNumVertices();
@@ -501,7 +501,7 @@ std::vector<std::string> split (std::string& str, const char delim) {
 double totalTime = 0;
 std::vector<double> requestTime;
 
-template <typename T> 
+template <typename T>
 T stringConvert (const std::string& str)
 {
     std::istringstream ss(str);
@@ -510,7 +510,7 @@ T stringConvert (const std::string& str)
     return num;
 }
 
-template <typename T> 
+template <typename T>
 std::vector<T> trickResponseConvert (std::string& response)
 {
     auto responseSplit = split(response, '\t');
@@ -522,7 +522,7 @@ std::vector<T> trickResponseConvert (std::string& response)
     return result;
 }
 
-template <typename T> 
+template <typename T>
 T getVar(Socket& socket, std::string varName) {
   std::string requestString = "trick.var_send_once(\"" + varName + "\")\n";
   std::string reply;
@@ -540,12 +540,12 @@ std::string format(const std::string& formatString, int num) {
     size_t buf_len = formatString.size() + 10;
     char *buf = (char *)malloc(buf_len);
     snprintf(buf, buf_len, formatString.c_str(), num);
-    
+
     return std::string(buf);
 }
 
 // Assumes the varName string has a %d in it
-template <typename T> 
+template <typename T>
 std::vector<T> getVarList(Socket& socket, std::string varName, int num) {
   std::string totalRequest = "";
   std::vector<T> result;
@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
 
   Table table;
   // std::cout << "TablePoints: ";
-  
+
   for (auto point : tablePoints ) {
     // std::cout << point << " ";
   }
@@ -621,8 +621,8 @@ int main(int argc, char *argv[])
   // Make the rail - translate each point on the table out from center by railWidth
   std::vector<double> railData;
 
-  if (tableShape == RECTANGLE) { 
-    // If it's a rectangle then the rail is a bigger rectangle   
+  if (tableShape == RECTANGLE) {
+    // If it's a rectangle then the rail is a bigger rectangle
     double railWidth = 0.07;
     railData.push_back(tablePoints[0] - railWidth);
     railData.push_back(tablePoints[1] - railWidth);
@@ -647,7 +647,7 @@ int main(int argc, char *argv[])
 
   // pockets
   int numPockets = getVar<int>(socket, "dyn.table.numPockets");
-  
+
   std::vector<double> pocket_x = getVarList<double>(socket, "dyn.table.pockets[%d][0].pos._x", numPockets);
   std::vector<double> pocket_y = getVarList<double>(socket, "dyn.table.pockets[%d][0].pos._y", numPockets);
   std::vector<double> pocket_r = getVarList<double>(socket, "dyn.table.pockets[%d][0].radius", numPockets);
@@ -773,7 +773,7 @@ int main(int argc, char *argv[])
     }
 
     std::tie(V, F, C) = table.getMesh();
-    
+
     viewer.data().clear();
     viewer.core().orthographic = true;
     viewer.data().show_lines = false;
@@ -827,6 +827,6 @@ int main(int argc, char *argv[])
   socket << "trick.var_ascii() \n";
   socket << "trick.var_cycle(0.010) \n";
   socket << "trick.var_unpause() \n";
-    
+
   view->launch();
 }

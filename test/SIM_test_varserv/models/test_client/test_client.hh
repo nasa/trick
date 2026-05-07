@@ -52,10 +52,10 @@ class Socket {
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_port = htons(port); // convert to weird network byte format
 
-        if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) { 
-            std::cout << "Invalid address/ Address not supported" << std::endl; 
+        if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) {
+            std::cout << "Invalid address/ Address not supported" << std::endl;
             return -1;
-        } 
+        }
 
         int connection_status;
 
@@ -121,7 +121,7 @@ class Socket {
             perror("Setting IP_MULTICAST_LOOP error");
             return -1;
         }
-        
+
         _initialized = true;
         return 0;
     }
@@ -166,7 +166,7 @@ class Socket {
         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
         if (numBytes < 0) {
             std::cout << "init_multicast: Failed to read from socket" << std::endl;
-        } 
+        }
 
         std::vector<unsigned char> bytes;
         for (int i = 0; i < numBytes; i++) {
@@ -230,6 +230,6 @@ class VariableServerTest : public ::testing::Test {
 
         Socket socket;
         int socket_status;
-        
+
         static int numSession;
 };

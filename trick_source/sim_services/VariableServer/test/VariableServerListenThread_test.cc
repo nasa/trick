@@ -41,7 +41,7 @@ class VariableServerListenThread_test : public ::testing::Test {
         MockTCPClientListener * listener;
         MockMulticastGroup * mcast;
 
-		VariableServerListenThread_test() { 
+		VariableServerListenThread_test() {
             varserver.set_enabled(1);
             varserver.set_allow_connections(1);
             varserver.set_bypass_ip_check(1);
@@ -393,7 +393,7 @@ TEST_F(VariableServerListenThread_test, restart_fails) {
         .WillOnce(Return(-1));
 
     EXPECT_CALL(*listener, disconnect());
-    
+
     EXPECT_CALL(message_publisher, publish(MSG_ERROR, _));
     EXPECT_CALL(message_publisher, publish(MSG_INFO, _));
 

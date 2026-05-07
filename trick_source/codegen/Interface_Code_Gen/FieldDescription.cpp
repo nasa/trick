@@ -387,7 +387,7 @@ std::string FieldDescription::getTypeName() {
 /**
  * This function returns the string representation of the STL element type.
  * STL element types are expected to be in the format like `int`, `double`, etc.
- * 
+ *
  * @return The string representation of the STL element type.
  * @see TRICK_TYPE for the enumeration values.
  */
@@ -576,7 +576,7 @@ bool FieldDescription::isSTLElementEnum() const {
 /**
  * This function returns the string representation of the STL type enumeration.
  * STL type names are expected to be in the format like `std::vector<int>`, `std::map<std::string, int>`, etc.
- * 
+ *
  * @return The string representation of the STL type enumeration.
  * @see TRICK_STL_TYPE for the enumeration values.
  */
@@ -617,9 +617,9 @@ std::string FieldDescription::getSTLTypeEnumString() {
 
 /**
  * This function returns the string representation of the STL element type enumeration.
- * It uses the element type name extracted from Clang API template arguments and 
+ * It uses the element type name extracted from Clang API template arguments and
  * recursively maps it to TRICK_TYPE enums, handling nested STL containers.
- * 
+ *
  * @return The string representation of the STL element type enumeration.
  * @see TRICK_TYPE for the enumeration values.
  */

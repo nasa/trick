@@ -88,11 +88,11 @@ int Trick::Executive::shutdown() {
 
     getrusage(RUSAGE_SELF, &cpu_usage_buf);
     cpu_time = ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
-    
+
     /* Get memory usage in MB for the calling process. Note that ru_maxrss returns long value in bytes on Mac and kilobytes on Linux. */
-    #if __APPLE__ 
+    #if __APPLE__
         sim_mem = (double)cpu_usage_buf.ru_maxrss / (1024 * 1024);
-    #else 
+    #else
         sim_mem = (double)cpu_usage_buf.ru_maxrss / 1024;
     #endif
 
@@ -135,8 +135,8 @@ int Trick::Executive::shutdown() {
             "   VOLUNTARY CONTEXT SWITCHES (RUN): %12ld\n"
             " INVOLUNTARY CONTEXT SWITCHES (RUN): %12ld\n\n",
             process_id, except_file.c_str(), except_message.c_str(),
-            sim_start, get_sim_time(), sim_elapsed_time, 
-            user_cpu_time, kernal_cpu_time, sim_to_cpu, 
+            sim_start, get_sim_time(), sim_elapsed_time,
+            user_cpu_time, kernal_cpu_time, sim_to_cpu,
             user_cpu_init, kernal_cpu_init, sim_mem,
             v_context_switch_init, iv_context_switch_init,
             v_context_switch_run, iv_context_switch_run) ;

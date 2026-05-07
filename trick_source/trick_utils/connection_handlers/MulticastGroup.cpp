@@ -103,7 +103,7 @@ int Trick::MulticastGroup::initialize_with_receiving(std::string addr, std::stri
         struct hostent *ip_host = NULL;
         gethostname(hname, (size_t) 80);
         ip_host = gethostbyname(hname);
-        if (ip_host != NULL) { 
+        if (ip_host != NULL) {
             memcpy(&(_self_info.sin_addr.s_addr), ip_host->h_addr, (size_t) ip_host->h_length);
         } else {
             _self_info.sin_addr.s_addr = inet_addr(addr.c_str());
@@ -114,7 +114,7 @@ int Trick::MulticastGroup::initialize_with_receiving(std::string addr, std::stri
     setBlockMode(false);
 
 
-    return 0;    
+    return 0;
 }
 
 int Trick::MulticastGroup::disconnect() {
@@ -191,7 +191,7 @@ int Trick::MulticastGroup::read  (std::string& message, int max_len) {
     } else {
         nbytes = 0 ;
     }
-    
+
     std::stringstream msg_stream;
 
     if ( nbytes > 0 ) {

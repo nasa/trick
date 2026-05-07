@@ -76,7 +76,7 @@ int Trick::Executive::loop_multi_thread() {
 
                 Trick::Threads * curr_thread = threads[ii];
 
-                if (curr_thread->process_type == Trick::PROCESS_TYPE_SCHEDULED) {            
+                if (curr_thread->process_type == Trick::PROCESS_TYPE_SCHEDULED) {
                     curr_thread->top_of_frame_queue.reset_curr_index() ;
                     while ( (curr_job = curr_thread->top_of_frame_queue.get_next_job()) != NULL ) {
                         ret = curr_job->call() ;
@@ -86,7 +86,7 @@ int Trick::Executive::loop_multi_thread() {
                     }
                 }
             }
-            
+
             frame_count++ ;
         }
 
@@ -197,7 +197,7 @@ int Trick::Executive::loop_multi_thread() {
                 Trick::Threads * curr_thread = threads[ii];
 
                 if (curr_thread->process_type == Trick::PROCESS_TYPE_SCHEDULED) {
-                    curr_thread->end_of_frame_queue.reset_curr_index();            
+                    curr_thread->end_of_frame_queue.reset_curr_index();
                     while ( (curr_job =  curr_thread->end_of_frame_queue.get_next_job()) != NULL ) {
                         ret = curr_job->call();
                         if ( ret != 0 ) {

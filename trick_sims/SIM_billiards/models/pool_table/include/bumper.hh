@@ -26,7 +26,7 @@ class Bumper {
 
     private:
         int nextPointSlot = 0;
-    
+
 };
 
 #endif

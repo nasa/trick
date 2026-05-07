@@ -133,7 +133,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             // Only use namespaces for identifying class name as the class name can't be the same within the same namespace.
             if (fd->getFriendDecl() != NULL) {
                 class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendDecl()->getNameAsString();
-            } 
+            }
             // For friend class, only need to get type here but the above getting class_str is for just in case needed.
             if (fd->getFriendType() != NULL) {
                 class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendType()->getType().getAsString();
@@ -435,7 +435,7 @@ bool CXXRecordVisitor::isPrivateEmbeddedClass( std::string in_name ) {
         in_name.erase(in_name.find_first_of("[*")) ;
     }
     // remove trailing spaces
-    in_name.erase(std::find_if(in_name.rbegin(), in_name.rend(), 
+    in_name.erase(std::find_if(in_name.rbegin(), in_name.rend(),
         [](int c) {return !std::isspace(c);}).base(), in_name.end());
 
     // remove all template arguments "<text>"

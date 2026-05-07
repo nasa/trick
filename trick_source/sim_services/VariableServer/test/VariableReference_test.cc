@@ -18,7 +18,7 @@ TEST_F(VariableReference_test, validateAddress) {
     int test_a = 5;
     (void) memmgr->declare_extern_var(&test_a, "int test_a");
     Trick::VariableReference ref("test_a");
-    
+
     float test_b = 5.0;
     (void) memmgr->declare_extern_var(&test_b, "float test_b");
     Trick::VariableReference ref_broken("test_b");
@@ -401,8 +401,8 @@ bool check_that_val_is_byteswapped (char * expected, char * byteswap, int val_si
 
 TEST_F(VariableReference_test, byteswap_short) {
     // ARRANGE
-    short in = 100; 
-    short out;      
+    short in = 100;
+    short out;
 
     memmgr->declare_extern_var(&in, "short a");
     Trick::VariableReference ref("a");
@@ -417,7 +417,7 @@ TEST_F(VariableReference_test, byteswap_short) {
 TEST_F(VariableReference_test, byteswap_int) {
     // ARRANGE
     int in = 123456;
-    int out;      
+    int out;
 
     memmgr->declare_extern_var(&in, "int a");
     Trick::VariableReference ref("a");
@@ -431,7 +431,7 @@ TEST_F(VariableReference_test, byteswap_int) {
 
 TEST_F(VariableReference_test, byteswap_long) {
     // ARRANGE
-    long in = 123456789; 
+    long in = 123456789;
     long out;
 
     memmgr->declare_extern_var(&in, "long a");
@@ -446,7 +446,7 @@ TEST_F(VariableReference_test, byteswap_long) {
 
 TEST_F(VariableReference_test, byteswap_long_arr) {
     // ARRANGE
-    long in[5] = {123456789, 123456780, __LONG_MAX__, -100000000, 0}; 
+    long in[5] = {123456789, 123456780, __LONG_MAX__, -100000000, 0};
     long out[5];
 
     memmgr->declare_extern_var(&in, "long a[5]");
@@ -463,7 +463,7 @@ TEST_F(VariableReference_test, byteswap_long_arr) {
 
 TEST_F(VariableReference_test, byteswap_int_arr) {
     // ARRANGE
-    int in[5] = {20945, -29384293, INT32_MAX, INT32_MIN, 0}; 
+    int in[5] = {20945, -29384293, INT32_MAX, INT32_MIN, 0};
     int out[5];
 
     memmgr->declare_extern_var(&in, "int a[5]");

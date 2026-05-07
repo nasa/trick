@@ -36,8 +36,8 @@ public:
   FooContD() : d(12.0) {}
 
   // RestartableSimpleSecondOrderODEIntegrator
-#ifndef TESTING_SWIG  
-# ifndef SWIG 
+#ifndef TESTING_SWIG
+# ifndef SWIG
 // THIS SHOULD PREVENT SWIG FROM MAKING ANY TEMPLATE REFERENCES TO EXCLUDED FooD TYPE
   FooD<1> fooD;
 
@@ -47,7 +47,7 @@ public:
 
   int spacer;
 
-#if ! defined ( SWIG ) 
+#if ! defined ( SWIG )
 // THIS SHOULD PREVENT SWIG FROM MAKING ANY TEMPLATE REFERENCES TO EXCLUDED FooD TYPE
   FooD<3> fooD3;
 

@@ -44,7 +44,7 @@ void PlanarManip::control()
     bool positionReached = false;
     switch(mode)
     {
-        /* No need to check singularities in SingleJoint mode, because they only arise with inverse 
+        /* No need to check singularities in SingleJoint mode, because they only arise with inverse
          * Jacobians and there's no need to use an inverse Jacobian here */
         case SingleJoint:
 
@@ -62,7 +62,7 @@ void PlanarManip::control()
                 controller.clearControlCommands();
                 return;
             }
-            
+
             controller.manualControl();
             break;
 
@@ -110,7 +110,7 @@ int PlanarManip::updateState()
 
     for(i=0;i<ndof;i++)
     {
-        /* This is a kinematic sim with perfect control, so the commanded joint rates 
+        /* This is a kinematic sim with perfect control, so the commanded joint rates
          * magically become the real joint rates */
         kinemat.joint_w[i] = controller.commandedJointRate[i];
     }

@@ -31,7 +31,7 @@ void setup_default_connection_mocks (MockClientConnection * connection) {
     // Starting the connection succeeds
     ON_CALL(*connection, start())
         .WillByDefault(Return(0));
-    
+
     // We should always get a disconnect call
     ON_CALL(*connection, disconnect())
         .WillByDefault(Return(0));
@@ -46,7 +46,7 @@ void setup_default_session_mocks (MockVariableServerSession * session, bool comm
 
     ON_CALL(*session, get_pause())
         .WillByDefault(Return(false));
-        
+
     ON_CALL(Const(*session), get_update_rate())
         .WillByDefault(Return(0.001));
 
@@ -66,10 +66,10 @@ class VariableServerSessionThread_test : public ::testing::Test {
 
         MockMessagePublisher message_publisher;
 
-		VariableServerSessionThread_test() { 
-            
+		VariableServerSessionThread_test() {
+
             varserver = new Trick::VariableServer;
-			
+
 			varserver->set_enabled(1);
             varserver->set_allow_connections(1);
             varserver->set_bypass_ip_check(1);
@@ -82,7 +82,7 @@ class VariableServerSessionThread_test : public ::testing::Test {
             setup_default_session_mocks(session);
         }
 
-		~VariableServerSessionThread_test() { 
+		~VariableServerSessionThread_test() {
             delete varserver;
 			// session is owned and cleaned up by the VariableServerSessionThread
         }
@@ -99,7 +99,7 @@ void setup_normal_connection_expectations (MockClientConnection * connection) {
     EXPECT_CALL(*connection, start())
         .Times(1)
         .WillOnce(Return(0));
-    
+
     // We should always get a disconnect call
     EXPECT_CALL(*connection, disconnect())
         .Times(1);
@@ -122,7 +122,7 @@ TEST_F(VariableServerSessionThread_test, connection_failure) {
     EXPECT_CALL(connection, start())
         .Times(1)
         .WillOnce(Return(1));
-    
+
     // Set up VariableServerSessionThread
     Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
@@ -148,13 +148,13 @@ TEST_F(VariableServerSessionThread_test, DISABLED_exit_if_handle_message_fails) 
 
     // ARRANGE
     setup_normal_connection_expectations(&connection);
-    
+
     // Handle a message, but it fails
     EXPECT_CALL(*session, handle_message())
         .Times(1)
         .WillOnce(Return(-1));
-    
-        
+
+
     // Set up VariableServerSessionThread
     Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
@@ -179,12 +179,12 @@ TEST_F(VariableServerSessionThread_test, DISABLED_exit_if_write_fails) {
 
     // ARRANGE
     setup_normal_connection_expectations(&connection);
-    
+
     // Write out data
     EXPECT_CALL(*session, copy_and_write_async())
         .WillOnce(Return(-1));
 
-        
+
     // Set up VariableServerSessionThread
     Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
@@ -233,7 +233,7 @@ TEST_F(VariableServerSessionThread_test, exit_commanded) {
 TEST_F(VariableServerSessionThread_test, thread_cancelled) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
-    
+
     // Set up VariableServerSessionThread
     Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);

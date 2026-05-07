@@ -9,7 +9,7 @@
 #include "trick/SystemInterface.hh"
 
 namespace Trick {
-    
+
     class TCPConnection : public ClientConnection {
         public:
 

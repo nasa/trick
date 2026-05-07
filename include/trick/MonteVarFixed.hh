@@ -48,9 +48,9 @@ namespace Trick {
          * @param unit this variable's units
          */
         MonteVarFixed(std::string name, double value, std::string unit = "");
-        
+
         void set_value(double in_value);
-        
+
         // Describes the properties of this variable.
         std::string describe_variable();
 

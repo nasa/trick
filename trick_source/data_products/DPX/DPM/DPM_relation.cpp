@@ -150,7 +150,7 @@ int DPM_relation::NumberOfAxes() {
 // MEMBER FUNCTION
 std::string DPM_relation::getXAxisLabel() {
   std::string candidate_label;
-  
+
   int n_curves, i;
 
   if (xaxis) {
@@ -168,7 +168,7 @@ std::string DPM_relation::getXAxisLabel() {
       for (i=1; i<n_curves; i++) {
           if ( curve_list[i]->getXCommonName().empty() || candidate_label != curve_list[i]->getXCommonName()) {
                return ("");
-          } 
+          }
       }
   }
   return (candidate_label);
@@ -177,7 +177,7 @@ std::string DPM_relation::getXAxisLabel() {
 // MEMBER FUNCTION
 std::string DPM_relation::getYAxisLabel() {
   std::string candidate_label;
-  
+
   int n_curves, i;
 
   if (yaxis) {
@@ -195,7 +195,7 @@ std::string DPM_relation::getYAxisLabel() {
       for (i=1; i<n_curves; i++) {
           if (curve_list[i]->getYCommonName().empty() || candidate_label != curve_list[i]->getYCommonName()) {
                return ("");
-          } 
+          }
       }
   }
   return (candidate_label);
@@ -204,7 +204,7 @@ std::string DPM_relation::getYAxisLabel() {
 // MEMBER FUNCTION
 std::string DPM_relation::getZAxisLabel() {
   std::string candidate_label;
-  
+
   int n_curves, i;
 
   if (zaxis) {
@@ -222,7 +222,7 @@ std::string DPM_relation::getZAxisLabel() {
       for (i=1; i<n_curves; i++) {
           if (curve_list[i]->getZCommonName().empty() || candidate_label != curve_list[i]->getZCommonName()) {
                return ("");
-          } 
+          }
       }
   }
   return (candidate_label);

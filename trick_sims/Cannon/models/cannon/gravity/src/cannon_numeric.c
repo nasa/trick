@@ -13,7 +13,7 @@ int cannon_deriv( CANNON* C ) {
           C->acc[1] = -C->g;
           C->timeRate = 1.00;
       }
-      return 0 ; 
+      return 0 ;
 }
 
 /* The cannonball sim's integration job */
@@ -51,13 +51,13 @@ int cannon_integ( CANNON* C ) {
 double cannon_impact( CANNON* C ) {
     double tgo ; /* time-to-go */
     double now ; /* current integration time. */
-    
+
     C->rf.error = C->pos[1] ;              /* Specify the event boundary. */
     now = get_integ_time() ;               /* Get the current integration time */
-    tgo = regula_falsi( now, &(C->rf) ) ;  /* Estimate remaining integration time. */ 
+    tgo = regula_falsi( now, &(C->rf) ) ;  /* Estimate remaining integration time. */
     if (tgo == 0.0) {                      /* If we are at the event, it's action time! */
         now = get_integ_time() ;
-        reset_regula_falsi( now, &(C->rf) ) ; 
+        reset_regula_falsi( now, &(C->rf) ) ;
         C->impact = 1 ;
         C->impactTime = now ;
         C->vel[0] = 0.0 ; C->vel[1] = 0.0 ;
