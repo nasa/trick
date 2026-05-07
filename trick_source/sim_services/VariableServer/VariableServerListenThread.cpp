@@ -1,19 +1,19 @@
 
-#include <iostream>
-#include <pwd.h>
-
+#include "trick/VariableServerListenThread.hh"
 
 #include "trick/VariableServer.hh"
-#include "trick/VariableServerListenThread.hh"
 #include "trick/VariableServerSessionThread.hh"
-#include "trick/exec_proto.h"
 #include "trick/command_line_protos.h"
+#include "trick/exec_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
+#include <iostream>
+#include <pwd.h>
+
 #define MAX_MACHINE_NAME 80
 
-extern Trick::VariableServer * the_vs ;
+extern Trick::VariableServer* the_vs;
 
 Trick::VariableServerListenThread::VariableServerListenThread() : VariableServerListenThread (NULL) {}
 
@@ -26,7 +26,6 @@ Trick::VariableServerListenThread::VariableServerListenThread(TCPClientListener 
  _listener(listener),
  _multicast(new MulticastGroup())
 {
-
     if (_listener != NULL) {
         // If we were passed a listener
         // We assume it is already initialized
@@ -171,12 +170,13 @@ void * Trick::VariableServerListenThread::thread_body() {
         if (_listener->checkForNewConnections()) {
 
             // Create a new thread to service this connection
-            if ( the_vs->get_allow_connections() ) {
+            if (the_vs->get_allow_connections())
+            {
                 pthread_mutex_lock(&connectionMutex);
                 pendingConnections ++;
 
                 VariableServerSessionThread * vst = new Trick::VariableServerSessionThread() ;
-                vst->set_connection(_listener->setUpNewConnection()) ;
+                vst->set_connection(_listener->setUpNewConnection());
                 vst->copy_cpus(get_cpus()) ;
                 vst->create_thread() ;
                 ConnectionStatus status = vst->wait_for_accept() ;
@@ -193,7 +193,6 @@ void * Trick::VariableServerListenThread::thread_body() {
                 }
                 pthread_mutex_unlock(&connectionMutex);
             }
-            
         } else if ( _broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];
@@ -216,12 +215,13 @@ void * Trick::VariableServerListenThread::thread_body() {
 
 void Trick::VariableServerListenThread::shutdownConnections() {
     pthread_mutex_lock(&connectionMutex);
-        the_vs->set_allow_connections(false);
-        //  if ANY connections are pending, then wait here until we’re notified that NO connections are pending.
-        if (pendingConnections > 0) {
-            the_vs->set_allow_connections(true);
-            pthread_cond_wait( &noPendingConnections_cv, &connectionMutex);
-        }
+    the_vs->set_allow_connections(false);
+    //  if ANY connections are pending, then wait here until we’re notified that NO connections are pending.
+    if (pendingConnections > 0)
+    {
+        the_vs->set_allow_connections(true);
+        pthread_cond_wait(&noPendingConnections_cv, &connectionMutex);
+    }
     pthread_mutex_unlock( &connectionMutex );
 }
 

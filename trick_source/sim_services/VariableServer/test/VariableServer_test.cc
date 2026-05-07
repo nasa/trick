@@ -17,16 +17,16 @@ class VariableServer_test : public ::testing::Test {
 	protected:
         Trick::VariableServer vs;
 
-		VariableServer_test() { 
+        VariableServer_test()
+        {
             vs.set_allow_connections(1);
             vs.set_bypass_ip_check(1);
         }
 
-		~VariableServer_test() {
-        }
+        ~VariableServer_test() { }
 
-		void SetUp() {}
-		void TearDown() {}
+        void SetUp() { }
+        void TearDown() { }
 };
 
 TEST_F(VariableServer_test, set_log_on) {
@@ -143,5 +143,4 @@ TEST_F(VariableServer_test, info_dump) {
     vs.add_session(id, &session);
 
     std::cout << vs << std::endl;
-
 }

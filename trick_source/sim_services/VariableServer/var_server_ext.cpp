@@ -588,45 +588,34 @@ int var_set( const char  * var , void * value , const char * units ) {
     return var_set_base(var, value, units) ;
 }
 
-void var_allow_connections() {
-    var_server_set_enabled(true) ;
-    the_vs->set_allow_connections(true) ;
+void var_allow_connections()
+{
+    var_server_set_enabled(true);
+    the_vs->set_allow_connections(true);
 }
 
-void var_disable_connections() {
-    var_server_set_enabled(false) ;
-    the_vs->set_allow_connections(false) ;
+void var_disable_connections()
+{
+    var_server_set_enabled(false);
+    the_vs->set_allow_connections(false);
 }
 
-void var_allow_all_connections() {
-    var_allow_connections() ;
-    the_vs->set_bypass_ip_check(true) ;
+void var_allow_all_connections()
+{
+    var_allow_connections();
+    the_vs->set_bypass_ip_check(true);
 }
 
-void var_resolve_hostname() {
-    the_vs->resolve_hostname() ;
-}
+void var_resolve_hostname() { the_vs->resolve_hostname(); }
 
-bool var_set_allow_connections(bool b) {
-    return the_vs->set_allow_connections(b) ;
-}
+bool var_set_allow_connections(bool b) { return the_vs->set_allow_connections(b); }
 
-bool var_get_allow_connections() {
-    return the_vs->get_allow_connections() ;
-}
+bool var_get_allow_connections() { return the_vs->get_allow_connections(); }
 
-int var_set_ip_check_bypass(bool b) {
-    return the_vs->set_bypass_ip_check(b) ;
-}
+int var_set_ip_check_bypass(bool b) { return the_vs->set_bypass_ip_check(b); }
 
-int var_get_ip_check_bypass() {
-    return the_vs->get_bypass_ip_check() ;
-}
+int var_get_ip_check_bypass() { return the_vs->get_bypass_ip_check(); }
 
-void var_add_ip(const std::string& ip) {
-    the_vs->add_ip(ip) ;
-}
+void var_add_ip(const std::string& ip) { the_vs->add_ip(ip); }
 
-void var_remove_ip(const std::string& ip) {
-    the_vs->remove_ip(ip) ;
-}
+void var_remove_ip(const std::string& ip) { the_vs->remove_ip(ip); }

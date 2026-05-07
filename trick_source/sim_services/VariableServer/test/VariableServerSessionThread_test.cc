@@ -66,11 +66,11 @@ class VariableServerSessionThread_test : public ::testing::Test {
 
         MockMessagePublisher message_publisher;
 
-		VariableServerSessionThread_test() { 
-            
+        VariableServerSessionThread_test()
+        {
             varserver = new Trick::VariableServer;
-			
-			varserver->set_enabled(1);
+
+            varserver->set_enabled(1);
             varserver->set_allow_connections(1);
             varserver->set_bypass_ip_check(1);
 
@@ -82,13 +82,14 @@ class VariableServerSessionThread_test : public ::testing::Test {
             setup_default_session_mocks(session);
         }
 
-		~VariableServerSessionThread_test() { 
+        ~VariableServerSessionThread_test()
+        {
             delete varserver;
             // session is owned and cleaned up by the VariableServerSessionThread
         }
 
-		void SetUp() {}
-		void TearDown() {}
+        void SetUp() { }
+        void TearDown() { }
 };
 
 

@@ -1,19 +1,21 @@
 
-#include <netdb.h>
-#include <iostream>
 #include "trick/VariableServer.hh"
-#include "trick/tc_proto.h"
+
 #include "trick/Message_proto.hh"
 #include "trick/message_proto.h"
+#include "trick/tc_proto.h"
+
+#include <iostream>
+#include <netdb.h>
 
 Trick::VariableServer * the_vs ;
 
-Trick::VariableServer::VariableServer() :
- enabled(false) ,
- info_msg(false),
- log(false),
- allow_connections(false),
- bypass_ip_check(false)
+Trick::VariableServer::VariableServer()
+    : enabled(false)
+    , info_msg(false)
+    , log(false)
+    , allow_connections(false)
+    , bypass_ip_check(false)
 {
     the_vs = this ;
     pthread_mutex_init(&map_mutex, NULL);
@@ -52,9 +54,11 @@ bool Trick::VariableServer::get_enabled() {
 }
 
 void Trick::VariableServer::set_enabled(bool on_off) {
-
-    if(!enabled && on_off) {
-        message_publish(MSG_INFO, "Trick VariableServer: Enabling the Variable Server. See Trick documentation for associated security concerns.\n");
+    if (!enabled && on_off)
+    {
+        message_publish(MSG_INFO,
+            "Trick VariableServer: Enabling the Variable Server. See Trick documentation for associated security "
+            "concerns.\n");
     }
 
     enabled = on_off ;
@@ -181,66 +185,73 @@ void Trick::VariableServer::set_copy_and_write_freeze_job( Trick::JobData * in_j
     copy_and_write_freeze_job = in_job ;
 }
 
-bool Trick::VariableServer::set_allow_connections(const bool& b) {
-    if(b) {
+bool Trick::VariableServer::set_allow_connections(const bool& b)
+{
+    if (b)
+    {
         message_publish(MSG_WARNING, "Trick VariableServer: Enabling Variable Server Connectivity\n");
         add_ip("127.0.0.1");
     }
 
-    return allow_connections = b ;
+    return allow_connections = b;
 }
 
-bool Trick::VariableServer::get_allow_connections() {
-    return allow_connections ;
-}
+bool Trick::VariableServer::get_allow_connections() { return allow_connections; }
 
-bool Trick::VariableServer::set_bypass_ip_check(const bool& b) {
-    if(b) {
-        message_publish(MSG_WARNING, "Trick VariableServer:\nBYPASSING IP SECURITY CHECK.\nANYONE ON THE NETWORK CAN CONNECT TO YOUR PYTHON INTERPRETER!\nYOU BETTER KNOW WHAT YOU'RE DOING!\n");
+bool Trick::VariableServer::set_bypass_ip_check(const bool& b)
+{
+    if (b)
+    {
+        message_publish(MSG_WARNING,
+            "Trick VariableServer:\nBYPASSING IP SECURITY CHECK.\nANYONE ON THE NETWORK CAN CONNECT TO YOUR PYTHON "
+            "INTERPRETER!\nYOU BETTER KNOW WHAT YOU'RE DOING!\n");
     }
 
-    return bypass_ip_check = b ;
+    return bypass_ip_check = b;
 }
 
-bool Trick::VariableServer::get_bypass_ip_check() {
-    return bypass_ip_check ;
+bool Trick::VariableServer::get_bypass_ip_check() { return bypass_ip_check; }
+
+const std::set<std::string>& Trick::VariableServer::get_ip_allowlist() { return ip_allowlist; }
+
+void Trick::VariableServer::add_ip(const std::string& ip)
+{
+    std::string msg = "Trick VariableServer: Adding " + ip + " to the allowlist.\n";
+    message_publish(MSG_INFO, msg.c_str());
+
+    ip_allowlist.insert(ip);
 }
 
-const std::set<std::string>& Trick::VariableServer::get_ip_allowlist() {
-    return ip_allowlist ;
+void Trick::VariableServer::remove_ip(const std::string& ip)
+{
+    std::string msg = "Trick VariableServer: Removing " + ip + " from the allowlist.\n";
+    message_publish(MSG_INFO, msg.c_str());
+
+    ip_allowlist.erase(ip);
 }
 
-void Trick::VariableServer::add_ip(const std::string& ip) {
-    std::string msg = "Trick VariableServer: Adding " + ip + " to the allowlist.\n" ;
-    message_publish(MSG_INFO, msg.c_str()) ;
-
-    ip_allowlist.insert(ip) ;
-}
-
-void Trick::VariableServer::remove_ip(const std::string& ip) {
-    std::string msg = "Trick VariableServer: Removing " + ip + " from the allowlist.\n" ;
-    message_publish(MSG_INFO, msg.c_str()) ;
-
-    ip_allowlist.erase(ip) ;
-}
-
-bool Trick::VariableServer::check_ip(const std::string& ip) {
+bool Trick::VariableServer::check_ip(const std::string& ip)
+{
     bool valid = false;
-    for (std::set<std::string>::iterator it = ip_allowlist.begin(); it != ip_allowlist.end(); ++it) {
+    for (std::set<std::string>::iterator it = ip_allowlist.begin(); it != ip_allowlist.end(); ++it)
+    {
         std::string entry = *it;
         size_t slash;
 
         struct in_addr addr;
-        if (inet_pton(AF_INET, ip.c_str(), &addr) != 1) {
-           return false;
+        if (inet_pton(AF_INET, ip.c_str(), &addr) != 1)
+        {
+            return false;
         }
         uint32_t ipVal = ntohl(addr.s_addr);
 
-        if( (slash = entry.find('/')) != std::string::npos ) {
+        if ((slash = entry.find('/')) != std::string::npos)
+        {
             std::string network = entry.substr(0, slash);
-            int prefix = std::stoi(entry.substr(slash + 1));
+            int prefix          = std::stoi(entry.substr(slash + 1));
 
-            if (inet_pton(AF_INET, network.c_str(), &addr) != 1) {
+            if (inet_pton(AF_INET, network.c_str(), &addr) != 1)
+            {
                 continue;
             }
             uint32_t netVal = ntohl(addr.s_addr);
@@ -249,37 +260,45 @@ bool Trick::VariableServer::check_ip(const std::string& ip) {
 
             valid = (ipVal & mask) == (netVal & mask);
         }
-        else {
+        else
+        {
             valid = (ip == entry);
         }
 
-        if (valid) break ;
+        if (valid)
+            break;
     }
 
     return valid;
 }
 
-void Trick::VariableServer::resolve_hostname() {
-    if(enabled) {
+void Trick::VariableServer::resolve_hostname()
+{
+    if (enabled)
+    {
         // Add your network IPs to the allowlist
         char hostname[256];
-        if (gethostname(hostname, sizeof(hostname)) != 0) {
+        if (gethostname(hostname, sizeof(hostname)) != 0)
+        {
             return;
         }
 
-        struct addrinfo hints{}, *res, *p;
-        hints.ai_family = AF_INET;
+        struct addrinfo hints { }, *res, *p;
+        hints.ai_family   = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
 
         int status = getaddrinfo(hostname, nullptr, &hints, &res);
-        if (status != 0) {
+        if (status != 0)
+        {
             return;
         }
 
         char ipstr[INET6_ADDRSTRLEN];
-        for (p = res; p != nullptr; p = p->ai_next) {
-            if (p->ai_family == AF_INET) {
-                struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+        for (p = res; p != nullptr; p = p->ai_next)
+        {
+            if (p->ai_family == AF_INET)
+            {
+                struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
                 inet_ntop(p->ai_family, &(ipv4->sin_addr), ipstr, sizeof(ipstr));
                 add_ip(ipstr);
             }
