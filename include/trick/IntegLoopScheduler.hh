@@ -426,4 +426,3 @@ namespace Trick {
 extern Trick::Integrator* trick_curr_integ; //!< trick_io(**)
 
 #endif
-

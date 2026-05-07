@@ -27,4 +27,3 @@ extern "C" GMTTIME * get_gmttime_struct(void) {
 extern "C" GMTTIME * get_mettime_struct(void) {
     return (the_simtime->get_mettime_struct()) ;
 }
-

@@ -43,4 +43,3 @@ int Satellite::state_integ() {
 
    return(integration_step);
 }
-

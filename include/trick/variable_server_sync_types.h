@@ -18,4 +18,3 @@ typedef enum {
 } VS_WRITE_MODE ;
 
 #endif
-

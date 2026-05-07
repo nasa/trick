@@ -548,6 +548,3 @@ int PoolTable::setBallVel(int id, double v_x, double v_y) {
     }
     return -1;
 }
-
-
-

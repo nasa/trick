@@ -304,4 +304,3 @@ void Trick::Sie::top_level_objects_print_xml() {
     sie_out << "</sie>\n" ;
     sie_out.close() ;
 }
-

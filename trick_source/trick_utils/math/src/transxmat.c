@@ -26,4 +26,3 @@ void transxmat(double **prod,  /* Out: Product of the two matrices */
    }
    return;
 }
-

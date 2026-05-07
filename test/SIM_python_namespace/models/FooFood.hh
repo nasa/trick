@@ -30,4 +30,3 @@ class Food {
 }
 
 #endif /* _BALL_HH_ */
-

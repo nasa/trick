@@ -103,5 +103,3 @@ bool EnumVisitor::VisitEnumConstantDecl(clang::EnumConstantDecl *ecd) {
 EnumValues * EnumVisitor::get_enum_data() {
     return &eval ;
 }
-
-

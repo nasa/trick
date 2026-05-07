@@ -298,4 +298,3 @@ int Trick::EventManager::restart() {
     }
     return (0);
 }
-

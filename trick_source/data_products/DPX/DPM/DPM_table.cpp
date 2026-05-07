@@ -153,4 +153,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_table *table) {
 
   return s;
 }
-

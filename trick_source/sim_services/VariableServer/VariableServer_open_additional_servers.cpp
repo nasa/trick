@@ -93,4 +93,3 @@ int Trick::VariableServer::create_multicast_socket(const char * mcast_address, c
 
     return 0 ;
 }
-

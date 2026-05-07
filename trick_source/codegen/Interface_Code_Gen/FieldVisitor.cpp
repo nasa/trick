@@ -719,4 +719,3 @@ bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
 FieldDescription * FieldVisitor::get_field_data() {
     return fdes ;
 }
-

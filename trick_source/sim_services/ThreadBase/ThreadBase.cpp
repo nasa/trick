@@ -403,5 +403,3 @@ void Trick::ThreadBase::dump( std::ostream & oss ) {
     oss << std::endl ;
 #endif
 }
-
-

@@ -69,15 +69,3 @@ void LST_secs_time( double GST, double longitude, double *LST) {
 
         *LST = GST - (longitude * (3600.0/15.0));
 }
-
-
-
-
-
-
-
-
-
-
-
-

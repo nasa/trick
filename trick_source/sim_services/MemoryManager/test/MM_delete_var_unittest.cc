@@ -188,5 +188,3 @@ TEST_F(MM_delete_var_unittest, externByName) {
     exists = memmgr->var_exists("foo");
     EXPECT_EQ(0, exists);
 }
-
-

@@ -99,4 +99,3 @@ int call_write_output(void) ;
 #ifdef __cplusplus
 }
 #endif
-

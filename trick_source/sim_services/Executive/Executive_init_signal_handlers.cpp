@@ -212,4 +212,3 @@ int Trick::Executive::init_signal_handlers() {
 
     return(0) ;
 }
-

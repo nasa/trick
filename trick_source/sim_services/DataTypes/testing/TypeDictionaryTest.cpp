@@ -124,4 +124,3 @@ TEST_F(TypeDictionaryTest, addTypeDefinition_2) {
 
     EXPECT_EQ( 1, test_result);
 }
-

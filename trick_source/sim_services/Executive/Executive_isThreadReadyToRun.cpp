@@ -35,4 +35,3 @@ bool Trick::Executive::isThreadReadyToRun( Trick::Threads * curr_thread , long l
     }
     return ret ;
 }
-

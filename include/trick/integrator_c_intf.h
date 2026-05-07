@@ -34,4 +34,3 @@ int get_integ_type(void);
 }
 #endif
 #endif
-

@@ -195,4 +195,3 @@ namespace Trick {
 }
 
 #endif
-

@@ -51,4 +51,3 @@ int Trick::Environment::print_vars( FILE * fp ) {
     return(0) ;
 
 }
-

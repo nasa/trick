@@ -10,4 +10,3 @@ public:
      CountMe() { count ++; }
     ~CountMe() { count --; }
 } ;
-

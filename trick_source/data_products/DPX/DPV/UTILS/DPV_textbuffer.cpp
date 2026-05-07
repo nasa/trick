@@ -151,4 +151,3 @@ int DPV_TextBuffer::writeFile( const char* filename ) {
     fclose(fp);
     return (0);
 }
-

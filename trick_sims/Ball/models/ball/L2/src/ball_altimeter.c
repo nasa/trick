@@ -42,4 +42,3 @@ double * ypos ) /* IN:     M  Ball vertical position from EOM */
 
     return( 0 ) ;
 }
-

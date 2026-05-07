@@ -189,4 +189,3 @@ void Trick::MemoryManager::get_stl_dependencies_in_intrinsic( std::string name ,
         }
     }
 }
-

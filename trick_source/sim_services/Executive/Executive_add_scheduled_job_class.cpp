@@ -26,4 +26,3 @@ int Trick::Executive::add_scheduled_job_class( std::string in_name ) {
     return(0) ;
 
 }
-

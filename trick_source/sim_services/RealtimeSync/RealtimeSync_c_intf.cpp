@@ -131,4 +131,3 @@ extern "C" int exec_set_lock_memory(int yes_no) {
     message_publish(MSG_WARNING, "Warning: exec_set_lock_memory deprecated.  Use real_time_lock_memory (auto-called)\n");
     return real_time_lock_memory(yes_no) ;
 }
-

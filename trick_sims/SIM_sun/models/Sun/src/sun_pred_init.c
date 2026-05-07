@@ -43,4 +43,3 @@ int sun_pred_init( SUN_PRED* S ) {
 
     return 0 ;
 }
-

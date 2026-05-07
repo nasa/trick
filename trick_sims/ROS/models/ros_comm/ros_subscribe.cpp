@@ -18,4 +18,3 @@ int RosSubscribe::process() {
     ros::spin() ;
     return 0 ;
 }
-

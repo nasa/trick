@@ -124,4 +124,3 @@ int Trick::MM4_Integrator::integrate() {
     return(intermediate_step);
 
 }
-

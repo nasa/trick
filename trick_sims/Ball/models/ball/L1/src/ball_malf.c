@@ -32,4 +32,3 @@ int ball_malf(
     /* RETURN */
     return(0);
 }
-

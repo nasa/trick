@@ -119,4 +119,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_column *column) {
   s << std::endl;
   return s;
 }
-

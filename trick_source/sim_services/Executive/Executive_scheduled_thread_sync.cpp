@@ -27,4 +27,3 @@ int Trick::Executive::scheduled_thread_sync() {
 
     return 0 ;
 }
-

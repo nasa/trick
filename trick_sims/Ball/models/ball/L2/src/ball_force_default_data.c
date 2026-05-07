@@ -40,4 +40,3 @@ int ball_force_default_data(
     /* RETURN */
     return( 0 ) ;
 }
-

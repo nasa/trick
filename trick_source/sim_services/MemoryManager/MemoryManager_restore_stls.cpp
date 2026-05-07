@@ -194,4 +194,3 @@ void Trick::MemoryManager::restore_stls_in_intrinsic( std::string name , void* a
         }
     }
 }
-

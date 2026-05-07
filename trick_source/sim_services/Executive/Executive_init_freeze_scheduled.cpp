@@ -16,4 +16,3 @@ int Trick::Executive::init_freeze_scheduled() {
 
     return 0 ;
 }
-

@@ -58,4 +58,3 @@ TEST_F( TCErrorTest, testOff ) {
    EXPECT_EQ( device->error_handler->report_level, TRICK_ERROR_SILENT );
    EXPECT_EQ( error_status, 0 );
 }
-

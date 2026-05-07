@@ -164,6 +164,3 @@ void * SMI_GetPrev(char** key, StrMapIterator* iter);
 #endif
 
 #endif
-
-
-

@@ -17,4 +17,3 @@ MSD::MSD(double _m, double _k, double _b, double _F, double _v_0, double _x_0) {
 }
 
 MSD::MSD(void) {/* not used */}
-

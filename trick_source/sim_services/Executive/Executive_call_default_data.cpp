@@ -39,4 +39,3 @@ int Trick::Executive::call_default_data() {
     /* return 0 if there are no errors. */
     return ret ;
 }
-

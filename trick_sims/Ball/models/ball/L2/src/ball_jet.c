@@ -43,4 +43,3 @@ BJET_OUT * JO = &(J->output) ;
 
     return( 0 ) ;
 }
-

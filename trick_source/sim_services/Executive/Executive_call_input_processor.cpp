@@ -40,4 +40,3 @@ int Trick::Executive::call_input_processor() {
     /* return 0 if there are no errors. */
     return ret ;
 }
-

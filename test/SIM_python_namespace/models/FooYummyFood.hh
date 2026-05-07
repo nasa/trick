@@ -30,4 +30,3 @@ class YummyFood {
 }
 
 #endif /* _BALL_HH_ */
-

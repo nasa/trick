@@ -125,4 +125,3 @@ class STLCheckpoint {
 } ;
 
 #endif
-

@@ -102,4 +102,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_inputs *inputs) {
      s << "</inputs>" << std::endl;
      return s;
 }
-

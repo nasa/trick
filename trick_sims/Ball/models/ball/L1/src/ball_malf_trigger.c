@@ -23,4 +23,3 @@ int ball_malf_trigger(
 {
     return(curr_time > 30.0);
 }
-

@@ -86,4 +86,3 @@ TIME_OFFSET * Trick::SimTime::get_mettime_struct() {
 
     return(&met_time) ;
 }
-

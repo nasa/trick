@@ -20,4 +20,3 @@ GMTTIME * get_mettime_struct(void) ;
 }
 #endif
 #endif
-

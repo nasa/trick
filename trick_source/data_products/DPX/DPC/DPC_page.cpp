@@ -196,4 +196,3 @@ void DPC_page::notify( DPV_view *view, DPV_message msg) {
 const char *DPC_page::getTitle() {
     return( page_spec->getTitle() );
 }
-

@@ -26,4 +26,3 @@ Trick::JobData * Trick::Executive::get_job(std::string job_name, unsigned int j_
     return((*it).second) ;
 
 }
-

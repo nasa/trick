@@ -80,4 +80,3 @@ void addr_bitfield(ATTRIBUTES *A, ATTRIBUTES *B, int field_count) {
         bitfield_bits_used += item_bits ;
         prev_item_size = item_size;
 }
-

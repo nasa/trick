@@ -31,4 +31,3 @@ class AllocTestWithMMInterface {
 } ;
 
 #endif /* _BALL_HH_ */
-

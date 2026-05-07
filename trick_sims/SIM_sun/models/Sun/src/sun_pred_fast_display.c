@@ -70,4 +70,3 @@ int sun_pred_fast_display(
 
 	return 0;
 }
-

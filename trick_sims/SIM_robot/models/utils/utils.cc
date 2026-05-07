@@ -65,4 +65,3 @@ void ManipUtils::VAdd(double *c, double *a, double *b)
     for(i=0;i<2;i++)
         c[i] = a[i] + b[i];
 }
-

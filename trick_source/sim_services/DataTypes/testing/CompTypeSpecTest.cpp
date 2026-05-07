@@ -323,4 +323,3 @@ TEST_F(CompositeDataTypeTest, printValue_4) {
     EXPECT_EQ(0, result);
 
 }
-

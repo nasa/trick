@@ -119,4 +119,3 @@ void Trick::NL2_Integrator::set_first_step_deriv(bool first_step) {
     }
     first_step_deriv = first_step;
 }
-

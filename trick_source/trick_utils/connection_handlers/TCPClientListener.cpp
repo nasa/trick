@@ -268,4 +268,3 @@ int Trick::TCPClientListener::restart () {
     return 0;
 }
  
-

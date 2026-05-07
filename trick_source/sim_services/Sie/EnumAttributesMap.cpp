@@ -65,4 +65,3 @@ void Trick::EnumAttributesMap::print_json(std::ofstream & sie_out ) {
     }
     sie_out << "  ],\n";
 }
-

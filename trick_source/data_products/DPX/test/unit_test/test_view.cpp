@@ -272,4 +272,3 @@ void Test_view::finalize_table_view( DPV_pointer table_view ) {
 	s << "FINALIZE TABLE VIEW." << std::endl;
 	(void)table_view;
 }
-

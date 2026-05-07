@@ -135,4 +135,3 @@ extern "C" int vsend_hs(FILE * fp __attribute__ ((unused)), const char * format_
     vmessage_publish(0, format_msg, args) ;
     return (0);
 }
-

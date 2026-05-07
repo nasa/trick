@@ -68,4 +68,3 @@ int Trick::Executive::set_time_tic_value(int in_tics) {
 
     return(0) ;
 }
-

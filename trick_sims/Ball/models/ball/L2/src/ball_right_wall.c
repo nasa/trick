@@ -42,4 +42,3 @@ double ball_right_wall(   /* RETURN: s  Time to go to event */
 
 return( tgo ) ;
 }
-

@@ -124,4 +124,3 @@ void Trick::SimObject::disable() {
     message_publish(MSG_WARNING,"SimObject::disable has been deprecated, use SimObject::disable_all_jobs instead\n") ;
     disable_all_jobs();
 }
-

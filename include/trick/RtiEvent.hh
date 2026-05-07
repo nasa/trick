@@ -169,5 +169,3 @@ RtiEventBase * createRtiEvent (char *variable, T value ) {
 }
 
 #endif
-
-

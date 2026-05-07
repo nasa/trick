@@ -151,4 +151,3 @@ void * Trick::VariableServerSessionThread::thread_body() {
     thread_shutdown(exit_var_thread, this);
     // No return from this.
 }
-

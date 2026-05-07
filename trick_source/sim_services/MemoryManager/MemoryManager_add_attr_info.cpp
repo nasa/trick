@@ -147,4 +147,3 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
     }
     return(0) ;
 }
-

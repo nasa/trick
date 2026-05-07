@@ -30,4 +30,3 @@ int exec_set_lock_memory(int yes_no) ;
 
 
 #endif
-

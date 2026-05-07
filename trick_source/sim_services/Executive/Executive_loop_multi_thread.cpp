@@ -214,4 +214,3 @@ int Trick::Executive::loop_multi_thread() {
 
     return(0) ;
 }
-

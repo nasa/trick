@@ -126,4 +126,3 @@ int Trick::RK4_Integrator::integrate() {
 
     return( intermediate_step);
 }
-

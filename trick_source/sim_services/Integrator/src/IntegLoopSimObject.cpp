@@ -70,4 +70,3 @@ double IntegLoopSimObject::call_function_double ( Trick::JobData * curr_job ) {
 
     return(trick_ret) ;
 }
-

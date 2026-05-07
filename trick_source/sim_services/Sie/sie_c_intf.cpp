@@ -39,4 +39,3 @@ extern "C" std::string sie_get_runtime_sie_dir(void) {
         return the_sie->get_runtime_sie_dir() ;
     }
 }
-

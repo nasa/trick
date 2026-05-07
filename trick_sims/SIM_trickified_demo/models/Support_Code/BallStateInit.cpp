@@ -48,4 +48,3 @@ int Ball::state_init() /* RETURN: -- Always return zero. */
    return( 0 );
 
 }
-

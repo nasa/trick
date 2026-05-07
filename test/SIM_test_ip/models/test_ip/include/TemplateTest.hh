@@ -95,4 +95,3 @@ template <typename T> void templated_function() {}
 
 
 #endif /* _BALL_HH_ */
-

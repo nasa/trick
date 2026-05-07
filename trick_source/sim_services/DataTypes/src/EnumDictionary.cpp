@@ -38,4 +38,3 @@ std::string EnumDictionary::toString() {
     }
     return oss.str();
 }
-

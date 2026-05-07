@@ -114,4 +114,3 @@ void Trick::MemoryManager::emitWarning( std::string message) {
     ss << "WARNING:" << message << std::endl;
     emitMessage( ss.str() );
 }
-

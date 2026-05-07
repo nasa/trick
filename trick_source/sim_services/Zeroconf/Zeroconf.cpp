@@ -104,4 +104,3 @@ int Trick::Zeroconf::init() {
     return 0 ;
 
 }
-

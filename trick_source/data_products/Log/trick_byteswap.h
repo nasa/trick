@@ -67,4 +67,3 @@ short  trick_byteswap_short(short  input);
 
 #endif /* _TRICK_BYTESWAP_H_ */
 /* Do NOT add anything below this line */
-

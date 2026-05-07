@@ -47,4 +47,3 @@ int ball_state_alt_integ(BSTATE*) ;
 #endif
 
 #endif
-

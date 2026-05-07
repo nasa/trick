@@ -36,4 +36,3 @@ int Trick::Executive::set_job_onoff(std::string job_name, int instance_num , int
 
 
 }
-

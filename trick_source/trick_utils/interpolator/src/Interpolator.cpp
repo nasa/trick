@@ -73,4 +73,3 @@ double Trick::Interpolator::eval (double param1, ...)
        return(0);
     }
 }
-

@@ -14,4 +14,3 @@ Trick::JobData * Trick::Executive::get_curr_job() {
     }
 
 }
-

@@ -13,4 +13,3 @@ int frame_log_set_max_samples(int num) ;
 #endif
 
 #endif
-

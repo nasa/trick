@@ -89,4 +89,3 @@ bool VariableVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializat
 
     return true;
 }
-

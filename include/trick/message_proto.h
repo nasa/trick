@@ -26,4 +26,3 @@ int vsend_hs(FILE * fp, const char *format_msg, va_list args) ;
 #endif
 
 #endif
-

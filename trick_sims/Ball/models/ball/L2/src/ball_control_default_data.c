@@ -42,4 +42,3 @@ int ball_control_default_data(
     /* RETURN */
     return( 0 ) ;
 }
-

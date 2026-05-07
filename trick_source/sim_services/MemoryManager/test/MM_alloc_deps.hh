@@ -7,5 +7,3 @@ typedef struct udt1 {
   struct udt1 *udt_p;
   double *dbl_p;
 } UDT1;
-
-

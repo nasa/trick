@@ -321,4 +321,3 @@ template <typename ITEM_TYPE, typename _Sequence,
 int restore_stl(std::stack<ITEM_TYPE, _Sequence> & in_stl , std::string object_name , std::string var_name ) ;
 
 #endif
-

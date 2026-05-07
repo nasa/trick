@@ -79,4 +79,3 @@ int DS_exercisor::run() {
   }
   return (0);
 }
-

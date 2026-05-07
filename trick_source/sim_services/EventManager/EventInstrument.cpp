@@ -11,4 +11,3 @@ int Trick::EventInstrument::call() {
     event->process(exec_get_time_tics()) ;
     return 0 ;
 }
-

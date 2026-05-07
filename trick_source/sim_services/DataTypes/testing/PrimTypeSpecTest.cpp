@@ -526,4 +526,3 @@ TEST_F(PrimitiveDataTypeTest, createInstance_char) {
     delete primTypeSpec;
     EXPECT_EQ('A', *test_var);
 }
-

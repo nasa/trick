@@ -60,4 +60,3 @@ TEST_F( TCConnectTest, testNullHostname ) {
 
    EXPECT_EQ( connect_status, TC_CONN_DISABLED );
 }
-

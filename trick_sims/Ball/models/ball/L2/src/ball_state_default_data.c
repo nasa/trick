@@ -94,4 +94,3 @@ int ball_state_default_data(
     /* RETURN */
     return( 0 ) ;
 }
-

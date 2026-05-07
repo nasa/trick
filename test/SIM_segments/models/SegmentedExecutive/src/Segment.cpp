@@ -42,4 +42,3 @@ int Trick::Segment::exit( std::string next_segment __attribute__((unused)) ) {
 std::map < std::string , Trick::ScheduledJobQueue * > & Trick::Segment::get_job_queues() {
     return job_queues ;
 }
-

@@ -675,4 +675,3 @@ bool Trick::IPPythonEvent::process_user_event( long long curr_time ) {
     /** @li Return true if the event fired. */
     return(it_fired) ;
 }
-

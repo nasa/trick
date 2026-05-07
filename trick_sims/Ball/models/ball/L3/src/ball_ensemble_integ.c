@@ -69,4 +69,3 @@ int ball_ensemble_integ( BSTATE *S[] ) {
     /* RETURN */
     return( ipass );
 }
-

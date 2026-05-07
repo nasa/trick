@@ -12,4 +12,3 @@ StructMember::StructMember ( const StructMember & original) {
 std::string StructMember::getName() const {
     return name;
 }
-

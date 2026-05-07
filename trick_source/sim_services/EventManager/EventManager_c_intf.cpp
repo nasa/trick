@@ -46,4 +46,3 @@ int event_manager_remove_event( Trick::Event * in_event ) {
     }
     return -1 ;
 }
-

@@ -268,4 +268,3 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
 
     return ignore_types ;
 }
-

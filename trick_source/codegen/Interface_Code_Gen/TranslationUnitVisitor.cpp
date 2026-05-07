@@ -154,4 +154,3 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
     }
     return true ;
 }
-

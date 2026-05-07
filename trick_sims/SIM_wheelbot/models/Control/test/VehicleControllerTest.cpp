@@ -55,4 +55,3 @@ TEST_F( vehicleControllerTest , one ) {
     EXPECT_EQ(current_destination.x, 1);
     EXPECT_EQ(current_destination.y, 3);
 }
-

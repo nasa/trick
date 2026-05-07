@@ -190,4 +190,3 @@ void Trick::JSONVariableServer::dump( std::ostream & oss ) {
     oss << "    user_port_requested = " << user_port_requested << std::endl ;
     Trick::ThreadBase::dump(oss) ;
 }
-

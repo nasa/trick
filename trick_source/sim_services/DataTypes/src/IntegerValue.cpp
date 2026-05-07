@@ -28,4 +28,3 @@ double IntegerValue::getFloatingPointValue() {
 long long IntegerValue::getIntegerValue() {
     return (long long)value;
 }
-

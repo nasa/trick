@@ -198,4 +198,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_product *product) {
   s << "</product>" << std::endl;
   return s;
 }
-

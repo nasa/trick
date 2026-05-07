@@ -153,4 +153,3 @@ void Trick::Executive::usr1_handler() {
     write( 2 , "\033[31mProcess terminated by call to exec_signal_terminate()\033[0m\n" , 63 ) ;
     _exit(SIGUSR1) ;
 }
-

@@ -69,4 +69,3 @@ int sun_pred_slow_display(
 
 	return 0 ;
 }
-

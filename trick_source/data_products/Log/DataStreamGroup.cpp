@@ -364,4 +364,3 @@ int DataStreamGroup::getLastRead( DataStream *ds , double *time , double *value)
         *value = lastRead_[ds].value ;
         return (1) ;
 }
-

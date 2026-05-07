@@ -41,4 +41,3 @@ double ball_ceiling( /* RETURN: s  Time to go to event */
     }
     return( tgo ) ;
 }
-

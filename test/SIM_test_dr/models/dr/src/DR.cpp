@@ -11,4 +11,3 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (7-22-2013) )
 
 DRTypes::DRTypes() {}
 DRTypes::~DRTypes() {}
-

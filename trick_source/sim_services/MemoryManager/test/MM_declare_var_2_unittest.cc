@@ -185,4 +185,3 @@ TEST_F(MM_declare_var_2, UserDefinedTwoDimArray) {
         int extents[8] = {3,4,0,0,0,0,0,0};
         validate_alloc_info_local(memmgr, test_var, TRICK_STRUCTURED, "UDT1", NULL, 12, 2, extents);
 }
-

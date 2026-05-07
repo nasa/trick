@@ -72,4 +72,3 @@ int Trick::Executive::advance_sim_time() {
 
     return(0) ;
 }
-

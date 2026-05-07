@@ -18,4 +18,3 @@ double Trick::Executive::get_job_cycle(std::string job_name) {
     return(0.0) ;
 
 }
-

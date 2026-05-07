@@ -80,4 +80,3 @@ void Ball::nearCallback (void * void_ball, dGeomID o1, dGeomID o2) {
         dJointAttach (c,b1,b2);
     }
 }
-

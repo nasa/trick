@@ -75,5 +75,3 @@ Trick::MonteCarlo::~MonteCarlo() {
 const char* Trick::MonteRun::exit_status_string() const {
     return MC_exit_status_string[exit_status];
 }
-
-

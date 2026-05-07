@@ -32,6 +32,3 @@ void * follow_address_path(REF2 * R) {
 
     return(address) ;
 }
-
-
-

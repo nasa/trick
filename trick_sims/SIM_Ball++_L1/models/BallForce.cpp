@@ -15,4 +15,3 @@ BallForceOutput::BallForceOutput() {
     force[1] = 0.0 ;
 
 }
-

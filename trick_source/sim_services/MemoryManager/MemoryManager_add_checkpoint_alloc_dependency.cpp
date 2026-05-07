@@ -8,4 +8,3 @@ void Trick::MemoryManager::add_checkpoint_alloc_dependency(const char *name) {
         stl_dependencies.push_back(it->second) ;
     }
 }
-

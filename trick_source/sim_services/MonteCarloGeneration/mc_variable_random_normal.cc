@@ -243,4 +243,3 @@ MonteCarloVariableRandomNormal::untruncate()
   truncated_low = false;
   truncated_high = false;
 }
-

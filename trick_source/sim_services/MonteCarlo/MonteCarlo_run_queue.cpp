@@ -30,4 +30,3 @@ int Trick::MonteCarlo::run_queue(Trick::ScheduledJobQueue* queue, std::string in
     /* return 0 if there are no errors. */
     return ret ;
 }
-

@@ -36,4 +36,3 @@ namespace Trick {
 
 
 #endif
-

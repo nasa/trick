@@ -168,5 +168,3 @@ TEST_F( differentialDriveControllerTest, negativeHeadingError ) {
     driveController->getCommandedMotorSpeeds(leftMotorSpeedCommand, rightMotorSpeedCommand);
     EXPECT_GT(rightMotorSpeedCommand, leftMotorSpeedCommand);
 }
-
-

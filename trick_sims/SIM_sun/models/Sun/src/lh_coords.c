@@ -32,4 +32,3 @@ void equatorial_to_local_horiz(double lat,   /* Observer's latitude       IN */
      *el = RAD_TO_DEG * asin ( sin(lat_r) * sin(decl_r) + cos(lat_r)*cos(decl_r)*cos(HA_r) );
 
 }
-

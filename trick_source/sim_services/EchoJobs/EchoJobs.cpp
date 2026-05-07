@@ -57,4 +57,3 @@ int Trick::EchoJobs::echojobs_off() {
     return(0) ;
 
 }
-

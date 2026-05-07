@@ -61,4 +61,3 @@ int Trick::Executive::thread_sync() {
 
     return(0) ;
 }
-

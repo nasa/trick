@@ -29,4 +29,3 @@ int Trick::MemoryManager::get_enumerated(const char* name,
 
     return (MM_OK);
 }
-

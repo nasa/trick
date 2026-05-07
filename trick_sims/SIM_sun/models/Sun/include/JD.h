@@ -44,6 +44,3 @@ void JD_to_Calendar_Date (double JD, int *year, int *month, double *day) ;
 #endif
 
 #endif
-
-
-

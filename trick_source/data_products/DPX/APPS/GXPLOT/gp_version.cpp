@@ -47,4 +47,3 @@ double GnuplotVersion() {
         // it will not be executed
         return( version ) ;
 }
-

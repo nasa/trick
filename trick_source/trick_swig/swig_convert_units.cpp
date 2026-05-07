@@ -69,4 +69,3 @@ int scale_united_value( std::string & to_units , std::string & from_units , long
 int scale_united_value( std::string & to_units , std::string & from_units , double * val ) {
     return convert_united_value(to_units, from_units, val) ;
 }
-

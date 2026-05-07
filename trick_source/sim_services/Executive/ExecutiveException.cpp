@@ -21,4 +21,3 @@ Trick::ExecutiveException::~ExecutiveException() throw () {
 const char* Trick::ExecutiveException::what() const throw() {
     return message.c_str() ;
 }
-

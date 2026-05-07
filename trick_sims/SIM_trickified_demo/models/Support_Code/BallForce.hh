@@ -68,4 +68,3 @@ class BallForce {
 
 
 #endif /* _BALL_FORCE_HH_ */
-

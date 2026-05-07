@@ -66,4 +66,3 @@ double    altitude ) /* IN:    M  Ball jet commands from the flight software */
 
     return( 0 ) ;
 }
-

@@ -61,4 +61,3 @@ void Trick::MemoryManager::write_JSON_alloc_list(std::ostream& s, int chunk_star
     }
     s << "]}" << std::endl;
 }
-

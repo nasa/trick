@@ -85,4 +85,3 @@ int sun_pred_cyclic( SUN_PRED* S,
 
        return 0;
 }
-

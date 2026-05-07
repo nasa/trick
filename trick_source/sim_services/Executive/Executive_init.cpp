@@ -78,4 +78,3 @@ int Trick::Executive::init() {
     /* return 0 if there are no errors. */
     return(0) ;
 }
-

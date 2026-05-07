@@ -58,4 +58,3 @@ int Trick::Executive::loop() {
     /* return 0 if there are no errors. */
     return(0) ;
 }
-

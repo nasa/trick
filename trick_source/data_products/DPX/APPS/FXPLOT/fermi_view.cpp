@@ -350,4 +350,3 @@ void fermi_view::notify_plot( DPV_pointer plot_view, DPV_message msg ) {
 void fermi_view::notify_curve( DPV_pointer curve_view, DPV_message msg ) {
     // Nothing to do.
 }
-

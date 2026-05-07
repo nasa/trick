@@ -33,4 +33,3 @@ Trick::ScheduledJobQueueInstrument::~ScheduledJobQueueInstrument() {
 int Trick::ScheduledJobQueueInstrument::call() {
     return instru_job->parent_object->call_function(instru_job) ;
 }
-

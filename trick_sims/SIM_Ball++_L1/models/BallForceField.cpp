@@ -61,4 +61,3 @@ int Ball::force_field() /* RETURN: -- Always return zero. */
    return(0);
 
 }
-

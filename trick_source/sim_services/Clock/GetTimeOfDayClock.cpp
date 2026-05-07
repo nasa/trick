@@ -90,4 +90,3 @@ int Trick::GetTimeOfDayClock::get_clock_ID() {
     return -1 ;
 #endif
 }
-

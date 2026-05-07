@@ -48,4 +48,3 @@ int ball_state_init(
     /* RETURN */
     return( 0 ) ;
 }
-

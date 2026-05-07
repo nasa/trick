@@ -395,4 +395,3 @@ TEST_F(EulerQuatTest, quat_to_euler321_method2)
   }
   EXPECT_EQ(num_pass, num_tests);
 }
-

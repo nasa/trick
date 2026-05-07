@@ -59,4 +59,3 @@ int Trick::Executive::get_sim_object_onoff (std::string sim_object_name) {
 
     return !(sim_object->object_disabled) ;
 }
-

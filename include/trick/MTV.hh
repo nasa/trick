@@ -39,4 +39,3 @@ Trick::IPPythonEvent * mtv_get_event(std::string event_name) ;
 int mtv_send_event_data() ;
 
 #endif
-

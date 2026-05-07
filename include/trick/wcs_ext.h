@@ -34,4 +34,3 @@ size_t ncs_to_wcs(const char *ncs, wchar_t *wcs, size_t w_max_size );
 #endif
 
 #endif
-

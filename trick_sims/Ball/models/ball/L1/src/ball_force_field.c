@@ -62,4 +62,3 @@ int ball_force_field(
     /* RETURN */
     return(0);
 }
-

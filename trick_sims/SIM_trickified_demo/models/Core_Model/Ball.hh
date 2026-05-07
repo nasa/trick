@@ -81,4 +81,3 @@ class Ball {
 #endif
 
 #endif /* _BALL_HH_ */
-

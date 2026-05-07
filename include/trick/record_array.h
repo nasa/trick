@@ -76,10 +76,3 @@ void* Array_GetBufferWithSize(RecordArray* pArray);
 
 
 #endif
-
-
-
-
-
-
-

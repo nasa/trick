@@ -56,7 +56,3 @@ void Ball::clearAllState() {
     setAngularAccel(0, 0, 0);
     sliding = false;
 }
-
-
-
-

@@ -51,4 +51,3 @@ class TemplateTest {
 #endif
 
 #endif /* _BALL_HH_ */
-

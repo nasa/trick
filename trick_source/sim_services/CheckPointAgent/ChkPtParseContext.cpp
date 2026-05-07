@@ -31,4 +31,3 @@ ChkPtParseContext::~ChkPtParseContext() {
     destroy_scanner();
     free( this->buf );
 }
-

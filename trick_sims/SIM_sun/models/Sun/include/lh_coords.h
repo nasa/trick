@@ -17,6 +17,3 @@ void equatorial_to_local_horiz(double lat,   /* Observer's latitude       IN */
 #endif
 
 #endif
-
-
-

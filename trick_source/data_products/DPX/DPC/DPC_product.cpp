@@ -217,4 +217,3 @@ void DPC_product::notify( DPV_view *view, DPV_message msg ) {
 const char *DPC_product::getAttribute(const char *key) {
     return( product_spec->AttributeValue(key) );
 }
-

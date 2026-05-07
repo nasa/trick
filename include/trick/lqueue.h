@@ -45,5 +45,3 @@ int LQ_GetCount(LQUEUE* pQueue);         /* returns number of items in the queue
 
 
 #endif
-
-

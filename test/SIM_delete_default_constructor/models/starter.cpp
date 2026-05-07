@@ -3,4 +3,3 @@
 Starter::Starter(int foo) {
   
 }
-

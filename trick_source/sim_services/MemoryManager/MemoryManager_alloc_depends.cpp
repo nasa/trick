@@ -237,4 +237,3 @@ void Trick::MemoryManager::get_alloc_deps_in_intrinsic( void* address, ATTRIBUTE
         }
     }
 }
-

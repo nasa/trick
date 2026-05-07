@@ -29,4 +29,3 @@ double Trick::InputProcessSimObject::call_function_double( Trick::JobData * curr
     return(0.0) ;
 
 }
-

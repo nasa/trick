@@ -9,4 +9,3 @@ int Trick::Executive::set_thread_rt_semaphores(unsigned int thread_id , bool yes
      "Use exec_get_thread(thread_id).set_trigger_type(Trick::ThreadTriggerType tt_type)") ;
     return -1 ;
 }
-

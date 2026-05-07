@@ -159,5 +159,3 @@ std::string MonteCarloVariable::summarize_variable() const
   ss << variable_name << std::string(": type=") << get_type_str();
   return (ss.str());
 }
-
-

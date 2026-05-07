@@ -54,4 +54,3 @@ int cannon_init( CANNON* C) {
 
     return 0 ; 
 }
-

@@ -884,5 +884,3 @@ void GPViewPageNode::finalize() {
     }
 
 }
-
-

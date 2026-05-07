@@ -436,4 +436,3 @@ int Trick::CheckPointRestart::instrument_job_remove(std::string in_job) {
 
     return(0) ;
 }
-

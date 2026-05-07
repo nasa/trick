@@ -60,4 +60,3 @@ int ball_state_deriv(
     /* RETURN */
     return(0) ;
 }
-

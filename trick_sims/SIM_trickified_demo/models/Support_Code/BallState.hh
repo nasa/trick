@@ -87,4 +87,3 @@ class BallState {
 
 
 #endif /* _BALL_STATE_HH_ */
-

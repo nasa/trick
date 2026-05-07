@@ -19,4 +19,3 @@ int ball_state_default_data( BSTATE * ball_state ) {
 
     return(0) ;
 }
-

@@ -31,4 +31,3 @@ void Thruster::add_force_and_torque (double* force, double* torque) {
         for (int ii=0; ii<3;ii++) { force[ii] += thrust[ii]; }
     }
 }
-

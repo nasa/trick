@@ -18,6 +18,3 @@ class Fibonacci_time {
         int automatic_job_1();
 };
 #endif
-
-
-

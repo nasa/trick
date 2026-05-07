@@ -47,5 +47,3 @@ void Trick::MessageCustomFile::set_name(std::string name) {
 void Trick::MessageCustomFile::set_file_name(std::string file_name) {
     this->file_name = file_name;
 }
-
-

@@ -80,4 +80,3 @@ int Trick::MessageFile::restart() {
 Trick::MessageFile::~MessageFile() {
     out_stream.close() ;
 }
-

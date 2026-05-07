@@ -305,4 +305,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_relation *relation) {
   s << std::endl;
   return s;
 }
-

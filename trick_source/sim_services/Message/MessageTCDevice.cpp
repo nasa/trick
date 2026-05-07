@@ -234,4 +234,3 @@ void Trick::MessageTCDevice::update( unsigned int level , std::string header , s
 
     return ;
 }
-

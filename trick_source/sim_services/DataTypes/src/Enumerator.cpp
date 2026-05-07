@@ -28,4 +28,3 @@ std::string Enumerator::toString() {
     oss << getValue();
     return oss.str();
 }
-

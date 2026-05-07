@@ -49,4 +49,3 @@ class SegmentB : public Trick::Segment {
 } ;
 
 #endif
-

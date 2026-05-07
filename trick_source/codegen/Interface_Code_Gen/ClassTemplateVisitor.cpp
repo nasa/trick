@@ -100,4 +100,3 @@ bool ClassTemplateVisitor::VisitType(clang::Type *t) {
     }
     return true;
 }
-

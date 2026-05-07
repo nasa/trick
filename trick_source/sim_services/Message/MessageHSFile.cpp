@@ -28,5 +28,3 @@ void Trick::MessageHSFile::update( unsigned int level , std::string header, std:
     }
 
 }
-
-

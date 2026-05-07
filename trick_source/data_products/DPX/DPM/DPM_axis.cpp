@@ -105,4 +105,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_axis *axis) {
   s << std::endl;
   return s;
 }
-

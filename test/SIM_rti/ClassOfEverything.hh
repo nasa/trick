@@ -191,4 +191,3 @@ class ClassOfEverything {
 };
 
 #endif /* _BALL_HH_ */
-

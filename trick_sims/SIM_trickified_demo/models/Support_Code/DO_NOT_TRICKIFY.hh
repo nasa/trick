@@ -25,4 +25,3 @@ class Do_Not_Trickify {
 };
 
 #endif
-

@@ -40,5 +40,3 @@ int LS_GetCount(LSTACK*); /* get number of items on the stack */
 #endif
 
 #endif
-
-

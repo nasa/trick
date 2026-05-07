@@ -18,4 +18,3 @@ void Trick::PlaybackFile::update( unsigned int level , std::string header __attr
     }
 
 }
-

@@ -69,5 +69,3 @@ int Trick::RtiExec::SetFrameOffset( unsigned int offset ) {
     frame_offset = offset ;
     return 0 ;
 }
-
-

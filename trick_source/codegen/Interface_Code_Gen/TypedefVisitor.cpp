@@ -164,4 +164,3 @@ bool TypedefVisitor::VisitTypedefDecl(clang::TypedefDecl *td) {
 
     return true;
 }
-

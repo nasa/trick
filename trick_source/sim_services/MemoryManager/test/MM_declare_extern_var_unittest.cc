@@ -206,8 +206,3 @@ TEST_F(MM_declare_extern_var, three_argument_version) {
         int extents[8] = {3,0,0,0,0,0,0,0};
         validate_alloc_info_extern(memmgr, test_var_p, TRICK_STRUCTURED, "UDT1", NULL, 3, 1, extents);
 }
-
-
-
-
-

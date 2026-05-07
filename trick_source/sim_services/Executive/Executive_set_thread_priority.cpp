@@ -17,4 +17,3 @@ int Trick::Executive::set_thread_priority(unsigned int thread_id , unsigned int 
     return(ret) ;
 
 }
-

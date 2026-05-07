@@ -85,4 +85,3 @@ struct STLContainerTypes
     StackType stack;
 
 };
-

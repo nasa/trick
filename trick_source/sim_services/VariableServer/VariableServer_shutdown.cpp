@@ -18,4 +18,3 @@ int Trick::VariableServer::shutdown() {
 
     return 0 ;
 }
-

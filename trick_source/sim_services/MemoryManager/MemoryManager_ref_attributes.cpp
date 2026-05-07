@@ -56,4 +56,3 @@ REF2 *Trick::MemoryManager::ref_attributes(const char* name) {
     /** @li Return the the REF2 object.*/
     return ( result);
 }
-

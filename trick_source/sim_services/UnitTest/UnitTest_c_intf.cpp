@@ -40,4 +40,3 @@ extern "C" int call_write_output(void) {
     the_unit_test_output->write_output() ;
     return(0) ;
 }
-

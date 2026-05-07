@@ -13,4 +13,3 @@ int Trick::VariableServerSession::freeze_init() {
     }
     return 0 ;
 }
-

@@ -23,6 +23,3 @@ class Satellite {
         int state_integ();
 };
 #endif
-
-
-

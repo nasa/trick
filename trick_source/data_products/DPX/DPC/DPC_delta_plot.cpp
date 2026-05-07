@@ -145,4 +145,3 @@ DPC_delta_plot::DPC_delta_plot( DPC_datastream_supplier *DS_Supplier,
         throw std::invalid_argument("DPC_delta_plot: Ack!! I dont have any curves to plot! I have no reason to exist! *POOF!*");
     }
 }
-

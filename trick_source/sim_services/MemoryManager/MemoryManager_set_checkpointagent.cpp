@@ -19,4 +19,3 @@ void Trick::MemoryManager::reset_CheckPointAgent() {
     currentCheckPointAgent = defaultCheckPointAgent;
     return;
 }
-

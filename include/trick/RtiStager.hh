@@ -108,5 +108,3 @@ class RtiStager {
 }
 
 #endif
-
-

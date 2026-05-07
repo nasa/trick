@@ -72,4 +72,3 @@ int ball_state_integ( /* RETURN: -- Integration multi-step id */
     /* RETURN */
     return( ipass );
 }
-

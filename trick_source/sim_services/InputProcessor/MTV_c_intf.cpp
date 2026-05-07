@@ -46,4 +46,3 @@ int mtv_send_event_data() {
     }
     return 0 ;
 }
-

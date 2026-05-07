@@ -49,4 +49,3 @@ int Trick::Executive::add_sim_object( Trick::SimObject * in_object , const char 
     return(0) ;
 
 }
-

@@ -40,4 +40,3 @@ int BallForce::default_data() {
 
     return(0) ;
 }
-

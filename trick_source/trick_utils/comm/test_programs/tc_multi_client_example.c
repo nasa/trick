@@ -153,4 +153,3 @@ void sigint_hndlr( int sig )
    /* Exit the application. */
    exit( 1 );
 }
-

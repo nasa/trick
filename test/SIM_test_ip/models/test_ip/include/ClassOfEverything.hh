@@ -616,4 +616,3 @@ class doNotIncludeMe {
 #endif
 
 #endif /* _BALL_HH_ */
-

@@ -186,4 +186,3 @@ int Trick::ABM_Integrator::integrate() {
 
     return( intermediate_step);
 }
-

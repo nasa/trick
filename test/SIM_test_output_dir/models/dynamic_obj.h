@@ -41,4 +41,3 @@ class DynamicObj : public Trick::SimObject {
 
     
 };
-

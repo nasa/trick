@@ -38,4 +38,3 @@ int Ball::shutdown() {
    return( 0 );
 
 }
-

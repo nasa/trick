@@ -107,4 +107,3 @@ int Trick::RK2_Integrator::integrate() {
 
     return( intermediate_step);
 }
-

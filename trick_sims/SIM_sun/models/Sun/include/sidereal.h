@@ -13,4 +13,3 @@ void LST_secs_time( double GST, double longitude, double *LST );
 #endif
 
 #endif
-

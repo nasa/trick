@@ -1012,4 +1012,3 @@ std::string Trick::DataRecordGroup::type_string( int item_type, int item_size ) 
     }
     return "";
 }
-

@@ -279,4 +279,3 @@ int Trick::JITInputFile::init() {
     // Compile and run the input file.  It's ok if input_file is empty.
     return compile_and_run(input_file) ;
 }
-

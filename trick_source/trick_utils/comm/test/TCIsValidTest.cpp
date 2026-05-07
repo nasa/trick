@@ -51,4 +51,3 @@ TEST_F( TCIsValidTest, testValidSocket ) {
 
    EXPECT_EQ( tcisvalid_status, 0 );
 }
-

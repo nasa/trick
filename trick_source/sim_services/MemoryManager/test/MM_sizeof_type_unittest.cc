@@ -137,4 +137,3 @@ TEST_F(MM_sizeof_type, UserDefinedTwoDimArray) {
 	size_t size = memmgr->sizeof_type("UDT1[3][4]");
         EXPECT_EQ(sizeof(UDT1)*12, size);
 }
-

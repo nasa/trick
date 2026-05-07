@@ -52,4 +52,3 @@ std::string  CompositeValue::toString() {
     oss << "}";
     return oss.str();
 }
-

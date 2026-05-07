@@ -455,4 +455,3 @@ int Trick::DRHDF5::format_specific_shutdown() {
 #endif
     return(0);
 }
-

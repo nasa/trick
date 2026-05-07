@@ -101,4 +101,3 @@ MonteCarloVariableRandomStringSet::add_string( std::string new_string)
 {
   values.push_back(new_string);
 }
-

@@ -272,4 +272,3 @@ int Trick::Slave::shutdown() {
     }
     return(0) ;
 }
-

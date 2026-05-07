@@ -20,4 +20,3 @@ typedef enum {
 } VS_MESSAGE_TYPE ;
 
 #endif
-

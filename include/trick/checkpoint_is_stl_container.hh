@@ -81,4 +81,3 @@ struct is_stl_container<std::stack<_Tp,_Sequence> > {
 };
 
 #endif
-

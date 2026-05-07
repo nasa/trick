@@ -25,4 +25,3 @@ int sun_pred_default_data( SUN_PRED* S ) {
 
     return 0 ;
 }
-

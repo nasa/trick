@@ -658,4 +658,3 @@ TEST_F( ScheduledJobQueueTest , InstrumentBeforeAll ) {
 }
 
 }
-

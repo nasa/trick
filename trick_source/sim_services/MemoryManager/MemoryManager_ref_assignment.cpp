@@ -494,4 +494,3 @@ int Trick::MemoryManager::ref_assignment( REF2* R, V_TREE* V) {
     return ( ret);
 
 }
-

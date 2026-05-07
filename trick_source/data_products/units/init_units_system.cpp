@@ -16,4 +16,3 @@ ut_system * init_unit_system() {
 
 // Global units system pointer
 ut_system * u_system = init_unit_system() ;
-

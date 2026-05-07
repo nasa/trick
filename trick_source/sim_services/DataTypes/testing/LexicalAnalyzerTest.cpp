@@ -55,4 +55,3 @@ TEST(LexicalAnalyzer, test2) {
 
     EXPECT_EQ(Token::EndOfFile, token );
 }
-

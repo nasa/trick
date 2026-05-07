@@ -43,4 +43,3 @@ int Ball::state_print() {
    return( 0 );
 
 }
-

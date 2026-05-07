@@ -131,4 +131,3 @@ void Trick::VariableServerSessionThread::cleanup() {
         _session = NULL;
     }
 }
-

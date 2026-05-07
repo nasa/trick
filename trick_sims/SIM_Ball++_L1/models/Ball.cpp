@@ -43,4 +43,3 @@ Ball::~Ball() /* RETURN: -- None. */
    //cout << "In Ball destructor." << endl;
 
 }
-

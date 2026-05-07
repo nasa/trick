@@ -62,4 +62,3 @@ int Trick::Executive::write_s_run_summary(FILE *fp) {
     return(0) ;
 
 }
-

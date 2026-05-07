@@ -61,4 +61,3 @@ int Ball::state_deriv() /* RETURN: -- Always return zero. */
    return(0);
 
 }
-

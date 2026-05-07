@@ -253,4 +253,3 @@ extern "C" int exec_segment_switch() {
     }
     return -1 ;
 }
-

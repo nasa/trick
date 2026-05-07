@@ -11,4 +11,3 @@ int BODY::body_shutdown() {
 
 	return 0;
 };
-

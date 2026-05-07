@@ -444,4 +444,3 @@ int ippython_manual_done(std::string event_name) ;
 #endif
 
 #endif
-

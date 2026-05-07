@@ -24,4 +24,3 @@
 RefParseContext::~RefParseContext() {
     destroy_scanner();
 }
-

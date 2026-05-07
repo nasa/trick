@@ -31,4 +31,3 @@ int RosPublish::publish() {
     }
     return 0 ;
 }
-

@@ -18,4 +18,3 @@ TranslationUnitVisitor & ICGASTConsumer::getTranslationUnitVisitor() {
 void ICGASTConsumer::HandleTranslationUnit(clang::ASTContext &Ctx) {
     tuv.TraverseDecl(Ctx.getTranslationUnitDecl());
 }
-

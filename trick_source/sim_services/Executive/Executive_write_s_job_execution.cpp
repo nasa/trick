@@ -132,4 +132,3 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
     return(0) ;
 
 }
-

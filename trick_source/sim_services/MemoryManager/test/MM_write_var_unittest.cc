@@ -233,5 +233,3 @@ TEST_F(MM_write_var, DoubleTwoDimArrayVarByAddr) {
         ss.str().c_str());
     EXPECT_EQ(result, 0);
 }
-
-

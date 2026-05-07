@@ -45,4 +45,3 @@ unsigned int insert_bitfield_any(unsigned int, int, int, int, int);
 #endif
 
 #endif
-

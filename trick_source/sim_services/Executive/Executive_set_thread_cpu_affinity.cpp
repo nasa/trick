@@ -16,4 +16,3 @@ int Trick::Executive::set_thread_cpu_affinity(unsigned int thread_id , int cpu_n
     return(ret) ;
 
 }
-

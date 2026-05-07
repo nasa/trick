@@ -157,4 +157,3 @@ namespace Trick {
 }
 
 #endif
-

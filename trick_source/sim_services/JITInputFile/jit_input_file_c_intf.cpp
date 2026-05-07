@@ -71,4 +71,3 @@ int jit_add_event_after( std::string func_name, std::string name , std::string t
     new (event) Trick::JITEvent(func_name , name ) ;
     return event_manager_add_event_after(event, target_name , target_inst) ;
 }
-

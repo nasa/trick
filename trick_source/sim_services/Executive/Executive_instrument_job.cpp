@@ -128,4 +128,3 @@ int Trick::Executive::instrument_job_remove(std::string in_job) {
 
     return(0) ;
 }
-

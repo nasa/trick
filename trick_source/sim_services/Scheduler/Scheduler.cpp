@@ -58,4 +58,3 @@ int Trick::Scheduler::write_sched_queue( FILE * fp , Trick::ScheduledJobQueue * 
 int Trick::Scheduler::write_non_sched_queue( FILE * fp , Trick::ScheduledJobQueue * curr_queue ) {
     return curr_queue->write_non_sched_queue(fp) ;
 }
-

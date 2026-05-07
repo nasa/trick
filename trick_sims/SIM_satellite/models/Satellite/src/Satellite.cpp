@@ -247,4 +247,3 @@ int Satellite::compute_state() {
 void Satellite::print_state() {
 
 }
-

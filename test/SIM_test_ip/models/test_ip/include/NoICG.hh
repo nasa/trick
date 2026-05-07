@@ -21,4 +21,3 @@ class DoNotICG {
 } ;
 
 #endif /* _BALL_HH_ */
-

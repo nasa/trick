@@ -15,4 +15,3 @@ int RosFramework::shutdown() {
     ros::shutdown() ;
     return 0 ;
 }
-

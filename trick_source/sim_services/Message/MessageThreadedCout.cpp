@@ -100,4 +100,3 @@ int Trick::MessageThreadedCout::shutdown() {
 void Trick::MessageThreadedCout::dump( std::ostream & oss ) {
     Trick::ThreadBase::dump(oss) ;
 }
-

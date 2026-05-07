@@ -134,5 +134,3 @@ int PlanarManip::updateState()
     return(integration_step);
 
 }
-
-

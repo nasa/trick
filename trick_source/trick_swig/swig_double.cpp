@@ -879,4 +879,3 @@ PyObject * swig_double::__float__() {
 PyObject * swig_double::__len__() {
     return PyInt_FromLong(1) ;
 }
-

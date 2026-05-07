@@ -207,5 +207,3 @@ std::string PointerDataType::makeDeclaration(std::string declarator, bool isDire
 const DataType * PointerDataType::getSubType() const {
     return subType;
 }
-
-

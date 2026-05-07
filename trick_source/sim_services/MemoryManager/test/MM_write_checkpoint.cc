@@ -1272,5 +1272,3 @@ TEST_F(MM_write_checkpoint, enum_s8_singleton) {
 
     EXPECT_EQ(result, 0);
 }
-
-

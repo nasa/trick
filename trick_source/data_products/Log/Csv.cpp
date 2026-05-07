@@ -180,5 +180,3 @@ int CsvLocateParam( char * file_name , char * param_name ) {
 
         return(0) ;
 }
-
-

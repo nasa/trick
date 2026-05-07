@@ -14,4 +14,3 @@ void exit_var_thread(void *in_vst) {
 
     vst->cleanup();
 }
-

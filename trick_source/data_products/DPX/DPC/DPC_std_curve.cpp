@@ -268,4 +268,3 @@ void DPC_std_curve::begin() {
     if (ds[0]) ds[0]->begin();
     if (ds[1]) ds[1]->begin();
 }
-

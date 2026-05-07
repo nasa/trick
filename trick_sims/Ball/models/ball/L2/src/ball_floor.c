@@ -41,4 +41,3 @@ double ball_floor(         /* RETURN: s  Time to go to event */
     }
     return( tgo ) ;
 }
-

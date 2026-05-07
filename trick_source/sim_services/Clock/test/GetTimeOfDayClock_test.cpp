@@ -164,4 +164,3 @@ TEST_F(GetTimeOfDayClockTest, ClockSync) {
 
     delete timclk;
 }
-

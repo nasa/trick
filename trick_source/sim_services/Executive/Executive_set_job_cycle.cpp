@@ -40,4 +40,3 @@ int Trick::Executive::set_job_cycle(std::string job_name, int instance_num, doub
     return(0) ;
 
 }
-

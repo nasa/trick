@@ -17,4 +17,3 @@ int next_attr_name( std::string & name ) {
 
     return 0 ;
 }
-

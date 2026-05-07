@@ -115,4 +115,3 @@ int Trick::Executive::loop_single_thread() {
 
     return(0) ;
 }
-

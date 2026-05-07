@@ -311,4 +311,3 @@ int Trick::JSONVariableServerThread::get_vars( std::stringstream & body , char *
     }
     return ret ;
 }
-

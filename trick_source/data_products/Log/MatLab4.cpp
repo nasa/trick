@@ -414,4 +414,3 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
         fclose(fp) ;
         return(0) ;
 }
-

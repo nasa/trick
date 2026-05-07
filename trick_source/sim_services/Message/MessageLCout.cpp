@@ -67,4 +67,3 @@ void Trick::MessageLCout::update( unsigned int level , std::string header , std:
         std::cout << oss.str() << std::flush ;
     }
 }
-

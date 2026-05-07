@@ -313,4 +313,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_curve *curve) {
   s << std::endl;
   return s;
 }
-

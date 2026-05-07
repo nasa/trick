@@ -164,4 +164,3 @@ int Trick::UnitTest::write_output() {
 
     return(0) ;
 }
-

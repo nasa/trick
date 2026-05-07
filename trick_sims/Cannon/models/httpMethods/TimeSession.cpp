@@ -53,4 +53,3 @@ WebSocketSession* makeTimeSession( struct mg_connection *nc ) {
     std::cerr << "DEBUG: Creating new TimeSession." << std::endl;
     return new TimeSession(nc);
 }
-

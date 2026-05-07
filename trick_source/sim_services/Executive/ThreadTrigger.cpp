@@ -145,4 +145,3 @@ void Trick::ThreadTriggerContainer::setThreadTrigger( ThreadTriggerType in_trigg
             break ;
     }
 }
-

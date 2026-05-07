@@ -190,4 +190,3 @@ void Trick::MemoryManager::debug_write_alloc_info( ALLOC_INFO *alloc_info) {
     std::cout << std::endl;
     std::cout.flush();
 }
-

@@ -7,4 +7,3 @@ Planet::Planet() {
         pos[ii] = 0.0;
     }
 }
-

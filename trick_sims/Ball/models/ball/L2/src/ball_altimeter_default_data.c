@@ -41,4 +41,3 @@ int ball_altimeter_default_data(
     /* RETURN */
     return( 0 ) ;
 }
-

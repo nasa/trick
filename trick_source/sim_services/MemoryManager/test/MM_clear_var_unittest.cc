@@ -335,4 +335,3 @@ TEST_F(MM_clear_var, all_vars) {
 
     EXPECT_EQ(*d_p, L'\0');
 }
-

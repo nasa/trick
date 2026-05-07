@@ -138,4 +138,3 @@ std::ostream& operator<< (std::ostream& s, const DPM_page *page) {
   s << "</page>" << std::endl;
   return s;
 }
-

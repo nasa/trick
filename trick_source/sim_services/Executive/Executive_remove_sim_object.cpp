@@ -42,4 +42,3 @@ int Trick::Executive::delete_sim_object( Trick::SimObject * in_object ) {
     return(0) ;
 
 }
-

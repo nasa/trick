@@ -63,4 +63,3 @@ int Trick::InputProcessor::process_sim_args() {
 int Trick::InputProcessor::shutdown() {
     return(0) ;
 }
-

@@ -80,4 +80,3 @@ Trick::ADefParseContext::ADefParseContext( std::istream* in_is ) {
 Trick::ADefParseContext::~ADefParseContext() {
     destroy_scanner();
 }
-

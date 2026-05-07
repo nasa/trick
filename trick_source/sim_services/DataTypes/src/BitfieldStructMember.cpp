@@ -33,4 +33,3 @@ template <> std::string BitfieldStructMember<unsigned long>::getTypeSpecName() c
 template <> std::string BitfieldStructMember<unsigned long long>::getTypeSpecName() const {
     std::string s("unsigned long long"); return s;
 }
-

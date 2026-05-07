@@ -8,4 +8,3 @@ int Trick::MemoryManager::add_template_name_trans( std::string template_name , s
     template_name_map[template_name] = attr_name ;
     return(0) ;
 }
-

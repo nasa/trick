@@ -143,4 +143,3 @@ int Trick::MemoryManager::delete_extern_var( std::string name) {
     // delete_var will remove the external variable from the allocation map
     return delete_var(name) ;
 }
-

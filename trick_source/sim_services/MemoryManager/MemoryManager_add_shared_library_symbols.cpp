@@ -27,4 +27,3 @@ int Trick::MemoryManager::add_shared_library_symbols(const char * file_name) {
 
     return 0 ;
 }
-
