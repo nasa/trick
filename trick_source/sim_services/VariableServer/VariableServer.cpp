@@ -52,11 +52,12 @@ bool Trick::VariableServer::get_enabled() {
 }
 
 void Trick::VariableServer::set_enabled(bool on_off) {
-    enabled = on_off ;
 
-    if(enabled) {
-        message_publish(MSG_WARNING, "Trick VariableServer: Enabling the Variable Server. See Trick documentation for associated security concerns\n");
+    if(!enabled && on_off) {
+        message_publish(MSG_INFO, "Trick VariableServer: Enabling the Variable Server. See Trick documentation for associated security concerns.\n");
     }
+
+    enabled = on_off ;
 }
 
 bool Trick::VariableServer::get_info_msg() {

@@ -84,7 +84,6 @@ class VariableServerSessionThread_test : public ::testing::Test {
 
 		~VariableServerSessionThread_test() { 
             delete varserver; 
-			delete session;
         }
 
 		void SetUp() {}
