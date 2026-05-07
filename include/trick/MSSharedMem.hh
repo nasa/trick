@@ -29,6 +29,8 @@ PROGRAMMERS:
     (tp)->tv_nsec = mts.tv_nsec
 #endif
 
+#include <cstdint>
+
 //-----------------------------------------------------------------------------
 // MACROS USED TO IMPLEMENT QUEUES FOR READ/WRITE DATA IN MSSharedMemData
 #define MSQ_MAXSIZE 5
@@ -61,12 +63,12 @@ namespace Trick {
 
     /** The data to read/write between the master and slave in shared memory.\n */
     typedef struct {
-        pid_t master_pid ;                      /**< trick_units(--) */
-        MSQ_DECLARE (master_time, long long)
-        MSQ_DECLARE (master_command, MS_SIM_COMMAND)
-        MSQ_DECLARE (slave_command, MS_SIM_COMMAND)
+        int64_t master_pid ;                      /**< trick_units(--) */         
+        MSQ_DECLARE (master_time, int64_t)
+        MSQ_DECLARE (master_command, int32_t)
+        MSQ_DECLARE (slave_command, int32_t)
         // checkpoint data is not sent every frame, so dont need a queue
-        int slave_port;                         /**< trick_units(--) slave's checkpoint port */
+        int32_t slave_port;                         /**< trick_units(--) slave's checkpoint port */
         char chkpnt_name[256];                  /**< trick_units(--) checkpoint dir/filename */
     } MSSharedMemData;
 

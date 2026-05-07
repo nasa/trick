@@ -177,7 +177,11 @@ int Trick::SlaveInfo::start() {
     }
 
     /* @li Wait for the slave to connect to the master */
-    connection->accept() ;
+    if(connection->accept())
+    {
+        perror("Slave_accept");
+        return (-3) ;  
+    }
 
     /* @li Set the synchronization wait limit */
     connection->set_sync_wait_limit(sync_wait_limit) ;
@@ -348,7 +352,11 @@ int Trick::Master::init() {
     /** @li Call Trick::SlaveInfo::start() for each slave */
     if ( enabled ) {
         for ( ii = 0 ; ii < slaves.size() ; ii++ ) {
-            slaves[ii]->start() ;
+            if(slaves[ii]->start()) {
+                message_publish(MSG_ERROR, "Unable to start slave %d", ii);
+                slaves[ii]->activated = false;
+                continue;
+            }
             /** @li Write the master's software frame to each slave */
             slaves[ii]->connection->write_time(exec_get_software_frame_tics()) ;
             /** @li Write the master's time tic value to each slave */
