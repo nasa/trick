@@ -179,7 +179,11 @@ At run time:
 MAKEFLAGS is not a Trick environment variable. It is used with the GNU make utility. Invoking make with the -j flag allows make to compile more than one file simultaneously. Dramatic speedups in compiling can be achieved when using multiple processors.
 
 ```
-UNIX Prompt> setenv MAKEFLAGS –j10
+bash/sh
+UNIX Prompt> export MAKEFLAGS=-j<number of processors>
+
+csh/tcsh
+UNIX Prompt> setenv MAKEFLAGS –j<number of processors>
 ```
 
 [Continue to Simulation Definition File](Simulation-Definition-File)
