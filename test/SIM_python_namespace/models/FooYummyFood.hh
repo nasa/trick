@@ -14,6 +14,12 @@ PYTHON_MODULE: (Foo)
 
 namespace Foo {
 
+typedef struct
+{
+    char* foodName;
+    double calories;
+} FooFoodInStruct;
+
 enum Yummy {
     Butter,
     Bacon,
@@ -25,6 +31,7 @@ class YummyFood {
     YummyFood() : yummy(Bacon) {}
     void print_me() { std::cout << "Foo::YummyFood::print_me!" << std::endl; }
     Yummy yummy;
+    FooFoodInStruct *foo_food_in_struct; // Array of FooFoodInStruct to test a struct in a namespace
 };
 
 }
