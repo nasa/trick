@@ -38,6 +38,14 @@ int Contact::state_deriv() {
     return(0);
 }
 
+void Contact::state_print()
+{
+    for(int i  = 0; i < nballs; i++)
+    {
+        std::cout << i <<"\t"<<balls[i]->pos[0]<<"\t"<<balls[i]->pos[1]<<"\t"<<balls[i]->vel[0]<<"\t"<<balls[i]->vel[1]<<std::endl;
+    }
+}
+
 int Contact::state_integ() {
     int integration_step;
     for (unsigned int ii = 0; ii < nballs; ii++) {

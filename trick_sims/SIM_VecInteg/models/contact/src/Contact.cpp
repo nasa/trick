@@ -72,15 +72,6 @@ int Contact::state_integ() {
 
     unload_state_vec(all_pos);
 
-    for (unsigned int ii = 0; ii < nballs; ii++)
-    {
-        balls[ii]->vecPos[0] = *all_pos[2*ii];
-        balls[ii]->vecPos[1] = *all_pos[2*ii+1];
-        balls[ii]->vecVel[0] = *all_vel[2*ii];
-        balls[ii]->vecVel[1] = *all_vel[2*ii+1];
-    }
-
-
 
     return(integration_step);
 }
