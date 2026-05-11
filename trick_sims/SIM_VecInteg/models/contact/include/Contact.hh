@@ -7,6 +7,7 @@ LIBRARY DEPENDENCIES:
 #define _contact_hh_
 #include "trick/regula_falsi.h"
 #include "Ball.hh"
+#include "trick/IntegratorVectorIntf.hh"
 
 class Contact {
 

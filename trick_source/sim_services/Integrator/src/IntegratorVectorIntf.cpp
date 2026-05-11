@@ -7,7 +7,7 @@
 
 extern Trick::Integrator* trick_curr_integ;
 
-static bool check_integ_size(const char* func_name, const std::vector<double>& vec)
+static bool check_integ_size(const char* func_name, std::vector<double>& vec)
 {
     if (trick_curr_integ == NULL)
     {
@@ -24,7 +24,7 @@ static bool check_integ_size(const char* func_name, const std::vector<double>& v
     return true;
 }
 
-void load_state_vec(const std::vector<double>& states)
+void load_state_vec(std::vector<double>& states)
 {
     if (!check_integ_size("load_state_vec", states)) return;
     for (unsigned int i = 0; i < states.size(); ++i)
@@ -33,7 +33,7 @@ void load_state_vec(const std::vector<double>& states)
     }
 }
 
-void load_deriv_vec(const std::vector<double>& derivs)
+void load_deriv_vec(std::vector<double>& derivs)
 {
     if (!check_integ_size("load_deriv_vec", derivs)) return;
     for (unsigned int i = 0; i < derivs.size(); ++i)
@@ -42,7 +42,7 @@ void load_deriv_vec(const std::vector<double>& derivs)
     }
 }
 
-void load_deriv2_vec(const std::vector<double>& derivs2)
+void load_deriv2_vec(std::vector<double>& derivs2)
 {
     if (!check_integ_size("load_deriv2_vec", derivs2)) return;
     for (unsigned int i = 0; i < derivs2.size(); ++i)
