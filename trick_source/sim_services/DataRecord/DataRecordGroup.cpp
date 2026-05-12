@@ -361,7 +361,7 @@ int Trick::DataRecordGroup::add_change_variable( std::string in_name ) {
 }
 
 bool Trick::DataRecordGroup::isSupportedType(REF2 * ref2, std::string& message) {
-    if (ref2->attr->type == TRICK_STRING || ref2->attr->type == TRICK_STRUCTURED) {
+    if (ref2->attr->type == TRICK_STRING || ref2->attr->type == TRICK_STL || ref2->attr->type == TRICK_STRUCTURED) {
         message = "Cannot Data Record variable " + std::string(ref2->reference) + " of unsupported type " + std::to_string(ref2->attr->type);
         return false;
     }
