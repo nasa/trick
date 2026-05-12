@@ -1063,6 +1063,10 @@ PyObject * swig_ref::__getitem__(int ii) {
                 t->units = temp_ref.attr->units ;
                 ret = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_int"), SWIG_POINTER_OWN);
             } break ;
+            case TRICK_WSTRING: {
+                std::wstring * wstr_ptr = (std::wstring *)temp_ref.address ;
+                ret = PyUnicode_FromWideChar(wstr_ptr->c_str(), (Py_ssize_t)wstr_ptr->size());
+            } break ;
             default: {
                 std::string type_name ;
                 type_name = std::string("_p_") + temp_ref.attr->type_name ;

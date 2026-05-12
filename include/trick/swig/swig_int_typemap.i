@@ -773,3 +773,245 @@
 %apply unsigned long ** { size_t ** } ;
 %apply unsigned long [ANY][ANY][ANY] { size_t [ANY][ANY][ANY] } ;
 
+// =====================================================================
+// std::wstring fixed-array (1D, 2D, 3D) and pointer typemaps
+// =====================================================================
+
+%typemap(out) std::wstring [ANY] {
+    // STD::WSTRING[ANY] OUT
+    swig_ref* t = new swig_ref;
+    t->ref.address = (void*)$1;
+    t->ref.units = NULL;
+    t->ref.attr = new ATTRIBUTES();
+    t->ref.attr->size = sizeof(std::wstring);
+    t->ref.attr->type = TRICK_WSTRING;
+    t->ref.attr->type_name = strdup("std::wstring");
+    t->ref.attr->units = strdup("1");
+    t->ref.attr->attr = NULL;
+    t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+    t->ref.attr->num_index = 1;
+    t->ref.attr->index[0].size = $1_dim0;
+    t->ref.attr->index[0].start = 0;
+    t->ref.create_add_path = 0;
+    t->ref.num_index = 0;
+    t->ref.num_index_left = 1;
+    t->ref.ref_type = REF_ADDRESS;
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+}
+
+%typemap(in) std::wstring [ANY] {
+    // STD::WSTRING[ANY] IN — convert Python list of strings to a temporary std::wstring array
+    if (!PySequence_Check($input)) {
+        SWIG_exception_fail(SWIG_TypeError, "std::wstring [ANY]: expected a list/sequence of strings");
+    }
+    $1 = new std::wstring[$1_dim0]();
+    Py_ssize_t _n0 = PySequence_Length($input);
+    if (_n0 > (Py_ssize_t)$1_dim0) _n0 = (Py_ssize_t)$1_dim0;
+    for (Py_ssize_t _i = 0; _i < _n0; ++_i) {
+        PyObject* _item = PySequence_GetItem($input, _i);
+        if (_item && PyUnicode_Check(_item)) {
+            Py_ssize_t _wlen;
+            wchar_t* _wcs = PyUnicode_AsWideCharString(_item, &_wlen);
+            if (_wcs) { $1[_i] = std::wstring(_wcs, _wlen); PyMem_Free(_wcs); }
+        }
+        Py_XDECREF(_item);
+    }
+}
+
+%typemap(memberin) std::wstring [ANY] {
+    // STD::WSTRING[ANY] MEMBERIN — copy each element from temp into the struct member
+    for (size_t _ii = 0; _ii < (size_t)$1_dim0; ++_ii)
+        $1[_ii] = $input[_ii];
+}
+
+%typemap(freearg) std::wstring [ANY] {
+    delete[] $1;
+}
+
+%typemap(out) std::wstring [ANY][ANY] {
+    // STD::WSTRING[ANY][ANY] OUT
+    swig_ref* t = new swig_ref;
+    t->ref.address = (void*)$1;
+    t->ref.units = NULL;
+    t->ref.attr = new ATTRIBUTES();
+    t->ref.attr->size = sizeof(std::wstring);
+    t->ref.attr->type = TRICK_WSTRING;
+    t->ref.attr->type_name = strdup("std::wstring");
+    t->ref.attr->units = strdup("1");
+    t->ref.attr->attr = NULL;
+    t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+    t->ref.attr->num_index = 2;
+    t->ref.attr->index[0].size = $1_dim0;
+    t->ref.attr->index[0].start = 0;
+    t->ref.attr->index[1].size = $1_dim1;
+    t->ref.attr->index[1].start = 0;
+    t->ref.create_add_path = 0;
+    t->ref.num_index = 0;
+    t->ref.num_index_left = 2;
+    t->ref.ref_type = REF_ADDRESS;
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+}
+
+%typemap(in) std::wstring [ANY][ANY] {
+    // STD::WSTRING[ANY][ANY] IN — convert Python list-of-lists to a temporary 2D std::wstring array
+    std::wstring* _flat = new std::wstring[$1_dim0 * $1_dim1]();
+    $1 = reinterpret_cast<$1_ltype>(_flat);
+    if (PySequence_Check($input)) {
+        Py_ssize_t _n0 = PySequence_Length($input);
+        if (_n0 > (Py_ssize_t)$1_dim0) _n0 = (Py_ssize_t)$1_dim0;
+        for (Py_ssize_t _i = 0; _i < _n0; ++_i) {
+            PyObject* _row = PySequence_GetItem($input, _i);
+            if (_row && PySequence_Check(_row)) {
+                Py_ssize_t _n1 = PySequence_Length(_row);
+                if (_n1 > (Py_ssize_t)$1_dim1) _n1 = (Py_ssize_t)$1_dim1;
+                for (Py_ssize_t _j = 0; _j < _n1; ++_j) {
+                    PyObject* _item = PySequence_GetItem(_row, _j);
+                    if (_item && PyUnicode_Check(_item)) {
+                        Py_ssize_t _wlen;
+                        wchar_t* _wcs = PyUnicode_AsWideCharString(_item, &_wlen);
+                        if (_wcs) { $1[_i][_j] = std::wstring(_wcs, _wlen); PyMem_Free(_wcs); }
+                    }
+                    Py_XDECREF(_item);
+                }
+            }
+            Py_XDECREF(_row);
+        }
+    }
+}
+
+%typemap(memberin) std::wstring [ANY][ANY] {
+    // STD::WSTRING[ANY][ANY] MEMBERIN — copy each element from temp into the struct member
+    for (size_t _ii = 0; _ii < (size_t)$1_dim0; ++_ii)
+        for (size_t _jj = 0; _jj < (size_t)$1_dim1; ++_jj)
+            $1[_ii][_jj] = $input[_ii][_jj];
+}
+
+%typemap(freearg) std::wstring [ANY][ANY] {
+    delete[] reinterpret_cast<std::wstring*>($1);
+}
+
+%typemap(out) std::wstring [ANY][ANY][ANY] {
+    // STD::WSTRING[ANY][ANY][ANY] OUT
+    swig_ref* t = new swig_ref;
+    t->ref.address = (void*)$1;
+    t->ref.units = NULL;
+    t->ref.attr = new ATTRIBUTES();
+    t->ref.attr->size = sizeof(std::wstring);
+    t->ref.attr->type = TRICK_WSTRING;
+    t->ref.attr->type_name = strdup("std::wstring");
+    t->ref.attr->units = strdup("1");
+    t->ref.attr->attr = NULL;
+    t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+    t->ref.attr->num_index = 3;
+    t->ref.attr->index[0].size = $1_dim0;
+    t->ref.attr->index[0].start = 0;
+    t->ref.attr->index[1].size = $1_dim1;
+    t->ref.attr->index[1].start = 0;
+    t->ref.attr->index[2].size = $1_dim2;
+    t->ref.attr->index[2].start = 0;
+    t->ref.create_add_path = 0;
+    t->ref.num_index = 0;
+    t->ref.num_index_left = 3;
+    t->ref.ref_type = REF_ADDRESS;
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+}
+
+%typemap(in) std::wstring [ANY][ANY][ANY] {
+    // STD::WSTRING[ANY][ANY][ANY] IN — convert Python list-of-lists-of-lists to a temporary 3D std::wstring array
+    std::wstring* _flat = new std::wstring[$1_dim0 * $1_dim1 * $1_dim2]();
+    $1 = reinterpret_cast<$1_ltype>(_flat);
+    if (PySequence_Check($input)) {
+        Py_ssize_t _n0 = PySequence_Length($input);
+        if (_n0 > (Py_ssize_t)$1_dim0) _n0 = (Py_ssize_t)$1_dim0;
+        for (Py_ssize_t _i = 0; _i < _n0; ++_i) {
+            PyObject* _row0 = PySequence_GetItem($input, _i);
+            if (_row0 && PySequence_Check(_row0)) {
+                Py_ssize_t _n1 = PySequence_Length(_row0);
+                if (_n1 > (Py_ssize_t)$1_dim1) _n1 = (Py_ssize_t)$1_dim1;
+                for (Py_ssize_t _j = 0; _j < _n1; ++_j) {
+                    PyObject* _row1 = PySequence_GetItem(_row0, _j);
+                    if (_row1 && PySequence_Check(_row1)) {
+                        Py_ssize_t _n2 = PySequence_Length(_row1);
+                        if (_n2 > (Py_ssize_t)$1_dim2) _n2 = (Py_ssize_t)$1_dim2;
+                        for (Py_ssize_t _k = 0; _k < _n2; ++_k) {
+                            PyObject* _item = PySequence_GetItem(_row1, _k);
+                            if (_item && PyUnicode_Check(_item)) {
+                                Py_ssize_t _wlen;
+                                wchar_t* _wcs = PyUnicode_AsWideCharString(_item, &_wlen);
+                                if (_wcs) { $1[_i][_j][_k] = std::wstring(_wcs, _wlen); PyMem_Free(_wcs); }
+                            }
+                            Py_XDECREF(_item);
+                        }
+                    }
+                    Py_XDECREF(_row1);
+                }
+            }
+            Py_XDECREF(_row0);
+        }
+    }
+}
+
+%typemap(memberin) std::wstring [ANY][ANY][ANY] {
+    // STD::WSTRING[ANY][ANY][ANY] MEMBERIN — copy each element from temp into the struct member
+    for (size_t _ii = 0; _ii < (size_t)$1_dim0; ++_ii)
+        for (size_t _jj = 0; _jj < (size_t)$1_dim1; ++_jj)
+            for (size_t _kk = 0; _kk < (size_t)$1_dim2; ++_kk)
+                $1[_ii][_jj][_kk] = $input[_ii][_jj][_kk];
+}
+
+%typemap(freearg) std::wstring [ANY][ANY][ANY] {
+    delete[] reinterpret_cast<std::wstring*>($1);
+}
+
+%typemap(in) std::wstring * {
+    // STD::WSTRING * IN — accept swig_ref (e.g. from TMM_declare_var_1d), REF2, void*, or None
+    void* argp2;
+    if (SWIG_IsOK(SWIG_ConvertPtr($input, &argp2, SWIG_TypeQuery("_p_swig_ref"), 0))) {
+        swig_ref* temp_swig_ref = reinterpret_cast<swig_ref*>(argp2);
+        if (temp_swig_ref != NULL) {
+            $1 = (std::wstring*)temp_swig_ref->ref.address;
+        }
+    } else if (SWIG_IsOK(SWIG_ConvertPtr($input, &argp2, SWIG_TypeQuery("_p_REF2"), 0))) {
+        REF2* temp_ref = reinterpret_cast<REF2*>(argp2);
+        if (temp_ref != NULL) {
+            $1 = (std::wstring*)temp_ref->address;
+        }
+    } else if (SWIG_IsOK(SWIG_ConvertPtr($input, &argp2, SWIG_TypeQuery("_p_void"), 0))) {
+        $1 = reinterpret_cast<std::wstring*>(argp2);
+    } else if ($input == Py_None) {
+        $1 = (std::wstring*)NULL;
+    } else {
+        SWIG_exception_fail(SWIG_TypeError, "std::wstring *: expected swig_ref, REF2, void*, or None");
+    }
+}
+
+%typemap(out) std::wstring * {
+    // STD::WSTRING * OUT — query MemoryManager for real allocation size so ref_dim
+    // uses the constrained path (index[0].size = N) rather than the pointer-dereference path.
+    if ($1 == NULL) {
+        $result = Py_None;
+        Py_INCREF(Py_None);
+    } else {
+        swig_ref* t = new swig_ref;
+        t->ref.address = (void*)$1;
+        t->ref.units = NULL;
+        t->ref.attr = new ATTRIBUTES();
+        t->ref.attr->size = sizeof(std::wstring);
+        t->ref.attr->type = TRICK_WSTRING;
+        t->ref.attr->type_name = strdup("std::wstring");
+        t->ref.attr->units = strdup("1");
+        t->ref.attr->attr = NULL;
+        t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+        // Look up MemoryManager to get actual allocation dimensions (sets index[0].size = N)
+        size_t offsetRemainder = 0;
+        ATTRIBUTES addrAttr = {};
+        trick_MM->get_attributes_for_address((void*)$1, addrAttr, offsetRemainder);
+        init_swig_ref_attributes_for_dimensions(*t, addrAttr, offsetRemainder, "$symname", "$1_type", 1);
+        t->ref.create_add_path = 0;
+        t->ref.num_index = 0;
+        t->ref.num_index_left = t->ref.attr->num_index;
+        t->ref.ref_type = REF_ADDRESS;
+        $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+    }
+}
+
