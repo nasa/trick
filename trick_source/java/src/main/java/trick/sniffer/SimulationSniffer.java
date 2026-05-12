@@ -111,7 +111,16 @@ public class SimulationSniffer extends Thread {
                         simulationListener.simulationAdded(simulationEntry.simulationInformation);
                     }
                 } else {
-                    simulations.get(index).timer.restart();
+                    SimulationEntry existing = simulations.get(index);
+                    existing.timer.restart();
+                    SimulationInformation newInfo = simulationEntry.simulationInformation;
+                    SimulationInformation oldInfo = existing.simulationInformation;
+                    if (!newInfo.vsEnabled.equals(oldInfo.vsEnabled) || !newInfo.execMode.equals(oldInfo.execMode)) {
+                        existing.simulationInformation = newInfo;
+                        for (SimulationListener simulationListener : simulationListeners) {
+                            simulationListener.simulationUpdated(newInfo);
+                        }
+                    }
                 }
             }
         } catch (UnknownHostException unknownHostException) {
@@ -169,7 +178,7 @@ public class SimulationSniffer extends Thread {
     class SimulationEntry {
 
         /** simulation */
-        public final SimulationInformation simulationInformation;
+        public SimulationInformation simulationInformation;
 
         /**
          * After five seconds, remove the simulation from the list unless it

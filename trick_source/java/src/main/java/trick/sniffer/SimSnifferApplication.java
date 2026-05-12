@@ -168,6 +168,22 @@ public class SimSnifferApplication extends TrickApplication {
                         }
 
                         @Override
+                        public void simulationUpdated(final SimulationInformation simulationInformation) {
+                            SwingUtilities.invokeLater(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int row = SimSnifferApplication.this.simulations.indexOf(simulationInformation);
+                                        if (row != -1) {
+                                            SimSnifferApplication.this.simulations.set(row, simulationInformation);
+                                            ((DefaultTableModel) simTable.getModel()).fireTableRowsUpdated(row, row);
+                                        }
+                                    }
+                                }
+                            );
+                        }
+
+                        @Override
                         public void exceptionOccurred(Exception exception) {
                             JOptionPane.showMessageDialog(getMainFrame(), exception, "Simulation List Error", JOptionPane.ERROR_MESSAGE);
                             exit();

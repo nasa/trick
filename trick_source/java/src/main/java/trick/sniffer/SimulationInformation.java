@@ -166,9 +166,7 @@ public class SimulationInformation implements Comparable<SimulationInformation> 
             sMainFile.equals(simulationInformation.sMainFile) &&
             simDirectory.equals(simulationInformation.simDirectory) &&
             runDirectory.equals(simulationInformation.runDirectory) &&
-            tag.equals(simulationInformation.tag) &&
-            vsEnabled.equals(simulationInformation.vsEnabled) &&
-            execMode.equals(simulationInformation.execMode)
+            tag.equals(simulationInformation.tag)
         );
     }
 
