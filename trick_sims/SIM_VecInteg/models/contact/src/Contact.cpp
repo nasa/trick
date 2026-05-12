@@ -53,9 +53,6 @@ int Contact::state_integ() {
     std::vector<double*> all_pos;
     std::vector<double*> all_vel;
 
-    all_pos.reserve(nballs * 2);
-    all_vel.reserve(nballs * 2);
-
     for (unsigned int ii = 0; ii < nballs; ii++)
     {
         for (unsigned int jj = 0; jj < balls[ii]->vecPos.size(); jj++)
