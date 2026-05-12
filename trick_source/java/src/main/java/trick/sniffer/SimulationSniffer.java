@@ -10,7 +10,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
 import javax.swing.Timer;
 
 /**
@@ -47,12 +46,11 @@ public class SimulationSniffer extends Thread {
                 for (SimulationEntry simulationEntry : simulations) {
                     simulationEntry.timer.stop();
                 }
-            }
-            else {
+            } else {
                 for (SimulationEntry simulationEntry : simulations) {
                     simulationEntry.timer.start();
                 }
-                synchronized(this) {
+                synchronized (this) {
                     notify();
                 }
             }
@@ -62,34 +60,47 @@ public class SimulationSniffer extends Thread {
     @Override
     public void run() {
         try {
-            multicastSocket = new MulticastSocket(9265) {{
-                joinGroup(InetAddress.getByName("239.3.14.15"));
-            }};
+            multicastSocket = new MulticastSocket(9265) {
+                {
+                    joinGroup(InetAddress.getByName("239.3.14.15"));
+                }
+            };
             byte[] buffer = new byte[4096];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
             while (true) {
                 while (paused) {
-                    synchronized(this) {
+                    synchronized (this) {
                         try {
                             wait();
-                        }
-                        catch (InterruptedException interruptedException) {}
+                        } catch (InterruptedException interruptedException) {}
                     }
                 }
 
                 multicastSocket.receive(packet);
 
                 // Remove the trailing newline, and split the tab-delimitted message.
-                String[] info = new String(packet.getData(), packet.getOffset(),
-                  packet.getLength()).replace("\n", "").split("\t");
+                String[] info = new String(packet.getData(), packet.getOffset(), packet.getLength()).replace("\n", "").split("\t");
 
                 // Reset the packet length or future messages will be clipped.
                 packet.setLength(buffer.length);
 
-                SimulationEntry simulationEntry = new SimulationEntry(new SimulationInformation(
-                  info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8],
-                  info.length > 9 ? info[9] : ""));
+                SimulationEntry simulationEntry = new SimulationEntry(
+                    new SimulationInformation(
+                        info[0],
+                        info[1],
+                        info[2],
+                        info[3],
+                        info[4],
+                        info[5],
+                        info[6],
+                        info[7],
+                        info[8],
+                        info.length > 9 ? info[9] : "",
+                        info.length > 10 ? info[10] : "",
+                        info.length > 11 ? info[11] : ""
+                    )
+                );
 
                 // If the sim is already on the list, restart its timer; otherwise, add it.
                 int index = simulations.indexOf(simulationEntry);
@@ -99,18 +110,15 @@ public class SimulationSniffer extends Thread {
                     for (SimulationListener simulationListener : simulationListeners) {
                         simulationListener.simulationAdded(simulationEntry.simulationInformation);
                     }
-                }
-                else {
+                } else {
                     simulations.get(index).timer.restart();
                 }
             }
-        }
-        catch (UnknownHostException unknownHostException) {
+        } catch (UnknownHostException unknownHostException) {
             for (SimulationListener simulationListener : simulationListeners) {
                 simulationListener.exceptionOccurred(unknownHostException);
             }
-        }
-        catch (IOException ioException) {
+        } catch (IOException ioException) {
             for (SimulationListener simulationListener : simulationListeners) {
                 simulationListener.exceptionOccurred(ioException);
             }
@@ -145,11 +153,13 @@ public class SimulationSniffer extends Thread {
      * @return a list of all available simulations
      */
     public List<SimulationInformation> getSimulationInformation() {
-        return new ArrayList<SimulationInformation>(simulations.size()) {{
-            for (SimulationEntry simulationEntry : simulations) {
-                add(simulationEntry.simulationInformation);
+        return new ArrayList<SimulationInformation>(simulations.size()) {
+            {
+                for (SimulationEntry simulationEntry : simulations) {
+                    add(simulationEntry.simulationInformation);
+                }
             }
-        }};
+        };
     }
 
     /**
@@ -165,16 +175,21 @@ public class SimulationSniffer extends Thread {
          * After five seconds, remove the simulation from the list unless it
          * reannounces itself over the multicast channel.
          */
-        public final Timer timer = new Timer(5000, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                simulations.remove(SimulationEntry.this);
-                for (SimulationListener simulationListener : simulationListeners) {
-                    simulationListener.simulationRemoved(simulationInformation);
+        public final Timer timer = new Timer(
+            5000,
+            new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    simulations.remove(SimulationEntry.this);
+                    for (SimulationListener simulationListener : simulationListeners) {
+                        simulationListener.simulationRemoved(simulationInformation);
+                    }
                 }
             }
-        }) {{
-            setRepeats(false);
-        }};
+        ) {
+            {
+                setRepeats(false);
+            }
+        };
 
         /**
          * constructor
@@ -195,9 +210,7 @@ public class SimulationSniffer extends Thread {
                 return false;
             }
 
-            return simulationInformation.equals(((SimulationEntry)object).simulationInformation);
+            return simulationInformation.equals(((SimulationEntry) object).simulationInformation);
         }
-
     }
-
 }
