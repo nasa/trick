@@ -3778,6 +3778,38 @@ def main():
 
 ######################################################################################################################
 
+    test_suite = "swig wstring support"
+
+    test_so.obj._wstring = "Hello World"
+
+    test_so.obj.vec3_wstring[0] = "Hello World1"
+    test_so.obj.vec3_wstring[1] = "Hello World2"
+    test_so.obj.vec3_wstring[2] = "Hello World3"
+
+    test_so.obj.m3x3_wstring = [ [ "Hello World1", "Hello World2", "Hello World3" ] , [ "Hello World4", "Hello World5", "Hello World6" ] , [ "Hello World7", "Hello World8", "Hello World9" ] ]
+
+    test_so.obj.ptr_wstring = trick.TMM_declare_var_1d("std::wstring", 2)
+    test_so.obj.ptr_wstring[0] = "Hello World1"
+    test_so.obj.ptr_wstring[1] = "Hello World2"
+
+    TRICK_EXPECT_EQ( test_so.obj._wstring , "Hello World" , test_suite , "wstring" )
+    TRICK_EXPECT_EQ( test_so.obj.vec3_wstring[0] , "Hello World1" , test_suite , "wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.vec3_wstring[1] , "Hello World2" , test_suite , "wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.vec3_wstring[2] , "Hello World3" , test_suite , "wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[0][0] , "Hello World1" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[0][1] , "Hello World2" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[0][2] , "Hello World3" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[1][0] , "Hello World4" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[1][1] , "Hello World5" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[1][2] , "Hello World6" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[2][0] , "Hello World7" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[2][1] , "Hello World8" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.m3x3_wstring[2][2] , "Hello World9" , test_suite , "2D wstring fixed array" )
+    TRICK_EXPECT_EQ( test_so.obj.ptr_wstring[0] , "Hello World1" , test_suite , "wstring dynamic array" )
+    TRICK_EXPECT_EQ( test_so.obj.ptr_wstring[1] , "Hello World2" , test_suite , "wstring dynamic array" )
+
+######################################################################################################################
+
 if __name__ == "__main__":
     main()
 
