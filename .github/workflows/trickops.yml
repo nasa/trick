@@ -30,6 +30,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   trickops-tests-ubuntu:
     name: Unit Tests Ubuntu:22.04
