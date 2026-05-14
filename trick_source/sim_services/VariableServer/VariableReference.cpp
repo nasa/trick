@@ -421,7 +421,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         if (_address == NULL) {
             _size = 0 ;
         } else {
-            _size = wcslen((wchar_t *)_address) * sizeof(wchar_t);
+            _size = (wcslen((wchar_t *)_address) + 1) * sizeof(wchar_t);
         }
     }
     if(_address != NULL) {
