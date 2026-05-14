@@ -5,6 +5,10 @@ on:
     workflows: ["More Linux"] # runs after CI workflow
     types:
       - completed
+
+permissions:
+  contents: read
+
 jobs:
   report:
     strategy:

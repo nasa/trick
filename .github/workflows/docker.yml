@@ -3,7 +3,10 @@ name: Test Docker Hub Images
 on:
   schedule:
     - cron:  '0 0 * * 0'
-  
+
+permissions:
+  contents: read
+
 jobs:
   latest:
     runs-on: ubuntu-18.04
