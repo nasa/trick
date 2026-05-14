@@ -17,6 +17,8 @@
 # Exclude from git archive exports
 .gitattributes export-ignore
 .gitignore export-ignore
+.github/** export-ignore
+libexec/trick/make_changelog export-ignore
 trick_source/data_products/DPX/test/** export-ignore
 share/doc/trick/users_guide.html export-ignore
 
