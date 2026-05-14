@@ -142,6 +142,18 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
             return ((void*)NULL);
         }
         language = Language_CPP;
+    } else if ((type == TRICK_WSTRING) && (n_stars == 0 ) ) {
+
+        std::wstring *s = (std::wstring*)calloc(n_elems, sizeof(std::wstring));
+        for (int ii=0 ; ii<n_elems ; ii++) {
+            new( &s[ii]) std::wstring();
+        }
+        address = s;
+
+        if (address == NULL) {
+            return ((void*)NULL);
+        }
+        language = Language_CPP;
     } else {
         if ( (address = calloc( (size_t)n_elems, (size_t)size ) ) == NULL) {
             emitError("Out of memory.") ;

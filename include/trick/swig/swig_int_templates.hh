@@ -877,5 +877,181 @@ template<typename T, typename baseT > static void * typemap_in_3d( PyObject *inp
     return new_array ;
 }
 
+// =====================================================================
+// std::string / std::wstring shared template helpers
+// =====================================================================
+
+// StrTraits — maps a string type to its Trick type constant and name string
+template<typename T> struct StrTraits;
+
+template <> struct StrTraits<std::string>
+{
+    static constexpr TRICK_TYPE   trick_type = TRICK_STRING;
+    static constexpr const char * type_name  = "std::string";
+    static std::string from_pyunicode(PyObject *item)
+    {
+        const char *utf8 = PyUnicode_AsUTF8(item);
+        return utf8 ? std::string(utf8) : std::string();
+    }
+};
+
+template <> struct StrTraits<std::wstring>
+{
+    static constexpr TRICK_TYPE   trick_type = TRICK_WSTRING;
+    static constexpr const char * type_name  = "std::wstring";
+    static std::wstring from_pyunicode(PyObject *item)
+    {
+        Py_ssize_t wlen;
+        wchar_t *wcs = PyUnicode_AsWideCharString(item, &wlen);
+        if (!wcs)
+            return std::wstring();
+        std::wstring result(wcs, wlen);
+        PyMem_Free(wcs);
+        return result;
+    }
+};
+
+// str_typemap_in_1d — Python sequence -> new T[out_size]()
+template<typename T>
+static T* str_typemap_in_1d(PyObject *input, unsigned int out_size) {
+    T *arr = new T[out_size]();
+    if (!PySequence_Check(input)) return arr;
+    Py_ssize_t n = PySequence_Length(input);
+    if (n > (Py_ssize_t)out_size) n = (Py_ssize_t)out_size;
+    for (Py_ssize_t i = 0; i < n; ++i) {
+        PyObject *item = PySequence_GetItem(input, i);
+        if (item && PyUnicode_Check(item))
+            arr[i] = StrTraits<T>::from_pyunicode(item);
+        Py_XDECREF(item);
+    }
+    return arr;
+}
+
+// str_typemap_in_2d — Python list-of-lists -> flat new T[d0*d1]()
+template<typename T>
+static T* str_typemap_in_2d(PyObject *input, unsigned int d0, unsigned int d1) {
+    T *flat = new T[d0 * d1]();
+    if (!PySequence_Check(input)) return flat;
+    Py_ssize_t n0 = PySequence_Length(input);
+    if (n0 > (Py_ssize_t)d0) n0 = (Py_ssize_t)d0;
+    for (Py_ssize_t i = 0; i < n0; ++i) {
+        PyObject *row = PySequence_GetItem(input, i);
+        if (row && PySequence_Check(row)) {
+            Py_ssize_t n1 = PySequence_Length(row);
+            if (n1 > (Py_ssize_t)d1) n1 = (Py_ssize_t)d1;
+            for (Py_ssize_t j = 0; j < n1; ++j) {
+                PyObject *item = PySequence_GetItem(row, j);
+                if (item && PyUnicode_Check(item))
+                    flat[i * d1 + j] = StrTraits<T>::from_pyunicode(item);
+                Py_XDECREF(item);
+            }
+        }
+        Py_XDECREF(row);
+    }
+    return flat;
+}
+
+// str_typemap_in_3d — Python list-of-lists-of-lists -> flat new T[d0*d1*d2]()
+template<typename T>
+static T* str_typemap_in_3d(PyObject *input, unsigned int d0, unsigned int d1, unsigned int d2) {
+    T *flat = new T[d0 * d1 * d2]();
+    if (!PySequence_Check(input)) return flat;
+    Py_ssize_t n0 = PySequence_Length(input);
+    if (n0 > (Py_ssize_t)d0) n0 = (Py_ssize_t)d0;
+    for (Py_ssize_t i = 0; i < n0; ++i) {
+        PyObject *row0 = PySequence_GetItem(input, i);
+        if (row0 && PySequence_Check(row0)) {
+            Py_ssize_t n1 = PySequence_Length(row0);
+            if (n1 > (Py_ssize_t)d1) n1 = (Py_ssize_t)d1;
+            for (Py_ssize_t j = 0; j < n1; ++j) {
+                PyObject *row1 = PySequence_GetItem(row0, j);
+                if (row1 && PySequence_Check(row1)) {
+                    Py_ssize_t n2 = PySequence_Length(row1);
+                    if (n2 > (Py_ssize_t)d2) n2 = (Py_ssize_t)d2;
+                    for (Py_ssize_t k = 0; k < n2; ++k) {
+                        PyObject *item = PySequence_GetItem(row1, k);
+                        if (item && PyUnicode_Check(item))
+                            flat[i*d1*d2 + j*d2 + k] = StrTraits<T>::from_pyunicode(item);
+                        Py_XDECREF(item);
+                    }
+                }
+                Py_XDECREF(row1);
+            }
+        }
+        Py_XDECREF(row0);
+    }
+    return flat;
+}
+
+// str_make_fixed_swig_ref — build a swig_ref for a fixed-size string array (1D/2D/3D)
+template<typename T>
+static swig_ref* str_make_fixed_swig_ref(void *addr, int num_dims, int d0, int d1 = 0, int d2 = 0) {
+    swig_ref *t = new swig_ref;
+    t->ref.address = addr;
+    t->ref.units = NULL;
+    t->ref.attr = new ATTRIBUTES();
+    t->ref.attr->size = sizeof(T);
+    t->ref.attr->type = StrTraits<T>::trick_type;
+    t->ref.attr->type_name = strdup(StrTraits<T>::type_name);
+    t->ref.attr->units = strdup("1");
+    t->ref.attr->attr = NULL;
+    t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+    t->ref.attr->num_index = num_dims;
+    t->ref.attr->index[0].size = d0; t->ref.attr->index[0].start = 0;
+    if (num_dims >= 2) { t->ref.attr->index[1].size = d1; t->ref.attr->index[1].start = 0; }
+    if (num_dims >= 3) { t->ref.attr->index[2].size = d2; t->ref.attr->index[2].start = 0; }
+    t->ref.create_add_path = 0;
+    t->ref.num_index = 0;
+    t->ref.num_index_left = num_dims;
+    t->ref.ref_type = REF_ADDRESS;
+    return t;
+}
+
+// str_make_ptr_swig_ref — build a swig_ref for a dynamically allocated string pointer,
+// querying MemoryManager for real allocation dimensions
+template<typename T>
+static swig_ref* str_make_ptr_swig_ref(T *addr, const std::string& symname, const std::string& tname) {
+    swig_ref *t = new swig_ref;
+    t->ref.address = (void *)addr;
+    t->ref.units = NULL;
+    t->ref.attr = new ATTRIBUTES();
+    t->ref.attr->size = sizeof(T);
+    t->ref.attr->type = StrTraits<T>::trick_type;
+    t->ref.attr->type_name = strdup(StrTraits<T>::type_name);
+    t->ref.attr->units = strdup("1");
+    t->ref.attr->attr = NULL;
+    t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+    size_t offsetRemainder = 0;
+    ATTRIBUTES addrAttr = {};
+    trick_MM->get_attributes_for_address((void *)addr, addrAttr, offsetRemainder);
+    init_swig_ref_attributes_for_dimensions(*t, addrAttr, offsetRemainder, symname, tname, 1);
+    t->ref.create_add_path = 0;
+    t->ref.num_index = 0;
+    t->ref.num_index_left = t->ref.attr->num_index;
+    t->ref.ref_type = REF_ADDRESS;
+    return t;
+}
+
+// str_typemap_in_ptr — convert a Python swig_ref/REF2/void*/None to T*
+// Returns 0 on success, -1 if the input type is not recognised (caller should SWIG_exception_fail)
+template<typename T>
+static int str_typemap_in_ptr(PyObject *input, T **output) {
+    void *argp2;
+    if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_swig_ref"), 0))) {
+        swig_ref *r = reinterpret_cast<swig_ref *>(argp2);
+        if (r) *output = (T *)r->ref.address;
+    } else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_REF2"), 0))) {
+        REF2 *r = reinterpret_cast<REF2 *>(argp2);
+        if (r) *output = (T *)r->address;
+    } else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_void"), 0))) {
+        *output = reinterpret_cast<T *>(argp2);
+    } else if (input == Py_None) {
+        *output = nullptr;
+    } else {
+        return -1;
+    }
+    return 0;
+}
+
 #endif
 
