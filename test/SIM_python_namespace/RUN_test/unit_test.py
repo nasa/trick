@@ -15,6 +15,17 @@ def main():
     ball.foo_yummyfood.print_me()
     print
 
+    # struct in a namespace
+    ball.foo_yummyfood.foo_food_in_struct = trick.alloc_type(2, "Foo::FooFoodInStruct")
+    ball.foo_yummyfood.foo_food_in_struct[0].foodName = "Pizza"
+    ball.foo_yummyfood.foo_food_in_struct[0].calories = 100.0
+    ball.foo_yummyfood.foo_food_in_struct[1].foodName = "Ice Cream"
+    ball.foo_yummyfood.foo_food_in_struct[1].calories = 200.0
+    TRICK_EXPECT_EQ( str(ball.foo_yummyfood.foo_food_in_struct[0].foodName) , "Pizza", test_suite , "struct in a namespace" )
+    TRICK_EXPECT_EQ( ball.foo_yummyfood.foo_food_in_struct[0].calories , 100.0, test_suite , "struct in a namespace" )
+    TRICK_EXPECT_EQ( str(ball.foo_yummyfood.foo_food_in_struct[1].foodName) , "Ice Cream", test_suite , "struct in a namespace" )
+    TRICK_EXPECT_EQ( ball.foo_yummyfood.foo_food_in_struct[1].calories , 200.0, test_suite , "struct in a namespace" )
+
     # new class from Foo.Food
     food = trick.Foo.Food()
     food.print_me()

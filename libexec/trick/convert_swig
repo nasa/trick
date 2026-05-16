@@ -425,7 +425,7 @@ sub process_contents($$$$) {
 ## Handle the case of: typedef_struct ==> typedef (struct | union ) <name> '{' ...
 ##
         if ( $typedef_struct_string ne "" )  {
-            process_typedef_struct($typedef_struct_string , $contents_ref, $new_contents_ref, $class_names_ref) ;
+            process_typedef_struct($typedef_struct_string , $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref) ;
         }
 ##
 ## Handle the case of: typedef_struct ==> typedef const (struct | union ) <name> '{' ...
@@ -802,13 +802,16 @@ sub process_class($$$$$) {
 ## new_contents_ref
 ## (OUT) The SWIG code generated so far.
 ##
+## curr_namespace
+## (IN) current namespace (e.g. "my_namespace::"). Empty string if at global scope.
+##
 ## class_names_ref
 ## (OUT) reference to an array of class and/or struct names encountered when
 ## processing the header file contents.
 ##
-sub process_typedef_struct($$$$) {
+sub process_typedef_struct($$$$$) {
 
-    my ($typedef_struct_string , $contents_ref, $new_contents_ref , $class_names_ref) = @_ ;
+    my ($typedef_struct_string , $contents_ref, $new_contents_ref , $curr_namespace, $class_names_ref) = @_ ;
 
     my $extracted ;
     my ($tail , $my_struct_contents, $struct_names, @struct_names) ;
@@ -836,7 +839,7 @@ sub process_typedef_struct($$$$) {
 
     foreach my $s ( @struct_names ) {
         if ( $s !~ /\*/ ) {
-            push @$class_names_ref , $s ;
+            push @$class_names_ref , "${curr_namespace}${s}" ;
             # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper struct attribute assingment in input processor
             $my_struct_contents .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    if '$s' in globals():\n        $s.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
         }
