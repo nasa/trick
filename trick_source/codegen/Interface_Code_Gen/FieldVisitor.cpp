@@ -458,6 +458,20 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
     if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string") ||
          ! type_name.compare("std::__cxx11::basic_string") ) {
+        // Check template argument to distinguish std::string (char) from std::wstring (wchar_t)
+        const clang::ClassTemplateSpecializationDecl* spec =
+            llvm::dyn_cast<clang::ClassTemplateSpecializationDecl>(rt->getDecl());
+        if (spec && spec->getTemplateArgs().size() > 0) {
+            const clang::TemplateArgument& first_arg = spec->getTemplateArgs().get(0);
+            if (first_arg.getKind() == clang::TemplateArgument::Type) {
+                clang::QualType qt = first_arg.getAsType();
+                if (qt->isWideCharType()) {
+                    fdes->setEnumString("TRICK_WSTRING") ;
+                    fdes->setTypeName("std::wstring") ;
+                    return false ;
+                }
+            }
+        }
         fdes->setEnumString("TRICK_STRING") ;
         fdes->setTypeName("std::string") ;
         return false ;

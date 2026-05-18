@@ -120,11 +120,11 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
         /* The user has requested a different source address or port in the input file */
         _listener->disconnect();
         ret = _listener->initialize(_requested_source_address, _requested_port);
-        
+
         if (ret != 0) {
             message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
                 _requested_source_address.c_str(), _requested_port);
-            
+
             ret = -1;
         }
 
@@ -196,9 +196,11 @@ void * Trick::VariableServerListenThread::thread_body() {
         } else if ( _broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];
-            snprintf(buf1 , sizeof(buf1), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , _listener->getHostname().c_str(), (unsigned short)_listener->getPort() ,
-             user_name.c_str() , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
-             command_line_args_get_input_file() , version.c_str() , _user_tag.c_str(), (unsigned short)_listener->getPort() ) ;
+            snprintf(buf1, sizeof(buf1), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\t%d\t%d\n",
+                     _listener->getHostname().c_str(), (unsigned short)_listener->getPort(), user_name.c_str(),
+                     (int)getpid(), command_line_args_get_default_dir(), command_line_args_get_cmdline_name(),
+                     command_line_args_get_input_file(), version.c_str(), _user_tag.c_str(),
+                     (unsigned short)_listener->getPort(), (int)the_vs->get_enabled(), (int)exec_get_mode());
 
             std::string message(buf1);
 

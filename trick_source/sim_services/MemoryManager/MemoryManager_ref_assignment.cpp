@@ -270,6 +270,23 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    std::cout.flush();
                }
                break;
+           case TRICK_WSTRING :
+               assign_addr = (char*)base_addr + offset * sizeof(std::wstring);
+               if (v_tree && v_tree->v_data) {
+                   const char* cp = vval_string(v_tree->v_data);
+                   if (cp != NULL) {
+                       int wcs_len = (int)ncs_to_wcs_len(cp) + 1;
+                       std::wstring wide_val(wcs_len, L'\0');
+                       ncs_to_wcs(cp, &wide_val[0], wcs_len);
+                       wide_val.resize(wcs_len - 1);
+                       *(std::wstring*)assign_addr = wide_val;
+                   } else {
+                       *(std::wstring*)assign_addr = L"";
+                   }
+               } else {
+                   *(std::wstring*)assign_addr = L"";
+               }
+               break;
            default:
                std::stringstream message;
                message << "Unhandled Type (" << local_type << ") in assignment.";
