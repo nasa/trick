@@ -218,7 +218,7 @@ template<typename T > static int typemap_in_scalar( T & output , PyObject *input
     return ret ;
 }
 
-template<> static int typemap_in_scalar<bool>( bool & output , PyObject *input , const char * /*symname*/ ) {
+template<> inline int typemap_in_scalar<bool>( bool & output , PyObject *input , const char * /*symname*/ ) {
     // bool is unitless — skip get_units() lookup and convert_and_set() unit conversion
     void * my_argp ;
     if (SWIG_IsOK(SWIG_ConvertPtr(input, &my_argp,SWIG_TypeQuery("_p_swig_int"), 0 ))) {
