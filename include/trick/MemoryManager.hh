@@ -658,6 +658,16 @@ namespace Trick {
             std::string make_decl_string(TRICK_TYPE type, std::string class_name, int n_stars, std::string var_name, int n_cdims, int *cdims);
 
             /**
+             * Given an address, populate the attributes instance describing the properties of the address and any
+             * remaining offset to the address.
+             * @param address pointer to the address of interest
+             * @param attrOut reference to the ATTRIBUTES instance to be populated
+             * @param remainingOffset reference to the size_t to be populate with the number of bytes to the start of
+             *                        the attributes returned.
+             */
+            void get_attributes_for_address(void* address, ATTRIBUTES& attrOut, size_t& remainingOffset);
+
+            /**
              Return the size of the specified user-defined type.
              @param user_type_name The name of a user-defined type.
              @return The the size (in bytes) of the user-defined type.

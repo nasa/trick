@@ -3,6 +3,39 @@ PURPOSE: (Testing)
 */
 #include <vector>
 #include <stdlib.h>
+#include <stdint.h>
+
+// Test enum / enum class 32bit, 16bit, and 8bit enums
+enum Enum_u32: uint32_t {
+    Enum32_1 = 1,
+    Enum32_2 = 2
+} ;
+
+enum class Enum_u16: uint16_t {
+    Enum16_1 = 1,
+    Enum16_2 = 2
+} ;
+
+enum Enum_u8: uint8_t {
+    Enum8_1 = 1,
+    Enum8_2 = 2
+} ;
+
+enum class Enum_s32: int32_t {
+    EnumS32_1 = 1,
+    EnumS32_2 = 2
+} ;
+
+enum Enum_s16: int16_t {
+    EnumS16_1 = 1,
+    EnumS16_2 = 2
+} ;
+
+enum class Enum_s8: int8_t {
+    EnumS8_1 = 1,
+    EnumS8_2 = 2
+} ;
+// End test enum / enum class 32bit, 16bit, and 8bit enums
 
 typedef enum {
     JANUARY = 1, FEBRUARY = 2, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER

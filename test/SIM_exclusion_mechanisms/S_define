@@ -24,3 +24,15 @@
 ##include "ext_lib_dir/ExtLibDir.hh"
 ##include "symlinks/exclude_link_path/links/ext_lib_dir/ExtLibDir.hh"
 ##include "symlinks/exclude_real_path/links/ext_lib_dir/ExtLibDir.hh"
+
+##include <vector>
+
+// Since class Foo has a private assignment operator, checkpoint_stl/restore_stl
+// accessor functions would not be generated for foos.
+// This is for verifying https://github.com/nasa/trick/issues/422 that is fixed.
+// If the issue is not fixed, then the generated code will fail to compile due to
+// trying to access the private assignment operator of Foo.
+class Sandbox : public Trick::SimObject
+{
+    const std::vector<Foo> foos;
+};
