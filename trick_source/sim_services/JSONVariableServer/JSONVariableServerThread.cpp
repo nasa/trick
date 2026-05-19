@@ -269,7 +269,7 @@ int Trick::JSONVariableServerThread::get_vars( std::stringstream & body , char *
                 body << std::endl << "              ] ," << std::endl ;
             } else {
                 body << "    \"value\" : " ;
-                Trick::PythonPrint::write_rvalue(body, ref->address, ref->attr, ref->num_index, 0, false, true) ;
+                Trick::PythonPrint::write_rvalue(body, ref->address, ref->attr, ref->num_index, 0, false, true, nullptr);
                 body << " ," << std::endl ;
                 if ( ref->attr->units != NULL ) {
                     body << "    \"units\" : \"" << ref->attr->units << "\" ," << std::endl ;

@@ -1,0 +1,30 @@
+/*****
+ PURPOSE: (Test MTV variable server paths after condition_list/action_list rename)
+*****/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "trick/exec_proto.h"
+
+class MtvTestSimObject : public Trick::SimObject {
+  public:
+    bool  fire_condition;   // -- set true to trigger condition_var events
+    int   action_counter;   // -- incremented by event actions
+    int   test_status;      // -- 2=running 0=pass 1=fail
+
+    MtvTestSimObject() : fire_condition(false), action_counter(0), test_status(2) {
+        ("shutdown") report_results();
+    }
+
+    void success() { test_status = 0; }
+    void fail()    { test_status = 1; }
+
+    void report_results() {
+        const char* msg = (test_status == 0) ? "MTV GTests PASSED"  :
+                          (test_status == 1) ? "MTV GTests FAILED"  :
+                                               "MTV GTests did not complete";
+        exec_terminate_with_return(test_status, __FILE__, __LINE__, msg);
+    }
+};
+
+MtvTestSimObject mobj;

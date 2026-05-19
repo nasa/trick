@@ -28,3 +28,4 @@ S_sie.json
 *.ckpnt
 MonteCarlo_Meta_data_output
 *.xml
+SIM_mtv/models/test_client/test_client

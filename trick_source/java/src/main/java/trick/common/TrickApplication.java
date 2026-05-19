@@ -105,6 +105,9 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     /** Timeout in milliseconds for attempting to connect to the Variable Server */
     protected int varServerTimeout = 2000;
 
+    /** The flag indicating this application was launched with the Trick Variable Server disabled */
+    protected boolean varServerDisabled = false;
+
     //========================================
     //    Private Data
     //========================================
@@ -359,6 +362,22 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         String laf = trickProperties.getProperty(applicationName + ".lookAndFeel");
         if (laf != null) {
             changeLookAndFeel(lafMap.get(laf));
+        }
+
+        // Check whether the Variable Server was disabled when this app was launched
+        for (String arg : args) {
+            if (arg.equals("--varServerDisabled") || arg.equals("-varServerDisabled")) {
+                varServerDisabled = true;
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void ready() {
+        super.ready();
+        if (varServerDisabled) {
+            show(createVarServerDisabledDialog());
         }
     }
 
@@ -671,6 +690,50 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         JDialog dialog = new JDialog(getMainFrame());
         dialog.setName("aboutDialog");
         dialog.add(panel, BorderLayout.CENTER);
+        return dialog;
+    }
+
+    /**
+     * Creates a {@link JDialog} that warns the user the Trick Variable Server is
+     * disabled and provides instructions on how to enable it. This dialog will 
+     * block the user from interacting with the main application until dismissed.
+     * Shown when the C++ {@code ExternalApplication::launch()} detects that
+     * {@code var_server_get_enabled()} returned {@code false}.
+     *
+     * @return the Variable Server disabled warning dialog
+     */
+    protected JDialog createVarServerDisabledDialog() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(new EmptyBorder(16, 28, 16, 28));
+        JLabel messageLabel = new JLabel(
+            "<html><b>Warning: Variable Server is Disabled By Default!</b><br><br>" +
+            "This application was launched while the Trick Variable Server<br>" +
+            "was disabled. Add following to your input file to enable it:<br><br>" +
+            "<code><b>trick.var_allow_connections()</b></code><br>" +
+            "<code><b>trick.var_resolve_hostname()</b></code></html>");
+        GridBagConstraints c = new GridBagConstraints();
+        initGridBagConstraints(c);
+        c.anchor = GridBagConstraints.WEST;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        panel.add(messageLabel, c);
+        final JButton okButton = new JButton("OK");
+        initGridBagConstraints(c);
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(12, 0, 0, 0);
+        panel.add(okButton, c);
+        final JDialog dialog = new JDialog(getMainFrame(), "Variable Server Disabled", true);
+        dialog.setName("varServerDisabledDialog");
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.pack();
+        dialog.setLocationRelativeTo(getMainFrame());
+        okButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+            }
+        });
         return dialog;
     }
 
