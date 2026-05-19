@@ -136,7 +136,7 @@ namespace Trick {
 
             /**
              @brief Creates the remote shell command and starts the slave simulation.
-             @return always 0
+             @return 0 on success. non-0 on error
              */
             int start() ;
 

@@ -9634,6 +9634,54 @@ then :
   ICG_CLANGLIBS="$ICG_CLANGLIBS -lclangSupport"
 fi
 
+as_ac_File=`printf '%s\n' "ac_cv_file_$LLVM_LIB_DIR/libclangOptions.a" | sed "$as_sed_sh"`
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for $LLVM_LIB_DIR/libclangOptions.a" >&5
+printf %s "checking for $LLVM_LIB_DIR/libclangOptions.a... " >&6; }
+if eval test \${$as_ac_File+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "$LLVM_LIB_DIR/libclangOptions.a"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi ;;
+esac
+fi
+eval ac_res=\$$as_ac_File
+	       { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf '%s\n' "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"
+then :
+  ICG_CLANGLIBS="$ICG_CLANGLIBS -lclangOptions"
+fi
+
+as_ac_File=`printf '%s\n' "ac_cv_file_$LLVM_LIB_DIR/libclangAnalysisLifetimeSafety.a" | sed "$as_sed_sh"`
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for $LLVM_LIB_DIR/libclangAnalysisLifetimeSafety.a" >&5
+printf %s "checking for $LLVM_LIB_DIR/libclangAnalysisLifetimeSafety.a... " >&6; }
+if eval test \${$as_ac_File+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "$LLVM_LIB_DIR/libclangAnalysisLifetimeSafety.a"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi ;;
+esac
+fi
+eval ac_res=\$$as_ac_File
+	       { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf '%s\n' "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"
+then :
+  ICG_CLANGLIBS="$ICG_CLANGLIBS -lclangAnalysisLifetimeSafety"
+fi
+
 
 
 

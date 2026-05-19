@@ -773,3 +773,104 @@
 %apply unsigned long ** { size_t ** } ;
 %apply unsigned long [ANY][ANY][ANY] { size_t [ANY][ANY][ANY] } ;
 
+// =====================================================================
+// std::string and std::wstring fixed-array (1D, 2D, 3D) and pointer typemaps
+// Logic lives in str_typemap_*/str_make_* template functions in swig_int_templates.hh
+// =====================================================================
+
+// ----- 1-D fixed arrays -----
+%typemap(out) std::string[ANY], std::wstring[ANY]
+{
+    $result = SWIG_NewPointerObj(
+        SWIG_as_voidptr(str_make_fixed_swig_ref<$1_basetype>((void*)$1, 1, $1_dim0)),
+        SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+}
+
+%typemap(in) std::string[ANY], std::wstring[ANY]
+{
+    $1 = str_typemap_in_1d<$1_basetype>($input, $1_dim0);
+}
+
+%typemap(memberin) std::string[ANY], std::wstring[ANY]
+{
+    for (size_t _ii = 0; _ii < (size_t)$1_dim0; ++_ii)
+        $1[_ii] = $input[_ii];
+}
+
+%typemap(freearg) std::string[ANY], std::wstring[ANY]
+{
+    delete[] $1;
+}
+
+// ----- 2-D fixed arrays -----
+%typemap(out) std::string[ANY][ANY], std::wstring[ANY][ANY]
+{
+    $result = SWIG_NewPointerObj(
+        SWIG_as_voidptr(str_make_fixed_swig_ref<$1_basetype>((void*)$1, 2, $1_dim0, $1_dim1)),
+        SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+}
+
+%typemap(in) std::string[ANY][ANY], std::wstring[ANY][ANY]
+{
+    $1 = reinterpret_cast<$1_ltype>(
+        str_typemap_in_2d<$1_basetype>($input, $1_dim0, $1_dim1));
+}
+
+%typemap(memberin) std::string[ANY][ANY], std::wstring[ANY][ANY]
+{
+    for (size_t _ii = 0; _ii < (size_t)$1_dim0; ++_ii)
+        for (size_t _jj = 0; _jj < (size_t)$1_dim1; ++_jj)
+            $1[_ii][_jj] = $input[_ii][_jj];
+}
+
+%typemap(freearg) std::string[ANY][ANY], std::wstring[ANY][ANY]
+{
+    delete[] reinterpret_cast<$1_basetype *>($1);
+}
+
+// ----- 3-D fixed arrays -----
+%typemap(out) std::string[ANY][ANY][ANY], std::wstring[ANY][ANY][ANY]
+{
+    $result = SWIG_NewPointerObj(
+        SWIG_as_voidptr(str_make_fixed_swig_ref<$1_basetype>((void*)$1, 3, $1_dim0, $1_dim1, $1_dim2)),
+        SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+}
+
+%typemap(in) std::string[ANY][ANY][ANY], std::wstring[ANY][ANY][ANY]
+{
+    $1 = reinterpret_cast<$1_ltype>(
+        str_typemap_in_3d<$1_basetype>($input, $1_dim0, $1_dim1, $1_dim2));
+}
+
+%typemap(memberin) std::string[ANY][ANY][ANY], std::wstring[ANY][ANY][ANY]
+{
+    for (size_t _ii = 0; _ii < (size_t)$1_dim0; ++_ii)
+        for (size_t _jj = 0; _jj < (size_t)$1_dim1; ++_jj)
+            for (size_t _kk = 0; _kk < (size_t)$1_dim2; ++_kk)
+                $1[_ii][_jj][_kk] = $input[_ii][_jj][_kk];
+}
+
+%typemap(freearg) std::string[ANY][ANY][ANY], std::wstring[ANY][ANY][ANY]
+{
+    delete[] reinterpret_cast<$1_basetype *>($1);
+}
+
+// ----- pointer types -----
+%typemap(out) std::string *, std::wstring *
+{
+    if ($1 == NULL) {
+        $result = Py_None;
+        Py_INCREF(Py_None);
+    } else {
+        $result = SWIG_NewPointerObj(
+            SWIG_as_voidptr(str_make_ptr_swig_ref<$1_basetype>($1, "$symname", "$1_type")),
+            SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+    }
+}
+
+%typemap(in) std::string *, std::wstring *
+{
+    if (str_typemap_in_ptr<$1_basetype>($input, &$1) != 0)
+        SWIG_exception_fail(SWIG_TypeError,
+            "in method '$symname': $1_type expected swig_ref, REF2, void*, or None");
+}

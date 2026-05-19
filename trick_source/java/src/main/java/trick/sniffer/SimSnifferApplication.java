@@ -5,7 +5,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -18,14 +17,12 @@ import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
-
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.EnabledHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.decorator.PatternPredicate;
-
 import trick.common.TrickApplication;
 
 /**
@@ -49,17 +46,15 @@ public class SimSnifferApplication extends TrickApplication {
     /** launches the Simulation Control Panel */
     AbstractAction controlPanelAction = new AbstractAction("Launch Sim Control Panel") {
         {
-        putValue(SHORT_DESCRIPTION, "Launch the Sim Control Panel and connect it to the selected simulation.");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_C);
+            putValue(SHORT_DESCRIPTION, "Launch the Sim Control Panel and connect it to the selected simulation.");
+            putValue(MNEMONIC_KEY, KeyEvent.VK_C);
         }
+
         public void actionPerformed(ActionEvent actionEvent) {
             int row = simTable.getSelectedRow();
             if (row != -1) {
-                SimulationInformation simulationInformation =
-                  simulations.get(simTable.convertRowIndexToModel(row));
-                launchTrickApplication("simcontrol",
-                  simulationInformation.machine + " " +
-                  simulationInformation.noHandshakePort);
+                SimulationInformation simulationInformation = simulations.get(simTable.convertRowIndexToModel(row));
+                launchTrickApplication("simcontrol", simulationInformation.machine + " " + simulationInformation.noHandshakePort);
             }
         }
     };
@@ -67,36 +62,31 @@ public class SimSnifferApplication extends TrickApplication {
     /** launches Trick View */
     AbstractAction trickViewAction = new AbstractAction("Launch Trick View") {
         {
-        putValue(SHORT_DESCRIPTION, "Launch Trick View and connect it to the selected simulation.");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_V);
+            putValue(SHORT_DESCRIPTION, "Launch Trick View and connect it to the selected simulation.");
+            putValue(MNEMONIC_KEY, KeyEvent.VK_V);
         }
+
         public void actionPerformed(ActionEvent actionEvent) {
             int row = simTable.getSelectedRow();
             if (row != -1) {
-                SimulationInformation simulationInformation =
-                  simulations.get(simTable.convertRowIndexToModel(row));
-                launchTrickApplication("tv",
-                   "--host " + simulationInformation.machine +
-                   " --port " + simulationInformation.noHandshakePort);
+                SimulationInformation simulationInformation = simulations.get(simTable.convertRowIndexToModel(row));
+                launchTrickApplication("tv", "--host " + simulationInformation.machine + " --port " + simulationInformation.noHandshakePort);
             }
         }
     };
 
-
     /** launches Event/Malfunction Trick View */
     AbstractAction malfunctionTrickViewAction = new AbstractAction("Launch Event/Malfunction Trick View") {
         {
-        putValue(SHORT_DESCRIPTION, "Launch Event/Malfunction Trick View and connect it to the selected simulation.");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_E);
+            putValue(SHORT_DESCRIPTION, "Launch Event/Malfunction Trick View and connect it to the selected simulation.");
+            putValue(MNEMONIC_KEY, KeyEvent.VK_E);
         }
+
         public void actionPerformed(ActionEvent actionEvent) {
             int row = simTable.getSelectedRow();
             if (row != -1) {
-                SimulationInformation simulationInformation =
-                  simulations.get(simTable.convertRowIndexToModel(row));
-                launchTrickApplication("mtv",
-                  simulationInformation.machine + " " +
-                  simulationInformation.noHandshakePort);
+                SimulationInformation simulationInformation = simulations.get(simTable.convertRowIndexToModel(row));
+                launchTrickApplication("mtv", simulationInformation.machine + " " + simulationInformation.noHandshakePort);
             }
         }
     };
@@ -104,17 +94,15 @@ public class SimSnifferApplication extends TrickApplication {
     /** launches Monte Monitor */
     AbstractAction monteMonitorAction = new AbstractAction("Launch Monte Monitor") {
         {
-        putValue(SHORT_DESCRIPTION, "Launch Monte Monitor and connect it to the selected simulation.");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_M);
+            putValue(SHORT_DESCRIPTION, "Launch Monte Monitor and connect it to the selected simulation.");
+            putValue(MNEMONIC_KEY, KeyEvent.VK_M);
         }
+
         public void actionPerformed(ActionEvent actionEvent) {
             int row = simTable.getSelectedRow();
             if (row != -1) {
-                SimulationInformation simulationInformation =
-                  simulations.get(simTable.convertRowIndexToModel(row));
-                launchTrickApplication("mm",
-                  " --host " + simulationInformation.machine +
-                  " --port " + simulationInformation.noHandshakePort);
+                SimulationInformation simulationInformation = simulations.get(simTable.convertRowIndexToModel(row));
+                launchTrickApplication("mm", " --host " + simulationInformation.machine + " --port " + simulationInformation.noHandshakePort);
             }
         }
     };
@@ -145,132 +133,184 @@ public class SimSnifferApplication extends TrickApplication {
 
     @Override
     protected void ready() {
-        simulationSniffer = new SimulationSniffer() {{
-            addSimulationListener(new SimulationListener() {
-
-                @Override
-                public void simulationAdded(final SimulationInformation simulationInformation) {
-                    SwingUtilities.invokeLater(new Runnable() {
+        simulationSniffer = new SimulationSniffer() {
+            {
+                addSimulationListener(
+                    new SimulationListener() {
                         @Override
-                        public void run() {
-                            int row = SimSnifferApplication.this.simulations.size();
-                            SimSnifferApplication.this.simulations.add(simulationInformation);
-                            ((DefaultTableModel)simTable.getModel()).fireTableRowsInserted(row, row);
+                        public void simulationAdded(final SimulationInformation simulationInformation) {
+                            SwingUtilities.invokeLater(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int row = SimSnifferApplication.this.simulations.size();
+                                        SimSnifferApplication.this.simulations.add(simulationInformation);
+                                        ((DefaultTableModel) simTable.getModel()).fireTableRowsInserted(row, row);
+                                    }
+                                }
+                            );
                         }
-                    });
-                }
 
-                @Override
-                public void simulationRemoved(final SimulationInformation simulationInformation) {
-                    SwingUtilities.invokeLater(new Runnable() {
                         @Override
-                        public void run() {
-                            int row = SimSnifferApplication.this.simulations.indexOf(simulationInformation);
-                            if (row != -1) {
-                                SimSnifferApplication.this.simulations.remove(row);
-                                ((DefaultTableModel)simTable.getModel()).fireTableRowsDeleted(row, row);
-                            }
+                        public void simulationRemoved(final SimulationInformation simulationInformation) {
+                            SwingUtilities.invokeLater(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int row = SimSnifferApplication.this.simulations.indexOf(simulationInformation);
+                                        if (row != -1) {
+                                            SimSnifferApplication.this.simulations.remove(row);
+                                            ((DefaultTableModel) simTable.getModel()).fireTableRowsDeleted(row, row);
+                                        }
+                                    }
+                                }
+                            );
                         }
-                    });
-                }
 
-                @Override
-                public void exceptionOccurred(Exception exception) {
-                    JOptionPane.showMessageDialog(getMainFrame(), exception,
-                      "Simulation List Error", JOptionPane.ERROR_MESSAGE);
-                    exit();
-                }
+                        @Override
+                        public void simulationUpdated(final SimulationInformation simulationInformation) {
+                            SwingUtilities.invokeLater(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int row = SimSnifferApplication.this.simulations.indexOf(simulationInformation);
+                                        if (row != -1) {
+                                            SimSnifferApplication.this.simulations.set(row, simulationInformation);
+                                            ((DefaultTableModel) simTable.getModel()).fireTableRowsUpdated(row, row);
+                                        }
+                                    }
+                                }
+                            );
+                        }
 
-            });
+                        @Override
+                        public void exceptionOccurred(Exception exception) {
+                            JOptionPane.showMessageDialog(getMainFrame(), exception, "Simulation List Error", JOptionPane.ERROR_MESSAGE);
+                            exit();
+                        }
+                    }
+                );
 
-            start();
-        }};
+                start();
+            }
+        };
     }
 
     @Override
     protected JComponent createMainPanel() {
-        simTable = new JXTable(new DefaultTableModel() {
+        simTable = new JXTable(
+            new DefaultTableModel() {
+                final String[] columnNames = {
+                    "Machine",
+                    "Port",
+                    "User",
+                    "PID",
+                    "Version",
+                    "S_main File",
+                    "Sim Directory",
+                    "Run Directory",
+                    "Tag",
+                    "Variable Server",
+                    "Exec Mode",
+                };
 
-            final String[] columnNames = {"Machine", "Port (w/ HS)",
-              "Port (w/o HS)", "User", "PID", "Version", "S_main File", "Sim Directory",
-              "Run Directory", "Tag"};
+                @Override
+                public int getRowCount() {
+                    return simulations.size();
+                }
 
-            @Override
-            public int getRowCount() {
-                return simulations.size();
-            }
+                @Override
+                public int getColumnCount() {
+                    return columnNames.length;
+                }
 
-            @Override
-            public int getColumnCount() {
-                return columnNames.length;
-            }
+                @Override
+                public String getColumnName(int column) {
+                    return columnNames[column];
+                }
 
-            @Override
-            public String getColumnName(int column) {
-                return columnNames[column];
-            }
+                @Override
+                public Class<?> getColumnClass(int column) {
+                    return String.class;
+                }
 
-            @Override
-            public Class<?> getColumnClass(int column) {
-                return String.class;
-            }
-
-            @Override
-            public Object getValueAt(int row, int column) {
-                switch (column) {
-                    case 0:
-                        return simulations.get(row).machine;
-                    case 1:
-                        return simulations.get(row).handshakePort;
-                    case 2:
-                        return simulations.get(row).noHandshakePort;
-                    case 3:
-                        return simulations.get(row).user;
-                    case 4:
-                        return simulations.get(row).processID;
-                    case 5:
-                        return simulations.get(row).version;
-                    case 6:
-                        return simulations.get(row).sMainFile;
-                    case 7:
-                        return simulations.get(row).simDirectory;
-                    case 8:
-                        return simulations.get(row).runDirectory;
-                    default:
-                        return simulations.get(row).tag;
+                @Override
+                public Object getValueAt(int row, int column) {
+                    SimulationInformation sim = simulations.get(row);
+                    switch (column) {
+                        case 0:
+                            return sim.machine;
+                        case 1:
+                            return sim.noHandshakePort;
+                        case 2:
+                            return sim.user;
+                        case 3:
+                            return sim.processID;
+                        case 4:
+                            return sim.version;
+                        case 5:
+                            return sim.sMainFile;
+                        case 6:
+                            return sim.simDirectory;
+                        case 7:
+                            return sim.runDirectory;
+                        case 8:
+                            return sim.tag;
+                        case 9:
+                            if ("1".equals(sim.vsEnabled)) return "Yes";
+                            if ("0".equals(sim.vsEnabled)) return "No";
+                            return sim.vsEnabled;
+                        default:
+                            switch (sim.execMode) {
+                                case "0":
+                                    return "Initialization";
+                                case "1":
+                                    return "Freeze";
+                                case "4":
+                                    return "Step";
+                                case "5":
+                                    return "Run";
+                                case "6":
+                                    return "Exit";
+                                default:
+                                    return sim.execMode;
+                            }
+                    }
                 }
             }
-
-        }) {
+        ) {
             {
-            getColumnExt(0).setPrototypeValue("XXXXXXXXXX");
-            getColumnExt(1).setPrototypeValue("000000");
-            getColumnExt(2).setPrototypeValue("000000");
-            getColumnExt(3).setPrototypeValue("XXXXXXXXXX");
-            getColumnExt(4).setPrototypeValue("0000000000");
-            getColumnExt(5).setPrototypeValue("XXXXXXXXXXXXXXX");
-            getColumnExt(6).setPrototypeValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-            getColumnExt(7).setPrototypeValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" + 
-                                              "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-            getColumnExt(8).setPrototypeValue("XXXXXXXXXXXXXXXXXXXXXXXXX");
-            getColumnExt(9).setPrototypeValue("XXXXX");
-            initializeColumnWidths();
+                getColumnExt(0).setPrototypeValue("XXXXXXXXXX");
+                getColumnExt(1).setPrototypeValue("000000");
+                getColumnExt(2).setPrototypeValue("XXXXXXXXXX");
+                getColumnExt(3).setPrototypeValue("0000000000");
+                getColumnExt(4).setPrototypeValue("XXXXXXXXXXXXXXX");
+                getColumnExt(5).setPrototypeValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+                getColumnExt(6).setPrototypeValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" + "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+                getColumnExt(7).setPrototypeValue("XXXXXXXXXXXXXXXXXXXXXXXXX");
+                getColumnExt(8).setPrototypeValue("XXXXX");
+                getColumnExt(9).setPrototypeValue("XXXXXXX");
+                getColumnExt(10).setPrototypeValue("XXXXXXXXXXXXXX");
+                initializeColumnWidths();
 
-            // Add a popup menu.
-            setComponentPopupMenu(new JPopupMenu() {{
-                add(controlPanelAction);
-                add(trickViewAction);
-                add(malfunctionTrickViewAction);
-                add(monteMonitorAction);
-            }});
+                // Add a popup menu.
+                setComponentPopupMenu(
+                    new JPopupMenu() {
+                        {
+                            add(controlPanelAction);
+                            add(trickViewAction);
+                            add(malfunctionTrickViewAction);
+                            add(monteMonitorAction);
+                        }
+                    }
+                );
 
-            setName("simTable");
-            setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            setColumnControlVisible(true);
+                setName("simTable");
+                setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                setColumnControlVisible(true);
 
-            // Provide alternate row coloring.
-            setHighlighters(
-              HighlighterFactory.createSimpleStriping());
+                // Provide alternate row coloring.
+                setHighlighters(HighlighterFactory.createSimpleStriping());
             }
 
             @Override
@@ -287,12 +327,13 @@ public class SimSnifferApplication extends TrickApplication {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
-
         };
 
-        return new JScrollPane(simTable) {{
-            setName("scrollPane");
-        }};
+        return new JScrollPane(simTable) {
+            {
+                setName("scrollPane");
+            }
+        };
     }
 
     @Override
@@ -307,11 +348,11 @@ public class SimSnifferApplication extends TrickApplication {
         return menuBar;
     }
 
-    /** main method for this application 
+    /**
+     * main method for this application
      * @param args command line arguments
      */
     public static void main(String[] args) {
         Application.launch(SimSnifferApplication.class, args);
     }
-
 }
