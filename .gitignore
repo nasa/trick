@@ -1,8 +1,4 @@
-compile_commands.json
-*~
-config.status*
-config.log
-share/trick/makefiles/config_user.mk
+# Build artifacts
 object_*
 io_src
 swig
@@ -13,36 +9,57 @@ lib_Darwin_*
 *.lex.c
 *.tab.cpp
 *.tab.hpp
-*.swp
-*.dox
-*.pyc
+*.gcda
+*.gcno
+coverage.info
+gmon.out
+compile_commands.json
 Makefile_jsc_dirs
-.DS_Store
+
+# Autoconf / configure
+config.status*
+config.log
+aclocal.m4
+autom4te.cache
+
+# Generated binaries
 bin/trick-ICG
 bin/trick-fxplot
 bin/trick-gxplot
 bin/trick-trk2ascii
 bin/trick-trk2csv
 bin/trick-trkConvert
-aclocal.m4
-autom4te.cache
-trick_test
-gmon.out
-*init_log.csv*
+
+# Civet / web server
 trick_source/web/CivetServer/obj/
-trick-offline
-*sim_services_classes.resource
 civetweb_clone/
 include/civet/
-.vscode/
 civet_server_error.log
 server.pem
-archive/
-.venv
+trick-offline
+
+# Sim / test output
+trick_test
 trickops_logs/
-*.gcda
-*.gcno
-coverage.info
-*.dSYM
-*.log
+*init_log.csv*
+*sim_services_classes.resource
+
+# Config / generated files
+share/trick/makefiles/config_user.mk
+
+# Editor / OS
+*~
+*.swp
+*.dox
+.DS_Store
+.vscode/
 .cache/
+
+# Python
+*.pyc
+.venv
+
+# Logs / debug
+*.log
+*.dSYM
+archive/
