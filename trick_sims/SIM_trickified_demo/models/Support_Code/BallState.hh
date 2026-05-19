@@ -14,6 +14,7 @@ ASSUMPTIONS AND LIMITATIONS:
     ((2 dimensional space)
      (Constant force)
      (Always toward a stationary point))
+PYTHON MODULE: (ball_state)
 LIBRARY DEPENDENCY:
      ((BallState.o) (BallState_default_data.o))
 PROGRAMMERS:

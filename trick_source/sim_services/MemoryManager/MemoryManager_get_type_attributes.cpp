@@ -39,7 +39,7 @@ int Trick::MemoryManager::get_type_attributes( TRICK_TYPE& type,
            size = (n_stars == 0) ? sizeof(wchar_t) : sizeof(void*) ;
         } break;
         case TRICK_WSTRING: {
-           size = sizeof(void*) ;
+           size = (n_stars == 0) ? sizeof(std::wstring) : sizeof(void*) ;
         } break;
         case TRICK_UNSIGNED_CHARACTER: {
            size = (n_stars == 0) ? sizeof(unsigned char) : sizeof(void*) ;

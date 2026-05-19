@@ -53,6 +53,10 @@ def main():
     #trick_sie.enum_attr_map.print_xml()
     #trick.exec_set_trap_sigfpe(True)
 
+    # Test accessing Trickified code that was placed in a different Python module.
+    test_ball_state = trick.ball_state.BallStateInput()
+    test_ball_state.mass = trick.attach_units('kg', 10.0)
+
 
 if __name__ == "__main__":
     main()

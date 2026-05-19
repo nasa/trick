@@ -544,6 +544,18 @@ class ClassOfEverything {
     a::Foo foo1;
     b::Foo2 foo2;
 
+    // Testing std::wstring
+    std::wstring _wstring; /**< -- blah */
+    std::wstring vec3_wstring[3]; /**< -- blah */
+    std::wstring m3x3_wstring[3][3]; /**< -- blah */
+    std::wstring *ptr_wstring; /**< -- Dynamic array allocation via Trick Memory Manager */
+
+    // Testing std::string
+    std::string _string; /**< -- blah */
+    std::string vec3_string[3]; /**< -- blah */
+    std::string m3x3_string[3][3]; /**< -- blah */
+    std::string *ptr_string; /**< -- Dynamic array allocation via Trick Memory Manager */
+
 private:
     ClassOfEverything(const ClassOfEverything&);
     ClassOfEverything& operator=(const ClassOfEverything&);

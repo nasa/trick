@@ -41,7 +41,8 @@ class VariableServerListenThread_test : public ::testing::Test {
         MockTCPClientListener * listener;
         MockMulticastGroup * mcast;
 
-		VariableServerListenThread_test() { 
+        VariableServerListenThread_test()
+        {
             varserver.set_enabled(1);
             varserver.set_allow_connections(1);
             varserver.set_bypass_ip_check(1);
@@ -51,14 +52,13 @@ class VariableServerListenThread_test : public ::testing::Test {
 
             // Set up mocks
             listener = new MockTCPClientListener;
-            mcast = new MockMulticastGroup;
+            mcast    = new MockMulticastGroup;
         }
 
-		~VariableServerListenThread_test() {
-        }
+        ~VariableServerListenThread_test() { }
 
-		void SetUp() {}
-		void TearDown() {}
+        void SetUp() { }
+        void TearDown() { }
 };
 
 void setup_normal_listener_expectations (MockTCPClientListener * listener) {
