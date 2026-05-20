@@ -92,7 +92,7 @@ my $class_def   = qr/(?:class|struct)\s*                   # keyword class or st
                (?:\{|:(?!\:))                              # { or punctuator :
              /sx ;
 my $template_def   = qr/template\s*                        # keyword template
-            <.*?>\s*                                       # template parameters
+            <[^{]*?>\s*                                    # template parameters (no { to avoid spanning namespaces)
             (?:class|struct)                               # keyword class or struct
             \s+[_A-Za-z]\w*\s*                             # class name
                /sx ;
@@ -842,6 +842,12 @@ sub process_typedef_struct($$$$$) {
             push @$class_names_ref , "${curr_namespace}${s}" ;
             # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper struct attribute assingment in input processor
             $my_struct_contents .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    if '$s' in globals():\n        $s.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
+            # Generate the same define that process_class generates so the #ifdef-guarded
+            # %trick_cast_as() at the bottom of the .i file generates a cast helper
+            # with the fully-qualified type name (e.g. peer::Leek * castAspeer__Leek).
+            my $c_ = "${curr_namespace}${s}" ;
+            $c_ =~ s/\:/_/g ;
+            $my_struct_contents .= "\n#define TRICK_SWIG_DEFINED_$c_" ;
         }
     }
 
