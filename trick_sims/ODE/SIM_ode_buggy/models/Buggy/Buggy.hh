@@ -14,9 +14,11 @@ LIBRARY DEPENDENCY:
 #include <ode/common.h>
 #include <ode/src/objects.h>
 
+// clang-format off
 #if SWIG
-% apply float { dReal }
+%apply float { dReal }
 #endif
+// clang-format on
 
 class Buggy : public DrawStuffObject
 {
