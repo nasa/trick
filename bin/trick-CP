@@ -3,76 +3,80 @@
 # It is so hard getting the absolute path of the current script in bash
 # so I converted CP back to perl. :)
 
-use File::Basename ;
-use Cwd ;
+use File::Basename;
+use Cwd;
 use Cwd 'abs_path';
-use Pod::Usage ;
-use Pod::Text ;
+use Pod::Usage;
+use Pod::Text;
 
-$trick_bin = dirname(abs_path($0)) ;
-$trick_home = dirname($trick_bin) ;
+$trick_bin  = dirname( abs_path($0) );
+$trick_home = dirname($trick_bin);
 
 ### Set TRICK_VERBOSE_BUILD if VERBOSE is defined (synonyms) ###
-if(defined $ENV{'VERBOSE'}) {
+if ( defined $ENV{'VERBOSE'} ) {
     $ENV{'TRICK_VERBOSE_BUILD'} = 1;
 }
 
 #### Handle arguments ####
-$numArgs = $#ARGV + 1;
+$numArgs         = $#ARGV + 1;
 $makefileAddArgs = ' ';
-$sdefine_dir = ".";
-$sdefine = "S_define";
-$makefile = "makefile";
-foreach $argnum (0 .. $#ARGV) {
+$sdefine_dir     = ".";
+$sdefine         = "S_define";
+$makefile        = "makefile";
+foreach $argnum ( 0 .. $#ARGV ) {
     $arg = $ARGV[$argnum];
-    if ($arg =~ /(\w+)=(\w+)/ ) {
+    if ( $arg =~ /(\w+)=(\w+)/ ) {
         $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
-    } elsif ($arg eq "-C" || $arg eq "--directory" ) {
-        $sdefine_dir = abs_path($ARGV[$argnum + 1]);
+    }
+    elsif ( $arg eq "-C" || $arg eq "--directory" ) {
+        $sdefine_dir     = abs_path( $ARGV[ $argnum + 1 ] );
         $makefileAddArgs = $makefileAddArgs . " -C $sdefine_dir ";
-        $sdefine = $sdefine_dir . "/${sdefine}";
-        $makefile = $sdefine_dir . "/${makefile}";
-        shift
-    } elsif ($arg =~ /-d/ ) {
+        $sdefine         = $sdefine_dir . "/${sdefine}";
+        $makefile        = $sdefine_dir . "/${makefile}";
+        shift;
+    }
+    elsif ( $arg =~ /-d/ ) {
         $makefileAddArgs = $makefileAddArgs . " debug ";
-    } elsif ($arg =~ /-t/ ) {
+    }
+    elsif ( $arg =~ /-t/ ) {
         $makefileAddArgs = $makefileAddArgs . " test ";
-    } elsif($arg=~ /-h/ ) {
-        pod2usage(-sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99) ;
-    } else {
-        $ENV{TRICK_CPFLAGS} .= " $arg" ;
+    }
+    elsif ( $arg =~ /-h/ ) {
+        pod2usage( -sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99 );
+    }
+    else {
+        $ENV{TRICK_CPFLAGS} .= " $arg";
     }
 }
 
 if ( -f $sdefine ) {
     if ( not -w $sdefine_dir ) {
-        print $sdefine_dir , " is not writable\n" ;
-        print "trick-CP aborted\n" ;
-        exit 1 ;
+        print $sdefine_dir, " is not writable\n";
+        print "trick-CP aborted\n";
+        exit 1;
     }
-    unlink "build/Makefile_sim", $makefile ;
-    $makefile_text = do { local $/; <main::DATA> } ;
-    $makefile_text =~ s/SUB_TRICK_HOME/$trick_home/ ;
-    $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
-    open MAKEFILE, ">$makefile" ;
-    print MAKEFILE $makefile_text ;
-    close MAKEFILE ;
+    unlink "build/Makefile_sim", $makefile;
+    $makefile_text = do { local $/; <main::DATA> };
+    $makefile_text =~ s/SUB_TRICK_HOME/$trick_home/;
+    $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/;
+    open MAKEFILE, ">$makefile";
+    print MAKEFILE $makefile_text;
+    close MAKEFILE;
 
     #Rebuild trickified libraries
-    if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk")
-    {
-        my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1` ;
-        if($cmd_ret ne "") 
-        {
-            print "$cmd_ret" ;
+    if ( not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk" ) {
+        my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1`;
+        if ( $cmd_ret ne "" ) {
+            print "$cmd_ret";
         }
     }
 
-    system("make -f makefile " . $makefileAddArgs) ;
+    system( "make -f makefile " . $makefileAddArgs );
     exit $? >> 8;
-} else {
-    print "S_define does not exist\n" ;
-    exit 1 ;
+}
+else {
+    print "S_define does not exist\n";
+    exit 1;
 }
 
 # trick-CP help message

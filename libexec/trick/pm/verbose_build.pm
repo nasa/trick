@@ -1,13 +1,13 @@
-package verbose_build ;
+package verbose_build;
 
 use Exporter ();
-@ISA = qw(Exporter);
+@ISA    = qw(Exporter);
 @EXPORT = qw(verbose_build);
 
-use strict ;
+use strict;
 
 sub verbose_build {
-    return (exists($ENV{'TRICK_VERBOSE_BUILD'}) or exists($ENV{'VERBOSE'}));
+    return ( exists( $ENV{'TRICK_VERBOSE_BUILD'} ) or exists( $ENV{'VERBOSE'} ) );
 }
 
 1;
