@@ -16,7 +16,6 @@ Programmers:
 
 *******************************************************************************/
 
-
 #ifndef ER7_UTILS_RKNYSTROM4_TWO_STATE_INTEGRATOR_HH
 #define ER7_UTILS_RKNYSTROM4_TWO_STATE_INTEGRATOR_HH
 
@@ -28,311 +27,268 @@ Programmers:
 // Integration includes
 #include "er7_utils/integration/core/include/second_order_ode_integrator.hh"
 
+namespace er7_utils
+{
 
-namespace er7_utils {
+    /**
+     * Propagate state using the standard 4th order Runge-Kutta method.
+     */
+    class RKNystrom4SecondOrderODEIntegrator : public SecondOrderODEIntegrator
+    {
+            ER7_UTILS_MAKE_SIM_INTERFACES(RKNystrom4SecondOrderODEIntegrator)
 
-/**
- * Propagate state using the standard 4th order Runge-Kutta method.
- */
-class RKNystrom4SecondOrderODEIntegrator : public SecondOrderODEIntegrator {
+            // Note:
+            //  This is an abstract class.
+            //  - The constructors for this class are protected.
+            //  - The assignment operator for this class is private / unimplemented.
 
-ER7_UTILS_MAKE_SIM_INTERFACES(RKNystrom4SecondOrderODEIntegrator)
+        public:
+            /**
+             * RKNystrom4SecondOrderODEIntegrator destructor.
+             */
+            virtual ~RKNystrom4SecondOrderODEIntegrator(void);
 
+        protected:
+            // Constructors.
 
-   // Note:
-   //  This is an abstract class.
-   //  - The constructors for this class are protected.
-   //  - The assignment operator for this class is private / unimplemented.
+            /**
+             * RKNystrom4SecondOrderODEIntegrator default constructor.
+             * Notes:
+             *  - This implicitly assumes the time derivative of position is velocity.
+             *  - This is needed so that Trick can checkpoint/restart its integrators.
+             */
+            RKNystrom4SecondOrderODEIntegrator(void);
 
+            /**
+             * RKNystrom4SecondOrderODEIntegrator copy constructor.
+             * @param[in] src  Object to be copied.
+             */
+            RKNystrom4SecondOrderODEIntegrator(const RKNystrom4SecondOrderODEIntegrator& src);
 
-public:
+            /**
+             * RKNystrom4SecondOrderODEIntegrator non-default constructor
+             * for a simple second order ODE, one in which generalized velocity
+             * is time derivative of generalized position.
+             * @param[in]     size                State size
+             * @param[in,out] controls            Integration controls
+             */
+            RKNystrom4SecondOrderODEIntegrator(unsigned int size, IntegrationControls& controls);
 
-   /**
-    * RKNystrom4SecondOrderODEIntegrator destructor.
-    */
-   virtual ~RKNystrom4SecondOrderODEIntegrator (void);
+            /**
+             * RKNystrom4SecondOrderODEIntegrator non-default constructor
+             * for a generalized second order ODE in which position is advanced
+             * using the position step function.
+             * @param[in]     position_size  Size of the generalized position
+             * @param[in]     velocity_size  Size of the generalized velocity
+             * @param[in]     step_funs      Position step functions container
+             * @param[in,out] controls       Integration controls
+             */
+            RKNystrom4SecondOrderODEIntegrator(unsigned int position_size, unsigned int velocity_size,
+                const GeneralizedPositionStepFunctions& step_funs, IntegrationControls& controls);
 
+            // Member functions.
 
-protected:
+            /**
+             * Non-throwing swap.
+             * @param other  Item with which contents are to be swapped.
+             */
+            void swap(RKNystrom4SecondOrderODEIntegrator& other);
 
-   // Constructors.
+            using SecondOrderODEIntegrator::swap;
 
-   /**
-    * RKNystrom4SecondOrderODEIntegrator default constructor.
-    * Notes:
-    *  - This implicitly assumes the time derivative of position is velocity.
-    *  - This is needed so that Trick can checkpoint/restart its integrators.
-    */
-   RKNystrom4SecondOrderODEIntegrator (void);
+            // Member data.
 
-   /**
-    * RKNystrom4SecondOrderODEIntegrator copy constructor.
-    * @param[in] src  Object to be copied.
-    */
-   RKNystrom4SecondOrderODEIntegrator (
-      const RKNystrom4SecondOrderODEIntegrator & src);
+            double* init_pos; /**< trick_units(--) @n
+              Position at the start of an integration cycle. */
 
-   /**
-    * RKNystrom4SecondOrderODEIntegrator non-default constructor
-    * for a simple second order ODE, one in which generalized velocity
-    * is time derivative of generalized position.
-    * @param[in]     size                State size
-    * @param[in,out] controls            Integration controls
-    */
-   RKNystrom4SecondOrderODEIntegrator (
-      unsigned int size,
-      IntegrationControls & controls);
+            double* init_vel; /**< trick_units(--) @n
+              Velocity at the start of an integration cycle. */
 
-   /**
-    * RKNystrom4SecondOrderODEIntegrator non-default constructor
-    * for a generalized second order ODE in which position is advanced
-    * using the position step function.
-    * @param[in]     position_size  Size of the generalized position
-    * @param[in]     velocity_size  Size of the generalized velocity
-    * @param[in]     step_funs      Position step functions container
-    * @param[in,out] controls       Integration controls
-    */
-   RKNystrom4SecondOrderODEIntegrator (
-      unsigned int position_size,
-      unsigned int velocity_size,
-      const GeneralizedPositionStepFunctions & step_funs,
-      IntegrationControls & controls);
+            double* mean_vel; /**< trick_units(--) @n
+              Some mean velocity used to propagate position. */
 
+            double* dtheta; /**< trick_units(--) @n
+              Product of delta t and weighted sum of generalized velocities. */
 
-   // Member functions.
+            double* veldot_hist[4]; /**< trick_units(--) @n
+              Velocity derivatives at each step in the integration cycle. */
 
-   /**
-    * Non-throwing swap.
-    * @param other  Item with which contents are to be swapped.
-    */
-   void swap (RKNystrom4SecondOrderODEIntegrator & other);
+        private:
+            /**
+             * Not implemented.
+             */
+            RKNystrom4SecondOrderODEIntegrator& operator=(const RKNystrom4SecondOrderODEIntegrator&);
+    };
 
-   using SecondOrderODEIntegrator::swap;
+    /**
+     * Specialization of RKNystrom4SecondOrderODEIntegrator for the case of
+     * generalized velocity being the time derivative of generalized position.
+     */
+    class RKNystrom4SimpleSecondOrderODEIntegrator : public RKNystrom4SecondOrderODEIntegrator
+    {
+            ER7_UTILS_MAKE_SIM_INTERFACES(RKNystrom4SimpleSecondOrderODEIntegrator)
 
+        public:
+            // Constructors and destructor.
 
-   // Member data.
+            /**
+             * RKNystrom4SimpleSecondOrderODEIntegrator default constructor.
+             */
+            RKNystrom4SimpleSecondOrderODEIntegrator(void)
+                : Er7UtilsDeletable()
+                , RKNystrom4SecondOrderODEIntegrator()
+            {
+            }
 
-   double * init_pos; /**< trick_units(--) @n
-      Position at the start of an integration cycle. */
+            /**
+             * RKNystrom4SimpleSecondOrderODEIntegrator copy constructor.
+             * @param[in] src  Object to be copied.
+             */
+            RKNystrom4SimpleSecondOrderODEIntegrator(const RKNystrom4SimpleSecondOrderODEIntegrator& src)
+                : Er7UtilsDeletable()
+                , RKNystrom4SecondOrderODEIntegrator(src)
+            {
+            }
 
-   double * init_vel; /**< trick_units(--) @n
-      Velocity at the start of an integration cycle. */
+            /**
+             * RKNystrom4SimpleSecondOrderODEIntegrator non-default constructor.
+             * @param[in]     size      Size of the position and velocity vectors
+             * @param[in,out] controls  Integration controls
+             */
+            RKNystrom4SimpleSecondOrderODEIntegrator(unsigned int size, IntegrationControls& controls)
+                : Er7UtilsDeletable()
+                , RKNystrom4SecondOrderODEIntegrator(size, controls)
+            {
+            }
 
-   double * mean_vel; /**< trick_units(--) @n
-      Some mean velocity used to propagate position. */
+            /**
+             * RKNystrom4SimpleSecondOrderODEIntegrator destructor.
+             */
+            virtual ~RKNystrom4SimpleSecondOrderODEIntegrator(void) { }
 
-   double * dtheta; /**< trick_units(--) @n
-      Product of delta t and weighted sum of generalized velocities. */
+            // Member functions.
 
-   double * veldot_hist[4]; /**< trick_units(--) @n
-      Velocity derivatives at each step in the integration cycle. */
+            /**
+             * RKNystrom4SimpleSecondOrderODEIntegrator assignment operator.
+             * @param[in] src  Object to be copied.
+             */
+            RKNystrom4SimpleSecondOrderODEIntegrator& operator=(RKNystrom4SimpleSecondOrderODEIntegrator src)
+            {
+                swap(src);
+                return *this;
+            }
 
+            /**
+             * Create a copy of 'this' object.
+             * @return Clone of 'this'.
+             */
+            virtual RKNystrom4SimpleSecondOrderODEIntegrator* create_copy() const;
 
-private:
+            /**
+             * Propagate state via RKN4 for the special case of velocity being the
+             * derivative of position.
+             * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
+             * @param[in]     target_stage  The stage of the integration process
+             *                              that the integrator should try to attain.
+             * @param[in]     accel         Time derivative of the generalized velocity.
+             * @param[in,out] velocity      Generalized velocity vector.
+             * @param[in,out] position      Generalized position vector.
+             *
+             * @return The status (time advance, pass/fail status) of the integration.
+             */
+            virtual IntegratorResult integrate(double dyn_dt, unsigned int target_stage,
+                double const* ER7_UTILS_RESTRICT accel, double* ER7_UTILS_RESTRICT velocity,
+                double* ER7_UTILS_RESTRICT position);
+    };
 
-   /**
-    * Not implemented.
-    */
-   RKNystrom4SecondOrderODEIntegrator & operator= (
-      const RKNystrom4SecondOrderODEIntegrator &);
-};
+    /**
+     * Specialization of RKNystrom4SecondOrderODEIntegrator for the case of
+     * the generalized position being constrained to lie on a manifold.
+     * The function compute_position_step makes a non-linear position step based
+     * generalized position, generalized velocity, and the time step.
+     */
+    class RKNystrom4GeneralizedStepSecondOrderODEIntegrator : public RKNystrom4SecondOrderODEIntegrator
+    {
+            ER7_UTILS_MAKE_SIM_INTERFACES(RKNystrom4GeneralizedStepSecondOrderODEIntegrator)
 
+        public:
+            // Constructors and destructor.
 
-/**
- * Specialization of RKNystrom4SecondOrderODEIntegrator for the case of
- * generalized velocity being the time derivative of generalized position.
- */
-class RKNystrom4SimpleSecondOrderODEIntegrator :
-   public RKNystrom4SecondOrderODEIntegrator {
+            /**
+             * RKNystrom4GeneralizedStepSecondOrderODEIntegrator default constructor.
+             */
+            RKNystrom4GeneralizedStepSecondOrderODEIntegrator(void)
+                : Er7UtilsDeletable()
+                , RKNystrom4SecondOrderODEIntegrator()
+            {
+            }
 
-ER7_UTILS_MAKE_SIM_INTERFACES(RKNystrom4SimpleSecondOrderODEIntegrator)
+            /**
+             * RKNystrom4GeneralizedStepSecondOrderODEIntegrator copy constructor.
+             * @param[in] src  Object to be copied.
+             */
+            RKNystrom4GeneralizedStepSecondOrderODEIntegrator(
+                const RKNystrom4GeneralizedStepSecondOrderODEIntegrator& src)
+                : Er7UtilsDeletable()
+                , RKNystrom4SecondOrderODEIntegrator(src)
+            {
+            }
 
-public:
+            /**
+             * RKNystrom4GeneralizedStepSecondOrderODEIntegrator non-default constructor.
+             * @param[in]     position_size  Size of the generalized position
+             * @param[in]     velocity_size  Size of the generalized velocity
+             * @param[in]     step_funs      Position step functions container
+             * @param[in,out] controls       Integration controls
+             */
+            RKNystrom4GeneralizedStepSecondOrderODEIntegrator(unsigned int position_size, unsigned int velocity_size,
+                const GeneralizedPositionStepFunctions& step_funs, IntegrationControls& controls)
+                : Er7UtilsDeletable()
+                , RKNystrom4SecondOrderODEIntegrator(position_size, velocity_size, step_funs, controls)
+            {
+            }
 
-   // Constructors and destructor.
+            /**
+             * RKNystrom4GeneralizedStepSecondOrderODEIntegrator destructor.
+             */
+            virtual ~RKNystrom4GeneralizedStepSecondOrderODEIntegrator(void) { }
 
-   /**
-    * RKNystrom4SimpleSecondOrderODEIntegrator default constructor.
-    */
-   RKNystrom4SimpleSecondOrderODEIntegrator (void)
-   :
-      Er7UtilsDeletable (),
-      RKNystrom4SecondOrderODEIntegrator()
-   {}
+            // Member functions.
 
-   /**
-    * RKNystrom4SimpleSecondOrderODEIntegrator copy constructor.
-    * @param[in] src  Object to be copied.
-    */
-   RKNystrom4SimpleSecondOrderODEIntegrator (
-      const RKNystrom4SimpleSecondOrderODEIntegrator & src)
-   :
-      Er7UtilsDeletable (),
-      RKNystrom4SecondOrderODEIntegrator(src)
-   {}
+            /**
+             * RKNystrom4GeneralizedStepSecondOrderODEIntegrator assignment operator.
+             * @param[in] src  Object to be copied.
+             */
+            RKNystrom4GeneralizedStepSecondOrderODEIntegrator& operator=(
+                RKNystrom4GeneralizedStepSecondOrderODEIntegrator src)
+            {
+                swap(src);
+                return *this;
+            }
 
-   /**
-    * RKNystrom4SimpleSecondOrderODEIntegrator non-default constructor.
-    * @param[in]     size      Size of the position and velocity vectors
-    * @param[in,out] controls  Integration controls
-    */
-   RKNystrom4SimpleSecondOrderODEIntegrator (
-      unsigned int size,
-      IntegrationControls & controls)
-   :
-      Er7UtilsDeletable (),
-      RKNystrom4SecondOrderODEIntegrator(size, controls)
-   {}
+            /**
+             * Create a copy of 'this' object.
+             * @return Clone of 'this'.
+             */
+            virtual RKNystrom4GeneralizedStepSecondOrderODEIntegrator* create_copy() const;
 
-   /**
-    * RKNystrom4SimpleSecondOrderODEIntegrator destructor.
-    */
-   virtual ~RKNystrom4SimpleSecondOrderODEIntegrator (void)
-   {}
-
-
-   // Member functions.
-
-   /**
-    * RKNystrom4SimpleSecondOrderODEIntegrator assignment operator.
-    * @param[in] src  Object to be copied.
-    */
-   RKNystrom4SimpleSecondOrderODEIntegrator & operator= (
-      RKNystrom4SimpleSecondOrderODEIntegrator src)
-   {
-      swap (src);
-      return *this;
-   }
-
-   /**
-    * Create a copy of 'this' object.
-    * @return Clone of 'this'.
-    */
-   virtual RKNystrom4SimpleSecondOrderODEIntegrator * create_copy () const;
-
-
-   /**
-    * Propagate state via RKN4 for the special case of velocity being the
-    * derivative of position.
-    * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
-    * @param[in]     target_stage  The stage of the integration process
-    *                              that the integrator should try to attain.
-    * @param[in]     accel         Time derivative of the generalized velocity.
-    * @param[in,out] velocity      Generalized velocity vector.
-    * @param[in,out] position      Generalized position vector.
-    *
-    * @return The status (time advance, pass/fail status) of the integration.
-    */
-   virtual IntegratorResult integrate (
-      double dyn_dt,
-      unsigned int target_stage,
-      double const * ER7_UTILS_RESTRICT accel,
-      double * ER7_UTILS_RESTRICT velocity,
-      double * ER7_UTILS_RESTRICT position);
-};
-
-
-/**
- * Specialization of RKNystrom4SecondOrderODEIntegrator for the case of
- * the generalized position being constrained to lie on a manifold.
- * The function compute_position_step makes a non-linear position step based
- * generalized position, generalized velocity, and the time step.
- */
-class RKNystrom4GeneralizedStepSecondOrderODEIntegrator :
-   public RKNystrom4SecondOrderODEIntegrator {
-
-ER7_UTILS_MAKE_SIM_INTERFACES(RKNystrom4GeneralizedStepSecondOrderODEIntegrator)
-
-public:
-
-   // Constructors and destructor.
-
-   /**
-    * RKNystrom4GeneralizedStepSecondOrderODEIntegrator default constructor.
-    */
-   RKNystrom4GeneralizedStepSecondOrderODEIntegrator (void)
-   :
-      Er7UtilsDeletable (),
-      RKNystrom4SecondOrderODEIntegrator()
-   {}
-
-   /**
-    * RKNystrom4GeneralizedStepSecondOrderODEIntegrator copy constructor.
-    * @param[in] src  Object to be copied.
-    */
-   RKNystrom4GeneralizedStepSecondOrderODEIntegrator (
-      const RKNystrom4GeneralizedStepSecondOrderODEIntegrator & src)
-   :
-      Er7UtilsDeletable (),
-      RKNystrom4SecondOrderODEIntegrator(src)
-   {}
-
-   /**
-    * RKNystrom4GeneralizedStepSecondOrderODEIntegrator non-default constructor.
-    * @param[in]     position_size  Size of the generalized position
-    * @param[in]     velocity_size  Size of the generalized velocity
-    * @param[in]     step_funs      Position step functions container
-    * @param[in,out] controls       Integration controls
-    */
-   RKNystrom4GeneralizedStepSecondOrderODEIntegrator (
-      unsigned int position_size,
-      unsigned int velocity_size,
-      const GeneralizedPositionStepFunctions & step_funs,
-      IntegrationControls & controls)
-   :
-      Er7UtilsDeletable (),
-      RKNystrom4SecondOrderODEIntegrator (position_size, velocity_size,
-                                          step_funs, controls)
-   {}
-
-   /**
-    * RKNystrom4GeneralizedStepSecondOrderODEIntegrator destructor.
-    */
-   virtual ~RKNystrom4GeneralizedStepSecondOrderODEIntegrator (void)
-   {}
-
-
-   // Member functions.
-
-   /**
-    * RKNystrom4GeneralizedStepSecondOrderODEIntegrator assignment operator.
-    * @param[in] src  Object to be copied.
-    */
-   RKNystrom4GeneralizedStepSecondOrderODEIntegrator & operator= (
-      RKNystrom4GeneralizedStepSecondOrderODEIntegrator src)
-   {
-      swap (src);
-      return *this;
-   }
-
-   /**
-    * Create a copy of 'this' object.
-    * @return Clone of 'this'.
-    */
-   virtual RKNystrom4GeneralizedStepSecondOrderODEIntegrator * create_copy ()
-   const;
-
-   /**
-    * Propagate state via RKN4 for generalized position and generalized velocity
-    * where generalized position is advanced using the position step function.
-    * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
-    * @param[in]     target_stage  The stage of the integration process
-    *                              that the integrator should try to attain.
-    * @param[in]     accel         Time derivative of the generalized velocity.
-    * @param[in,out] velocity      Generalized velocity vector.
-    * @param[in,out] position      Generalized position vector.
-    *
-    * @return The status (time advance, pass/fail status) of the integration.
-    */
-   virtual IntegratorResult integrate (
-      double dyn_dt,
-      unsigned int target_stage,
-      double const * ER7_UTILS_RESTRICT accel,
-      double * ER7_UTILS_RESTRICT velocity,
-      double * ER7_UTILS_RESTRICT position);
-};
+            /**
+             * Propagate state via RKN4 for generalized position and generalized velocity
+             * where generalized position is advanced using the position step function.
+             * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
+             * @param[in]     target_stage  The stage of the integration process
+             *                              that the integrator should try to attain.
+             * @param[in]     accel         Time derivative of the generalized velocity.
+             * @param[in,out] velocity      Generalized velocity vector.
+             * @param[in,out] position      Generalized position vector.
+             *
+             * @return The status (time advance, pass/fail status) of the integration.
+             */
+            virtual IntegratorResult integrate(double dyn_dt, unsigned int target_stage,
+                double const* ER7_UTILS_RESTRICT accel, double* ER7_UTILS_RESTRICT velocity,
+                double* ER7_UTILS_RESTRICT position);
+    };
 
 }
-
 
 #endif

@@ -8,30 +8,30 @@
 #include "trick/ClientConnection.hh"
 #include "trick/SystemInterface.hh"
 
+namespace Trick
+{
 
-namespace Trick {
-    
-    class UDPConnection : public ClientConnection {
+    class UDPConnection : public ClientConnection
+    {
         public:
-
-            UDPConnection ();
-            UDPConnection (SystemInterface * system_interface);
+            UDPConnection();
+            UDPConnection(SystemInterface* system_interface);
 
             int start() override;
 
-            int write (const std::string& message) override;
-            int write (char * message, int size) override;
+            int write(const std::string& message) override;
+            int write(char* message, int size) override;
 
-            int read  (std::string& message, int max_len = MAX_CMD_LEN) override;
+            int read(std::string& message, int max_len = MAX_CMD_LEN) override;
 
-            int disconnect () override;
+            int disconnect() override;
             bool isInitialized() override;
 
             int setBlockMode(bool block_mode) override;
             int restart() override;
 
-            virtual std::string getClientTag () override;
-            virtual int setClientTag (std::string tag) override;
+            virtual std::string getClientTag() override;
+            virtual int setClientTag(std::string tag) override;
 
             // Non-override functions
             int initialize(const std::string& hostname, int port);
@@ -41,7 +41,7 @@ namespace Trick {
 
             virtual std::string getClientHostname() override;
             virtual int getClientPort() override;
-            
+
         protected:
             bool _initialized;
             bool _started;
@@ -52,7 +52,7 @@ namespace Trick {
 
             struct sockaddr_in _remote_serv_addr;
 
-            SystemInterface * _system_interface;     /* ** */
+            SystemInterface* _system_interface; /* ** */
     };
 
 }

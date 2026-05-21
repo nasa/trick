@@ -10,6 +10,7 @@ LIBRARY DEPENDENCY:
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+
 #include <iostream>
 
 class PubNode
@@ -20,15 +21,13 @@ class PubNode
         std::string nodeName;
         std::string publicationName;
 
-        rclcpp::Node::SharedPtr  node;
+        rclcpp::Node::SharedPtr node;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub;
 
         void defaults();
         void init_ros();
         void yellIntoTheVoid();
         void shutItDown();
-
 };
-
 
 #endif

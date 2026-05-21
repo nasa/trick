@@ -6,10 +6,10 @@ LIBRARY DEPENDENCIES:
 #ifndef _fibonacci_time_hh_
 #define _fibonacci_time_hh_
 
-class Fibonacci_time {
-
+class Fibonacci_time
+{
     public:
-        int N; 
+        int N;
         int tics_per_second;
 
         int default_data();
@@ -18,6 +18,3 @@ class Fibonacci_time {
         int automatic_job_1();
 };
 #endif
-
-
-

@@ -12,22 +12,27 @@ PYTHON_MODULE: (Foo)
 
 #include <iostream>
 
-namespace Foo {
+namespace Foo
+{
 
-enum Yummy {
-    Butter,
-    Bacon,
-    Doughnuts
-};
+    enum Yummy
+    {
+        Butter,
+        Bacon,
+        Doughnuts
+    };
 
-class YummyFood {
-  public:
-    YummyFood() : yummy(Bacon) {}
-    void print_me() { std::cout << "Foo::YummyFood::print_me!" << std::endl; }
-    Yummy yummy;
-};
+    class YummyFood
+    {
+        public:
+            YummyFood()
+                : yummy(Bacon)
+            {
+            }
+            void print_me() { std::cout << "Foo::YummyFood::print_me!" << std::endl; }
+            Yummy yummy;
+    };
 
 }
 
 #endif /* _BALL_HH_ */
-

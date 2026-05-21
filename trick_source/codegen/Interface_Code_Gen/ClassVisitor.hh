@@ -2,17 +2,18 @@
 #ifndef CLASSVISITOR_HH
 #define CLASSVISITOR_HH
 
+#include "ClassValues.hh"
+
+#include "clang/AST/RecursiveASTVisitor.h"
+#include "clang/Frontend/CompilerInstance.h"
+
 #include <set>
 #include <string>
 
-#include "clang/Frontend/CompilerInstance.h"
-#include "clang/AST/RecursiveASTVisitor.h"
-#include "ClassValues.hh"
-
-class CommentSaver ;
-class EnumValues ;
-class HeaderSearchDirs ;
-class PrintAttributes ;
+class CommentSaver;
+class EnumValues;
+class HeaderSearchDirs;
+class PrintAttributes;
 
 /**
 
@@ -31,59 +32,58 @@ class PrintAttributes ;
 
  */
 
-class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
+class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor>
+{
     public:
-        CXXRecordVisitor( clang::CompilerInstance & in_ci ,
-         CommentSaver & in_cs ,
-         HeaderSearchDirs & in_hsd ,
-         PrintAttributes & in_pa ,
-         bool in_include_virtual_base ) ;
+        CXXRecordVisitor(clang::CompilerInstance& in_ci, CommentSaver& in_cs, HeaderSearchDirs& in_hsd,
+            PrintAttributes& in_pa, bool in_include_virtual_base);
 
-        ~CXXRecordVisitor() ;
+        ~CXXRecordVisitor();
 
         /* A custom traversal that handles only the node types we are interested in. */
-        bool TraverseDecl(clang::Decl *D);
+        bool TraverseDecl(clang::Decl* D);
 
         /* VisitDecl and VisitType are here for debug printing. */
-        bool VisitDecl(clang::Decl *d) ;
-        bool VisitType(clang::Type *t) ;
+        bool VisitDecl(clang::Decl* d);
+        bool VisitType(clang::Type* t);
 
         /* These routines are called when nodes of the corresponding types are traversed */
-        bool VisitCXXRecordDecl(clang::CXXRecordDecl *rec) ;
-        bool VisitFriendDecl(clang::FriendDecl *fd) ;
+        bool VisitCXXRecordDecl(clang::CXXRecordDecl* rec);
+        bool VisitFriendDecl(clang::FriendDecl* fd);
 
         /** Returns the class data */
-        ClassValues * get_class_data() ;
+        ClassValues* get_class_data();
 
-        static void addPrivateEmbeddedClass(std::string in_name) ;
-        static bool isPrivateEmbeddedClass(std::string in_name) ;
+        static void addPrivateEmbeddedClass(std::string in_name);
+        static bool isPrivateEmbeddedClass(std::string in_name);
+
     private:
         /* Save any additional #includes required by template arguments */
-        void addTemplateArgumentDependencies(const clang::CXXRecordDecl *rec) ;
+        void addTemplateArgumentDependencies(const clang::CXXRecordDecl* rec);
 
         /** The compiler instance. */
-        clang::CompilerInstance & ci ;
+        clang::CompilerInstance& ci;
 
         /** The header search directories */
-        HeaderSearchDirs & hsd ;
+        HeaderSearchDirs& hsd;
 
         /** Holds all comments */
-        CommentSaver & cs ;
+        CommentSaver& cs;
 
         /** attributes printer */
-        PrintAttributes & pa ;
+        PrintAttributes& pa;
 
         /** Holds the class information found, usually returned to caller of this visitor. */
-        ClassValues cval ;
+        ClassValues cval;
 
         /** Flag to specify if we should process virtual base classes. */
-        bool include_virtual_base ;
+        bool include_virtual_base;
 
         /** Flag indicating we have found a public/private/protected keyword  */
-        bool access_spec_found ;
+        bool access_spec_found;
 
-        static std::set<std::string> private_embedded_classes ;
-        static std::set<std::string> friend_classes ;
-} ;
+        static std::set<std::string> private_embedded_classes;
+        static std::set<std::string> friend_classes;
+};
 
 #endif

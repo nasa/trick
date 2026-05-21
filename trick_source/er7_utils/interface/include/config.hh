@@ -16,7 +16,6 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_CONFIG_HH
 #define ER7_UTILS_CONFIG_HH
 
@@ -37,7 +36,6 @@ Purpose: ()
 
 // FUTURE, if needed: configure for the non-Trick demo capability.
 
-
 // Non-Trick installations should consolidate requisite configuration
 // information in a single header file and compile JEOD with
 // JEOD_CONFIG_HEADER defined to be this config file.
@@ -48,12 +46,10 @@ Purpose: ()
 // We're out of options. Compilation will be hosed.
 #endif
 
-
 // Define macros that enable the package to take advantage of performance
 // enhancing extensions to c++, if possible.
 
-#if (! defined SWIG) && \
-    ((defined __GNUC__) || (defined __llvm__) || (defined __clang__))
+#if (!defined SWIG) && ((defined __GNUC__) || (defined __llvm__) || (defined __clang__))
 
 /**
  * @def ER7_UTILS_RESTRICT
@@ -62,7 +58,7 @@ Purpose: ()
  * not be called with arguments that alias one another. That arguments
  * are not aliased enables significant optimizations.
  */
-#define ER7_UTILS_RESTRICT      __restrict__
+#define ER7_UTILS_RESTRICT __restrict__
 
 /**
  * @def ER7_UTILS_ALWAYS_INLINE
@@ -76,15 +72,13 @@ Purpose: ()
  * Arguments that aren't used should either have no name or
  * be marked as ER7_UTILS_UNUSED.
  */
-#define ER7_UTILS_UNUSED        __attribute__((unused))
-
+#define ER7_UTILS_UNUSED __attribute__((unused))
 
 #else
 #define ER7_UTILS_RESTRICT
 #define ER7_UTILS_ALWAYS_INLINE
 #define ER7_UTILS_UNUSED
 #endif
-
 
 /**
  * @def ER7_UTILS_HAVE_ABI
@@ -97,7 +91,6 @@ Purpose: ()
 #define ER7_UTILS_HAVE_ABI
 #endif
 #endif
-
 
 #endif
 /**

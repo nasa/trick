@@ -10,6 +10,7 @@ LIBRARY DEPENDENCY:
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+
 #include <iostream>
 
 class SubNode
@@ -20,15 +21,13 @@ class SubNode
         std::string nodeName;
         std::string subscriptionName;
 
-        rclcpp::Node::SharedPtr  node;
+        rclcpp::Node::SharedPtr node;
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub;
 
         void defaults();
         void init_ros();
         void earToTheVoid();
         void shutItDown();
-
 };
-
 
 #endif

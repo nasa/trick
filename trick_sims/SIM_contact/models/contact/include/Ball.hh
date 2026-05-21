@@ -6,9 +6,10 @@ LIBRARY DEPENDENCY:
 #ifndef _ball_hh_
 #define _ball_hh_
 
-class Ball {
+class Ball
+{
     public:
-        Ball(){}
+        Ball() { }
         double pos[2];
         double vel[2];
         double mass;

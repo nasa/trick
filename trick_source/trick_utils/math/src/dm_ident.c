@@ -8,7 +8,7 @@
 #include "trick/trick_math.h"
 
 void dm_ident(double mat[3][3])
-{                                      /* Inout: Matrix identity */
+{ /* Inout: Matrix identity */
 
     mat[0][0] = 1.0;
     mat[1][1] = 1.0;

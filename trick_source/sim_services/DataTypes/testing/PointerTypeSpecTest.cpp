@@ -1,26 +1,31 @@
-#include <gtest/gtest.h>
-#include <stddef.h>
-#include <iostream>
-#include "TypeDictionary.hh"
 #include "PointerDataType.hh"
 #include "PointerValue.hh"
+#include "TypeDictionary.hh"
+
+#include <iostream>
+#include <stddef.h>
+
+#include <gtest/gtest.h>
 
 /* ================================================================================
                                          Test Cases
    ================================================================================
 */
-TEST( PointerDataType , constructor_exception ) {
-
+TEST(PointerDataType, constructor_exception)
+{
     // Attempt to create type a PointerDataType with 0 pointers.
     // This attempt should throw an exception.
 
     std::cout << "===== Expecting exception and corresponding message. =====" << std::endl;
 
-    PointerDataType * ptrTypeSpec;
+    PointerDataType* ptrTypeSpec;
     bool constructor_result = true;
-    try {
+    try
+    {
         ptrTypeSpec = new PointerDataType("double", 0);
-    } catch ( std::logic_error e ) {
+    }
+    catch (std::logic_error e)
+    {
         std::cerr << e.what();
         constructor_result = false;
     }
@@ -29,18 +34,19 @@ TEST( PointerDataType , constructor_exception ) {
     EXPECT_EQ(false, constructor_result);
 
     // Clean up.
-    if (constructor_result) {
+    if (constructor_result)
+    {
         delete ptrTypeSpec;
     }
 }
 
-TEST( PointerDataType, copy_constructor ) {
-
+TEST(PointerDataType, copy_constructor)
+{
     // Create a PointerDataType.
     PointerDataType* orig = new PointerDataType("float", 3);
 
     // Duplicate it.
-    PointerDataType* copy = new PointerDataType( *(const PointerDataType*)orig );
+    PointerDataType* copy = new PointerDataType(*(const PointerDataType*)orig);
 
     // Verify that the duplicate PointerDataType is what we expect.
     std::stringstream ss;
@@ -53,8 +59,8 @@ TEST( PointerDataType, copy_constructor ) {
     delete orig;
 }
 
-TEST( PointerDataType , operator_equal ) {
-
+TEST(PointerDataType, operator_equal)
+{
     // Create a PointerDataType.
     PointerDataType* orig = new PointerDataType("long", 2);
 
@@ -71,13 +77,13 @@ TEST( PointerDataType , operator_equal ) {
     delete orig;
 }
 
-TEST( PointerDataType , clone ) {
-
+TEST(PointerDataType, clone)
+{
     // Create a PointerDataType.
     PointerDataType* orig = new PointerDataType("int", 2);
 
     // Clone it.
-    DataType * copy = orig->clone();
+    DataType* copy = orig->clone();
 
     // Verify that the cloned PointerDataType is what we expect.
     std::stringstream ss;
@@ -90,32 +96,32 @@ TEST( PointerDataType , clone ) {
     delete copy;
 }
 
-TEST( PointerDataType , getSize ) {
-
+TEST(PointerDataType, getSize)
+{
     // Create a PointerDataType.
     PointerDataType* ptrTypeSpec = new PointerDataType("long", 2);
 
     // Verify that getSize returns the size of a pointer.
-    EXPECT_EQ( sizeof(void*), ptrTypeSpec->getSize());
+    EXPECT_EQ(sizeof(void*), ptrTypeSpec->getSize());
 }
 
-TEST( PointerDataType , assignValue ) {
-
+TEST(PointerDataType, assignValue)
+{
     double d = 1.2345;
-    double * d_ptr;
+    double* d_ptr;
 
     // Create a PointerDataType.
     PointerDataType* ptrTypeSpec = new PointerDataType("double", 1);
 
-    PointerValue * ptrValue = new PointerValue(&d);
+    PointerValue* ptrValue = new PointerValue(&d);
     ptrTypeSpec->assignValue(&d_ptr, ptrValue);
 
     EXPECT_EQ(1.2345, *d_ptr);
 }
 
-TEST( PointerDataType , printValue ) {
-
-    double * d_ptr = (double*)0x12345678;
+TEST(PointerDataType, printValue)
+{
+    double* d_ptr = (double*)0x12345678;
 
     // Create a PointerDataType.
     PointerDataType* ptrTypeSpec = new PointerDataType("double", 1);
@@ -128,8 +134,8 @@ TEST( PointerDataType , printValue ) {
     EXPECT_EQ(0, result);
 }
 
-TEST( PointerDataType , validate_1 ) {
-
+TEST(PointerDataType, validate_1)
+{
     // Create a PointerDataType.
     PointerDataType* ptrTypeSpec = new PointerDataType("double", 1);
 
@@ -138,11 +144,10 @@ TEST( PointerDataType , validate_1 ) {
 
     // Verify that validation succeeded.
     ASSERT_EQ(true, validation_result);
-
 }
 
-TEST( PointerDataType , validate_2 ) {
-
+TEST(PointerDataType, validate_2)
+{
     std::cout << "===== Expecting an error message about an undefined type. =====" << std::endl;
 
     // Create a PointerDataType.
@@ -153,17 +158,19 @@ TEST( PointerDataType , validate_2 ) {
 
     // Verify that validation failed.
     ASSERT_EQ(false, validation_result);
-
 }
 
-TEST( PointerDataType , getDereferencedType_1 ) {
-
+TEST(PointerDataType, getDereferencedType_1)
+{
     // Create type: double**
-    PointerDataType * ptrTypeSpec;
+    PointerDataType* ptrTypeSpec;
     bool constructor_result = true;
-    try {
+    try
+    {
         ptrTypeSpec = new PointerDataType("double", 2);
-    } catch ( std::logic_error e ) {
+    }
+    catch (std::logic_error e)
+    {
         std::cerr << e.what();
         constructor_result = false;
     }
@@ -174,11 +181,14 @@ TEST( PointerDataType , getDereferencedType_1 ) {
     ASSERT_EQ(true, validation_result);
 
     // Dereference the type.
-    const DataType * dereferencedPtrTypeSpec;
-    bool  dereference_result = true;
-    try {
+    const DataType* dereferencedPtrTypeSpec;
+    bool dereference_result = true;
+    try
+    {
         dereferencedPtrTypeSpec = ptrTypeSpec->getDereferencedType();
-    } catch ( std::logic_error e ) {
+    }
+    catch (std::logic_error e)
+    {
         std::cerr << e.what();
         dereference_result = false;
     }
@@ -190,17 +200,19 @@ TEST( PointerDataType , getDereferencedType_1 ) {
     int comparision_result = ss.str().compare("double*");
 
     EXPECT_EQ(0, comparision_result);
-
 }
 
-TEST( PointerDataType , getDereferencedType_2 ) {
-
+TEST(PointerDataType, getDereferencedType_2)
+{
     // Create type: double*
-    PointerDataType * ptrTypeSpec;
+    PointerDataType* ptrTypeSpec;
     bool constructor_result = true;
-    try {
+    try
+    {
         ptrTypeSpec = new PointerDataType("double", 1);
-    } catch ( std::logic_error e ) {
+    }
+    catch (std::logic_error e)
+    {
         std::cerr << e.what();
         constructor_result = false;
     }
@@ -211,11 +223,14 @@ TEST( PointerDataType , getDereferencedType_2 ) {
     ASSERT_EQ(true, validation_result);
 
     // Dereference the type.
-    const DataType * dereferencedPtrTypeSpec;
-    bool  dereference_result = true;
-    try {
+    const DataType* dereferencedPtrTypeSpec;
+    bool dereference_result = true;
+    try
+    {
         dereferencedPtrTypeSpec = ptrTypeSpec->getDereferencedType();
-    } catch ( std::logic_error e ) {
+    }
+    catch (std::logic_error e)
+    {
         std::cerr << e.what();
         dereference_result = false;
     }

@@ -18,58 +18,52 @@
 
 class MultiDtIntegLoopSimObject : public Trick::SimObject
 {
-public:
-    Trick::MultiDtIntegLoopScheduler integ_sched; // trick_io(*io)
+    public:
+        Trick::MultiDtIntegLoopScheduler integ_sched; // trick_io(*io)
 
-    MultiDtIntegLoopSimObject()
-        : integ_sched(0.01, this)
-    {
-        add_jobs(0.01, 0);
-    }
-
-    MultiDtIntegLoopSimObject(double in_cycle, unsigned int child, Trick::SimObject * s_obj, ...)
-        : integ_sched(in_cycle, this)
-    {
-        va_list ap;
-        Trick::SimObject * next_sobj;
-
-        va_start(ap, s_obj);
-        next_sobj = s_obj;
-        while(next_sobj != (Trick::SimObject *)NULL)
+        MultiDtIntegLoopSimObject()
+            : integ_sched(0.01, this)
         {
-            integ_sched.add_sim_object(*next_sobj);
-            next_sobj = va_arg(ap, Trick::SimObject *);
-        };
-        va_end(ap);
+            add_jobs(0.01, 0);
+        }
 
-        add_jobs(in_cycle, child);
-    }
+        MultiDtIntegLoopSimObject(double in_cycle, unsigned int child, Trick::SimObject* s_obj, ...)
+            : integ_sched(in_cycle, this)
+        {
+            va_list ap;
+            Trick::SimObject* next_sobj;
 
-    // Adds common set of jobs for all constructors.
-    void add_jobs(double in_cycle, unsigned int child);
+            va_start(ap, s_obj);
+            next_sobj = s_obj;
+            while (next_sobj != (Trick::SimObject*)NULL)
+            {
+                integ_sched.add_sim_object(*next_sobj);
+                next_sobj = va_arg(ap, Trick::SimObject*);
+            };
+            va_end(ap);
 
-    /**
-     * Add an integration rate to this loop scheduler
-     * @param integRateIn  New integration rate in seconds
-     * @return vector index of the added rate
-     */
-    size_t add_rate(const double integRateIn)
-    {
-        return integ_sched.add_rate(integRateIn);
-    }
+            add_jobs(in_cycle, child);
+        }
 
-    virtual int call_function(Trick::JobData * curr_job);
-    virtual double call_function_double(Trick::JobData * curr_job);
+        // Adds common set of jobs for all constructors.
+        void add_jobs(double in_cycle, unsigned int child);
 
-    Trick::Integrator * getIntegrator(Integrator_type Alg, unsigned int State_size)
-    {
-        return integ_sched.getIntegrator(Alg, State_size);
-    }
+        /**
+         * Add an integration rate to this loop scheduler
+         * @param integRateIn  New integration rate in seconds
+         * @return vector index of the added rate
+         */
+        size_t add_rate(const double integRateIn) { return integ_sched.add_rate(integRateIn); }
 
-    int set_integ_cycle(double in_cycle)
-    {
-        return integ_sched.set_integ_cycle(in_cycle);
-    }
+        virtual int call_function(Trick::JobData* curr_job);
+        virtual double call_function_double(Trick::JobData* curr_job);
+
+        Trick::Integrator* getIntegrator(Integrator_type Alg, unsigned int State_size)
+        {
+            return integ_sched.getIntegrator(Alg, State_size);
+        }
+
+        int set_integ_cycle(double in_cycle) { return integ_sched.set_integ_cycle(in_cycle); }
 };
 
 #ifdef SWIG

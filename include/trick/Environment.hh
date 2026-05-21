@@ -6,12 +6,12 @@
 #ifndef ENVIRONMENT_HH
 #define ENVIRONMENT_HH
 
-#include <string>
 #include <map>
-
 #include <stdio.h>
+#include <string>
 
-namespace Trick {
+namespace Trick
+{
 
     /**
      * This class saves the Trick environment variables at compile-time.  The variables
@@ -23,16 +23,14 @@ namespace Trick {
      *
      */
 
-    class Environment {
-
+    class Environment
+    {
         protected:
-
             /** Local map of trick environment variables and their values.\n */
-            std::map<std::string, std::string > local_env ;          /**< trick_io(**) */
+            std::map<std::string, std::string> local_env; /**< trick_io(**) */
 
         public:
-
-            Environment() ;
+            Environment();
 
             /**
              Adds an environment variable to the map.
@@ -40,25 +38,23 @@ namespace Trick {
              @param value - contents of the environment variable
              @return always 0
              */
-            int add_var(std::string variable_name, std::string value) ;
+            int add_var(std::string variable_name, std::string value);
 
             /**
              Gets an environment variable from the map.
              @param variable_name - environment varaible name
              @return char * string of the variable if it exists, otherwise NULL.
              */
-            const char * get_var(std::string variable_name) ;
+            const char* get_var(std::string variable_name);
 
             /**
              Prints the map of environment varaibles to the incoming file pointer
              @param fp - open file pointer
              @return always 0
              */
-            int print_vars( FILE *fp ) ;
-
-    } ;
+            int print_vars(FILE* fp);
+    };
 
 }
 
 #endif
-

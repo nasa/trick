@@ -17,7 +17,6 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_INTEGRATION_MESSAGES_HH
 #define ER7_UTILS_INTEGRATION_MESSAGES_HH
 
@@ -26,64 +25,59 @@ Purpose: ()
 // Interface includes
 #include "er7_utils/interface/include/er7_class.hh"
 
+namespace er7_utils
+{
 
-namespace er7_utils {
+    /**
+     * Declares messages associated with the integration model.
+     */
+    class IntegrationMessages
+    {
+            // This is a static class.
+            // The default constructor, copy constructor, destructor, and assignment
+            // operator for this class are private / unimplemented.
 
-/**
- * Declares messages associated with the integration model.
- */
-class IntegrationMessages {
+        public:
+            // Static member data
 
-   // This is a static class.
-   // The default constructor, copy constructor, destructor, and assignment
-   // operator for this class are private / unimplemented.
+            static char const* unsupported_option; /**< trick_units(--) @n
+              Issued when some user input is invalid. */
 
-public:
+            static char const* invalid_item; /**< trick_units(--) @n
+              Issued when an item is somehow invalid; a duplicate entry for example. */
 
-   // Static member data
+            static char const* internal_error; /**< trick_units(--) @n
+              Issued when the ER7_UTILS programmer messed up. */
 
-   static char const * unsupported_option; /**< trick_units(--) @n
-      Issued when some user input is invalid. */
+            static char const* invalid_request; /**< trick_units(--) @n
+              Issued when a non-ER7_UTILS programmer messed up. */
 
-   static char const * invalid_item; /**< trick_units(--) @n
-      Issued when an item is somehow invalid; a duplicate entry for example. */
+            static char const* information; /**< trick_units(--) @n
+              Issued in non-error messages. */
 
-   static char const * internal_error; /**< trick_units(--) @n
-      Issued when the ER7_UTILS programmer messed up. */
+        private:
+            /**
+             * Not implemented.
+             */
+            IntegrationMessages(void);
 
-   static char const * invalid_request; /**< trick_units(--) @n
-      Issued when a non-ER7_UTILS programmer messed up. */
+            /**
+             * Not implemented.
+             */
+            IntegrationMessages(const IntegrationMessages&);
 
-   static char const * information; /**< trick_units(--) @n
-      Issued in non-error messages. */
+            /**
+             * Not implemented.
+             */
+            ~IntegrationMessages(void);
 
-
-private:
-
-   /**
-    * Not implemented.
-    */
-   IntegrationMessages (void);
-
-   /**
-    * Not implemented.
-    */
-   IntegrationMessages (const IntegrationMessages &);
-
-   /**
-    * Not implemented.
-    */
-   ~IntegrationMessages (void);
-
-   /**
-    * Not implemented.
-    */
-   IntegrationMessages & operator= (const IntegrationMessages &);
-
-};
+            /**
+             * Not implemented.
+             */
+            IntegrationMessages& operator=(const IntegrationMessages&);
+    };
 
 }
-
 
 #endif
 /**

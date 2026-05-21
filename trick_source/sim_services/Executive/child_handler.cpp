@@ -12,18 +12,19 @@
  * from the process table when a child process exits.
  * @return void
  */
-void child_handler(int sig) {
-
+void child_handler(int sig)
+{
     int status;
 
-    switch (sig) {
-        case SIGCHLD:
-#if !( __ghs )
-            wait(&status);
+    switch (sig)
+    {
+    case SIGCHLD:
+#if !(__ghs)
+        wait(&status);
 #endif
-            break;
-        default:
-            break;
+        break;
+    default:
+        break;
     }
 
     return;

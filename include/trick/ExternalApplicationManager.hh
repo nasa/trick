@@ -5,11 +5,12 @@
 #ifndef EXTERNAL_APPLICATION_MANAGER_HH
 #define EXTERNAL_APPLICATION_MANAGER_HH
 
-#include <vector>
-
 #include "trick/ExternalApplication.hh"
 
-namespace Trick {
+#include <vector>
+
+namespace Trick
+{
 
     /**
      * gets the external applications currently under management
@@ -18,7 +19,7 @@ namespace Trick {
      *
      * @relates Trick::ExternalApplication
      */
-    std::vector<ExternalApplication *> &get_external_applications();
+    std::vector<ExternalApplication*>& get_external_applications();
 
     /**
      * adds <code>externalApplication</code> to the list of external applications being managed
@@ -27,7 +28,7 @@ namespace Trick {
      *
      * @relates Trick::ExternalApplication
      */
-    void add_external_application(ExternalApplication &externalApplication);
+    void add_external_application(ExternalApplication& externalApplication);
 
     /**
      * removes <code>externalApplication</code> from management if it being managed
@@ -36,7 +37,7 @@ namespace Trick {
      *
      * @relates Trick::ExternalApplication
      */
-    void remove_external_application(ExternalApplication &externalApplication);
+    void remove_external_application(ExternalApplication& externalApplication);
 
     /**
      * removes all externalApplications from managment

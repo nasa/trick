@@ -27,210 +27,155 @@ Purpose: ()
 // Model includes
 #include "../include/euler_second_order_ode_integrator.hh"
 
-
-namespace er7_utils {
-
-// EulerSecondOrderODEIntegrator default constructor.
-EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator (
-   void)
-:
-   Er7UtilsDeletable (),
-   SecondOrderODEIntegrator (),
-   posdot (NULL)
-{ }
-
-
-// Copy constructor.
-EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator (
-   const EulerSecondOrderODEIntegrator & src)
-:
-   Er7UtilsDeletable (),
-   SecondOrderODEIntegrator (src),
-   posdot (NULL)
+namespace er7_utils
 {
-   // Replicate the source's contents if they exist.
-   if (problem_type == Integration::GeneralizedStepSecondOrderODE) {
-      posdot = alloc::replicate_array (state_size[1], src.posdot);
-   }
 
-   else if (problem_type == Integration::GeneralizedDerivSecondOrderODE) {
-      posdot = alloc::replicate_array (state_size[0], src.posdot);
-   }
-}
+    // EulerSecondOrderODEIntegrator default constructor.
+    EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator(void)
+        : Er7UtilsDeletable()
+        , SecondOrderODEIntegrator()
+        , posdot(NULL)
+    {
+    }
 
+    // Copy constructor.
+    EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator(const EulerSecondOrderODEIntegrator& src)
+        : Er7UtilsDeletable()
+        , SecondOrderODEIntegrator(src)
+        , posdot(NULL)
+    {
+        // Replicate the source's contents if they exist.
+        if (problem_type == Integration::GeneralizedStepSecondOrderODE)
+        {
+            posdot = alloc::replicate_array(state_size[1], src.posdot);
+        }
 
+        else if (problem_type == Integration::GeneralizedDerivSecondOrderODE)
+        {
+            posdot = alloc::replicate_array(state_size[0], src.posdot);
+        }
+    }
 
-// EulerSecondOrderODEIntegrator non-default constructor for a simple
-// second order ODE.
-EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator (
-   unsigned int size,
-   IntegrationControls & controls)
-:
-   Er7UtilsDeletable (),
-   SecondOrderODEIntegrator (size, controls),
-   posdot (NULL)
-{ }
+    // EulerSecondOrderODEIntegrator non-default constructor for a simple
+    // second order ODE.
+    EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator(unsigned int size, IntegrationControls& controls)
+        : Er7UtilsDeletable()
+        , SecondOrderODEIntegrator(size, controls)
+        , posdot(NULL)
+    {
+    }
 
+    // EulerSecondOrderODEIntegrator non-default constructor for a generalized
+    // second order ODE in which position is advanced internally using the position
+    // derivative computed by the provided derivative function.
+    EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator(unsigned int position_size, unsigned int velocity_size,
+        const GeneralizedPositionDerivativeFunctions& deriv_funs, IntegrationControls& controls)
+        : Er7UtilsDeletable()
+        , SecondOrderODEIntegrator(position_size, velocity_size, deriv_funs, controls)
+        , posdot(NULL)
+    {
+        // Allocate memory used by Euler integration.
+        posdot = alloc::allocate_array<double>(position_size);
+    }
 
-// EulerSecondOrderODEIntegrator non-default constructor for a generalized
-// second order ODE in which position is advanced internally using the position
-// derivative computed by the provided derivative function.
-EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionDerivativeFunctions & deriv_funs,
-   IntegrationControls & controls)
-:
-   Er7UtilsDeletable (),
-   SecondOrderODEIntegrator (position_size, velocity_size,
-                             deriv_funs, controls),
-   posdot (NULL)
-{
-   // Allocate memory used by Euler integration.
-   posdot = alloc::allocate_array<double> (position_size);
-}
+    // EulerSecondOrderODEIntegrator non-default constructor for a generalized
+    // second order ODE in which position is advanced externally by the provided
+    // position step function.
+    EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator(unsigned int position_size, unsigned int velocity_size,
+        const GeneralizedPositionStepFunctions& step_funs, IntegrationControls& controls)
+        : Er7UtilsDeletable()
+        , SecondOrderODEIntegrator(position_size, velocity_size, step_funs, controls)
+        , posdot(NULL)
+    {
+        // Allocate memory used by Euler integration.
+        posdot = alloc::allocate_array<double>(velocity_size);
+    }
 
+    // EulerSecondOrderODEIntegrator destructor.
+    EulerSecondOrderODEIntegrator::~EulerSecondOrderODEIntegrator(void) { alloc::deallocate_array<double>(posdot); }
 
-// EulerSecondOrderODEIntegrator non-default constructor for a generalized
-// second order ODE in which position is advanced externally by the provided
-// position step function.
-EulerSecondOrderODEIntegrator::EulerSecondOrderODEIntegrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionStepFunctions & step_funs,
-   IntegrationControls & controls)
-:
-   Er7UtilsDeletable (),
-   SecondOrderODEIntegrator (position_size, velocity_size,
-                             step_funs, controls),
-   posdot (NULL)
-{
-   // Allocate memory used by Euler integration.
-   posdot = alloc::allocate_array<double> (velocity_size);
-}
+    // Non-throwing swap.
+    void EulerSecondOrderODEIntegrator::swap(EulerSecondOrderODEIntegrator& other)
+    {
+        SecondOrderODEIntegrator::swap(other);
 
+        std::swap(posdot, other.posdot);
+    }
 
-// EulerSecondOrderODEIntegrator destructor.
-EulerSecondOrderODEIntegrator::~EulerSecondOrderODEIntegrator (
-   void)
-{
-   alloc::deallocate_array<double> (posdot);
-}
+    // Clone a EulerSimpleSecondOrderODEIntegrator.
+    EulerSimpleSecondOrderODEIntegrator* EulerSimpleSecondOrderODEIntegrator::create_copy() const
+    {
+        return alloc::replicate_object(*this);
+    }
 
+    // Clone a EulerGeneralizedDerivSecondOrderODEIntegrator.
+    EulerGeneralizedDerivSecondOrderODEIntegrator* EulerGeneralizedDerivSecondOrderODEIntegrator::create_copy() const
+    {
+        return alloc::replicate_object(*this);
+    }
 
-// Non-throwing swap.
-void
-EulerSecondOrderODEIntegrator::swap (
-   EulerSecondOrderODEIntegrator & other)
-{
-   SecondOrderODEIntegrator::swap (other);
+    // Clone a EulerGeneralizedStepSecondOrderODEIntegrator.
+    EulerGeneralizedStepSecondOrderODEIntegrator* EulerGeneralizedStepSecondOrderODEIntegrator::create_copy() const
+    {
+        return alloc::replicate_object(*this);
+    }
 
-   std::swap (posdot, other.posdot);
-}
+    // Propagate state for the special case of velocity being the derivative of
+    // position.
+    IntegratorResult EulerSimpleSecondOrderODEIntegrator::integrate(double dyn_dt, unsigned int target_stage,
+        double const* ER7_UTILS_RESTRICT accel, double* ER7_UTILS_RESTRICT velocity,
+        double* ER7_UTILS_RESTRICT position)
+    {
+        if (target_stage == 1)
+        {
+            // Propagate position using the propagated velocity.
+            integ_utils::inplace_euler_step(velocity, dyn_dt, state_size[0], position);
 
+            // Propagate velocity.
+            integ_utils::inplace_euler_step(accel, dyn_dt, state_size[1], velocity);
+        }
 
-// Clone a EulerSimpleSecondOrderODEIntegrator.
-EulerSimpleSecondOrderODEIntegrator *
-EulerSimpleSecondOrderODEIntegrator::create_copy ()
-const
-{
-   return alloc::replicate_object (*this);
-}
+        return 1.0;
+    }
 
+    // Propagate state for the general case of the generalized position derivative
+    // being a function of generalized position and generalized velocity.
+    IntegratorResult EulerGeneralizedDerivSecondOrderODEIntegrator::integrate(double dyn_dt, unsigned int target_stage,
+        double const* ER7_UTILS_RESTRICT accel, double* ER7_UTILS_RESTRICT velocity,
+        double* ER7_UTILS_RESTRICT position)
+    {
+        if (target_stage == 1)
+        {
+            // Compute position derivative based on the input velocity
+            // and propagate position.
+            compute_posdot(position, velocity, posdot);
+            integ_utils::inplace_euler_step(posdot, dyn_dt, state_size[0], position);
 
-// Clone a EulerGeneralizedDerivSecondOrderODEIntegrator.
-EulerGeneralizedDerivSecondOrderODEIntegrator *
-EulerGeneralizedDerivSecondOrderODEIntegrator::create_copy ()
-const
-{
-   return alloc::replicate_object (*this);
-}
+            // Propagate generalized velocity.
+            integ_utils::inplace_euler_step(accel, dyn_dt, state_size[1], velocity);
+        }
 
+        return 1.0;
+    }
 
-// Clone a EulerGeneralizedStepSecondOrderODEIntegrator.
-EulerGeneralizedStepSecondOrderODEIntegrator *
-EulerGeneralizedStepSecondOrderODEIntegrator::create_copy ()
-const
-{
-   return alloc::replicate_object (*this);
-}
+    // Propagate state for the general case of the generalized position derivative
+    // being a function of generalized position and generalized velocity.
+    IntegratorResult EulerGeneralizedStepSecondOrderODEIntegrator::integrate(double dyn_dt, unsigned int target_stage,
+        double const* ER7_UTILS_RESTRICT accel, double* ER7_UTILS_RESTRICT velocity,
+        double* ER7_UTILS_RESTRICT position)
+    {
+        if (target_stage == 1)
+        {
+            // Propagate position using the external step function.
+            integ_utils::scale_array(velocity, dyn_dt, state_size[1], posdot);
+            compute_expmap_position_step(position, posdot, position);
 
+            // Propagate generalized velocity as an Euler step.
+            integ_utils::inplace_euler_step(accel, dyn_dt, state_size[1], velocity);
+        }
 
-// Propagate state for the special case of velocity being the derivative of
-// position.
-IntegratorResult
-EulerSimpleSecondOrderODEIntegrator::integrate (
-   double dyn_dt,
-   unsigned int target_stage,
-   double const * ER7_UTILS_RESTRICT accel,
-   double * ER7_UTILS_RESTRICT velocity,
-   double * ER7_UTILS_RESTRICT position)
-{
-   if (target_stage == 1) {
-
-      // Propagate position using the propagated velocity.
-      integ_utils::inplace_euler_step (velocity, dyn_dt, state_size[0],
-                                       position);
-
-      // Propagate velocity.
-      integ_utils::inplace_euler_step (accel, dyn_dt, state_size[1],
-                                       velocity);
-   }
-
-   return 1.0;
-}
-
-
-// Propagate state for the general case of the generalized position derivative
-// being a function of generalized position and generalized velocity.
-IntegratorResult
-EulerGeneralizedDerivSecondOrderODEIntegrator::integrate (
-   double dyn_dt,
-   unsigned int target_stage,
-   double const * ER7_UTILS_RESTRICT accel,
-   double * ER7_UTILS_RESTRICT velocity,
-   double * ER7_UTILS_RESTRICT position)
-{
-   if (target_stage == 1) {
-
-      // Compute position derivative based on the input velocity
-      // and propagate position.
-      compute_posdot (position, velocity, posdot);
-      integ_utils::inplace_euler_step (posdot, dyn_dt, state_size[0],
-                                       position);
-
-      // Propagate generalized velocity.
-      integ_utils::inplace_euler_step (accel, dyn_dt, state_size[1],
-                                       velocity);
-   }
-
-   return 1.0;
-}
-
-
-// Propagate state for the general case of the generalized position derivative
-// being a function of generalized position and generalized velocity.
-IntegratorResult
-EulerGeneralizedStepSecondOrderODEIntegrator::integrate (
-   double dyn_dt,
-   unsigned int target_stage,
-   double const * ER7_UTILS_RESTRICT accel,
-   double * ER7_UTILS_RESTRICT velocity,
-   double * ER7_UTILS_RESTRICT position)
-{
-   if (target_stage == 1) {
-
-      // Propagate position using the external step function.
-      integ_utils::scale_array (velocity, dyn_dt, state_size[1], posdot);
-      compute_expmap_position_step (position, posdot, position);
-
-      // Propagate generalized velocity as an Euler step.
-      integ_utils::inplace_euler_step (accel, dyn_dt, state_size[1],
-                                       velocity);
-   }
-
-   return 1.0;
-}
+        return 1.0;
+    }
 
 }
 /**

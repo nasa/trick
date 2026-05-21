@@ -16,32 +16,31 @@
 #ifndef MESSAGECOUT_HH
 #define MESSAGECOUT_HH
 
-#include <iostream>
 #include "trick/MessageSubscriber.hh"
 
-namespace Trick {
+#include <iostream>
 
-	/**
-	 * This MessageCout is a class that inherits from MessageSubscriber.
-	 * It defines a type of MessageSubscriber with its received message sending to the standard output stream.
-	 */
-    class MessageCout : public MessageSubscriber {
+namespace Trick
+{
 
+    /**
+     * This MessageCout is a class that inherits from MessageSubscriber.
+     * It defines a type of MessageSubscriber with its received message sending to the standard output stream.
+     */
+    class MessageCout : public MessageSubscriber
+    {
         public:
-
             /**
              @brief The constructor.
              */
-            MessageCout() ;
+            MessageCout();
 
             /**
              @brief Output header & message to standard output stream.
              */
-            virtual void update( unsigned int level , std::string header , std::string message ) ;
-
-    } ;
+            virtual void update(unsigned int level, std::string header, std::string message);
+    };
 
 }
 
 #endif
-

@@ -4,10 +4,11 @@
 class DataType;
 class BitFieldStructMember;
 
-struct VarAccessInfo {
-    bool isBitField;
-    void* address;
-    const DataType* dataType;
-    const BitFieldStructMember* bitFieldStructMember;
+struct VarAccessInfo
+{
+        bool isBitField;
+        void* address;
+        const DataType* dataType;
+        const BitFieldStructMember* bitFieldStructMember;
 };
 #endif

@@ -9,8 +9,10 @@ PROGRAMMERS:
 #ifndef INTEGJOBCLASSID_HH
 #define INTEGJOBCLASSID_HH
 
-namespace Trick {
-    enum {
+namespace Trick
+{
+    enum
+    {
         DerivativeJobClassId      = 2000,
         IntegrationJobClassId     = 2001,
         DynamicEventJobClassId    = 2002,

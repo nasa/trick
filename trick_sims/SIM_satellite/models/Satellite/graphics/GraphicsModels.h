@@ -2,11 +2,12 @@
 #define GRAPHICS_MODELS_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-void Satellite_init(void);
-void Satellite_display(void);
+    void Satellite_init(void);
+    void Satellite_display(void);
 
 #ifdef __cplusplus
 }

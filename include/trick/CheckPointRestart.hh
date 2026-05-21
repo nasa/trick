@@ -6,13 +6,14 @@
 #ifndef MMWRAPPER_HH
 #define MMWRAPPER_HH
 
-#include <string>
-#include <vector>
-#include <queue>
-
 #include "trick/Scheduler.hh"
 
-namespace Trick {
+#include <queue>
+#include <string>
+#include <vector>
+
+namespace Trick
+{
 
     /**
      *
@@ -20,29 +21,29 @@ namespace Trick {
      * @author Alexander S. Lin
      *
      */
-    class CheckPointRestart : public Trick::Scheduler {
-
+    class CheckPointRestart : public Trick::Scheduler
+    {
         protected:
             /** queue to hold jobs to be called before a checkpoint is dumped. */
-            Trick::ScheduledJobQueue checkpoint_queue ;              /* ** */
+            Trick::ScheduledJobQueue checkpoint_queue; /* ** */
 
             /** queue to hold jobs to be called before a checkpoint is dumped. */
-            Trick::ScheduledJobQueue post_checkpoint_queue ;         /* ** */
+            Trick::ScheduledJobQueue post_checkpoint_queue; /* ** */
 
             /** queue to hold jobs to be called before a checkpoint is reloaded. */
-            Trick::ScheduledJobQueue preload_checkpoint_queue ;      /* ** */
+            Trick::ScheduledJobQueue preload_checkpoint_queue; /* ** */
 
             /** queue to hold jobs to be called after a checkpoint is reloaded. */
-            Trick::ScheduledJobQueue restart_queue ;                 /* ** */
+            Trick::ScheduledJobQueue restart_queue; /* ** */
 
             /** The specified sim objs for checkpoint, if it's null, checkpoint everything */
-            std::vector<const char*> obj_list;                       /* ** */
+            std::vector<const char*> obj_list; /* ** */
 
             /** The specified sim objs for checkpoint, if it's null, checkpoint everything */
-            Trick::JobData * write_checkpoint_job ;                  /* ** */
+            Trick::JobData* write_checkpoint_job; /* ** */
 
             /** The specified sim objs for checkpoint, if it's null, checkpoint everything */
-            Trick::JobData * safestore_checkpoint_job ;              /* ** */
+            Trick::JobData* safestore_checkpoint_job; /* ** */
 
             /**
              * Internal call the MemoryManager checkpoint method with the string argument file_name
@@ -50,51 +51,51 @@ namespace Trick {
              * @param print_status - print a message when checkpoint is written
              * @return always 0
              */
-            int do_checkpoint( std::string file_name , bool print_status) ;
+            int do_checkpoint(std::string file_name, bool print_status);
 
         public:
-
             /** Times to dump a checkpoint. Saved as simulation tics.\n */
-            std::priority_queue< long long, std::vector< long long >, std::greater< long long > > checkpoint_times ; /**< trick_units(--) */
+            std::priority_queue<long long, std::vector<long long>, std::greater<long long>>
+                checkpoint_times; /**< trick_units(--) */
 
             /** Period to dump a recurring checkpoint. Saved as simulation tics.\n */
-            long long safestore_period ;                            /**< trick_units(--) */
+            long long safestore_period; /**< trick_units(--) */
 
             /** Next time to dump a recurring checkpoint. Saved as simulation tics.\n */
-            long long safestore_time ;                              /**< trick_units(--) */
+            long long safestore_time; /**< trick_units(--) */
 
             /** If true take a pre_init_checkpoint\n */
-            bool pre_init_checkpoint ;                              /**< trick_units(--) */
+            bool pre_init_checkpoint; /**< trick_units(--) */
 
             /** If true take a post_init_checkpoint\n */
-            bool post_init_checkpoint ;                             /**< trick_units(--) */
+            bool post_init_checkpoint; /**< trick_units(--) */
 
             /** If true take a end_checkpoint\n */
-            bool end_checkpoint ;                                   /**< trick_units(--) */
+            bool end_checkpoint; /**< trick_units(--) */
 
             /** If true enable taking safestore checkpoints\n */
-            bool safestore_enabled ;                                /**< trick_units(--) */
+            bool safestore_enabled; /**< trick_units(--) */
 
             /** output_directory/checkpoint_file_name to dump for a checkpoint\n */
-            std::string output_file ;                               /**< ** */
+            std::string output_file; /**< ** */
 
             /** output_directory/checkpoint_file_name to load for a restore\n */
-            std::string load_checkpoint_file_name ;                 /**< ** */
+            std::string load_checkpoint_file_name; /**< ** */
 
             /** whether to change data recording directory after restart to preserve previous data */
-            bool redirect_data_recording;                           /**< ** */
+            bool redirect_data_recording; /**< ** */
 
             /** directory to optionally record new data in after restart */
-            std::string redirected_data_recording_directory;        /**< ** */
+            std::string redirected_data_recording_directory; /**< ** */
 
             /** CPU to use for checkpoints\n */
-            int cpu_num ;                                  /**< trick_units(--) */
+            int cpu_num; /**< trick_units(--) */
 
             /**
              * This is the constructor of the CheckPointRestart class.  It initializes
              * the checkpoint, pre_load_checkpoint, and the restart_queues
              */
-            CheckPointRestart() ;
+            CheckPointRestart();
 
             /**
              @brief @userdesc Command to set the pre_init_checkpoint flag. If pre_init_checkpoint is set
@@ -105,7 +106,7 @@ namespace Trick {
              @param yes_no - boolean yes (C integer 1) = dump checkpoint, no (C integer 0) = do not dump
              @return always 0
             */
-            int set_pre_init_checkpoint(bool yes_no) ;
+            int set_pre_init_checkpoint(bool yes_no);
 
             /**
              @brief @userdesc Command to set the post_init_checkpoint flag.  If post_init_checkpoint is set
@@ -116,7 +117,7 @@ namespace Trick {
              @param yes_no - boolean yes (C integer 1) = dump checkpoint, no (C integer 0) = do not dump
              @return always 0
              */
-            int set_post_init_checkpoint(bool yes_no) ;
+            int set_post_init_checkpoint(bool yes_no);
 
             /**
              @brief @userdesc Command to set the end_checkpoint flag.  If end_checkpoint is set
@@ -127,7 +128,7 @@ namespace Trick {
              @param yes_no - boolean yes (C integer 1) = dump checkpoint, no (C integer 0) = do not dump
              @return always 0
              */
-            int set_end_checkpoint(bool yes_no) ;
+            int set_end_checkpoint(bool yes_no);
 
             /**
              @brief @userdesc Command to set the safestore_enabled flag.  If safestore_enabled is set
@@ -138,7 +139,7 @@ namespace Trick {
              @param yes_no - boolean yes (C integer 1) = dump periodic checkpoint, no (C integer 0) = do not dump
              @return always 0
              */
-            int set_safestore_enabled(bool yes_no) ;
+            int set_safestore_enabled(bool yes_no);
 
             /**
              @brief @userdesc Command to get the name of the checkpoint dump file.
@@ -146,7 +147,7 @@ namespace Trick {
              @code trick.checkpoint_get_output_file() @endcode
              @return string representing <output_directory>/<checkpoint_file_name>
              */
-            const char * get_output_file() ;
+            const char* get_output_file();
 
             /**
              @brief @userdesc Command to get the name of the checkpoint load file.
@@ -154,34 +155,35 @@ namespace Trick {
              @code trick.checkpoint_get_load_file() @endcode
              @return string representing <output_directory>/<checkpoint_file_name>
              */
-            const char * get_load_file() ;
+            const char* get_load_file();
 
             /**
-             @brief @userdesc Command to set the CPU to use for checkpoints.  The default is to use the same CPU as the main thread.
-             If the main thread of the simulation is running at high real-time priority, it is recommended to
-             choose a different CPU to use for checkpointing.
+             @brief @userdesc Command to set the CPU to use for checkpoints.  The default is to use the same CPU as the
+             main thread. If the main thread of the simulation is running at high real-time priority, it is recommended
+             to choose a different CPU to use for checkpointing.
              @par Python Usage:
              @code trick.checkpoint_cpu(<in_cpu_num>) @endcode
              @param in_cpu_num - CPU number that Trick will use to perform checkpoints
              @return always 0
              */
-            int set_cpu_num(int in_cpu_num) ;
+            int set_cpu_num(int in_cpu_num);
 
             /**
              * Get the write_checkpoint_job and safestore_checkpoint jobs.
              * @return always 0
              */
-            int find_write_checkpoint_jobs(std::string sim_object_name) ;
+            int find_write_checkpoint_jobs(std::string sim_object_name);
 
             /**
-             @brief @userdesc Command to set the desired period that safestore checkpoints will be dumped. (Sets safestore_period to the integral time tic value corresponding
-             to the incoming in_time so that checkpoint occurs periodically.)
+             @brief @userdesc Command to set the desired period that safestore checkpoints will be dumped. (Sets
+             safestore_period to the integral time tic value corresponding to the incoming in_time so that checkpoint
+             occurs periodically.)
              @par Python Usage:
              @code trick.checkpoint_safestore(<in_time>) @endcode
              @param in_time - desired safestore checkpoint time period in seconds.
              @return always 0
              */
-            int set_safestore_time(double in_time) ;
+            int set_safestore_time(double in_time);
 
             /**
              @brief @userdesc Command to dump a checkpoint now to the specified file.
@@ -195,36 +197,36 @@ namespace Trick {
              @param obj_list_str - optional: sim objects list string for checkpointing (default is dump all)
              @return always 0
              */
-            virtual int checkpoint(std::string file_name = "", bool print_status = true , std::string obj_list_str = "") ;
+            virtual int checkpoint(std::string file_name = "", bool print_status = true, std::string obj_list_str = "");
 
             /**
-             @brief @userdesc Command to dump a checkpoint at in_time. (Sets checkpoint_time to the integral time tic value corresponding
-             to the incoming in_time so that checkpoint occurs once at that time at the end of the execution frame.)
-             The checkpointed file name is @e chkpnt_<in_time>.
+             @brief @userdesc Command to dump a checkpoint at in_time. (Sets checkpoint_time to the integral time tic
+             value corresponding to the incoming in_time so that checkpoint occurs once at that time at the end of the
+             execution frame.) The checkpointed file name is @e chkpnt_<in_time>.
              @par Python Usage:
              @code trick.checkpoint(<in_time>) @endcode
              @param in_time - desired checkpoint time in seconds.
              @return always 0
              */
-            virtual int checkpoint(double in_time) ;
+            virtual int checkpoint(double in_time);
 
             /**
              * Executes the pre_init_checkpoint
              * @return always 0
              */
-            virtual int write_pre_init_checkpoint() ;
+            virtual int write_pre_init_checkpoint();
 
             /**
              * Executes the post_init_checkpoint
              * @return always 0
              */
-            virtual int write_post_init_checkpoint() ;
+            virtual int write_post_init_checkpoint();
 
             /**
              * Executes the end_checkpoint
              * @return always 0
              */
-            virtual int write_end_checkpoint() ;
+            virtual int write_end_checkpoint();
 
             /**
              * Creates a file name based on the simulation time, "checkpoint_<time>" and
@@ -232,7 +234,7 @@ namespace Trick {
              * @param sim_time_tics - current simulation time
              * @return always 0
              */
-            virtual int write_checkpoint() ;
+            virtual int write_checkpoint();
 
             /**
              * Creates a file name based on the simulation time, "checkpoint_<time>" and
@@ -240,74 +242,74 @@ namespace Trick {
              * @param sim_time_tics - current simulation time
              * @return always 0
              */
-            virtual int safestore_checkpoint() ;
+            virtual int safestore_checkpoint();
 
             /**
-             @brief @userdesc Command to load a checkpoint file. (Calls the preload_checkpoint jobs, calls the MemoryManager restore_managed_memory
-             method, then calls the restart jobs.)
-             This is invoked when the user clicks the "Load ASCII Chkpnt" button on the sim control panel.
+             @brief @userdesc Command to load a checkpoint file. (Calls the preload_checkpoint jobs, calls the
+             MemoryManager restore_managed_memory method, then calls the restart jobs.) This is invoked when the user
+             clicks the "Load ASCII Chkpnt" button on the sim control panel.
              @par Python Usage:
              @code trick.load_checkpoint("<file_name>") @endcode
              @param file_name - file to read checkpoint data from
              @return always 0
              */
-            virtual void load_checkpoint(std::string file_name) ;
+            virtual void load_checkpoint(std::string file_name);
 
             /**
-             @brief @userdesc Command to load a checkpoint file. (Calls the preload_checkpoint jobs, calls the MemoryManager restore_managed_memory
-             method, then calls the restart jobs.)
-             This is invoked when the user clicks the "Load ASCII Chkpnt" button on the sim control panel.
+             @brief @userdesc Command to load a checkpoint file. (Calls the preload_checkpoint jobs, calls the
+             MemoryManager restore_managed_memory method, then calls the restart jobs.) This is invoked when the user
+             clicks the "Load ASCII Chkpnt" button on the sim control panel.
              @par Python Usage:
              @code trick.load_checkpoint("<file_name>") @endcode
              @param file_name - file to read checkpoint data from
              @param stl_restore_on - toggle whether to restore STLs
              @return always 0
              */
-            virtual void load_checkpoint(std::string file_name, bool stl_restore_on) ;
+            virtual void load_checkpoint(std::string file_name, bool stl_restore_on);
 
             /**
-             @brief @userdesc Command to load a checkpoint file but redirect data recording to a new directory. (Calls the preload_checkpoint jobs,
-             calls the MemoryManager restore_managed_memory method, then calls the restart jobs.)
+             @brief @userdesc Command to load a checkpoint file but redirect data recording to a new directory. (Calls
+             the preload_checkpoint jobs, calls the MemoryManager restore_managed_memory method, then calls the restart
+             jobs.)
              @par Python Usage:
              @code trick.load_checkpoint("<file_name>","<dir_name>") @endcode
              @param file_name - file to read checkpoint data from
              @param dir_name - directory to write new data to
              */
-            virtual void load_checkpoint(std::string file_name, std::string data_record_directory) ;
+            virtual void load_checkpoint(std::string file_name, std::string data_record_directory);
 
             /**
-             @brief @userdesc Command to load a checkpoint file but redirect data recording to a new directory. (Calls the preload_checkpoint jobs,
-             calls the MemoryManager restore_managed_memory method, then calls the restart jobs.)
+             @brief @userdesc Command to load a checkpoint file but redirect data recording to a new directory. (Calls
+             the preload_checkpoint jobs, calls the MemoryManager restore_managed_memory method, then calls the restart
+             jobs.)
              @par Python Usage:
              @code trick.load_checkpoint("<file_name>","<dir_name>","stl_restore_on") @endcode
              @param file_name - file to read checkpoint data from
              @param dir_name - directory to write new data to
              @param std_restore_on - whether to toggle restor STLs
              */
-            virtual void load_checkpoint(std::string file_name, std::string data_record_directory, bool stl_restore_on) ;
+            virtual void load_checkpoint(std::string file_name, std::string data_record_directory, bool stl_restore_on);
 
             /**
-             @brief @userdesc Command to load a checkpoint file. (Calls the preload_checkpoint jobs, calls the MemoryManager restore_managed_memory
-             method, then calls the restart jobs.)
+             @brief @userdesc Command to load a checkpoint file. (Calls the preload_checkpoint jobs, calls the
+             MemoryManager restore_managed_memory method, then calls the restart jobs.)
              @par Python Usage:
              @code trick.load_checkpoint("<file_name>") @endcode
              @param file_name - file to read checkpoint data from
              @return always 0
              */
-            virtual int load_checkpoint_job() ;
+            virtual int load_checkpoint_job();
 
             // Removed all doxygen documents for functions that have documents in the parent class since
             // Doxygen inherits the documents from the parent class automatically.
 
-            virtual int write_s_job_execution( FILE * fp ) ;
+            virtual int write_s_job_execution(FILE* fp);
 
-            virtual int instrument_job_before(Trick::JobData * instrument_job) ;
-            virtual int instrument_job_after(Trick::JobData * instrument_job) ;
-            virtual int instrument_job_remove(std::string in_job) ;
-
-    } ;
+            virtual int instrument_job_before(Trick::JobData* instrument_job);
+            virtual int instrument_job_after(Trick::JobData* instrument_job);
+            virtual int instrument_job_remove(std::string in_job);
+    };
 
 }
 
 #endif
-

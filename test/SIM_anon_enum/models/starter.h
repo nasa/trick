@@ -6,9 +6,14 @@ LIBRARY DEPENDENCY:
     )
 **************************************************************************/
 
-class Starter {
-public:
-    Starter();
-       public:
-        enum {VAR = 6};
+class Starter
+{
+    public:
+        Starter();
+
+    public:
+        enum
+        {
+            VAR = 6
+        };
 };

@@ -12,50 +12,49 @@
 #ifndef PRIMITIVEATTRIBUTESMAP_HH
 #define PRIMITIVEATTRIBUTESMAP_HH
 
+#include "trick/attributes.h"
+
 #include <map>
 #include <string>
 
-#include "trick/attributes.h"
+namespace Trick
+{
 
-namespace Trick {
+    /**
+     * This map stores starting attributes structures keyed on the
+     * type name
+     */
 
-/**
- * This map stores starting attributes structures keyed on the
- * type name
- */
-
-    class PrimitiveAttributesMap {
-
+    class PrimitiveAttributesMap
+    {
         public:
-            PrimitiveAttributesMap() ;
-            ~PrimitiveAttributesMap() ;
+            PrimitiveAttributesMap();
+            ~PrimitiveAttributesMap();
 
             /**
              * Returns a pointer to the singleton Trick::UnitsMap instance.
              * @return    A pointer to Trick::UnitsMap.
              */
-            static Trick::PrimitiveAttributesMap * attributes_map() ;
+            static Trick::PrimitiveAttributesMap* attributes_map();
 
             /**
              * Gets the attributes for a specified primitive type name.
              * @param param    The name of the variable.
              * @return    The units of a specified variable.
              */
-            ATTRIBUTES * get_attr( std::string param ) ;
+            ATTRIBUTES* get_attr(std::string param);
 
         private:
-            std::map<std::string, ATTRIBUTES * > param_attr ;
+            std::map<std::string, ATTRIBUTES*> param_attr;
 
             /**
              * Adds a variable with specified units to the map.
              * @param param    The name of the variable.
              * @param units    The units of the variable.
              */
-            int add_type( std::string param , TRICK_TYPE type , int size ) ;
-
-    } ;
+            int add_type(std::string param, TRICK_TYPE type, int size);
+    };
 
 }
 
 #endif
-

@@ -6,13 +6,11 @@
 #include "trick/tsm.h"
 #include "trick/tsm_proto.h"
 
-
-int tsm_init_with_lock(TSMDevice * shm_device)
+int tsm_init_with_lock(TSMDevice* shm_device)
 {
     int ret;
 
     shm_device->use_lock = 1;
-    ret = tsm_init(shm_device);
+    ret                  = tsm_init(shm_device);
     return (ret);
-
 }

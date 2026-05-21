@@ -10,12 +10,15 @@ PURPOSE:
 #ifndef POTATO_HH
 #define POTATO_HH
 
-namespace potato {
-    template <class T>
-    class Potato {
+namespace potato
+{
+    template <class T> class Potato
+    {
         public:
-        class Inner {}; 
-        Inner inner;
+            class Inner
+            {
+            };
+            Inner inner;
     };
 }
 

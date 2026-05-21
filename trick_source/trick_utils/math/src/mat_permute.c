@@ -9,14 +9,14 @@
 
 #include "trick/trick_math.h"
 
-void mat_permute(               /* Return: -- none */
-                    double **A_coeff,   /* In: A_coeff */
-                    double *B_coeff,    /* In: B_coeff */
-                    double **A_star,    /* Out: A_star */
-                    double *B_star,     /* Out: B_star */
-                    int *new_dof,       /* In: new dof arrangement */
-                    int num_states)
-{                                      /* In: num states */
+void mat_permute(/* Return: -- none */
+    double** A_coeff, /* In: A_coeff */
+    double* B_coeff, /* In: B_coeff */
+    double** A_star, /* Out: A_star */
+    double* B_star, /* Out: B_star */
+    int* new_dof, /* In: new dof arrangement */
+    int num_states)
+{ /* In: num states */
 
     int i, j, k;
 
@@ -32,5 +32,4 @@ void mat_permute(               /* Return: -- none */
             A_star[i][j] = A_coeff[new_dof[i]][new_dof[j]];
 
     return;
-
 }

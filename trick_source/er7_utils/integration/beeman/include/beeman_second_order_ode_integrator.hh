@@ -17,7 +17,6 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_BEEMAN_TWO_STATE_INTEGRATOR_HH
 #define ER7_UTILS_BEEMAN_TWO_STATE_INTEGRATOR_HH
 
@@ -29,84 +28,74 @@ Purpose: ()
 // Integration includes
 #include "er7_utils/integration/core/include/priming_second_order_ode_integrator.hh"
 
+namespace er7_utils
+{
 
-namespace er7_utils {
+    class IntegratorConstructor;
 
-class IntegratorConstructor;
+    /**
+     * Advance state using Beeman's method.
+     * This includes
+     *   - Initial priming of the recent history of state derivatives,
+     *   - Using Beeman's method once primed, and
+     *   - Clearing the history when needed (e.g., time change or state change).
+     */
+    class BeemanSecondOrderODEIntegrator : public PrimingSecondOrderODEIntegrator
+    {
+            ER7_UTILS_MAKE_SIM_INTERFACES(BeemanSecondOrderODEIntegrator)
 
-/**
- * Advance state using Beeman's method.
- * This includes
- *   - Initial priming of the recent history of state derivatives,
- *   - Using Beeman's method once primed, and
- *   - Clearing the history when needed (e.g., time change or state change).
- */
-class BeemanSecondOrderODEIntegrator : public PrimingSecondOrderODEIntegrator {
+            // Note:
+            //  This is an abstract class.
+            //  - The constructors for this class are protected.
+            //  - The assignment operator for this class is private / unimplemented.
 
-ER7_UTILS_MAKE_SIM_INTERFACES(BeemanSecondOrderODEIntegrator)
+        public:
+            /**
+             * BeemanSecondOrderODEIntegrator destructor.
+             */
+            virtual ~BeemanSecondOrderODEIntegrator(void);
 
+        protected:
+            // Constructors.
 
-   // Note:
-   //  This is an abstract class.
-   //  - The constructors for this class are protected.
-   //  - The assignment operator for this class is private / unimplemented.
+            /**
+             * BeemanSecondOrderODEIntegrator default constructor.
+             * Notes:
+             *  - This implicitly assumes the time derivative of position is velocity.
+             *  - This is needed so that Trick can checkpoint/restart its integrators.
+             */
+            BeemanSecondOrderODEIntegrator(void);
 
+            /**
+             * BeemanSecondOrderODEIntegrator copy constructor.
+             * @param[in] src  Object to be copied.
+             */
+            BeemanSecondOrderODEIntegrator(const BeemanSecondOrderODEIntegrator& src);
 
-public:
+            /**
+             * BeemanSecondOrderODEIntegrator non-default constructor
+             * for a simple second order ODE.
+             * This constructor is used by the integrator constructor.
+             * @param[in]     primer_constructor  Constructor that creates the primer
+             * @param[in]     size                State size
+             * @param[in,out] controls            Integration controls
+             */
+            BeemanSecondOrderODEIntegrator(
+                const IntegratorConstructor& primer_constructor, unsigned int size, IntegrationControls& controls);
 
-   /**
-    * BeemanSecondOrderODEIntegrator destructor.
-    */
-   virtual ~BeemanSecondOrderODEIntegrator (void);
-
-
-protected:
-
-   // Constructors.
-
-   /**
-    * BeemanSecondOrderODEIntegrator default constructor.
-    * Notes:
-    *  - This implicitly assumes the time derivative of position is velocity.
-    *  - This is needed so that Trick can checkpoint/restart its integrators.
-    */
-   BeemanSecondOrderODEIntegrator (void);
-
-   /**
-    * BeemanSecondOrderODEIntegrator copy constructor.
-    * @param[in] src  Object to be copied.
-    */
-   BeemanSecondOrderODEIntegrator (const BeemanSecondOrderODEIntegrator & src);
-
-   /**
-    * BeemanSecondOrderODEIntegrator non-default constructor
-    * for a simple second order ODE.
-    * This constructor is used by the integrator constructor.
-    * @param[in]     primer_constructor  Constructor that creates the primer
-    * @param[in]     size                State size
-    * @param[in,out] controls            Integration controls
-    */
-   BeemanSecondOrderODEIntegrator (
-      const IntegratorConstructor & primer_constructor,
-      unsigned int size,
-      IntegrationControls & controls);
-
-   /**
-    * BeemanSecondOrderODEIntegrator non-default constructor
-    * for a generalized second order ODE in which position is advanced
-    * using the position derivative function.
-    * @param[in]     primer_constructor  Constructor that creates the primer
-    * @param[in]     position_size       Size of the generalized position
-    * @param[in]     velocity_size       Size of the generalized velocity
-    * @param[in]     deriv_funs          Position derivative functions container
-    * @param[in,out] controls            Integration controls
-    */
-   BeemanSecondOrderODEIntegrator (
-      const IntegratorConstructor & primer_constructor,
-      unsigned int position_size,
-      unsigned int velocity_size,
-      const GeneralizedPositionDerivativeFunctions & deriv_funs,
-      IntegrationControls & controls);
+            /**
+             * BeemanSecondOrderODEIntegrator non-default constructor
+             * for a generalized second order ODE in which position is advanced
+             * using the position derivative function.
+             * @param[in]     primer_constructor  Constructor that creates the primer
+             * @param[in]     position_size       Size of the generalized position
+             * @param[in]     velocity_size       Size of the generalized velocity
+             * @param[in]     deriv_funs          Position derivative functions container
+             * @param[in,out] controls            Integration controls
+             */
+            BeemanSecondOrderODEIntegrator(const IntegratorConstructor& primer_constructor, unsigned int position_size,
+                unsigned int velocity_size, const GeneralizedPositionDerivativeFunctions& deriv_funs,
+                IntegrationControls& controls);
 
 // The implementation of BeemanGeneralizedStepSecondOrderODEIntegrator
 // is not ready for prime time.
@@ -129,282 +118,240 @@ protected:
       IntegrationControls & controls);
 #endif
 
+            // Member functions.
 
-   // Member functions.
+            /**
+             * Non-throwing swap.
+             * @param other  Item with which contents are to be swapped.
+             */
+            void swap(BeemanSecondOrderODEIntegrator& other);
 
-   /**
-    * Non-throwing swap.
-    * @param other  Item with which contents are to be swapped.
-    */
-   void swap (BeemanSecondOrderODEIntegrator & other);
+            using PrimingSecondOrderODEIntegrator::swap;
 
-   using PrimingSecondOrderODEIntegrator::swap;
+            // Member data.
 
+            double* init_vel; /**< trick_units(--) @n
+              Velocity at the start of an integration cycle. */
 
-   // Member data.
+            double* mean_vel; /**< trick_units(--) @n
+              Velocity used to update position. */
 
-   double * init_vel; /**< trick_units(--) @n
-      Velocity at the start of an integration cycle. */
+            double* init_acc; /**< trick_units(--) @n
+              Acceleration at the start of an integration cycle. */
 
-   double * mean_vel; /**< trick_units(--) @n
-      Velocity used to update position. */
+            double* prev_acc; /**< trick_units(--) @n
+              Acceleration at the start of the previous integration cycle. */
 
-   double * init_acc; /**< trick_units(--) @n
-      Acceleration at the start of an integration cycle. */
+            double* posdot; /**< trick_units(--) @n
+              Position derivative at the current time step. */
 
-   double * prev_acc; /**< trick_units(--) @n
-      Acceleration at the start of the previous integration cycle. */
+            double* posddot; /**< trick_units(--) @n
+              Position 2nd derivative at the current time step. */
 
-   double * posdot; /**< trick_units(--) @n
-      Position derivative at the current time step. */
+            double* init_posddot; /**< trick_units(--) @n
+              Position 2nd derivative at the start of an integration cycle. */
 
-   double * posddot; /**< trick_units(--) @n
-      Position 2nd derivative at the current time step. */
+            double* prev_posddot; /**< trick_units(--) @n
+              Position 2nd derivative at the start of the previous integration cycle. */
 
-   double * init_posddot; /**< trick_units(--) @n
-      Position 2nd derivative at the start of an integration cycle. */
+        private:
+            /**
+             * Not implemented.
+             */
+            BeemanSecondOrderODEIntegrator& operator=(const BeemanSecondOrderODEIntegrator&);
+    };
 
-   double * prev_posddot; /**< trick_units(--) @n
-      Position 2nd derivative at the start of the previous integration cycle. */
+    /**
+     * Specialization of BeemanSecondOrderODEIntegrator for the case of
+     * generalized velocity being the time derivative of generalized position.
+     */
+    class BeemanSimpleSecondOrderODEIntegrator : public BeemanSecondOrderODEIntegrator
+    {
+            ER7_UTILS_MAKE_SIM_INTERFACES(BeemanSimpleSecondOrderODEIntegrator)
 
+        public:
+            // Constructors and destructor.
 
-private:
+            /**
+             * BeemanSimpleSecondOrderODEIntegrator default constructor.
+             */
+            BeemanSimpleSecondOrderODEIntegrator(void)
+                : Er7UtilsDeletable()
+                , BeemanSecondOrderODEIntegrator()
+            {
+            }
 
-   /**
-    * Not implemented.
-    */
-   BeemanSecondOrderODEIntegrator & operator= (
-      const BeemanSecondOrderODEIntegrator &);
-};
+            /**
+             * BeemanSimpleSecondOrderODEIntegrator copy constructor.
+             * @param[in] src  Object to be copied.
+             */
+            BeemanSimpleSecondOrderODEIntegrator(const BeemanSimpleSecondOrderODEIntegrator& src)
+                : Er7UtilsDeletable()
+                , BeemanSecondOrderODEIntegrator(src)
+            {
+            }
 
+            /**
+             * BeemanSimpleSecondOrderODEIntegrator non-default constructor.
+             * @param[in]     primer_constructor  Constructor that creates the primer
+             * @param[in]     size                Size of the position, velocity vectors
+             * @param[in,out] controls_in         Integration controls
+             */
+            BeemanSimpleSecondOrderODEIntegrator(
+                const IntegratorConstructor& primer_constructor, unsigned int size, IntegrationControls& controls_in)
+                : Er7UtilsDeletable()
+                , BeemanSecondOrderODEIntegrator(primer_constructor, size, controls_in)
+            {
+            }
 
-/**
- * Specialization of BeemanSecondOrderODEIntegrator for the case of
- * generalized velocity being the time derivative of generalized position.
- */
-class BeemanSimpleSecondOrderODEIntegrator :
-   public BeemanSecondOrderODEIntegrator {
+            /**
+             * BeemanSimpleSecondOrderODEIntegrator destructor.
+             */
+            virtual ~BeemanSimpleSecondOrderODEIntegrator(void) { }
 
-ER7_UTILS_MAKE_SIM_INTERFACES(BeemanSimpleSecondOrderODEIntegrator)
+            // Member functions.
 
-public:
+            /**
+             * BeemanSimpleSecondOrderODEIntegrator assignment operator.
+             * @param[in] src  Object to be copied.
+             */
+            BeemanSimpleSecondOrderODEIntegrator& operator=(BeemanSimpleSecondOrderODEIntegrator src)
+            {
+                swap(src);
+                return *this;
+            }
 
-   // Constructors and destructor.
+            /**
+             * Create a copy of 'this' BeemanSimpleSecondOrderODEIntegrator object.
+             * @return Clone of 'this'.
+             */
+            virtual BeemanSimpleSecondOrderODEIntegrator* create_copy() const;
 
-   /**
-    * BeemanSimpleSecondOrderODEIntegrator default constructor.
-    */
-   BeemanSimpleSecondOrderODEIntegrator (void)
-   :
-      Er7UtilsDeletable(),
-      BeemanSecondOrderODEIntegrator()
-   {}
+        protected:
+            /**
+             * Save derivatives, called during priming.
+             * @param countdown  The priming countdown.
+             * @param accel      Time derivative of the generalized velocity.
+             * @param velocity   Generalized velocity vector.
+             * @param position   Generalized position vector.
+             */
+            virtual void technique_save_derivatives(int countdown, double const* ER7_UTILS_RESTRICT accel,
+                double const* ER7_UTILS_RESTRICT velocity, double const* ER7_UTILS_RESTRICT position);
 
-   /**
-    * BeemanSimpleSecondOrderODEIntegrator copy constructor.
-    * @param[in] src  Object to be copied.
-    */
-   BeemanSimpleSecondOrderODEIntegrator (
-      const BeemanSimpleSecondOrderODEIntegrator & src)
-   :
-      Er7UtilsDeletable(),
-      BeemanSecondOrderODEIntegrator(src)
-   {}
+            /**
+             * Propagate state using Beeman's method, excluding priming.
+             * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
+             * @param[in]     target_stage  The stage of the integration process
+             *                              that the integrator should try to attain.
+             * @param[in]     accel         Time derivative of the generalized velocity.
+             * @param[in,out] velocity      Generalized velocity vector.
+             * @param[in,out] position      Generalized position vector.
+             *
+             * @return The status (time advance, pass/fail status) of the integration.
+             */
+            virtual IntegratorResult technique_integrate(double dyn_dt, unsigned int target_stage,
+                double const* ER7_UTILS_RESTRICT accel, double* ER7_UTILS_RESTRICT velocity,
+                double* ER7_UTILS_RESTRICT position);
+    };
 
-   /**
-    * BeemanSimpleSecondOrderODEIntegrator non-default constructor.
-    * @param[in]     primer_constructor  Constructor that creates the primer
-    * @param[in]     size                Size of the position, velocity vectors
-    * @param[in,out] controls_in         Integration controls
-    */
-   BeemanSimpleSecondOrderODEIntegrator (
-      const IntegratorConstructor & primer_constructor,
-      unsigned int size,
-      IntegrationControls & controls_in)
-   :
-      Er7UtilsDeletable(),
-      BeemanSecondOrderODEIntegrator(primer_constructor, size, controls_in)
-   {}
+    /**
+     * Specialization of BeemanSecondOrderODEIntegrator for the case of
+     * the time derivative of generalized position being some function of
+     * the generalized position and generalized velocity.
+     */
+    class BeemanGeneralizedDerivSecondOrderODEIntegrator : public BeemanSecondOrderODEIntegrator
+    {
+            ER7_UTILS_MAKE_SIM_INTERFACES(BeemanGeneralizedDerivSecondOrderODEIntegrator)
 
-   /**
-    * BeemanSimpleSecondOrderODEIntegrator destructor.
-    */
-   virtual ~BeemanSimpleSecondOrderODEIntegrator (void)
-   {}
+        public:
+            // Constructors and destructor.
 
+            /**
+             * BeemanGeneralizedDerivSecondOrderODEIntegrator default constructor.
+             */
+            BeemanGeneralizedDerivSecondOrderODEIntegrator(void)
+                : Er7UtilsDeletable()
+                , BeemanSecondOrderODEIntegrator()
+            {
+            }
 
-   // Member functions.
+            /**
+             * BeemanGeneralizedDerivSecondOrderODEIntegrator copy constructor.
+             * @param[in] src  Object to be copied.
+             */
+            BeemanGeneralizedDerivSecondOrderODEIntegrator(const BeemanGeneralizedDerivSecondOrderODEIntegrator& src)
+                : Er7UtilsDeletable()
+                , BeemanSecondOrderODEIntegrator(src)
+            {
+            }
 
-   /**
-    * BeemanSimpleSecondOrderODEIntegrator assignment operator.
-    * @param[in] src  Object to be copied.
-    */
-   BeemanSimpleSecondOrderODEIntegrator & operator= (
-      BeemanSimpleSecondOrderODEIntegrator src)
-   {
-      swap (src);
-      return *this;
-   }
+            /**
+             * BeemanGeneralizedDerivSecondOrderODEIntegrator non-default constructor.
+             * @param[in]     primer_constructor  Constructor that creates the primer
+             * @param[in]     position_size       Size of the generalized position
+             * @param[in]     velocity_size       Size of the generalized velocity
+             * @param[in]     deriv_funs          Position derivative functions container
+             * @param[in,out] controls_in         Integration controls
+             */
+            BeemanGeneralizedDerivSecondOrderODEIntegrator(const IntegratorConstructor& primer_constructor,
+                unsigned int position_size, unsigned int velocity_size,
+                const GeneralizedPositionDerivativeFunctions& deriv_funs, IntegrationControls& controls_in)
+                : Er7UtilsDeletable()
+                , BeemanSecondOrderODEIntegrator(
+                      primer_constructor, position_size, velocity_size, deriv_funs, controls_in)
+            {
+            }
 
-   /**
-    * Create a copy of 'this' BeemanSimpleSecondOrderODEIntegrator object.
-    * @return Clone of 'this'.
-    */
-   virtual BeemanSimpleSecondOrderODEIntegrator * create_copy () const;
+            /**
+             * BeemanGeneralizedDerivSecondOrderODEIntegrator destructor.
+             */
+            virtual ~BeemanGeneralizedDerivSecondOrderODEIntegrator(void) { }
 
+            // Member functions.
 
-protected:
+            /**
+             * BeemanGeneralizedDerivSecondOrderODEIntegrator assignment operator.
+             * @param[in] src  Object to be copied.
+             */
+            BeemanGeneralizedDerivSecondOrderODEIntegrator& operator=(
+                BeemanGeneralizedDerivSecondOrderODEIntegrator src)
+            {
+                swap(src);
+                return *this;
+            }
 
-   /**
-    * Save derivatives, called during priming.
-    * @param countdown  The priming countdown.
-    * @param accel      Time derivative of the generalized velocity.
-    * @param velocity   Generalized velocity vector.
-    * @param position   Generalized position vector.
-    */
-   virtual void technique_save_derivatives (
-      int countdown,
-      double const * ER7_UTILS_RESTRICT accel,
-      double const * ER7_UTILS_RESTRICT velocity,
-      double const * ER7_UTILS_RESTRICT position);
+            /**
+             * Create a copy of 'this' object.
+             * @return Clone of 'this'.
+             */
+            virtual BeemanGeneralizedDerivSecondOrderODEIntegrator* create_copy() const;
 
-   /**
-    * Propagate state using Beeman's method, excluding priming.
-    * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
-    * @param[in]     target_stage  The stage of the integration process
-    *                              that the integrator should try to attain.
-    * @param[in]     accel         Time derivative of the generalized velocity.
-    * @param[in,out] velocity      Generalized velocity vector.
-    * @param[in,out] position      Generalized position vector.
-    *
-    * @return The status (time advance, pass/fail status) of the integration.
-    */
-   virtual IntegratorResult technique_integrate (
-      double dyn_dt,
-      unsigned int target_stage,
-      double const * ER7_UTILS_RESTRICT accel,
-      double * ER7_UTILS_RESTRICT velocity,
-      double * ER7_UTILS_RESTRICT position);
-};
+        protected:
+            /**
+             * Save derivatives, called during priming.
+             * @param countdown  The priming countdown.
+             * @param accel      Time derivative of the generalized velocity.
+             * @param velocity   Generalized velocity vector.
+             * @param position   Generalized position vector.
+             */
+            virtual void technique_save_derivatives(int countdown, double const* ER7_UTILS_RESTRICT accel,
+                double const* ER7_UTILS_RESTRICT velocity, double const* ER7_UTILS_RESTRICT position);
 
-
-/**
- * Specialization of BeemanSecondOrderODEIntegrator for the case of
- * the time derivative of generalized position being some function of
- * the generalized position and generalized velocity.
- */
-class BeemanGeneralizedDerivSecondOrderODEIntegrator :
-   public BeemanSecondOrderODEIntegrator {
-
-ER7_UTILS_MAKE_SIM_INTERFACES(BeemanGeneralizedDerivSecondOrderODEIntegrator)
-
-public:
-
-   // Constructors and destructor.
-
-   /**
-    * BeemanGeneralizedDerivSecondOrderODEIntegrator default constructor.
-    */
-   BeemanGeneralizedDerivSecondOrderODEIntegrator (void)
-   :
-      Er7UtilsDeletable(),
-      BeemanSecondOrderODEIntegrator()
-   {}
-
-   /**
-    * BeemanGeneralizedDerivSecondOrderODEIntegrator copy constructor.
-    * @param[in] src  Object to be copied.
-    */
-   BeemanGeneralizedDerivSecondOrderODEIntegrator (
-      const BeemanGeneralizedDerivSecondOrderODEIntegrator & src)
-   :
-      Er7UtilsDeletable(),
-      BeemanSecondOrderODEIntegrator(src)
-   {}
-
-   /**
-    * BeemanGeneralizedDerivSecondOrderODEIntegrator non-default constructor.
-    * @param[in]     primer_constructor  Constructor that creates the primer
-    * @param[in]     position_size       Size of the generalized position
-    * @param[in]     velocity_size       Size of the generalized velocity
-    * @param[in]     deriv_funs          Position derivative functions container
-    * @param[in,out] controls_in         Integration controls
-    */
-   BeemanGeneralizedDerivSecondOrderODEIntegrator (
-      const IntegratorConstructor & primer_constructor,
-      unsigned int position_size,
-      unsigned int velocity_size,
-      const GeneralizedPositionDerivativeFunctions & deriv_funs,
-      IntegrationControls & controls_in)
-   :
-      Er7UtilsDeletable (),
-      BeemanSecondOrderODEIntegrator (primer_constructor,
-                                    position_size, velocity_size,
-                                    deriv_funs, controls_in)
-   {}
-
-   /**
-    * BeemanGeneralizedDerivSecondOrderODEIntegrator destructor.
-    */
-   virtual ~BeemanGeneralizedDerivSecondOrderODEIntegrator (void)
-   {}
-
-
-   // Member functions.
-
-   /**
-    * BeemanGeneralizedDerivSecondOrderODEIntegrator assignment operator.
-    * @param[in] src  Object to be copied.
-    */
-   BeemanGeneralizedDerivSecondOrderODEIntegrator & operator= (
-      BeemanGeneralizedDerivSecondOrderODEIntegrator src)
-   {
-      swap (src);
-      return *this;
-   }
-
-   /**
-    * Create a copy of 'this' object.
-    * @return Clone of 'this'.
-    */
-   virtual BeemanGeneralizedDerivSecondOrderODEIntegrator * create_copy ()
-   const;
-
-
-protected:
-
-   /**
-    * Save derivatives, called during priming.
-    * @param countdown  The priming countdown.
-    * @param accel      Time derivative of the generalized velocity.
-    * @param velocity   Generalized velocity vector.
-    * @param position   Generalized position vector.
-    */
-   virtual void technique_save_derivatives (
-      int countdown,
-      double const * ER7_UTILS_RESTRICT accel,
-      double const * ER7_UTILS_RESTRICT velocity,
-      double const * ER7_UTILS_RESTRICT position);
-
-   /**
-    * Propagate state using Beeman's method, excluding priming.
-    * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
-    * @param[in]     target_stage  The stage of the integration process
-    *                              that the integrator should try to attain.
-    * @param[in]     accel         Time derivative of the generalized velocity.
-    * @param[in,out] velocity      Generalized velocity vector.
-    * @param[in,out] position      Generalized position vector.
-    *
-    * @return The status (time advance, pass/fail status) of the integration.
-    */
-   virtual IntegratorResult technique_integrate (
-      double dyn_dt,
-      unsigned int target_stage,
-      double const * ER7_UTILS_RESTRICT accel,
-      double * ER7_UTILS_RESTRICT velocity,
-      double * ER7_UTILS_RESTRICT position);
-};
-
+            /**
+             * Propagate state using Beeman's method, excluding priming.
+             * @param[in]     dyn_dt        Dynamic time step, in dynamic time seconds.
+             * @param[in]     target_stage  The stage of the integration process
+             *                              that the integrator should try to attain.
+             * @param[in]     accel         Time derivative of the generalized velocity.
+             * @param[in,out] velocity      Generalized velocity vector.
+             * @param[in,out] position      Generalized position vector.
+             *
+             * @return The status (time advance, pass/fail status) of the integration.
+             */
+            virtual IntegratorResult technique_integrate(double dyn_dt, unsigned int target_stage,
+                double const* ER7_UTILS_RESTRICT accel, double* ER7_UTILS_RESTRICT velocity,
+                double* ER7_UTILS_RESTRICT position);
+    };
 
 // This old implementation of BeemanGeneralizedStepSecondOrderODEIntegrator
 // is not ready for prime time.
@@ -498,11 +445,9 @@ private:
 
 }
 
-
 #ifdef ER7_UTILS_NEED_AUX_INCLUDES
 #include "er7_utils/integration/core/include/integration_controls.hh"
 #endif
-
 
 #endif
 /**

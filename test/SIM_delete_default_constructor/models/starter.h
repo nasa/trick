@@ -6,9 +6,9 @@ LIBRARY DEPENDENCY:
     )
 **************************************************************************/
 
-class Starter {
-public:
-    Starter() = delete;
-    Starter(int foo);
-
+class Starter
+{
+    public:
+        Starter() = delete;
+        Starter(int foo);
 };

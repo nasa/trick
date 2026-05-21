@@ -1,11 +1,13 @@
 #ifndef ARENA_H
 #define ARENA_H
-#include <iostream>
-#include <vector>
 #include "gridSquare.hh"
 #include "point.hh"
 
-class Arena {
+#include <iostream>
+#include <vector>
+
+class Arena
+{
     public:
         Arena(unsigned int width, unsigned int height);
         Arena(unsigned int width, unsigned int height, unsigned char bits[]);
@@ -18,15 +20,15 @@ class Arena {
         int getGridSquareCoordinates(GridSquare* gridSquarePointer, Point& coords);
         int movementCostEstimate(GridSquare* orig, GridSquare* dest, int& cost);
         int distanceBetween(GridSquare* orig, GridSquare* dest, int& distance);
-        int getHeight(){return height;}
-        int getWidth(){return width;}
+        int getHeight() { return height; }
+        int getWidth() { return width; }
 
-        friend std::ostream& operator<< (std::ostream& s, const Arena& arena);
+        friend std::ostream& operator<<(std::ostream& s, const Arena& arena);
 
     private:
         int height;
         int width;
-        GridSquare *grid;
+        GridSquare* grid;
         int calcOffset(unsigned int x, unsigned int y, size_t& offset);
         int calcOffset(GridSquare* gridSquare, size_t& offset);
 };

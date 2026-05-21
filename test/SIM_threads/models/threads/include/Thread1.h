@@ -20,7 +20,7 @@ class Thread1
         Thread1(int in_usec);
         ~Thread1();
         int Step();
-    /*private:*/
+        /*private:*/
         bool m_bBusy;
         int m_iBusyUSecs;
         int m_iCount;

@@ -1,38 +1,37 @@
 #ifndef PARSED_DECLARATION_HH
 #define PARSED_DECLARATION_HH
 
-#include <string>
-#include <iostream>
 #include "LexicalAnalyzer.hh"
+
+#include <iostream>
+#include <string>
 
 #define MAX_DIMS 16
 
-class ParsedDeclaration {
-
+class ParsedDeclaration
+{
     public:
-
-    ParsedDeclaration( std::string s );
-    std::string getTypeSpecifier();
-    std::string getVariableName();
-    unsigned int getNumberOfDimensions();
-    int getDimensionSize( unsigned int index);
+        ParsedDeclaration(std::string s);
+        std::string getTypeSpecifier();
+        std::string getVariableName();
+        unsigned int getNumberOfDimensions();
+        int getDimensionSize(unsigned int index);
 
     private:
-    bool parseTypeSpecifier();
-    bool parseDeclaration();
-    bool parseDeclarator();
-    bool parseDirectDeclarator();
+        bool parseTypeSpecifier();
+        bool parseDeclaration();
+        bool parseDeclarator();
+        bool parseDirectDeclarator();
 
-    bool match(Token::e expected_token);
+        bool match(Token::e expected_token);
 
-    Token::e nextToken;
-    LexicalAnalyzer lexer;
+        Token::e nextToken;
+        LexicalAnalyzer lexer;
 
-    std::string typeSpec;
-    std::string varName;
-    unsigned int ndims;
-    int dims[MAX_DIMS];
-
+        std::string typeSpec;
+        std::string varName;
+        unsigned int ndims;
+        int dims[MAX_DIMS];
 };
 
 #endif

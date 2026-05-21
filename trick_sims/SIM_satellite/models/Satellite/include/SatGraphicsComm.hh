@@ -8,18 +8,18 @@ PURPOSE:
 PROGRAMMERS:
       (((John M. Penn) () () () ))
 *******************************************************************************/
-#include "trick_utils/comm/include/tc_proto.h"
 #include "Satellite.hh"
+#include "trick_utils/comm/include/tc_proto.h"
 
-class SatGraphicsComm {
+class SatGraphicsComm
+{
     public:
+        SatGraphicsComm();
 
-    SatGraphicsComm();
+        int connect();
+        int send_packet(Satellite* sat);
 
-    int connect();
-    int send_packet(Satellite* sat);
-
-    TCDevice connection;
-    char* syscmd;
+        TCDevice connection;
+        char* syscmd;
 };
 #endif

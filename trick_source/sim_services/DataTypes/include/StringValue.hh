@@ -5,28 +5,27 @@
 
 /**
  */
-class StringValue : public Value {
-
+class StringValue : public Value
+{
     public:
+        /**
+         Constructor.
+         @param value The value of this StringValue.
+         */
+        StringValue(const char* value);
 
-    /**
-     Constructor.
-     @param value The value of this StringValue.
-     */
-    StringValue(const char* value);
+        /**
+         Print this StringValue to a stream.
+         */
+        void print(std::ostream& s);
 
-    /**
-     Print this StringValue to a stream.
-     */
-    void print(std::ostream &s);
-
-    /**
-     Get a string representation of this StringValue.
-     */
-    std::string toString();
+        /**
+         Get a string representation of this StringValue.
+         */
+        std::string toString();
 
     private:
-    std::string value;
+        std::string value;
 };
 
 #endif

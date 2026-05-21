@@ -7,9 +7,9 @@ extern "C"
 {
 #endif
 
-void add();
-void remove_Bar();
-void restart();
+    void add();
+    void remove_Bar();
+    void restart();
 
 #ifdef __cplusplus
 }

@@ -14,60 +14,67 @@ ICG_IGNORE_TYPES:
 /** @class BallStateInput
     @brief ball state input parameters
  */
-class TopClass {
- public:
+class TopClass
+{
+    public:
+        unsigned int bf1 : 5;
+        unsigned int bf2 : 4;
 
-  unsigned int bf1 : 5 ;
-  unsigned int bf2 : 4 ;
+        class PublicEmbed
+        {
+            public:
+                int ii;
+                class PublicEmbed2
+                {
+                    public:
+                        int jj;
+                        class PublicEmbed3
+                        {
+                            public:
+                                int jj;
+                                enum PublicEnum4
+                                {
+                                    five,
+                                    six
+                                };
+                        };
+                };
+        };
 
-  class PublicEmbed{
-      public:
-          int ii ;
-          class PublicEmbed2{
-              public:
-                  int jj ;
-                      class PublicEmbed3{
-                          public:
-                              int jj ;
-                              enum PublicEnum4 {
-                                  five ,
-                                  six
-                                } ;
-                      } ;
-          } ;
-  } ;
+        enum PublicEnum
+        {
+            one,
+            two
+        };
 
-  enum PublicEnum {
-    one ,
-    two
-  } ;
+        double d; /**< trick_units(r) */
 
-  double d;                   /**< trick_units(r) */
+        TopClass() { };
 
-  TopClass() {} ;
+    private:
+        class PrivateEmbed
+        {
+            public:
+                int ii;
+        };
 
- private:
-  class PrivateEmbed{
-      public:
-          int ii ;
-  } ;
-
-  enum PrivateEnum {
-    three ,
-    four
-  } ;
-
+        enum PrivateEnum
+        {
+            three,
+            four
+        };
 };
 
-class IgnoreType1 {
+class IgnoreType1
+{
     public:
-        int ii ;
-} ;
+        int ii;
+};
 
-class IgnoreType2 {
+class IgnoreType2
+{
     public:
-        int ii ;
-} ;
-
+        int ii;
+};
 
 #endif

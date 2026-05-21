@@ -16,48 +16,55 @@
 // in Child1 and Child2.  So rather than trying to fix ICG, I'm commenting these
 // classes out.
 
-class MomMom {
-    public:
-    int i;
-};
-
-class DadDad {
-    public:
-    int i;
-};
-
-class Mom : public MomMom {
-    public:
-    int i;
-    int j;
-};
-
-class Dad : public MomMom {
-    public:
-    int i;
-    int j;
-};
-
-class Child1 : public Mom, public Dad {
-    public:
-        Child1() {
-            Mom::i = 1 ;
-            Dad::i = 3 ;
-        }
-};
-
-class Child2 : public Mom, public Dad {
+class MomMom
+{
     public:
         int i;
-        Child2() {
-            Mom::i = 2 ;
-            Dad::i = 4 ;
-            i = 6 ;
+};
+
+class DadDad
+{
+    public:
+        int i;
+};
+
+class Mom : public MomMom
+{
+    public:
+        int i;
+        int j;
+};
+
+class Dad : public MomMom
+{
+    public:
+        int i;
+        int j;
+};
+
+class Child1 : public Mom, public Dad
+{
+    public:
+        Child1()
+        {
+            Mom::i = 1;
+            Dad::i = 3;
+        }
+};
+
+class Child2 : public Mom, public Dad
+{
+    public:
+        int i;
+        Child2()
+        {
+            Mom::i = 2;
+            Dad::i = 4;
+            i      = 6;
         }
 };
 
 #endif
 #endif
-
 
 #endif

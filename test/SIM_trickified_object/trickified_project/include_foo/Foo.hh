@@ -2,12 +2,10 @@
 
 #include <iostream>
 
-class Foo {
-
+class Foo
+{
     public:
+        int i;
 
-    int i;
-
-    void foo();
-
+        void foo();
 };

@@ -13,22 +13,19 @@ PROGRAMMERS:
 namespace FooNamespace
 {
 
-// RestartableStateIntegrator
-template<int T> 
-class FooA
-{
-public:
+    // RestartableStateIntegrator
+    template <int T> class FooA
+    {
+        public:
+            int A = T;
+    };
 
-   int A = T;
-};
-
-// RestartableFirstOrderODEIntegrator
-template<int T>
-class FooB : public FooA<3>
-{
-public:
-   int B = T;
-};
+    // RestartableFirstOrderODEIntegrator
+    template <int T> class FooB : public FooA<3>
+    {
+        public:
+            int B = T;
+    };
 
 }
 

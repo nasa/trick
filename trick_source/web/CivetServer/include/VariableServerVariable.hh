@@ -13,27 +13,28 @@ LIBRARY DEPENDENCIES:
 #include "CivetServer.h"
 #endif
 
-#include <iostream>
 #include <trick/reference.h>
+
+#include <iostream>
 
 #define MAX_ARRAY_LENGTH 4096
 
-class VariableServerVariable {
-
+class VariableServerVariable
+{
     public:
-        VariableServerVariable( REF2* variableType);
+        VariableServerVariable(REF2* variableType);
         ~VariableServerVariable();
         const char* getName();
         const char* getUnits();
         void stageValue();
-        void writeValue( std::ostream& chkpnt_os );
+        void writeValue(std::ostream& chkpnt_os);
 
     private:
-        VariableServerVariable() {}
-        REF2 *varInfo;
-        void *address;
-        int   size;
-        void *stageBuffer;
-        bool  deref;
-    };
+        VariableServerVariable() { }
+        REF2* varInfo;
+        void* address;
+        int size;
+        void* stageBuffer;
+        bool deref;
+};
 #endif

@@ -1,10 +1,11 @@
 
 #include "trick/MultiDtIntegLoopSimObject.hh"
+
 #include "trick/exec_proto.hh"
 
 void MultiDtIntegLoopSimObject::add_jobs(double in_cycle, unsigned int child)
 {
-    Trick::JobData * job;
+    Trick::JobData* job;
 
     exec_register_scheduler(&integ_sched);
     job = add_job(0, 0, "default_data", NULL, 1, "integ_sched.rebuild_jobs", "", 65534);
@@ -25,61 +26,61 @@ void MultiDtIntegLoopSimObject::add_jobs(double in_cycle, unsigned int child)
     job->add_tag("TRK");
 }
 
-int MultiDtIntegLoopSimObject::call_function(Trick::JobData * curr_job)
+int MultiDtIntegLoopSimObject::call_function(Trick::JobData* curr_job)
 {
     int trick_ret = 0;
-    if(curr_job->disabled)
+    if (curr_job->disabled)
     {
         return (trick_ret);
     }
 
-    switch(curr_job->id)
+    switch (curr_job->id)
     {
-        case 0:
-            integ_sched.rebuild_jobs();
-            break;
-        case 1:
-            integ_sched.initialize_rates();
-            break;
-        case 2:
-            integ_sched.get_first_step_deriv_from_integrator();
-            break;
-        case 3:
-            integ_sched.call_deriv_jobs();
-            break;
-        case 4:
-            integ_sched.integrate();
-            break;
-        case 5:
-            integ_sched.restart_checkpoint();
-            break;
-        case 6:
-            integ_sched.rebuild_jobs();
-            break;
-        case 7:
-            integ_sched.get_first_step_deriv_from_integrator();
-            break;
-        default:
-            trick_ret = -1;
-            break;
+    case 0:
+        integ_sched.rebuild_jobs();
+        break;
+    case 1:
+        integ_sched.initialize_rates();
+        break;
+    case 2:
+        integ_sched.get_first_step_deriv_from_integrator();
+        break;
+    case 3:
+        integ_sched.call_deriv_jobs();
+        break;
+    case 4:
+        integ_sched.integrate();
+        break;
+    case 5:
+        integ_sched.restart_checkpoint();
+        break;
+    case 6:
+        integ_sched.rebuild_jobs();
+        break;
+    case 7:
+        integ_sched.get_first_step_deriv_from_integrator();
+        break;
+    default:
+        trick_ret = -1;
+        break;
     }
 
     return (trick_ret);
 }
 
-double MultiDtIntegLoopSimObject::call_function_double(Trick::JobData * curr_job)
+double MultiDtIntegLoopSimObject::call_function_double(Trick::JobData* curr_job)
 {
     double trick_ret = 0.0;
-    if(curr_job->disabled)
+    if (curr_job->disabled)
     {
         return (trick_ret);
     }
 
-    switch(curr_job->id)
+    switch (curr_job->id)
     {
-        default:
-            trick_ret = 0.0;
-            break;
+    default:
+        trick_ret = 0.0;
+        break;
     }
 
     return (trick_ret);

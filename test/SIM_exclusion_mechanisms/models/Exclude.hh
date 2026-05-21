@@ -6,13 +6,15 @@
  * code that does not compile (as long as
  * https://github.com/nasa/trick/issues/422 isn't fixed).
  */
-class Exclude1A {
+class Exclude1A
+{
     private:
-    void operator=(const Exclude1A&);
+        void operator=(const Exclude1A&);
 };
 
-class Exclude1B {
-    const std::vector<Exclude1A> foos;
+class Exclude1B
+{
+        const std::vector<Exclude1A> foos;
 };
 
 #ifdef SWIG

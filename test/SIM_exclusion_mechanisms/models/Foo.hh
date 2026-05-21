@@ -5,29 +5,26 @@
 #define FOO_HH
 
 #include "Exclude.hh"
-#include "exclude/Exclude.hh"
-#include "symlinks/exclude_link_path/links/exclude/Exclude.hh"
-#include "symlinks/exclude_real_path/links/exclude/Exclude.hh"
-
-#include "IcgExclude.hh"
-#include "icg_exclude/IcgExclude.hh"
-#include "symlinks/exclude_link_path/links/icg_exclude/IcgExclude.hh"
-#include "symlinks/exclude_real_path/links/icg_exclude/IcgExclude.hh"
-
-#include "SwigExclude.hh"
-#include "swig_exclude/SwigExclude.hh"
-#include "symlinks/exclude_link_path/links/swig_exclude/SwigExclude.hh"
-#include "symlinks/exclude_real_path/links/swig_exclude/SwigExclude.hh"
-
 #include "ExtLibDir.hh"
+#include "IcgExclude.hh"
+#include "SwigExclude.hh"
+#include "exclude/Exclude.hh"
 #include "ext_lib_dir/ExtLibDir.hh"
+#include "icg_exclude/IcgExclude.hh"
+#include "swig_exclude/SwigExclude.hh"
+#include "symlinks/exclude_link_path/links/exclude/Exclude.hh"
 #include "symlinks/exclude_link_path/links/ext_lib_dir/ExtLibDir.hh"
+#include "symlinks/exclude_link_path/links/icg_exclude/IcgExclude.hh"
+#include "symlinks/exclude_link_path/links/swig_exclude/SwigExclude.hh"
+#include "symlinks/exclude_real_path/links/exclude/Exclude.hh"
 #include "symlinks/exclude_real_path/links/ext_lib_dir/ExtLibDir.hh"
+#include "symlinks/exclude_real_path/links/icg_exclude/IcgExclude.hh"
+#include "symlinks/exclude_real_path/links/swig_exclude/SwigExclude.hh"
 
 class Foo
 {
     private:
-    void operator=(const Foo&);
+        void operator=(const Foo&);
 };
 
 #endif

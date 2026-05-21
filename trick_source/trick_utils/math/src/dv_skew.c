@@ -7,8 +7,8 @@
 #include "trick/trick_math.h"
 
 void dv_skew(double skew[3][3], /* Out: Skew symmetic matrix */
-             double vect[])
-{                                      /* In: Vector to be transformed */
+    double vect[])
+{ /* In: Vector to be transformed */
     skew[0][0] = 0.0;
     skew[1][1] = 0.0;
     skew[2][2] = 0.0;

@@ -2,20 +2,23 @@
 #define ROOTFINDER_HH
 #include <iostream>
 
-typedef enum {
+typedef enum
+{
     Negative = -1,
     Unconstrained,
     Positive
 } SlopeConstraint;
 
-class RootFinder {
+class RootFinder
+{
     public:
         void init();
-        void init( double tolerance, SlopeConstraint constraint);
+        void init(double tolerance, SlopeConstraint constraint);
         RootFinder();
-        RootFinder (double tolerance, SlopeConstraint constraint);
-        double find_roots( double x, double f_error );
+        RootFinder(double tolerance, SlopeConstraint constraint);
+        double find_roots(double x, double f_error);
         friend std::ostream& operator<<(std::ostream& os, const RootFinder& rf);
+
     private:
         double f_upper;
         double x_upper;

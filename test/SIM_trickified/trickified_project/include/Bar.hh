@@ -7,11 +7,10 @@
  * Trick class. This allows us to test if `sys.path` contains the correct path to `sim_services.py`
  * (and other modules generated during a sim build) for Trickified projects.
  */
-class Bar : public Trick::Event {
-
-    int  process(long long) {return 0;}
-    void add() {}
-    void remove() {}
-    void restart() {}
-
+class Bar : public Trick::Event
+{
+        int process(long long) { return 0; }
+        void add() { }
+        void remove() { }
+        void restart() { }
 };

@@ -8,7 +8,8 @@ PROGRAMMERS:
 #ifndef TIMER_HH
 #define TIMER_HH
 
-namespace Trick {
+namespace Trick
+{
 
     /**
      * This class is a virtual base class for maintaining real time synchronization
@@ -17,12 +18,11 @@ namespace Trick {
      * there are 1000000 tics/second
      */
 
-    class Timer {
-
+    class Timer
+    {
         public:
-
-            Timer() ;
-            virtual ~Timer() {} ;
+            Timer();
+            virtual ~Timer() { };
 
             /**
              @brief @userdesc Command to enable using the timer during an underrun when running real-time.
@@ -30,7 +30,7 @@ namespace Trick {
              @code trick.itimer_enable() @endcode
              @return always 0
             */
-            int enable() ;
+            int enable();
 
             /**
              @brief @userdesc Command to disable using the timer during an underrun when running real-time.
@@ -39,7 +39,7 @@ namespace Trick {
              @code trick.itimer_disable() @endcode
              @return always 0
             */
-            int disable() ;
+            int disable();
 
             /**
              @brief @userdesc Get the status of the Timer
@@ -47,7 +47,7 @@ namespace Trick {
              @code trick.get_enabled() @endcode
              @return always 0
             */
-            bool get_enabled() ;
+            bool get_enabled();
 
             /**
              @brief @userdesc Sets the active flag
@@ -55,50 +55,48 @@ namespace Trick {
              @code trick.set_active(<on_off>) @endcode
              @return always 0
             */
-            void set_active( bool in_active) ;
+            void set_active(bool in_active);
 
             /**
              @brief Initializes the timer.  Timer hardware (if any) should be initialized here.
              the timer's frequency is set to the incoming in_frame_time.
              @return 0 if successful, otherwise an error code.
              */
-            virtual int init() = 0 ;
+            virtual int init() = 0;
 
             /**
              @brief Starts the timer.
              */
-            virtual int start(double frame_time) = 0 ;
+            virtual int start(double frame_time) = 0;
 
             /**
              @brief Starts the timer after it has elapsed.
              */
-            virtual int reset(double frame_time) = 0 ;
+            virtual int reset(double frame_time) = 0;
 
             /**
              @brief Turns the timer off.
              */
-            virtual int stop() = 0 ;
+            virtual int stop() = 0;
 
             /**
              @brief Blocks until timer elapses.
              */
-            virtual int pause() = 0 ;
+            virtual int pause() = 0;
 
             /**
              @brief Shutdown class job to stop timer and clean up any timer data structures.
              */
-            virtual int shutdown() = 0 ;
+            virtual int shutdown() = 0;
 
         protected:
-
             /** True if the timer is enabled.\n */
-            bool enabled ;           /**< trick_units(--) */
+            bool enabled; /**< trick_units(--) */
 
             /** True if the timer is active for this frame.\n */
-            bool active ;            /**< trick_units(--) */
+            bool active; /**< trick_units(--) */
+    };
 
-    } ;
-
-} ;
+};
 
 #endif

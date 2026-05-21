@@ -7,21 +7,21 @@ LIBRARY DEPENDENCY:
 *******************************************************************************/
 #include "PWM.hh"
 
-class DCMotor {
-public:
-    DCMotor(const double initialInternalResistance, const double initialMotorTorqueConstant);
-    void update (const double motorVoltage);
-    void update(const PWM& PulseWidth);
-    double getTorque ();
-    double getCurrentLoad ();
+class DCMotor
+{
+    public:
+        DCMotor(const double initialInternalResistance, const double initialMotorTorqueConstant);
+        void update(const double motorVoltage);
+        void update(const PWM& PulseWidth);
+        double getTorque();
+        double getCurrentLoad();
 
-private:
-    double motorTorque;
-    double motorCurrent;
-    double currentLoad;
-    double internalResistance;
-    double motorTorqueConstant;
+    private:
+        double motorTorque;
+        double motorCurrent;
+        double currentLoad;
+        double internalResistance;
+        double motorTorqueConstant;
 };
 
 #endif
-

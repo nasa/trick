@@ -10,19 +10,25 @@ PURPOSE:
 #ifndef FOO_HH
 #define FOO_HH
 
-class MyEnumClass {
+class MyEnumClass
+{
     public:
-    enum class Enum {};
-    class Inner {};
+        enum class Enum
+        {
+        };
+        class Inner
+        {
+        };
 };
 
-template <class T>
-class Foo {
+template <class T> class Foo
+{
     public:
         T t; /* (--) */
 };
 
-enum Bar {
+enum Bar
+{
     Bar_1,
     Bar_2
 };

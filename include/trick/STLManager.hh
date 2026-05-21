@@ -2,32 +2,34 @@
 #ifndef STL_MANAGER_HH
 #define STL_MANAGER_HH
 
-#include <vector>
 #include "trick/STLInterface.hh"
 
-namespace Trick {
+#include <vector>
 
-class STLManager {
-    public:
-        STLManager() ;
-        virtual ~STLManager() ;
+namespace Trick
+{
 
-        static STLManager * getSTLManager() ;
+    class STLManager
+    {
+        public:
+            STLManager();
+            virtual ~STLManager();
 
-        void checkpoint() ;
-        void post_checkpoint() ;
-        void restart() ;
+            static STLManager* getSTLManager();
 
-        unsigned int addSTL( STLInterface & stlIn ) ;
-        void removeSTL( STLInterface & stlIn ) ;
+            void checkpoint();
+            void post_checkpoint();
+            void restart();
 
-    private:
-        //TODO: This needs to be a set, not a vector
-        std::vector<STLInterface *> stlObjects ;
-        unsigned int count ;
+            unsigned int addSTL(STLInterface& stlIn);
+            void removeSTL(STLInterface& stlIn);
+
+        private:
+            // TODO: This needs to be a set, not a vector
+            std::vector<STLInterface*> stlObjects;
+            unsigned int count;
+    };
 
 };
-
-} ;
 
 #endif

@@ -8,9 +8,9 @@ PROGRAMMERS:
 #ifndef DRASCII_HH
 #define DRASCII_HH
 
-#include <string>
-
 #include "trick/DataRecordGroup.hh"
+
+#include <string>
 
 #ifdef SWIG
 %feature("compactdefaultargs","0") ;
@@ -24,7 +24,8 @@ PROGRAMMERS:
 %}
 #endif
 
-namespace Trick {
+namespace Trick
+{
 
     /**
 
@@ -42,26 +43,25 @@ namespace Trick {
     @endverbatim
     */
 
-    class DRAscii : public Trick::DataRecordGroup {
-
+    class DRAscii : public Trick::DataRecordGroup
+    {
         public:
-
             /** 'C' printf format for floats.\n */
-            std::string ascii_float_format;  /**< trick_units(--) */
+            std::string ascii_float_format; /**< trick_units(--) */
 
             /** 'C' printf format for doubles.\n */
             std::string ascii_double_format; /**< trick_units(--) */
 
             /** Delimiter for separating ascii format fields.\n */
-            std::string delimiter;           /**< trick_units(--) */
+            std::string delimiter; /**< trick_units(--) */
 
-            #ifndef SWIG
+#ifndef SWIG
             /**
              @brief DRAscii default constructor.
              */
-            DRAscii() {}
-            #endif
-            ~DRAscii() {}
+            DRAscii() { }
+#endif
+            ~DRAscii() { }
 
             /**
              @brief @userdesc Create a new Ascii data recording group.
@@ -69,27 +69,27 @@ namespace Trick {
              @code <my_drg> = trick.DRAscii("<in_name>") @endcode
              @copydoc Trick::DataRecordGroup::DataRecordGroup(string in_name)
              */
-            DRAscii( std::string in_name, Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_Ascii ) ;
+            DRAscii(std::string in_name, Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_Ascii);
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_header
              */
-            virtual int format_specific_header(std::fstream & outstream) ;
+            virtual int format_specific_header(std::fstream& outstream);
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_init
              */
-            virtual int format_specific_init() ;
+            virtual int format_specific_init();
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_write_data
              */
-            virtual int format_specific_write_data(unsigned int writer_offset) ;
+            virtual int format_specific_write_data(unsigned int writer_offset);
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_shutdown
              */
-            virtual int format_specific_shutdown() ;
+            virtual int format_specific_shutdown();
 
             /**
              @brief @userdesc Command to set the printf format for the group's float variable values in the
@@ -99,7 +99,7 @@ namespace Trick {
              @param in_ascii_float_format - printf format string
              @return always 0
             */
-            int set_ascii_float_format(std::string in_ascii_float_format) ;
+            int set_ascii_float_format(std::string in_ascii_float_format);
 
             /**
              @brief @userdesc Command to set the printf format for the group's double variable values in the
@@ -109,7 +109,7 @@ namespace Trick {
              @param in_ascii_double_format - printf format string
              @return always 0
             */
-            int set_ascii_double_format(std::string in_ascii_double_format) ;
+            int set_ascii_double_format(std::string in_ascii_double_format);
 
             /**
              @brief @userdesc Command to set the group's delimiter string printed between values in the log
@@ -120,7 +120,7 @@ namespace Trick {
              @param in_delimiter - the delimiter string
              @return always 0
             */
-            int set_delimiter(std::string in_delimiter) ;
+            int set_delimiter(std::string in_delimiter);
 
             /**
              @brief @userdesc Command to print double variable values as single precision (float) in the log file
@@ -130,21 +130,19 @@ namespace Trick {
              @param in_single_prec_only - boolean true indicates print doubles as single precision
              @return always 0
             */
-            virtual int set_single_prec_only(bool in_single_prec_only) ;
+            virtual int set_single_prec_only(bool in_single_prec_only);
 
         private:
-
             /**
              @brief Copies value of variable to ascii buffer
              @return always 0
             */
-            int copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item_num, char *buf ) ;
+            int copy_data_ascii_item(Trick::DataRecordBuffer* DI, int item_num, char* buf);
 
             /** Output stream for the log file */
-            std::fstream out_stream ; /**< trick_io(**)  */
+            std::fstream out_stream; /**< trick_io(**)  */
+    };
 
-    } ;
-
-} ;
+};
 
 #endif

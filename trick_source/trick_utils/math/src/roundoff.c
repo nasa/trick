@@ -9,10 +9,10 @@
 
 #include "trick/trick_math.h"
 
-double roundoff(                /* Return: Value after roundoff */
-                   double res,  /* In: Resolution for roundoff function */
-                   double val)
-{                                      /* In: Value to be truncated */
+double roundoff(/* Return: Value after roundoff */
+    double res, /* In: Resolution for roundoff function */
+    double val)
+{ /* In: Value to be truncated */
 
     double remain;
 
@@ -22,5 +22,4 @@ double roundoff(                /* Return: Value after roundoff */
         return (val - remain);
     else
         return (val + ((1.0 * res) - remain));
-
 }

@@ -162,12 +162,10 @@ int Trick::AttributesUtils::count_fixed_dims(const ATTRIBUTES& member)
 // That is how ClassicCheckPointerAgent builds names, and how MemoryManager_get_attributes_for_address
 // walks into nested members.
 int Trick::AttributesUtils::traverse_for_offset(
-    size_t reference_offset,
-    ATTRIBUTES* struct_attr,
-    TraversalResult& result)
+    size_t reference_offset, ATTRIBUTES* struct_attr, TraversalResult& result)
 {
     // Initialize result
-    result = TraversalResult { };
+    result = TraversalResult {};
 
     // Find the structure member that corresponds to the reference offset
     ATTRIBUTES* ret_attr = find_member_by_offset(struct_attr, reference_offset);
@@ -180,7 +178,7 @@ int Trick::AttributesUtils::traverse_for_offset(
         return 0;
     }
 
-    result.found_attr = ret_attr;
+    result.found_attr             = ret_attr;
     result.offset_from_found_attr = reference_offset - ret_attr->offset;
 
     // Handle non-structured (primitive) types
@@ -194,7 +192,8 @@ int Trick::AttributesUtils::traverse_for_offset(
 
         // It's an array - compute indices
         size_t offset_in_array = result.offset_from_found_attr;
-        bool ok = compute_fixed_indices_for_linear_offset(*ret_attr, offset_in_array, result.array_indices, result.num_computed_indices);
+        bool ok                = compute_fixed_indices_for_linear_offset(
+            *ret_attr, offset_in_array, result.array_indices, result.num_computed_indices);
 
         if (!ok)
         {
@@ -228,7 +227,8 @@ int Trick::AttributesUtils::traverse_for_offset(
 
     // It's an arrayed struct - compute indices
     size_t offset_in_array = result.offset_from_found_attr;
-    bool ok = compute_fixed_indices_for_linear_offset(*ret_attr, offset_in_array, result.array_indices, result.num_computed_indices);
+    bool ok                = compute_fixed_indices_for_linear_offset(
+        *ret_attr, offset_in_array, result.array_indices, result.num_computed_indices);
 
     if (!ok)
     {
@@ -260,11 +260,8 @@ int Trick::AttributesUtils::traverse_for_offset(
 //     Byte 28 means the 8th int overall, so the expected indices would be [1][3]
 //     because a[1][3] is the 8th int (0-based indexing).
 //   So, out_indices would be set to [1, 3] and out_num_fixed_dims would be set to 2.
-bool Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(
-    const ATTRIBUTES& member,
-    long offset_within_member_bytes,
-    int out_indices[TRICK_MAX_INDEX],
-    int& out_num_fixed_dims)
+bool Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(const ATTRIBUTES& member,
+    long offset_within_member_bytes, int out_indices[TRICK_MAX_INDEX], int& out_num_fixed_dims)
 {
     out_num_fixed_dims = count_fixed_dims(member);
     if (out_num_fixed_dims == 0)
@@ -272,8 +269,8 @@ bool Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(
         return true;
     }
 
-    long size = member.size;
-    int last_size = member.size;
+    long size      = member.size;
+    int last_size  = member.size;
     long remaining = offset_within_member_bytes;
 
     for (int i = out_num_fixed_dims - 1; i >= 0; --i)
@@ -283,9 +280,9 @@ bool Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(
         {
             return false;
         }
-        out_indices[i] = static_cast<int>((remaining % size) / last_size);
-        remaining -= last_size * out_indices[i];
-        last_size = size;
+        out_indices[i]  = static_cast<int>((remaining % size) / last_size);
+        remaining      -= last_size * out_indices[i];
+        last_size       = size;
     }
     return true;
 }

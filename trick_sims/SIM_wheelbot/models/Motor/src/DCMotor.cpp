@@ -1,35 +1,26 @@
 #include "../include/DCMotor.hh"
-#include <iostream>
+
 #include <cmath>
+#include <iostream>
 
-
-DCMotor::DCMotor (const double initialInternalResistance,
-                  const double initialMotorTorqueConstant)
-                : motorTorque(0.0),
-                  motorCurrent(0.0),
-                  currentLoad(0.0),
-                  internalResistance(initialInternalResistance),
-                  motorTorqueConstant(initialMotorTorqueConstant)
-{ }
-
-void DCMotor :: update (const double motorVoltage)
+DCMotor::DCMotor(const double initialInternalResistance, const double initialMotorTorqueConstant)
+    : motorTorque(0.0)
+    , motorCurrent(0.0)
+    , currentLoad(0.0)
+    , internalResistance(initialInternalResistance)
+    , motorTorqueConstant(initialMotorTorqueConstant)
 {
-    motorCurrent = motorVoltage / internalResistance ;
-    motorTorque = motorCurrent * motorTorqueConstant;
-    currentLoad = std :: abs (motorCurrent);
 }
 
-void DCMotor::update (const PWM& PulseWidth)
+void DCMotor ::update(const double motorVoltage)
 {
-    update(PulseWidth.getAverageVoltage());
+    motorCurrent = motorVoltage / internalResistance;
+    motorTorque  = motorCurrent * motorTorqueConstant;
+    currentLoad  = std ::abs(motorCurrent);
 }
 
-double DCMotor :: getTorque()
-{
-    return motorTorque;
-}
+void DCMotor::update(const PWM& PulseWidth) { update(PulseWidth.getAverageVoltage()); }
 
-double DCMotor :: getCurrentLoad()
-{
-    return currentLoad;
-}
+double DCMotor ::getTorque() { return motorTorque; }
+
+double DCMotor ::getCurrentLoad() { return currentLoad; }

@@ -12,11 +12,14 @@ PROGRAMMERS:
 
 #include "point.hh"
 
-    class Navigator {
-        public:
-        Navigator(double initial_heading, Point initial_location):
-         heading(initial_heading), location(initial_location)
-        { }
+class Navigator
+{
+    public:
+        Navigator(double initial_heading, Point initial_location)
+            : heading(initial_heading)
+            , location(initial_location)
+        {
+        }
         void setHeading(double heading);
         void setLocation(double north, double west);
 
@@ -28,8 +31,8 @@ PROGRAMMERS:
         Point convertPlatformToBody(Point& platformPoint);
         Point convertBodyToPlatform(Point& bodyPoint);
 
-        private:
+    private:
         double heading;
-        Point  location;
-    };
+        Point location;
+};
 #endif

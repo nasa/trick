@@ -8,7 +8,7 @@
 #include "trick/trick_math.h"
 
 void dm_init(double mat[3][3])
-{                                      /* Inout: Initialized matrix */
+{ /* Inout: Initialized matrix */
     mat[0][0] = 0.0;
     mat[0][1] = 0.0;
     mat[0][2] = 0.0;

@@ -2,19 +2,19 @@
 #ifndef TRANSLATIONUNITVISITOR_HH
 #define TRANSLATIONUNITVISITOR_HH
 
+#include "clang/AST/RecursiveASTVisitor.h"
+#include "clang/Frontend/CompilerInstance.h"
+
+#include <map>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
-#include <map>
 
-#include "clang/Frontend/CompilerInstance.h"
-#include "clang/AST/RecursiveASTVisitor.h"
-
-class CommentSaver ;
-class ClassValues ;
-class EnumValues ;
-class HeaderSearchDirs ;
-class PrintAttributes ;
+class CommentSaver;
+class ClassValues;
+class EnumValues;
+class HeaderSearchDirs;
+class PrintAttributes;
 
 /**
 
@@ -27,30 +27,30 @@ class PrintAttributes ;
 
  */
 
-class TranslationUnitVisitor : public clang::RecursiveASTVisitor<TranslationUnitVisitor> {
+class TranslationUnitVisitor : public clang::RecursiveASTVisitor<TranslationUnitVisitor>
+{
     public:
-        TranslationUnitVisitor( clang::CompilerInstance & in_ci , HeaderSearchDirs & hsd ,
-         CommentSaver & cs , PrintAttributes & in_pa ) ;
+        TranslationUnitVisitor(
+            clang::CompilerInstance& in_ci, HeaderSearchDirs& hsd, CommentSaver& cs, PrintAttributes& in_pa);
 
         /** custom node traversal function that dispatches nodes we are interested in
             to lower level AST visitors */
-        bool TraverseDecl(clang::Decl *D);
+        bool TraverseDecl(clang::Decl* D);
 
     private:
-
         /** The compiler instance  */
-        clang::CompilerInstance & ci ;
+        clang::CompilerInstance& ci;
 
         /** The header search directories */
-        HeaderSearchDirs & hsd ;
+        HeaderSearchDirs& hsd;
 
         /** Holds all comments */
-        CommentSaver & cs ;
+        CommentSaver& cs;
 
         /** attributes printer */
-        PrintAttributes & pa ;
+        PrintAttributes& pa;
 
-        std::map < std::string , std::set< std::string > > fwd_declared_classes ;
-} ;
+        std::map<std::string, std::set<std::string>> fwd_declared_classes;
+};
 
 #endif

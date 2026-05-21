@@ -136,21 +136,20 @@ TEST_F(MtvTest, CyclicConditionList)
     ASSERT_EQ(status, 0) << "Could not connect to variable server";
 
     // Subscribe to all four condition_list fields MtvApp.java uses.
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].enabled\")\n" 
-        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_time\")\n"
-        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_count\")\n"
-        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].hold\")\n"
-        "trick.var_cycle(0.1)\n";
+    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].enabled\")\n"
+              "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_time\")\n"
+              "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_count\")\n"
+              "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].hold\")\n"
+              "trick.var_cycle(0.1)\n";
 
     // Read one cycle of data; the var server should send back 4 values.
     std::string reply = socket.recv_line();
     auto tokens       = split_tabs(reply);
 
     // Message type 0 + 4 value tokens = 5 tokens minimum.
-    ASSERT_GE(tokens.size(), 5u)
-        << "condition_list subscription returned too few tokens.\n"
-        << "Reply: " << reply << "\n"
-        << "This indicates the variable path was not resolved (pre-fix 'cond' names).";
+    ASSERT_GE(tokens.size(), 5u) << "condition_list subscription returned too few tokens.\n"
+                                 << "Reply: " << reply << "\n"
+                                 << "This indicates the variable path was not resolved (pre-fix 'cond' names).";
 
     EXPECT_EQ(tokens[0], "0") << "Expected var_send data message type (0)";
 
@@ -170,18 +169,17 @@ TEST_F(MtvTest, CyclicActionList)
     ASSERT_EQ(status, 0) << "Could not connect to variable server";
 
     socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].enabled\")\n"
-        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_time\")\n"
-        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_count\")\n"
-        "trick.var_cycle(0.1)\n";
+              "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_time\")\n"
+              "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_count\")\n"
+              "trick.var_cycle(0.1)\n";
 
     std::string reply = socket.recv_line();
     auto tokens       = split_tabs(reply);
 
     // Message type 0 + 3 value tokens = 4 tokens minimum.
-    ASSERT_GE(tokens.size(), 4u)
-        << "action_list subscription returned too few tokens.\n"
-        << "Reply: " << reply << "\n"
-        << "This indicates the variable path was not resolved (pre-fix 'act' names).";
+    ASSERT_GE(tokens.size(), 4u) << "action_list subscription returned too few tokens.\n"
+                                 << "Reply: " << reply << "\n"
+                                 << "This indicates the variable path was not resolved (pre-fix 'act' names).";
 
     EXPECT_EQ(tokens[0], "0") << "Expected var_send data message type (0)";
     EXPECT_EQ(tokens[1], "1") << "action_list[0].enabled should be 1 (true)";
@@ -212,8 +210,7 @@ TEST_F(MtvTest, UpdateTicker)
     std::string after = get_once(socket, "trick_ip.mtv.mtv_update_ticker");
     int ticker_after  = std::stoi(after);
 
-    EXPECT_GT(ticker_after, ticker_before)
-        << "mtv_update_ticker should have incremented after delete_event()";
+    EXPECT_GT(ticker_after, ticker_before) << "mtv_update_ticker should have incremented after delete_event()";
 }
 
 // ---------------------------------------------------------------------------

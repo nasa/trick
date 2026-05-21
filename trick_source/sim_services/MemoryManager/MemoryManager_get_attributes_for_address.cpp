@@ -5,11 +5,7 @@
 #include <string.h>
 
 static int getCompositeSubReference(
-    size_t addrValue,
-    ATTRIBUTES& attrOut,
-    size_t structAddrValue,
-    ATTRIBUTES* structAttr,
-    size_t& remainingOffset)
+    size_t addrValue, ATTRIBUTES& attrOut, size_t structAddrValue, ATTRIBUTES* structAttr, size_t& remainingOffset)
 {
     if (addrValue < structAddrValue)
     {
@@ -32,11 +28,11 @@ static int getCompositeSubReference(
     // Handle anonymous/**'d out members
     if (traversalResult.is_in_anonymous_member)
     {
-        attrOut = ATTRIBUTES();
-        attrOut.type = TRICK_VOID_PTR;
-        attrOut.size = sizeof(void*);
-        attrOut.offset = addrOffsetFromStruct;
-        attrOut.num_index = 1;
+        attrOut               = ATTRIBUTES();
+        attrOut.type          = TRICK_VOID_PTR;
+        attrOut.size          = sizeof(void*);
+        attrOut.offset        = addrOffsetFromStruct;
+        attrOut.num_index     = 1;
         attrOut.index[0].size = 0;
 
         return 0;
@@ -50,8 +46,8 @@ static int getCompositeSubReference(
         // Scalar or pointer - return as unconstrained pointer
         if (retAttr->index[0].size == 0)
         {
-            attrOut = *retAttr;
-            attrOut.num_index = 1;
+            attrOut               = *retAttr;
+            attrOut.num_index     = 1;
             attrOut.index[0].size = (retAttr->num_index == 0) ? 1 : 0;
             return 0;
         }
@@ -70,7 +66,8 @@ static int getCompositeSubReference(
     // If attribute is an unarrayed struct, continue to call getCompositeSubReference
     if (retAttr->num_index == 0)
     {
-        return getCompositeSubReference(addrValue, attrOut, structAddrValue + retAttr->offset, (ATTRIBUTES*)retAttr->attr, remainingOffset);
+        return getCompositeSubReference(
+            addrValue, attrOut, structAddrValue + retAttr->offset, (ATTRIBUTES*)retAttr->attr, remainingOffset);
     }
 
     // If the member is a pointer, do nothing and return
@@ -82,8 +79,8 @@ static int getCompositeSubReference(
 
     // Arrayed struct - recurse into the element
     return getCompositeSubReference(addrValue, attrOut,
-        structAddrValue + retAttr->offset + traversalResult.offset_from_found_attr,
-        (ATTRIBUTES*)retAttr->attr, remainingOffset);
+        structAddrValue + retAttr->offset + traversalResult.offset_from_found_attr, (ATTRIBUTES*)retAttr->attr,
+        remainingOffset);
 }
 
 /**
@@ -109,10 +106,10 @@ void Trick::MemoryManager::get_attributes_for_address(void* address, ATTRIBUTES&
     if (alloc_info != NULL)
     {
         // Found the allocation. Look for the attribute that pertains to it.
-        size_t addrValue = reinterpret_cast<size_t>(address);
-        size_t allocAddrStart = reinterpret_cast<size_t>(alloc_info->start);
-        remainingOffset = addrValue - allocAddrStart;
-        size_t alloc_elem_size = alloc_info->size;
+        size_t addrValue        = reinterpret_cast<size_t>(address);
+        size_t allocAddrStart   = reinterpret_cast<size_t>(alloc_info->start);
+        remainingOffset         = addrValue - allocAddrStart;
+        size_t alloc_elem_size  = alloc_info->size;
         size_t alloc_elem_index = (addrValue - allocAddrStart) / alloc_elem_size;
         // size_t misalignment = (addrValue - allocAddrStart) % alloc_elem_size;
 
@@ -126,7 +123,7 @@ void Trick::MemoryManager::get_attributes_for_address(void* address, ATTRIBUTES&
         else
         {
             // Primitive allocation is found, compute the remaining number of elements from the current address
-            size_t allocAddrEnd = reinterpret_cast<size_t>(alloc_info->end) + 1;
+            size_t allocAddrEnd    = reinterpret_cast<size_t>(alloc_info->end) + 1;
             size_t offsetFromStart = addrValue - allocAddrStart;
             // size_t max_alloc_index = (allocAddrEnd - allocAddrStart) / alloc_elem_size;
             if (alloc_info->attr && alloc_info->type != TRICK_ENUMERATED)
@@ -141,7 +138,7 @@ void Trick::MemoryManager::get_attributes_for_address(void* address, ATTRIBUTES&
                 {
                     attrOut.name = strdup(alloc_info->name);
                 }
-                attrOut.stl_type = TRICK_STL_UNKNOWN;
+                attrOut.stl_type  = TRICK_STL_UNKNOWN;
                 attrOut.num_index = alloc_info->num_index;
                 for (int ii = 0; ii < alloc_info->num_index; ++ii)
                 {

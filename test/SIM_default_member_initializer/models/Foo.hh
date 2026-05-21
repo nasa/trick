@@ -1,15 +1,10 @@
-template <class T>
-class Foo {
-
+template <class T> class Foo
+{
     public:
+        Foo() { }
 
-    Foo() {}
-
-    Foo(int i) {
-        (void)i;
-    }
+        Foo(int i) { (void)i; }
 
     private:
-    void operator=(const Foo&);
-
+        void operator=(const Foo&);
 };

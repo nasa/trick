@@ -1,89 +1,82 @@
 #ifndef STATIC_STRUCT_MEMBER_H
 #define STATIC_STRUCT_MEMBER_H
 
-#include "StructMember.hh"
 #include "DataType.hh"
+#include "StructMember.hh"
+
 #include <string>
 
 /**
  */
-class StaticStructMember : public StructMember {
+class StaticStructMember : public StructMember
+{
+    public:
+        /**
+         Constructor.
+         */
+        StaticStructMember(std::string memberName, void* memberAddress, TypeDictionary* typeDictionary,
+            std::string typeSpecName, unsigned int n_dims, int dims[]);
 
-public:
+        /**
+         Copy Constructor.
+        */
+        StaticStructMember(const StaticStructMember& original);
 
-    /**
-     Constructor.
-     */
-    StaticStructMember( std::string memberName,
-                        void * memberAddress,
-                        TypeDictionary* typeDictionary,
-                        std::string typeSpecName,
-                        unsigned int n_dims,
-                        int dims[] );
+        /**
+         Clone.
+         */
+        StructMember* clone() const;
 
-    /**
-     Copy Constructor.
-    */
-    StaticStructMember ( const StaticStructMember & original );
+        /**
+         Destructor.
+         */
+        ~StaticStructMember();
 
-    /**
-     Clone.
-     */
-    StructMember * clone () const;
+        /**
+         */
+        bool validate();
 
-    /**
-     Destructor.
-     */
-    ~StaticStructMember();
+        /**
+         */
+        MemberClass::e getMemberClass() const { return MemberClass::STATIC; }
 
-    /**
-     */
-    bool validate();
+        /**
+         */
+        bool containsPointers() const;
 
-    /**
-    */
-    MemberClass::e getMemberClass() const {
-        return MemberClass::STATIC;
-    }
+        /**
+          To check for circular reference only.
+         */
+        const DataType* getDataType();
 
-    /**
-     */
-    bool containsPointers() const ;
+        /**
+         */
+        void* getAddress();
 
-    /**
-      To check for circular reference only.
-     */
-    const DataType*  getDataType();
+        /**
+         */
+        void clearValue(void* struct_address) const;
 
-    /**
-     */
-    void* getAddress();
+        /**
+         */
+        void assignValue(void* struct_address, Value* v) const;
 
-    /**
-     */
-    void clearValue(void *struct_address) const;
+        /**
+         */
+        void printValue(std::ostream& s, void* struct_address) const;
 
-    /**
-     */
-    void assignValue(void *struct_address, Value *v) const;
+        /**
+         Product a string representation of this StaticStructMember.
+         */
+        std::string toString() const;
 
-    /**
-     */
-    void printValue(std::ostream &s, void *struct_address) const;
-
-    /**
-     Product a string representation of this StaticStructMember.
-     */
-    std::string toString() const;
-
-private:
-    //int byte_offset;
-    void * memberAddress;
-    bool is_valid;
-    std::string typeSpecName;
-    DataType * declDataType;
-    const DataType * subType;
-    TypeDictionary* typeDictionary;
-
+    private:
+        // int byte_offset;
+        void* memberAddress;
+        bool is_valid;
+        std::string typeSpecName;
+        DataType* declDataType;
+        const DataType* subType;
+        TypeDictionary* typeDictionary;
 };
 #endif

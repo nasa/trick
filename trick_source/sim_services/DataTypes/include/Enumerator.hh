@@ -3,17 +3,17 @@
 
 #include <string>
 
-class Enumerator {
+class Enumerator
+{
+    public:
+        Enumerator(std::string name, int value);
+        Enumerator(const Enumerator& original);
+        std::string getName();
+        int getValue();
+        std::string toString();
 
-public:
-    Enumerator(std::string name, int value);
-    Enumerator( const Enumerator& original);
-    std::string getName();
-    int getValue();
-    std::string toString();
-
-private:
-    std::string name;
-    int value;
+    private:
+        std::string name;
+        int value;
 };
 #endif

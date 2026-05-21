@@ -2,13 +2,14 @@
 #ifndef ICGASTCONSUMER_HH
 #define ICGASTCONSUMER_HH
 
-#include "clang/AST/ASTConsumer.h"
-#include "clang/Sema/SemaConsumer.h"
 #include "TranslationUnitVisitor.hh"
 
-class HeaderSearchDirs ;
-class CommentSaver ;
-class PrintAttributes ;
+#include "clang/AST/ASTConsumer.h"
+#include "clang/Sema/SemaConsumer.h"
+
+class HeaderSearchDirs;
+class CommentSaver;
+class PrintAttributes;
 
 /**
 
@@ -23,29 +24,26 @@ class PrintAttributes ;
 
  */
 
-
-class ICGASTConsumer : public clang::SemaConsumer {
+class ICGASTConsumer : public clang::SemaConsumer
+{
     public:
-        ICGASTConsumer( clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd ,
-         CommentSaver & in_cs , PrintAttributes & in_pa ) ;
+        ICGASTConsumer(
+            clang::CompilerInstance& in_ci, HeaderSearchDirs& in_hsd, CommentSaver& in_cs, PrintAttributes& in_pa);
 
-        TranslationUnitVisitor & getTranslationUnitVisitor() ;
+        TranslationUnitVisitor& getTranslationUnitVisitor();
 
         /** Called with the compiler is finished parsing everything */
-        void HandleTranslationUnit(clang::ASTContext &Ctx);
+        void HandleTranslationUnit(clang::ASTContext& Ctx);
 
     private:
-
         /** The compiler instance */
-        clang::CompilerInstance & ci ;
+        clang::CompilerInstance& ci;
 
         /** The header search directories */
-        HeaderSearchDirs & hsd ;
+        HeaderSearchDirs& hsd;
 
         /** The top level AST visitor. Called to parse tree in HandleTranslationUnit */
-        TranslationUnitVisitor tuv ;
-
-
+        TranslationUnitVisitor tuv;
 };
 
 #endif

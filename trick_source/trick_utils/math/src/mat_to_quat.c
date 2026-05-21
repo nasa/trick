@@ -9,38 +9,44 @@
 
 #include "trick/trick_math.h"
 
-void mat_to_quat(double quat[4],        /* Out: Left handed quaternion */
-                 double a[3][3])
-{                                      /* In: Transformation matrix */
+void mat_to_quat(double quat[4], /* Out: Left handed quaternion */
+    double a[3][3])
+{ /* In: Transformation matrix */
 
     double qv[3];
     double T, temp, q0;
     int i, j, k, k1, l, n, jki;
 
-    i = 0;
-    T = a[0][0] + a[1][1] + a[2][2];
+    i  = 0;
+    T  = a[0][0] + a[1][1] + a[2][2];
     q0 = T;
 
-    for (k = 1; k < 4; k++) {
+    for (k = 1; k < 4; k++)
+    {
         k1 = k - 1;
-        if (a[k1][k1] > q0) {
-            i = k;
+        if (a[k1][k1] > q0)
+        {
+            i  = k;
             q0 = a[k1][k1];
         }
     }
 
     temp = 1.0 + 2.0 * q0 - T;
-    T = sqrt(temp);
+    T    = sqrt(temp);
 
-    for (n = 1; n < 4; n++) {
+    for (n = 1; n < 4; n++)
+    {
         k = (n % 3) + 1;
         j = 6 - n - k;
         l = i * (n - i);
-        if (l == 0) {
+        if (l == 0)
+        {
             qv[n - 1] = (a[j - 1][k - 1] - a[k - 1][j - 1]) / T;
-            q0 = qv[n - 1];
-        } else {
-            jki = j + k - i;
+            q0        = qv[n - 1];
+        }
+        else
+        {
+            jki         = j + k - i;
             qv[jki - 1] = (a[j - 1][k - 1] + a[k - 1][j - 1]) / T;
         }
     }

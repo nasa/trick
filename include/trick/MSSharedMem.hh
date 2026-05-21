@@ -9,8 +9,8 @@ PROGRAMMERS:
 #ifndef MSSHAREDMEM_HH
 #define MSSHAREDMEM_HH
 
-#include "trick/tsm.h"
 #include "trick/MSConnect.hh"
+#include "trick/tsm.h"
 
 //-----------------------------------------------------------------------------
 // MACROS USED FOR IMPLEMENTING sync_wait_limit
@@ -19,13 +19,13 @@ PROGRAMMERS:
 #if __APPLE__
 #include <mach/clock.h>
 #include <mach/mach.h>
-#define clock_gettime(X,tp) \
-    clock_serv_t cclock; \
-    mach_timespec_t mts; \
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock); \
-    clock_get_time(cclock, &mts); \
-    mach_port_deallocate(mach_task_self(), cclock); \
-    (tp)->tv_sec = mts.tv_sec; \
+#define clock_gettime(X, tp)                                                                                           \
+    clock_serv_t cclock;                                                                                               \
+    mach_timespec_t mts;                                                                                               \
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);                                                 \
+    clock_get_time(cclock, &mts);                                                                                      \
+    mach_port_deallocate(mach_task_self(), cclock);                                                                    \
+    (tp)->tv_sec  = mts.tv_sec;                                                                                        \
     (tp)->tv_nsec = mts.tv_nsec
 #endif
 
@@ -34,18 +34,22 @@ PROGRAMMERS:
 //-----------------------------------------------------------------------------
 // MACROS USED TO IMPLEMENT QUEUES FOR READ/WRITE DATA IN MSSharedMemData
 #define MSQ_MAXSIZE 5
-#define MSQ_DECLARE(q,type) type q[MSQ_MAXSIZE] ; /**< trick_io(**) trick_units(--) */\
-                         int q##_front ;    /**< trick_io(**) trick_units(--) */\
-                         int q##_back ;     /**< trick_io(**) trick_units(--) */
-#define MSQ_INIT(q)      q##_front = q##_back = 0
-#define MSQ_ISEMPTY(q)   (q##_front==q##_back)
-#define MSQ_FRONT(q)     q[q##_front]
-#define MSQ_POP(q)       ++q##_front %= (MSQ_MAXSIZE)
-#define MSQ_SIZE(q)      q##_back-q##_front
-#define MSQ_PUSH(q,data) q[q##_back] = data ; ++q##_back %= (MSQ_MAXSIZE)
+#define MSQ_DECLARE(q, type)                                                                                           \
+    type q[MSQ_MAXSIZE]; /**< trick_io(**) trick_units(--) */                                                          \
+    int q##_front; /**< trick_io(**) trick_units(--) */                                                                \
+    int q##_back; /**< trick_io(**) trick_units(--) */
+#define MSQ_INIT(q) q##_front = q##_back = 0
+#define MSQ_ISEMPTY(q) (q##_front == q##_back)
+#define MSQ_FRONT(q) q[q##_front]
+#define MSQ_POP(q) ++q##_front %= (MSQ_MAXSIZE)
+#define MSQ_SIZE(q) q##_back - q##_front
+#define MSQ_PUSH(q, data)                                                                                              \
+    q[q##_back]  = data;                                                                                               \
+    ++q##_back  %= (MSQ_MAXSIZE)
 //-----------------------------------------------------------------------------
 
-namespace Trick {
+namespace Trick
+{
 
     /**
      * This class is shared memory based MSConnect class to connect master and slaves.
@@ -62,20 +66,20 @@ namespace Trick {
      */
 
     /** The data to read/write between the master and slave in shared memory.\n */
-    typedef struct {
-        int64_t master_pid ;                      /**< trick_units(--) */         
-        MSQ_DECLARE (master_time, int64_t)
-        MSQ_DECLARE (master_command, int32_t)
-        MSQ_DECLARE (slave_command, int32_t)
-        // checkpoint data is not sent every frame, so dont need a queue
-        int32_t slave_port;                         /**< trick_units(--) slave's checkpoint port */
-        char chkpnt_name[256];                  /**< trick_units(--) checkpoint dir/filename */
+    typedef struct
+    {
+            int64_t master_pid; /**< trick_units(--) */
+            MSQ_DECLARE(master_time, int64_t)
+            MSQ_DECLARE(master_command, int32_t)
+            MSQ_DECLARE(slave_command, int32_t)
+            // checkpoint data is not sent every frame, so dont need a queue
+            int32_t slave_port; /**< trick_units(--) slave's checkpoint port */
+            char chkpnt_name[256]; /**< trick_units(--) checkpoint dir/filename */
     } MSSharedMemData;
 
-    class MSSharedMem : public MSConnect {
-
+    class MSSharedMem : public MSConnect
+    {
         public:
-
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via shared memory.
              Initializes the shared memory address and sets default sync wait limit as infinite.
@@ -83,9 +87,9 @@ namespace Trick {
              @code <sharedmem_object> = trick.MSSharedMem() @endcode
              @return the new MSSharedMem object
             */
-            MSSharedMem() ;
-            //virtual ~MSSharedMem() {};
-            ~MSSharedMem() ;
+            MSSharedMem();
+            // virtual ~MSSharedMem() {};
+            ~MSSharedMem();
 
             /**
              @brief Sets the wait time limit for communications between the master and slaves.
@@ -93,99 +97,98 @@ namespace Trick {
              @param in_limit - the desired wait limit.
              @return always 0
              */
-            virtual int set_sync_wait_limit(double in_limit) ;
+            virtual int set_sync_wait_limit(double in_limit);
 
             /**
              @brief Creates command line parameters specific to starting this particular connection type.
              Will be appended to the master's startup command for the slave after S_main_name and run_input_file.
              @return string of command line parameters to add to slave startup command
              */
-            virtual std::string add_sim_args(std::string slave_type) ;
+            virtual std::string add_sim_args(std::string slave_type);
 
             /**
              @brief Searches the command line parameters for connection specific parameters.
              @return 1 if connection parameters found, 0 if no parameters found
              */
-            virtual int process_sim_args() ;
+            virtual int process_sim_args();
 
             /**
              @brief Establishes the connection on the master side of the connection.
              Calls shmget and shmat.
              @return 0 if connection successful, or error status otherwise
              */
-            virtual int accept() ;
+            virtual int accept();
 
             /**
              @brief Establishes the connection on the slave side of the connection.
              Calls shmget and shmat.
              @return 0 if connection successful, or error status otherwise
              */
-            virtual int connect() ;
-
+            virtual int connect();
 
             /**
              @brief Closes the connection on the slave side of the connection.
              @return 0 if connection successful, or error status otherwise
              */
-            virtual int disconnect() ;
+            virtual int disconnect();
 
             /**
              @brief Read the simulation time from the other simulation.
              @return the time read or MS_ERROR_TIME if the read failed
              */
-            virtual long long read_time() ;
+            virtual long long read_time();
 
             /**
              @brief Read the mode command from the other simulation.
              @return the simulation command or ErrorCmd if the read failed
              */
-            virtual MS_SIM_COMMAND read_command() ;
+            virtual MS_SIM_COMMAND read_command();
 
             /**
              @brief Read a port number from the other simulation.
              @return the port read or MS_ERROR_PORT if the read failed
              */
-            virtual int read_port() ;
+            virtual int read_port();
 
             /**
              @brief Read a character array (i.e. chkpnt name) into read_data from the other simulation.
              @return the 1st character read or MS_ERROR_NAME if the read failed
              */
-            virtual char read_name(char * read_data, size_t size) ;
+            virtual char read_name(char* read_data, size_t size);
 
             /**
              @brief Writes the simulation time to the other simulation.
              @return the number of bytes written
              */
-            virtual int write_time(long long sim_time) ;
+            virtual int write_time(long long sim_time);
 
             /**
              @brief Writes the mode command to the other simulation.
              @return the number of bytes written
              */
-            virtual int write_command(MS_SIM_COMMAND command) ;
+            virtual int write_command(MS_SIM_COMMAND command);
 
             /**
              @brief Writes a port number to the other simulation.
              @return the number of bytes written
              */
-            virtual int write_port(int port) ;
+            virtual int write_port(int port);
 
             /**
              @brief Writes a character array (i.e. chkpnt name) from in_data to the other simulation.
              @return the number of bytes written
              */
-            virtual int write_name(char * in_data, size_t size) ;
+            virtual int write_name(char* in_data, size_t size);
 
             /** Wait a short time before next read attempt, return total time waited.\n */
-            double read_wait(struct timespec *start) ;
+            double read_wait(struct timespec* start);
 
             /** The Trick shared memory device between the master and slave.\n */
-            TSMDevice tsm_dev ;             /**< trick_units(--) */
+            TSMDevice tsm_dev; /**< trick_units(--) */
 
             /** Address of data to read/write between the master and slave in shared memory.\n */
-            MSSharedMemData * shm_addr ;    /**< trick_units(--) */
-    } ;
+            MSSharedMemData* shm_addr; /**< trick_units(--) */
+    };
 }
 
 #endif

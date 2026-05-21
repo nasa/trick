@@ -8,10 +8,10 @@ PROGRAMMERS:
 #ifndef DRBINARY_HH
 #define DRBINARY_HH
 
+#include "trick/DataRecordGroup.hh"
+
 #include <stdio.h>
 #include <string>
-
-#include "trick/DataRecordGroup.hh"
 
 #ifdef SWIG
 %feature("compactdefaultargs","0") ;
@@ -25,7 +25,8 @@ PROGRAMMERS:
 %}
 #endif
 
-namespace Trick {
+namespace Trick
+{
 
     /**
       The DRBinary recording format is a Trick simulation specific format.  Files written in this format are named
@@ -40,17 +41,17 @@ namespace Trick {
       \<e\> is endianness, 1 character: L for little endian, B for big endian</td><td>string</td><td>10</td></tr>
       <tr><td>\<numparms\></td><td>Number of parameters recorded</td><td>int</td><td>4</td></tr>
       <tr><td>17</td><td>parameter \#1 Name string length</td><td>int</td><td>4</td></tr>
-      <tr><td>sys.exec.out.time</td><td>parameter \#1 Name (1st parameter is always the system time)</td><td>string</td><td>17</td></tr>
-      <tr><td>1</td><td>parameter \#1 Units Name string length</td><td>int</td><td>4</td></tr>
-      <tr><td>s</td><td>parameter \#1 Units Name</td><td>string</td><td>1</td></tr>
-      <tr><td>10</td><td>parameter \#1 Type (see Table 15)</td><td>int</td><td>4</td></tr>
-      <tr><td>8</td><td>parameter \#1 Size (number of bytes the value occupies)</td><td>int</td><td>4</td></tr>
-      <tr><td>\<namelen\></td><td>parameter \#2 Name string length</td><td>int</td><td>4</td></tr>
-      <tr><td>\<name\></td><td>parameter \#2 Name</td><td>string</td><td>\<namelen\></td></tr>
-      <tr><td>\<unitlen\></td><td>parameter \#2 Units Name string length</td><td>int</td><td>4</td></tr>
-      <tr><td>\<unit\></td><td>parameter \#2 Units Name</td><td>string</td><td>\<unitlen\></td></tr>
-      <tr><td>\<type\></td><td>parameter \#2 Type</td><td>int</td><td>4</td></tr>
-      <tr><td><size></td><td>parameter \#2 Size</td><td>int</td><td>4</td></tr>
+      <tr><td>sys.exec.out.time</td><td>parameter \#1 Name (1st parameter is always the system
+      time)</td><td>string</td><td>17</td></tr> <tr><td>1</td><td>parameter \#1 Units Name string
+      length</td><td>int</td><td>4</td></tr> <tr><td>s</td><td>parameter \#1 Units
+      Name</td><td>string</td><td>1</td></tr> <tr><td>10</td><td>parameter \#1 Type (see Table
+      15)</td><td>int</td><td>4</td></tr> <tr><td>8</td><td>parameter \#1 Size (number of bytes the value
+      occupies)</td><td>int</td><td>4</td></tr> <tr><td>\<namelen\></td><td>parameter \#2 Name string
+      length</td><td>int</td><td>4</td></tr> <tr><td>\<name\></td><td>parameter \#2
+      Name</td><td>string</td><td>\<namelen\></td></tr> <tr><td>\<unitlen\></td><td>parameter \#2 Units Name string
+      length</td><td>int</td><td>4</td></tr> <tr><td>\<unit\></td><td>parameter \#2 Units
+      Name</td><td>string</td><td>\<unitlen\></td></tr> <tr><td>\<type\></td><td>parameter \#2
+      Type</td><td>int</td><td>4</td></tr> <tr><td><size></td><td>parameter \#2 Size</td><td>int</td><td>4</td></tr>
       <tr><td></td><td>.</td><td></td><td></td></tr>
       <tr><td></td><td>.</td><td></td><td></td></tr>
       <tr><td></td><td>.</td><td></td><td></td></tr>
@@ -75,17 +76,16 @@ namespace Trick {
 
       See Trick::MemoryManager::TRICK_TYPE for a definition of the Trick data <type> values used in the above table.
     */
-    class DRBinary : public Trick::DataRecordGroup {
-
+    class DRBinary : public Trick::DataRecordGroup
+    {
         public:
-
-            #ifndef SWIG
+#ifndef SWIG
             /**
              @brief DRBinary default constructor.
              */
-            DRBinary() {}
-            #endif
-            ~DRBinary() {}
+            DRBinary() { }
+#endif
+            ~DRBinary() { }
 
             /**
              @brief @userdesc Create a new Binary data recording group.
@@ -93,35 +93,35 @@ namespace Trick {
              @code <my_drg> = trick.DRBinary("<in_name>") @endcode
              @copydoc Trick::DataRecordGroup::DataRecordGroup(string in_name)
              */
-            DRBinary( std::string in_name, bool register_group = true, Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_Binary ) ;
+            DRBinary(std::string in_name, bool register_group = true,
+                Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_Binary);
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_header
              */
-            virtual int format_specific_header(std::fstream & outstream) ;
+            virtual int format_specific_header(std::fstream& outstream);
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_init
              */
-            virtual int format_specific_init() ;
+            virtual int format_specific_init();
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_write_data
              */
-            virtual int format_specific_write_data(unsigned int writer_offset) ;
+            virtual int format_specific_write_data(unsigned int writer_offset);
 
             /**
              @copybrief Trick::DataRecordGroup::shutdown
              */
-            virtual int format_specific_shutdown() ;
+            virtual int format_specific_shutdown();
 
         private:
             /** The log file.\n */
-            int fd ;             /**< trick_io(**) trick_units(--) */
+            int fd; /**< trick_io(**) trick_units(--) */
+    };
 
-    } ;
-
-} ;
+};
 
 #ifdef SWIG
 %feature("compactdefaultargs","1") ;

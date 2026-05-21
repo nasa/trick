@@ -1,4 +1,5 @@
 #include "DataType.hh"
+
 #include <sstream>
 
 /*
@@ -22,17 +23,19 @@
 
 // VIRTUAL MEMBER FUNCTION
 // NOTE: PointerDataType and ArrayDataType overrides this member-function.
-std::string DataType::makeDeclaration(std::string declarator, bool isDirectDeclarator) const {
+std::string DataType::makeDeclaration(std::string declarator, bool isDirectDeclarator) const
+{
     std::stringstream ss;
-    if (declarator.empty()) {
+    if (declarator.empty())
+    {
         ss << getTypeSpecName();
-    } else {
-        ss << getTypeSpecName() << " " << declarator ;
+    }
+    else
+    {
+        ss << getTypeSpecName() << " " << declarator;
     }
     return ss.str();
 }
 
 // VIRTUAL MEMBER FUNCTION
-std::string DataType::toString() const {
-    return makeDeclaration("", true);
-}
+std::string DataType::toString() const { return makeDeclaration("", true); }

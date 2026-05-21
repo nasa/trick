@@ -9,14 +9,15 @@ LIBRARY_DEPENDENCIES: (ros_subscribe.cpp)
 
 #include "ros/ros.h"
 
-class RosSubscribe {
+class RosSubscribe
+{
     public:
-        ros::NodeHandle n ;      // ** ros nodehandle
-        ros::Subscriber sub ;    // ** ros subscriber
+        ros::NodeHandle n; // ** ros nodehandle
+        ros::Subscriber sub; // ** ros subscriber
 
-        RosSubscribe() ;
-        int init() ;
-        int process() ;
-} ;
+        RosSubscribe();
+        int init();
+        int process();
+};
 
 #endif

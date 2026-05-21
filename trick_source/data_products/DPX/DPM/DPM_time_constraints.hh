@@ -12,56 +12,54 @@
  * @author John M. Penn
  */
 
-class DPM_time_constraints {
+class DPM_time_constraints
+{
+    public:
+        /**
+         * Constructor.
+         */
+        DPM_time_constraints();
 
-public:
+        /**
+         * Constructor.
+         */
+        DPM_time_constraints(double start, double stop, double freq);
 
-  /**
-   * Constructor.
-   */
-  DPM_time_constraints();
+        /**
+         * Destructor.
+         */
+        ~DPM_time_constraints() { }
 
-  /**
-   * Constructor.
-   */
-  DPM_time_constraints(double start, double stop, double freq);
+        /**
+         * Return the Start-time (in seconds).
+         */
+        double getStart();
 
-  /**
-   * Destructor.
-   */
-  ~DPM_time_constraints() {}
+        /**
+         * Return the Stop-time (in seconds).
+         */
+        double getStop();
 
-  /**
-   * Return the Start-time (in seconds).
-   */
-  double getStart();
+        /**
+         * Return the Frequency-limit (in Hertz).
+         */
+        double getFrequency();
 
-  /**
-   * Return the Stop-time (in seconds).
-   */
-  double getStop();
+        /**
+         * Return the reciprocal of the frequency-limit.
+         */
+        double getPeriod();
 
-  /**
-   * Return the Frequency-limit (in Hertz).
-   */
-  double getFrequency();
+        /**
+         * Add two sets of time constraints. The sum will be as restrictive as either.
+         */
+        friend DPM_time_constraints operator+(DPM_time_constraints& tc1, DPM_time_constraints& tc2);
 
-  /**
-   * Return the reciprocal of the frequency-limit.
-   */
-  double getPeriod();
-
-  /**
-   * Add two sets of time constraints. The sum will be as restrictive as either.
-   */
-  friend DPM_time_constraints operator+ ( DPM_time_constraints &tc1,
-					  DPM_time_constraints &tc2);
-private:
-
-  double start_time;  /**< minimum timestamp */
-  double stop_time;   /**< maximum timestamp */
-  double frequency;   /**< maximum sample frequency */
-  void Initialize();
+    private:
+        double start_time; /**< minimum timestamp */
+        double stop_time; /**< maximum timestamp */
+        double frequency; /**< maximum sample frequency */
+        void Initialize();
 };
 
 #endif

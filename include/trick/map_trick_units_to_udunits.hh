@@ -5,7 +5,6 @@
 
 #include <string>
 
-std::string map_trick_units_to_udunits( std::string orig_units ) ;
+std::string map_trick_units_to_udunits(std::string orig_units);
 
 #endif
-

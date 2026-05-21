@@ -1,0 +1,28 @@
+---
+BasedOnStyle: WebKit
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments:
+  Enabled: true
+  AlignCompound: true
+  AlignFunctionDeclarations: true
+  AlignFunctionPointers: true
+BreakBeforeBraces: Allman
+ColumnLimit: 120
+Cpp11BracedListStyle: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^("|<)trick/'
+    Priority: 2
+  - Regex: '^("|<)(llvm|llvm-c|clang|clang-c)/'
+    Priority: 3
+  - Regex: '^("|<)(gtest|gmock)/'
+    Priority: 5
+  - Regex: "^<.*>"
+    Priority: 4
+  - Regex: ".*"
+    Priority: 1
+IndentAccessModifiers: true
+InsertNewlineAtEOF: true
+NamespaceIndentation: All
+KeepEmptyLinesAtEOF: false
+KeepEmptyLinesAtTheStartOfBlocks: false

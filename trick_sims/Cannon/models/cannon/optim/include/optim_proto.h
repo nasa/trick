@@ -9,10 +9,11 @@
 #define OPTIM_PROTO_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int cannon_master_shutdown(void);
+    int cannon_master_shutdown(void);
 
 #ifdef __cplusplus
 }

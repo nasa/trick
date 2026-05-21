@@ -5,33 +5,32 @@
 
 /**
  */
-class PointerValue : public Value {
-
+class PointerValue : public Value
+{
     public:
+        /**
+         Constructor.
+         @param value The value of this PointerValue.
+         */
+        PointerValue(void* value);
 
-    /**
-     Constructor.
-     @param value The value of this PointerValue.
-     */
-    PointerValue(void * value);
+        /**
+         Get the value of this PointerValue.
+         @return the value of this PointerValue.
+         */
+        void* getPointer();
 
-    /**
-     Get the value of this PointerValue.
-     @return the value of this PointerValue.
-     */
-    void * getPointer();
+        /**
+         Print this PointerValue to a stream.
+         */
+        void print(std::ostream& s);
 
-    /**
-     Print this PointerValue to a stream.
-     */
-    void print(std::ostream &s);
-
-    /**
-     Get a string representation of this PointerValue.
-     */
-    std::string toString();
+        /**
+         Get a string representation of this PointerValue.
+         */
+        std::string toString();
 
     private:
-    void* value;
+        void* value;
 };
 #endif

@@ -12,21 +12,22 @@ PYTHON_MODULE: ()
 
 #include <iostream>
 
-
-
-enum Fast {
+enum Fast
+{
     Pizza,
     Burger,
     Taco
 };
 
-class Food {
-  public:
-    Food() : fast(Taco) {}
-    void print_me() { std::cout << "Food::print_me!" << std::endl; }
-    Fast fast;
+class Food
+{
+    public:
+        Food()
+            : fast(Taco)
+        {
+        }
+        void print_me() { std::cout << "Food::print_me!" << std::endl; }
+        Fast fast;
 };
 
-
 #endif
-

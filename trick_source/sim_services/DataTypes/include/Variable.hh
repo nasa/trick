@@ -1,17 +1,17 @@
-//#include "declaration.hh"
+// #include "declaration.hh"
 //
-//class Variable {
+// class Variable {
 //
-//public:
-//    size_t getsize();
-//    int print_value();
-//    int assign();
-//    int zero();
-//    int is_zero();
+// public:
+//     size_t getsize();
+//     int print_value();
+//     int assign();
+//     int zero();
+//     int is_zero();
 //
-//private:
-//    void *start;
-//    std::string name;
-//    TRICK_STCL stcl;
-//    Declaration *decl;
-//}
+// private:
+//     void *start;
+//     std::string name;
+//     TRICK_STCL stcl;
+//     Declaration *decl;
+// }

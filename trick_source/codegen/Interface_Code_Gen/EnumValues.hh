@@ -2,11 +2,11 @@
 #ifndef ENUMVALUES_HH
 #define ENUMVALUES_HH
 
-#include <string>
-#include <vector>
-#include <utility>
-
 #include "ConstructValues.hh"
+
+#include <string>
+#include <utility>
+#include <vector>
 
 /**
 
@@ -22,47 +22,40 @@
 
  */
 
-class EnumValues : public ConstructValues {
-
+class EnumValues : public ConstructValues
+{
     public:
+        typedef std::pair<std::string, long long> NameValuePair;
 
-        typedef std::pair< std::string , long long > NameValuePair ;
+        EnumValues();
 
-        EnumValues() ;
+        void addEnum(std::string in_name, long long in_val);
+        void addFullyQualifiedEnum(std::string in_name, long long in_val);
 
-        void addEnum(std::string in_name , long long in_val) ;
-        void addFullyQualifiedEnum(std::string in_name , long long in_val) ;
+        void setHasDefinition(bool in);
+        bool getHasDefinition();
 
-        void setHasDefinition( bool in ) ;
-        bool getHasDefinition() ;
+        void setIsUnsigned(bool in);
+        bool getIsUnsigned();
 
-        void setIsUnsigned( bool in ) ;
-        bool getIsUnsigned() ;
+        const std::vector<NameValuePair>& getPairs() { return enum_values; }
 
-        const std::vector<NameValuePair>& getPairs() {
-            return enum_values;
-        }
+        const std::vector<NameValuePair>& getFullyQualifiedPairs() { return fully_qualified_enum_values; }
 
-        const std::vector<NameValuePair>& getFullyQualifiedPairs() {
-            return fully_qualified_enum_values;
-        }
-
-        friend std::ostream & operator << (std::ostream & os , EnumValues & ev ) ;
+        friend std::ostream& operator<<(std::ostream& os, EnumValues& ev);
 
     private:
-
         /** List of enums and their values */
-        std::vector< NameValuePair > enum_values ;
+        std::vector<NameValuePair> enum_values;
 
         /** List of fully qualified enums and their values
             This is used to generate the S_sie.resource file. */
-        std::vector< NameValuePair > fully_qualified_enum_values ;
+        std::vector<NameValuePair> fully_qualified_enum_values;
 
-        bool has_definition ;
+        bool has_definition;
 
         /** Is the enum unsigned? */
         bool is_unsigned;
-
-} ;
+};
 
 #endif

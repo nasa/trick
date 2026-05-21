@@ -1,31 +1,25 @@
 /*
-    PURPOSE: (Provides a convenient way to instantiate and use a variety of STL containers 
+    PURPOSE: (Provides a convenient way to instantiate and use a variety of STL containers
               for C++ types/language bindings with SWIG)
     LIBRARY_DEPENDENCIES: (
       ()
     )
 */
 
-
-#include <iostream>
-#include <string>
+#include <array>
 #include <cstdint>
 #include <cuchar>
-
-#include <list>
-#include <queue>
 #include <deque>
-
+#include <iostream>
+#include <list>
 #include <map>
-#include <unordered_map>
-
+#include <queue>
 #include <set>
-#include <unordered_set>
-
-#include <array>
-#include <vector>
-
 #include <stack>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #ifdef SWIG
 %define DECLARE_SWIG_CONTAINER_TYPES(ALIAS, TYPE)
@@ -62,27 +56,23 @@ DECLARE_SWIG_CONTAINER_TYPES(LongDouble, long double)
 
 #endif
 
-
-template<typename T>
-struct STLContainerTypes
+template <typename T> struct STLContainerTypes
 {
-    using ArrayType = std::array<T, 3>;
-    using VectorType = std::vector<T>;
-    using QueueType = std::queue<T>;
-    using DequeType = std::deque<T>;
-    using SetType = std::set<T>;
-    using MapType = std::map<T, T>;
-    using UnorderedMapType = std::unordered_map<T, T>;
-    using StackType = std::stack<T>;
+        using ArrayType        = std::array<T, 3>;
+        using VectorType       = std::vector<T>;
+        using QueueType        = std::queue<T>;
+        using DequeType        = std::deque<T>;
+        using SetType          = std::set<T>;
+        using MapType          = std::map<T, T>;
+        using UnorderedMapType = std::unordered_map<T, T>;
+        using StackType        = std::stack<T>;
 
-    ArrayType array;
-    VectorType vector;
-    QueueType queue;
-    DequeType deque;
-    SetType set;
-    MapType map;
-    UnorderedMapType unordered_map;
-    StackType stack;
-
+        ArrayType array;
+        VectorType vector;
+        QueueType queue;
+        DequeType deque;
+        SetType set;
+        MapType map;
+        UnorderedMapType unordered_map;
+        StackType stack;
 };
-

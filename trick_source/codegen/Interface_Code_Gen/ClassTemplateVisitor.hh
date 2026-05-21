@@ -2,16 +2,16 @@
 #ifndef CLASSTEMPLATEVISITOR_HH
 #define CLASSTEMPLATEVISITOR_HH
 
-#include <string>
-#include <set>
-
-#include "clang/Frontend/CompilerInstance.h"
 #include "clang/AST/RecursiveASTVisitor.h"
+#include "clang/Frontend/CompilerInstance.h"
 
-class CommentSaver ;
-class EnumValues ;
-class HeaderSearchDirs ;
-class PrintAttributes ;
+#include <set>
+#include <string>
+
+class CommentSaver;
+class EnumValues;
+class HeaderSearchDirs;
+class PrintAttributes;
 
 /**
 
@@ -26,34 +26,33 @@ class PrintAttributes ;
 
  */
 
-class ClassTemplateVisitor : public clang::RecursiveASTVisitor<ClassTemplateVisitor> {
-
+class ClassTemplateVisitor : public clang::RecursiveASTVisitor<ClassTemplateVisitor>
+{
     public:
-        ClassTemplateVisitor( clang::CompilerInstance & in_ci , CommentSaver & cs ,
-         HeaderSearchDirs & hsd , PrintAttributes & pa ) ;
+        ClassTemplateVisitor(
+            clang::CompilerInstance& in_ci, CommentSaver& cs, HeaderSearchDirs& hsd, PrintAttributes& pa);
 
         /* A custom traversal that handles only the node types we are interested in. */
-        bool TraverseDecl(clang::Decl *D);
+        bool TraverseDecl(clang::Decl* D);
 
         /* VisitDecl and VisitType are here for debug printing. */
-        bool VisitDecl(clang::Decl *d) ;
-        bool VisitType(clang::Type *t) ;
+        bool VisitDecl(clang::Decl* d);
+        bool VisitType(clang::Type* t);
 
         /* These routines are called when nodes of the corresponding types are traversed */
 
     private:
         /** The compiler's source manager.  Holds file/line info for everything. */
-        clang::CompilerInstance & ci ;
+        clang::CompilerInstance& ci;
 
         /** The header search directories */
-        HeaderSearchDirs & hsd ;
+        HeaderSearchDirs& hsd;
 
         /** Holds all comments */
-        CommentSaver & cs ;
+        CommentSaver& cs;
 
         /** Attributes Printer */
-        PrintAttributes & pa ;
-
-} ;
+        PrintAttributes& pa;
+};
 
 #endif

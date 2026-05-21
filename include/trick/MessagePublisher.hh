@@ -3,63 +3,65 @@
 /*
     PURPOSE: ( MessagePublisher Class )
 */
-#include <string>
-#include <list>
 #include "trick/MessageSubscriber.hh"
 
-namespace Trick {
+#include <list>
+#include <string>
 
-	/**
-	 * This class provides the capability of publishing executive and/or model messages.
-	 */
-    class MessagePublisher {
+namespace Trick
+{
 
+    /**
+     * This class provides the capability of publishing executive and/or model messages.
+     */
+    class MessagePublisher
+    {
         private:
             /** List of subscribers subscribed to this publisher.\n */
-            std::list <MessageSubscriber *> subscribers ;    /**< trick_units(--) */
+            std::list<MessageSubscriber*> subscribers; /**< trick_units(--) */
 
             /** Copied from the executive time_tic_value.\n */
-            int tics_per_sec ;
+            int tics_per_sec;
 
             /** Number of significant digits to use in time print.\n */
-            int num_digits ;
+            int num_digits;
 
             /** Print format that accomodates enough significant digits to handle tics_per_sec */
-            char print_format[64] ;
+            char print_format[64];
 
             /**
              @brief sets the print format
              */
-            void set_print_format() ;
+            void set_print_format();
 
         public:
-
             /** Name of the simulation, usually inputted through the input processor (default is " ").\n */
-            std::string sim_name;                            /**< trick_units(--) */
+            std::string sim_name; /**< trick_units(--) */
 
             /**
              @brief The constructor.
              */
-            MessagePublisher() ;
+            MessagePublisher();
             virtual ~MessagePublisher();
 
             /**
              @brief Initialization job.  Sets tics_per_sec and print format.
              @ return 0
              */
-            int init() ;
+            int init();
 
             /**
-             @brief Add a message subscriber to this publisher's subscriber list, which will output published messages in some manner.
+             @brief Add a message subscriber to this publisher's subscriber list, which will output published messages
+             in some manner.
              @param in_ms - an instance of Trick::MessageSubscriber that wants to subscribe to this publisher.
              */
-            void subscribe(MessageSubscriber *in_ms) { subscribers.push_back(in_ms) ; } ;
+            void subscribe(MessageSubscriber* in_ms) { subscribers.push_back(in_ms); };
 
             /**
              @brief Remove a message subscriber from this publisher's subscriber list.
              @param in_ms - an instance of Trick::MessageSubscriber that needs unsubscribe from this publisher.
              */
-            void unsubscribe(MessageSubscriber *in_ms) { subscribers.remove(in_ms) ; } ;
+            void unsubscribe(MessageSubscriber* in_ms) { subscribers.remove(in_ms); };
 
             /**
              @brief Publish a message with specified level and header.
@@ -67,17 +69,15 @@ namespace Trick {
              @param message - the text of the message
              @return always 0
              */
-            virtual int publish(int level, std::string message) ;
+            virtual int publish(int level, std::string message);
 
             /**
              @brief gets the subscriber from the list
              @param sub_name - name of the subscriber to get.
              */
-            Trick::MessageSubscriber * getSubscriber(std::string sub_name) ;
-
-    } ;
+            Trick::MessageSubscriber* getSubscriber(std::string sub_name);
+    };
 
 }
 
 #endif
-

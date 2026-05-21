@@ -1,9 +1,8 @@
 // @trick_parse{everything}
 
-class Baz {
-
+class Baz
+{
     public:
-    int i;
-    int j;
-
+        int i;
+        int j;
 };

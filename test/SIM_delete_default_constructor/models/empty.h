@@ -6,7 +6,8 @@ LIBRARY DEPENDENCY:
     )
 **************************************************************************/
 
-class Empty {
-public:
-    Empty() = delete;
+class Empty
+{
+    public:
+        Empty() = delete;
 };

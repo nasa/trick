@@ -5,191 +5,197 @@
 #define TOL 2e3
 
 #include <iostream>
-#include <sys/types.h>
 #include <map>
-//#include <signal.h>
+#include <sys/types.h>
+// #include <signal.h>
+#include "trick/GetTimeOfDayClock.hh"
+#include "trick/ITimer.hh"
+#include "trick/SimObject.hh"
+
 #include <unistd.h>
 
 #include "gtest/gtest.h"
-#include "trick/ITimer.hh"
-#include "trick/GetTimeOfDayClock.hh"
-#include "trick/SimObject.hh"
-//#include "trick/RequirementScribe.hh"
+// #include "trick/RequirementScribe.hh"
 
-namespace Trick {
+namespace Trick
+{
 
-class ITimerTest : public testing::Test {
+    class ITimerTest : public testing::Test
+    {
+        public:
+            Trick::GetTimeOfDayClock dClk;
+            // Trick::RequirementScribe req;
+            double sec;
+            long long tim_st, tim_elap;
 
-	public:
-		Trick::GetTimeOfDayClock dClk;
-		//Trick::RequirementScribe req;
-		double sec;
-		long long tim_st, tim_elap;
+            ITimerTest() { }
+            ~ITimerTest() { }
+            virtual void SetUp() { }
+            virtual void TearDown() { }
+    };
 
-		ITimerTest() {}
-		~ITimerTest() {}
-		virtual void SetUp() {}
-		virtual void TearDown() {}
-};
+    /* Proper initialization of ITimer */
+    TEST_F(ITimerTest, Initialize)
+    {
+        // req.add_requirement("timer");
+        //"The ITimer shall initialize with disabled and inactive status.");
 
-/* Proper initialization of ITimer */
-TEST_F(ITimerTest, Initialize) {
-	//req.add_requirement("timer");
-	//"The ITimer shall initialize with disabled and inactive status.");
+        Trick::ITimer* iTim;
+        iTim = new Trick::ITimer;
 
-	Trick::ITimer *iTim;
-	iTim = new Trick::ITimer;
+        iTim->init();
 
-    iTim->init();
+        EXPECT_FALSE(iTim->get_enabled());
+        EXPECT_FALSE(iTim->active);
 
-	EXPECT_FALSE(iTim->get_enabled());
-	EXPECT_FALSE(iTim->active);
+        iTim->enable();
+        EXPECT_TRUE(iTim->get_enabled());
 
-	iTim->enable();
-	EXPECT_TRUE(iTim->get_enabled());
+        iTim->disable();
+        EXPECT_FALSE(iTim->get_enabled());
 
-	iTim->disable();
-	EXPECT_FALSE(iTim->get_enabled());
+        delete iTim;
+    }
 
-	delete iTim;
-}
+    /* Timer not enabled; ensure no activity when starting, pausing, etc */
+    TEST_F(ITimerTest, TimerNotEnabled)
+    {
+        // req.add_requirement("timer");
+        //"The ITimer shall start if and only if the ITimer is enabled to do so.");
 
-/* Timer not enabled; ensure no activity when starting, pausing, etc */
-TEST_F(ITimerTest, TimerNotEnabled) {
-    //req.add_requirement("timer");
-	//"The ITimer shall start if and only if the ITimer is enabled to do so.");
+        bool active_ch;
 
+        Trick::ITimer* iTim;
+        iTim = new Trick::ITimer;
 
-	bool active_ch;
+        active_ch = iTim->active;
+        sec       = 0.05;
 
-    Trick::ITimer *iTim;
-	iTim = new Trick::ITimer;
+        iTim->init();
 
-	active_ch = iTim->active;
-	sec = 0.05;
+        iTim->start(sec);
+        EXPECT_EQ(iTim->active, active_ch);
 
-	iTim->init();
+        iTim->set_active(~active_ch);
+        active_ch = iTim->active;
+        iTim->start(sec);
+        EXPECT_EQ(iTim->active, active_ch);
 
-	iTim->start(sec);
-	EXPECT_EQ(iTim->active, active_ch);
+        delete iTim;
+    }
 
-	iTim->set_active(~active_ch);
-	active_ch = iTim->active;
-	iTim->start(sec);
-	EXPECT_EQ(iTim->active, active_ch);
+    /* Tolerance: 2 ms */
+    TEST_F(ITimerTest, TimerStartSuccess)
+    {
+        // req.add_requirement("timer");
+        //"The ITimer shall sleep when commanded, thereby releasing the processor for a specified amount of time.");
 
-	delete iTim;
-}
+        sec = 0.05;
 
-/* Tolerance: 2 ms */
-TEST_F(ITimerTest, TimerStartSuccess) {
-    //req.add_requirement("timer");
-	//"The ITimer shall sleep when commanded, thereby releasing the processor for a specified amount of time.");
+        Trick::ITimer* iTim;
+        iTim = new Trick::ITimer;
 
-	sec = 0.05;
+        iTim->init();
+        iTim->enable();
 
-	Trick::ITimer *iTim;
-	iTim = new Trick::ITimer;
+        tim_st = dClk.wall_clock_time();
 
-	iTim->init();
-	iTim->enable();
+        iTim->start(sec);
+        ASSERT_TRUE(iTim->active);
 
-	tim_st = dClk.wall_clock_time();
+        /* Cause simulation to wait until "sec" seconds have passed */
+        iTim->pause();
 
-	iTim->start(sec);
-	ASSERT_TRUE(iTim->active);
+        tim_elap = dClk.wall_clock_time() - tim_st;
+        EXPECT_NEAR((tim_elap + 2000), sec * 1e6, TOL);
 
-	/* Cause simulation to wait until "sec" seconds have passed */
-	iTim->pause();
+        delete iTim;
+    }
 
-	tim_elap = dClk.wall_clock_time() - tim_st;
-	EXPECT_NEAR((tim_elap+2000), sec*1e6, TOL);
+    TEST_F(ITimerTest, TimerStartReset)
+    {
+        // req.add_requirement("timer");
+        //"The ITimer shall reset to a new alarm time when commanded if the current time until alarm has not yet
+        // expired.");
 
-	delete iTim;
-}
+        sec = 0.05;
 
-TEST_F(ITimerTest, TimerStartReset) {
-    //req.add_requirement("timer");
-	//"The ITimer shall reset to a new alarm time when commanded if the current time until alarm has not yet expired.");
+        Trick::ITimer* iTim;
+        iTim = new Trick::ITimer;
 
-    sec = 0.05;
+        iTim->init();
+        iTim->enable();
 
-    Trick::ITimer *iTim;
-    iTim = new Trick::ITimer;
+        iTim->start(sec);
+        usleep(40000);
 
-    iTim->init();
-    iTim->enable();
+        /* This is equivalent to saying start(2.0*sec), both are valid */
+        iTim->reset(2.0 * sec);
+        // iTim->start(2.0*sec);
 
-    iTim->start(sec);
-	usleep(40000);
+        tim_st = dClk.wall_clock_time();
+        iTim->pause();
+        tim_elap = dClk.wall_clock_time() - tim_st;
 
-	/* This is equivalent to saying start(2.0*sec), both are valid */
-	iTim->reset(2.0*sec);
-	//iTim->start(2.0*sec);
+        EXPECT_NEAR((tim_elap + 2000), (2 * sec * 1e6), TOL);
 
-	tim_st = dClk.wall_clock_time();
-	iTim->pause();
-	tim_elap = dClk.wall_clock_time() - tim_st;
+        delete iTim;
+    }
 
-	EXPECT_NEAR((tim_elap+2000), (2*sec*1e6), TOL);
+    TEST_F(ITimerTest, TimerStartStop)
+    {
+        // req.add_requirement("timer");
+        //"The ITimer shall stop when commanded if the time until alarm has not yet expired.");
 
-    delete iTim;
-}
+        sec = 0.05;
 
-TEST_F(ITimerTest, TimerStartStop) {
-    //req.add_requirement("timer");
-	//"The ITimer shall stop when commanded if the time until alarm has not yet expired.");
+        Trick::ITimer* iTim;
+        iTim = new Trick::ITimer;
 
-    sec = 0.05;
+        iTim->init();
+        iTim->enable();
 
-    Trick::ITimer *iTim;
-    iTim = new Trick::ITimer;
+        tim_st = dClk.wall_clock_time();
+        iTim->start(sec);
+        usleep(40000);
+        iTim->stop();
+        tim_elap = dClk.wall_clock_time() - tim_st;
+        EXPECT_NEAR((tim_elap + 2000), 40000, (TOL + 4000));
 
-    iTim->init();
-    iTim->enable();
+        // std::cout << TOL+4000 << std::endl;
 
-	tim_st = dClk.wall_clock_time();
-    iTim->start(sec);
-    usleep(40000);
-	iTim->stop();
-	tim_elap = dClk.wall_clock_time() - tim_st;
-	EXPECT_NEAR((tim_elap+2000), 40000, (TOL+4000));
+        EXPECT_FALSE(iTim->active);
+        tim_st = dClk.wall_clock_time();
+        iTim->pause();
+        tim_elap = dClk.wall_clock_time() - tim_st;
 
-	//std::cout << TOL+4000 << std::endl;
+        EXPECT_NEAR(tim_elap, 0, TOL);
 
-    EXPECT_FALSE(iTim->active);
-	tim_st = dClk.wall_clock_time();
-	iTim->pause();
-    tim_elap = dClk.wall_clock_time() - tim_st;
+        delete iTim;
+    }
 
-	EXPECT_NEAR(tim_elap, 0, TOL);
+    TEST_F(ITimerTest, TimerStartFailure)
+    {
+        // req.add_requirement("timer");
+        //"The ITimer shall not initiate with start times that are negative or less than 10 ms");
 
+        sec = 0.05;
 
-    delete iTim;
-}
+        Trick::ITimer* iTim;
+        iTim = new Trick::ITimer;
 
+        iTim->init();
+        iTim->enable();
 
-TEST_F(ITimerTest, TimerStartFailure) {
-    //req.add_requirement("timer");
-	//"The ITimer shall not initiate with start times that are negative or less than 10 ms");
+        /*Passing negative time to elapse; expecting throw */
+        EXPECT_ANY_THROW(iTim->start(-sec));
 
-	sec = 0.05;
+        /* Cannot activate timer with < 10 ms */
+        sec = 0.005;
+        iTim->start(sec);
+        EXPECT_FALSE(iTim->active);
 
-    Trick::ITimer *iTim;
-    iTim = new Trick::ITimer;
-
-    iTim->init();
-    iTim->enable();
-
-	/*Passing negative time to elapse; expecting throw */
-    EXPECT_ANY_THROW(iTim->start(-sec));
-
-	/* Cannot activate timer with < 10 ms */
-	sec = 0.005;
-	iTim->start(sec);
-	EXPECT_FALSE(iTim->active);
-
-    delete iTim;
-}
+        delete iTim;
+    }
 
 }

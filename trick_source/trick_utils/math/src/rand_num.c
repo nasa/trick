@@ -10,36 +10,37 @@
    PROGRAMMERS: (((Robert Gay) (LinCom Corp) (May 1998) (--) (--)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--)
    (Updates to put routines into trick math))) */
 
-#include <stdio.h>
 #include "trick/trick_math.h"
 
-double rand_num(RAND_GENERATOR * G)
-{                                      /* Inout: Generator parameters */
+#include <stdio.h>
 
-    switch (G->option) {
+double rand_num(RAND_GENERATOR* G)
+{ /* Inout: Generator parameters */
 
-        case UNIFORM_RND_1:
-            return (uniform_rnd_1(G));
-            break;
+    switch (G->option)
+    {
+    case UNIFORM_RND_1:
+        return (uniform_rnd_1(G));
+        break;
 
-        case UNIFORM_RND_TRIPLE:
-            return (uniform_rnd_triple(G));
-            break;
+    case UNIFORM_RND_TRIPLE:
+        return (uniform_rnd_triple(G));
+        break;
 
-        case GAUSS_RND_PSEUDO:
-            return (gauss_rnd_pseudo(G));
-            break;
+    case GAUSS_RND_PSEUDO:
+        return (gauss_rnd_pseudo(G));
+        break;
 
-        case GAUSS_RND_BELL:
-            return (gauss_rnd_bell(G));
-            break;
+    case GAUSS_RND_BELL:
+        return (gauss_rnd_bell(G));
+        break;
 
-        case RND_NUM_1:
-            return (1);
-            break;
+    case RND_NUM_1:
+        return (1);
+        break;
 
-        default:
-            fprintf(stderr, "Unknown generator option: %d", G->option);
+    default:
+        fprintf(stderr, "Unknown generator option: %d", G->option);
     }
 
     return (0);

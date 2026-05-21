@@ -1,88 +1,81 @@
 #ifndef NORMAL_STRUCT_MEMBER_H
 #define NORMAL_STRUCT_MEMBER_H
 
-#include "StructMember.hh"
 #include "DataType.hh"
+#include "StructMember.hh"
+
 #include <string>
 
 /**
  */
-class NormalStructMember : public StructMember {
+class NormalStructMember : public StructMember
+{
+    public:
+        /**
+         Constructor.
+         */
+        NormalStructMember(std::string member_name, int offset, TypeDictionary* typeDictionary,
+            std::string typeSpecName, unsigned int n_dims, int dims[]);
 
-public:
+        /**
+         Copy Constructor.
+        */
+        NormalStructMember(const NormalStructMember& original);
 
-    /**
-     Constructor.
-     */
-    NormalStructMember( std::string member_name,
-                        int offset,
-                        TypeDictionary* typeDictionary,
-                        std::string typeSpecName,
-                        unsigned int n_dims,
-                        int dims[] );
+        /**
+         Clone.
+         */
+        StructMember* clone() const;
 
-    /**
-     Copy Constructor.
-    */
-    NormalStructMember ( const NormalStructMember & original );
+        /**
+         Destructor.
+         */
+        ~NormalStructMember();
 
-    /**
-     Clone.
-     */
-    StructMember * clone () const;
+        /**
+         */
+        bool validate();
 
-    /**
-     Destructor.
-     */
-    ~NormalStructMember();
+        /**
+         */
+        MemberClass::e getMemberClass() const { return MemberClass::NORMAL; }
 
-    /**
-     */
-    bool validate();
+        /**
+         */
+        bool containsPointers() const;
 
-    /**
-    */
-    MemberClass::e getMemberClass() const {
-        return MemberClass::NORMAL;
-    }
+        /**
+          To check for circular reference only.
+         */
+        const DataType* getDataType();
 
-    /**
-     */
-    bool containsPointers() const ;
+        /**
+         */
+        int getOffset();
 
-    /**
-      To check for circular reference only.
-     */
-    const DataType * getDataType();
+        /**
+         */
+        void clearValue(void* struct_address) const;
 
-    /**
-     */
-    int getOffset();
+        /**
+         */
+        void assignValue(void* struct_address, Value* v) const;
 
-    /**
-     */
-    void clearValue(void *struct_address) const ;
+        /**
+         */
+        void printValue(std::ostream& s, void* struct_address) const;
 
-    /**
-     */
-    void assignValue(void *struct_address, Value *v) const ;
+        /**
+         Product a string representation of this NormalStructMember.
+         */
+        std::string toString() const;
 
-    /**
-     */
-    void printValue(std::ostream &s, void *struct_address) const ;
-
-    /**
-     Product a string representation of this NormalStructMember.
-     */
-    std::string toString() const ;
-
-private:
-    int byte_offset;
-    bool is_valid;
-    std::string typeSpecName;
-    DataType * declDataType;
-    const DataType * subType;
-    TypeDictionary* typeDictionary;
-
+    private:
+        int byte_offset;
+        bool is_valid;
+        std::string typeSpecName;
+        DataType* declDataType;
+        const DataType* subType;
+        TypeDictionary* typeDictionary;
 };
 #endif

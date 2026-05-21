@@ -17,7 +17,6 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_EULER_ONE_STATE_INTEGRATOR_HH
 #define ER7_UTILS_EULER_ONE_STATE_INTEGRATOR_HH
 
@@ -29,84 +28,75 @@ Purpose: ()
 // Integration includes
 #include "er7_utils/integration/core/include/first_order_ode_integrator.hh"
 
+namespace er7_utils
+{
 
-namespace er7_utils {
+    /**
+     * Propagate state using Euler integration.
+     */
+    class EulerFirstOrderODEIntegrator : public FirstOrderODEIntegrator
+    {
+            ER7_UTILS_MAKE_SIM_INTERFACES(EulerFirstOrderODEIntegrator)
 
-/**
- * Propagate state using Euler integration.
- */
-class EulerFirstOrderODEIntegrator : public FirstOrderODEIntegrator {
-ER7_UTILS_MAKE_SIM_INTERFACES(EulerFirstOrderODEIntegrator)
+        public:
+            // Constructors and destructor.
 
-public:
+            /**
+             * EulerFirstOrderODEIntegrator default constructor.
+             */
+            EulerFirstOrderODEIntegrator(void);
 
-   // Constructors and destructor.
+            /**
+             * EulerFirstOrderODEIntegrator copy constructor.
+             * @param[in] src  Item to be copied.
+             */
+            EulerFirstOrderODEIntegrator(const EulerFirstOrderODEIntegrator& src);
 
-   /**
-    * EulerFirstOrderODEIntegrator default constructor.
-    */
-   EulerFirstOrderODEIntegrator (void);
+            /**
+             * EulerFirstOrderODEIntegrator non-default constructor.
+             * @param[in]     size      State size
+             * @param[in,out] controls  Integration controls
+             */
+            EulerFirstOrderODEIntegrator(unsigned int size, IntegrationControls& controls);
 
-   /**
-    * EulerFirstOrderODEIntegrator copy constructor.
-    * @param[in] src  Item to be copied.
-    */
-   EulerFirstOrderODEIntegrator (const EulerFirstOrderODEIntegrator & src);
+            /**
+             * EulerFirstOrderODEIntegrator destructor.
+             */
+            virtual ~EulerFirstOrderODEIntegrator(void);
 
-   /**
-    * EulerFirstOrderODEIntegrator non-default constructor.
-    * @param[in]     size      State size
-    * @param[in,out] controls  Integration controls
-    */
-   EulerFirstOrderODEIntegrator (
-      unsigned int size,
-      IntegrationControls & controls);
+            // Member functions.
 
-   /**
-    * EulerFirstOrderODEIntegrator destructor.
-    */
-   virtual ~EulerFirstOrderODEIntegrator (void);
+            /**
+             * EulerFirstOrderODEIntegrator assignment operator.
+             * @param src  Item to be copied.
+             */
+            EulerFirstOrderODEIntegrator& operator=(EulerFirstOrderODEIntegrator src)
+            {
+                swap(src);
+                return *this;
+            }
 
+            /**
+             * Create a copy of 'this' RK4FirstOrderODEIntegrator object.
+             * @return Clone of 'this'.
+             */
+            virtual EulerFirstOrderODEIntegrator* create_copy() const;
 
-   // Member functions.
-
-   /**
-    * EulerFirstOrderODEIntegrator assignment operator.
-    * @param src  Item to be copied.
-    */
-   EulerFirstOrderODEIntegrator & operator=(
-      EulerFirstOrderODEIntegrator src)
-   {
-      swap (src);
-      return *this;
-   }
-
-   /**
-    * Create a copy of 'this' RK4FirstOrderODEIntegrator object.
-    * @return Clone of 'this'.
-    */
-   virtual EulerFirstOrderODEIntegrator * create_copy () const;
-
-   /**
-    * Propagate state via Euler's method.
-    * @param[in] dyn_dt        Integration interval step, dynamic time seconds.
-    * @param[in] target_stage  The stage of the integration process
-    *                          that the integrator should try to attain.
-    * @param[in,out] velocity  Generalized velocity vector.
-    * @param[in,out] position  Generalized position vector.
-    *
-    * @return The status (time advance, pass/fail status) of the integration.
-    */
-   virtual IntegratorResult integrate (
-      double dyn_dt,
-      unsigned int target_stage,
-      const double * ER7_UTILS_RESTRICT velocity,
-      double * ER7_UTILS_RESTRICT position);
-
-};
+            /**
+             * Propagate state via Euler's method.
+             * @param[in] dyn_dt        Integration interval step, dynamic time seconds.
+             * @param[in] target_stage  The stage of the integration process
+             *                          that the integrator should try to attain.
+             * @param[in,out] velocity  Generalized velocity vector.
+             * @param[in,out] position  Generalized position vector.
+             *
+             * @return The status (time advance, pass/fail status) of the integration.
+             */
+            virtual IntegratorResult integrate(double dyn_dt, unsigned int target_stage,
+                const double* ER7_UTILS_RESTRICT velocity, double* ER7_UTILS_RESTRICT position);
+    };
 
 }
-
 
 #endif
 /**

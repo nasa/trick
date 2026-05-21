@@ -8,11 +8,11 @@
 #ifndef MONTEVARFILE_HH
 #define MONTEVARFILE_HH
 
-#include <iostream>
-#include <fstream>
-#include <string>
-
 #include "trick/MonteVar.hh"
+
+#include <fstream>
+#include <iostream>
+#include <string>
 
 // This block of code disowns the pointer on the python side so you can reassign
 // python variables without freeing the C++ class underneath
@@ -28,7 +28,8 @@
 %}
 #endif
 
-namespace Trick {
+namespace Trick
+{
 
     /**
      * A variable whose values are read from a file. Values should be listed in columns. Multiple variables
@@ -47,8 +48,9 @@ namespace Trick {
      * One could then create two variables as such:
      *
      * @code
-     * MonteVarFile *variable1 = new MonteVarFile(string("ball.obj.state.input.position[0]"), string("RUN_example/values.txt"), 1);
-     * MonteVarFile *variable2 = new MonteVarFile(string("ball.obj.state.input.position[1]"), string("RUN_example/values.txt"), 2);
+     * MonteVarFile *variable1 = new MonteVarFile(string("ball.obj.state.input.position[0]"),
+     * string("RUN_example/values.txt"), 1); MonteVarFile *variable2 = new
+     * MonteVarFile(string("ball.obj.state.input.position[1]"), string("RUN_example/values.txt"), 2);
      * @endcode
      *
      * <code>variable1</code>'s values will progress starting from 1, through 2, 3, 4, and 5.
@@ -61,59 +63,57 @@ namespace Trick {
      *
      * @date August 2010
      */
-    class MonteVarFile : public Trick::MonteVar {
-
+    class MonteVarFile : public Trick::MonteVar
+    {
         protected:
-        /** The name of the file containing this variable's values. */
-        std::string file_name;            /**< \n trick_units(--) */
+            /** The name of the file containing this variable's values. */
+            std::string file_name; /**< \n trick_units(--) */
 
-        /** The column within the file correpsonding to this variable. */
-        unsigned int column;              /**< \n trick_units(--) */
+            /** The column within the file correpsonding to this variable. */
+            unsigned int column; /**< \n trick_units(--) */
 
-        /** The input file stream. */
-        std::ifstream *input_file_stream; /**< \n trick_units(--) */
+            /** The input file stream. */
+            std::ifstream* input_file_stream; /**< \n trick_units(--) */
 
         private:
-        // Used to store the current position of the stream for file opening and closing.
-        std::streampos stream_position;
+            // Used to store the current position of the stream for file opening and closing.
+            std::streampos stream_position;
 
         public:
-        /**
-         * Constructs a MonteVarFile with the specified name, file name, column, and units.
-         *
-         * @param name the fully qualified name of the simulation variable to which this MonteVarFile refers
-         * @param file_name the name of the file containing this variable's values
-         * @param column the column (starting at 1)  within the file corresponding to this variable
-         * @param unit this variable's units
-         */
-        MonteVarFile(std::string name, std::string file_name, unsigned int column, std::string unit = "");
+            /**
+             * Constructs a MonteVarFile with the specified name, file name, column, and units.
+             *
+             * @param name the fully qualified name of the simulation variable to which this MonteVarFile refers
+             * @param file_name the name of the file containing this variable's values
+             * @param column the column (starting at 1)  within the file corresponding to this variable
+             * @param unit this variable's units
+             */
+            MonteVarFile(std::string name, std::string file_name, unsigned int column, std::string unit = "");
 
-        /** Destructor. */
-        virtual ~MonteVarFile();
-        /**
-         * Sets the file name
-         *
-         * @param in_file_name the name of the file containing this variable's values
-         */
+            /** Destructor. */
+            virtual ~MonteVarFile();
+            /**
+             * Sets the file name
+             *
+             * @param in_file_name the name of the file containing this variable's values
+             */
 
-        
-        void set_file_name(std::string in_file_name);
-        
-        /**
-         * Sets the column
-         *
-         * @param in_column the column (starting at 1)  within the file corresponding to this variable
-         */
-        void set_column(unsigned int in_column);
-        
-        // Describes the various properties of this variable.
-        std::string describe_variable();
+            void set_file_name(std::string in_file_name);
+
+            /**
+             * Sets the column
+             *
+             * @param in_column the column (starting at 1)  within the file corresponding to this variable
+             */
+            void set_column(unsigned int in_column);
+
+            // Describes the various properties of this variable.
+            std::string describe_variable();
 
         protected:
-        virtual std::string get_next_value();
+            virtual std::string get_next_value();
+    };
 
-    } ;
-
-} ;
+};
 
 #endif

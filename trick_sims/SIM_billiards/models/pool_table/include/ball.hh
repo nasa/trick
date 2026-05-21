@@ -11,12 +11,11 @@ LIBRARY DEPENDENCY:
 
 // monotonically increasing ID
 
-class Ball {
-
+class Ball
+{
     public:
-
         Ball(double x, double y, double mass, double radius, bool isFixed, int id);
-        Ball () {}
+        Ball() { }
 
         void setPos(double x, double y);
         void setPos(double x, double y, double z);
@@ -38,7 +37,6 @@ class Ball {
 
         void clearAllState();
 
-
         // Z component should always be 0, unless someone tries to add jumps in the future
         // double pos[3];
         // double prevPos[3]; // Maybe don't need this anymore?
@@ -59,7 +57,7 @@ class Ball {
         Vec angularAccel;
 
         // double color[3];
-    
+
         double mass;
         double radius;
         bool fixed;

@@ -9,12 +9,13 @@ PROGRAMMERS:
 #ifndef SCHEDULEDQUEUEINSTRUMENT_HH
 #define SCHEDULEDQUEUEINSTRUMENT_HH
 
-#include <string>
-
 #include "trick/InstrumentBase.hh"
 #include "trick/JobData.hh"
 
-namespace Trick {
+#include <string>
+
+namespace Trick
+{
 
     /**
      * This class is the ScheduledJobQueueInstrument class.  This class contains extra job data that
@@ -27,22 +28,21 @@ namespace Trick {
      * @date Jan. 2010
      *
      */
-    class ScheduledJobQueueInstrument : public Trick::InstrumentBase {
-
+    class ScheduledJobQueueInstrument : public Trick::InstrumentBase
+    {
         public:
-
             /** The instrumentation job itself\n */
-            Trick::JobData * instru_job ;          /**<  trick_io(**) */
+            Trick::JobData* instru_job; /**<  trick_io(**) */
 
             /** The target job of the instrumentation (instrument is inserted before or after target).\n */
-            Trick::JobData * target_job ;          /**<  trick_io(**) */
+            Trick::JobData* target_job; /**<  trick_io(**) */
 
             /**
              * Constructor\n
              * @param inst_job - instrumentation base job as listed in S_define file
              * @param targ_job - target job that is to be instrumented
              */
-            ScheduledJobQueueInstrument( Trick::JobData* inst_job, Trick::JobData* targ_job);
+            ScheduledJobQueueInstrument(Trick::JobData* inst_job, Trick::JobData* targ_job);
 
             ~ScheduledJobQueueInstrument();
 
@@ -50,10 +50,9 @@ namespace Trick {
              * Calls the instumentation jobs only
              * @return always 0
              */
-            virtual int call() ;
-    } ;
+            virtual int call();
+    };
 
-} ;
+};
 
 #endif
-

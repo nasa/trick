@@ -1,7 +1,3 @@
 #include "Foo.hh"
 
-
-
-void Foo::foo() {
-        std::cout << i++ << '\n';
-}
+void Foo::foo() { std::cout << i++ << '\n'; }

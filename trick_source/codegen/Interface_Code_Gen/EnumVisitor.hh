@@ -2,17 +2,19 @@
 #ifndef ENUMVISITOR_HH
 #define ENUMVISITOR_HH
 
-#include <string>
-#include <map>
-#include <vector>
-
-#include "clang/AST/RecursiveASTVisitor.h"
 #include "EnumValues.hh"
 
-namespace clang {
-    class CompilerInstance ;
+#include "clang/AST/RecursiveASTVisitor.h"
+
+#include <map>
+#include <string>
+#include <vector>
+
+namespace clang
+{
+    class CompilerInstance;
 }
-class HeaderSearchDirs ;
+class HeaderSearchDirs;
 
 /**
 
@@ -26,32 +28,32 @@ class HeaderSearchDirs ;
 
  */
 
-class EnumVisitor : public clang::RecursiveASTVisitor<EnumVisitor> {
+class EnumVisitor : public clang::RecursiveASTVisitor<EnumVisitor>
+{
     public:
-        EnumVisitor( clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd ) ;
+        EnumVisitor(clang::CompilerInstance& in_ci, HeaderSearchDirs& in_hsd);
 
         /* VisitDecl and VisitType are here for debug printing. */
-        bool VisitDecl(clang::Decl *d) ;
-        bool VisitType(clang::Type *t) ;
+        bool VisitDecl(clang::Decl* d);
+        bool VisitType(clang::Type* t);
 
         /* These routines are called when nodes of the corresponding types are traversed */
-        bool VisitEnumDecl(clang::EnumDecl *ed) ;
-        bool VisitEnumConstantDecl(clang::EnumConstantDecl *ecd) ;
-        bool VisitEnumType(clang::EnumType *et) ;
+        bool VisitEnumDecl(clang::EnumDecl* ed);
+        bool VisitEnumConstantDecl(clang::EnumConstantDecl* ecd);
+        bool VisitEnumType(clang::EnumType* et);
 
         /** Returns the class data */
-        EnumValues * get_enum_data() ;
+        EnumValues* get_enum_data();
 
     private:
         /** The compiler instance. */
-        clang::CompilerInstance & ci ;
+        clang::CompilerInstance& ci;
 
         /** The header search directories */
-        HeaderSearchDirs & hsd ;
+        HeaderSearchDirs& hsd;
 
         /** Holds the class information found, usually returned to caller of this visitor. */
-        EnumValues eval ;
-
-} ;
+        EnumValues eval;
+};
 
 #endif

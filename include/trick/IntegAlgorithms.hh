@@ -1,7 +1,7 @@
 /*
  * PURPOSE:
  * ( )
-*/
+ */
 #ifndef INTEG_ALGORITHMS_HH
 #define INTEG_ALGORITHMS_HH
 

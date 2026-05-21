@@ -20,7 +20,7 @@ class Thread2
         Thread2();
         ~Thread2();
         int Step();
-    /*private:*/
+        /*private:*/
         bool m_bBusy;
         int m_iBusyNSecs;
         int m_iCount;

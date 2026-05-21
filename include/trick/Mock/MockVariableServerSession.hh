@@ -2,10 +2,12 @@
 #define MOCK_VARIABLE_SERVER_SESSION_HH
 
 #include "trick/VariableServerSession.hh"
+
 #include <gmock/gmock.h>
 
-class MockVariableServerSession : public Trick::VariableServerSession {
-    public: 
+class MockVariableServerSession : public Trick::VariableServerSession
+{
+    public:
         MOCK_METHOD0(handle_message, int());
         MOCK_METHOD0(write_data, int());
         MOCK_METHOD0(get_exit_cmd, bool());
@@ -21,7 +23,7 @@ class MockVariableServerSession : public Trick::VariableServerSession {
         MOCK_CONST_METHOD0(get_frame_offset, int());
         MOCK_CONST_METHOD0(get_freeze_frame_multiple, int());
         MOCK_CONST_METHOD0(get_freeze_frame_offset, int());
-        MOCK_CONST_METHOD0(get_next_tics, long long ());
+        MOCK_CONST_METHOD0(get_next_tics, long long());
         MOCK_CONST_METHOD0(get_freeze_next_tics, long long());
         MOCK_METHOD0(set_exit_cmd, void());
 

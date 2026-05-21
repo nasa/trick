@@ -9,10 +9,12 @@ PROGRAMMERS:
 #ifndef INSTRUMENTBASE_HH
 #define INSTRUMENTBASE_HH
 
-#include <string>
 #include "trick/JobData.hh"
 
-namespace Trick {
+#include <string>
+
+namespace Trick
+{
 
     /**
      * This class is the base Instrument class. It provides an abstract
@@ -25,33 +27,30 @@ namespace Trick {
      *
      */
 
-    class JobData ;
+    class JobData;
 
-    class InstrumentBase {
-
+    class InstrumentBase
+    {
         public:
+            InstrumentBase(Trick::JobData* in_target_job = NULL)
+                : phase(60000)
+                , target_job(in_target_job) { };
 
-            InstrumentBase(Trick::JobData * in_target_job = NULL) :
-             phase(60000) ,
-             target_job(in_target_job) {} ;
-
-            virtual ~InstrumentBase() {} ;
+            virtual ~InstrumentBase() { };
 
             /* Get the target job. */
-            Trick::JobData * get_target_job() { return target_job ; } ;
+            Trick::JobData* get_target_job() { return target_job; };
 
             /** Job source code name */
-            std::string name ;                    /**< trick_units(--) */
-            unsigned short phase ;
+            std::string name; /**< trick_units(--) */
+            unsigned short phase;
 
-            virtual int call() = 0 ;
+            virtual int call() = 0;
 
         protected:
-             Trick::JobData * target_job ;
+            Trick::JobData* target_job;
+    };
 
-    } ;
-
-} ;
+};
 
 #endif
-

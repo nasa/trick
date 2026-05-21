@@ -8,21 +8,22 @@
 #include "trick/bitfield_proto.h"
 
 unsigned int insert_bitfield_any(unsigned int bitfield, /* In: Bitfiled to insert value into */
-                                 int value,     /* In: Value */
-                                 int size,      /* In: Declared size of bitfield */
-                                 int start,     /* In: Starting bit */
-                                 int bits)
-{                                      /* In: Number of bits in bitfield */
+    int value, /* In: Value */
+    int size, /* In: Declared size of bitfield */
+    int start, /* In: Starting bit */
+    int bits)
+{ /* In: Number of bits in bitfield */
 
     unsigned int mask;
     static int numbits = sizeof(unsigned int) * 8;
 
-    union {
-        long l;
-        char c[sizeof(long)];
+    union
+    {
+            long l;
+            char c[sizeof(long)];
     } un;
 
-    un.l = 1;                          /* Used for Little/Big Endian Detection */
+    un.l = 1; /* Used for Little/Big Endian Detection */
 
     /* Mask out sign extension bits in case the value is negative */
     value &= (0xFFFFFFFF >> (32 - bits));
@@ -63,7 +64,8 @@ unsigned int insert_bitfield_any(unsigned int bitfield, /* In: Bitfiled to inser
      * When the comments are longer than the code it worries me.
      */
 
-    if (un.c[sizeof(long) - 1] == 1) {
+    if (un.c[sizeof(long) - 1] == 1)
+    {
         /* Big endian */
 
         if (start == 0)
@@ -74,13 +76,18 @@ unsigned int insert_bitfield_any(unsigned int bitfield, /* In: Bitfiled to inser
             mask |= (0xFFFFFFFF << (start + bits));
         bitfield &= mask;
         bitfield |= (value << start);
-    } else {
+    }
+    else
+    {
         /* Little endian */
 
         /* if bitfield is smaller than 32 bits, adjust start accordingly */
-        if (size == sizeof(short)) {
+        if (size == sizeof(short))
+        {
             start += 16;
-        } else if (size == sizeof(char)) {
+        }
+        else if (size == sizeof(char))
+        {
             start += 24;
         }
 

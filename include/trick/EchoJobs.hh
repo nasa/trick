@@ -18,48 +18,50 @@
 
 #include "trick/JobData.hh"
 
-namespace Trick {
+namespace Trick
+{
 
-    class EchoJobs {
-
+    class EchoJobs
+    {
         private:
             /** Set to true to echo names of called jobs.\n */
-            bool echo_job_flag ;                  /**< trick_units(--) */
+            bool echo_job_flag; /**< trick_units(--) */
 
         public:
             /**
              @brief This is the constructor of the EchoJobs class.
              */
-            EchoJobs() ;
+            EchoJobs();
 
             /**
-             @brief Instrumentation class job that prints out the simulation time and job name for every job when echo_jobs is on.
+             @brief Instrumentation class job that prints out the simulation time and job name for every job when
+             echo_jobs is on.
              @param curr_job - pointer to current instrument job that points to the job to echo
              @return always 0
              */
-            int echo_job(Trick::JobData * curr_job) ;
+            int echo_job(Trick::JobData* curr_job);
 
             /**
              @brief @userdesc Command to set echo_job_flag to true which turns on the echo_jobs printout.
-             Calls Trick::Executive::instrument_job_before to insert the echo_jobs routine before every job to be echoed.
+             Calls Trick::Executive::instrument_job_before to insert the echo_jobs routine before every job to be
+             echoed.
              @par Python Usage:
              @code trick.echo_jobs_on() @endcode
              @return always 0
              */
-            int echojobs_on() ;
+            int echojobs_on();
 
             /**
              @brief @userdesc Command to set echo_job_flag to false which turns off the echo_jobs printout.
-             Calls Trick::Executive::instrument_job_remove to remove the echo_job routine from all job queues that it was inserted in.
+             Calls Trick::Executive::instrument_job_remove to remove the echo_job routine from all job queues that it
+             was inserted in.
              @par Python Usage:
              @code trick.echo_jobs_off() @endcode
              @return always 0
              */
-            int echojobs_off() ;
-
-    } ;
+            int echojobs_off();
+    };
 
 }
 
 #endif
-

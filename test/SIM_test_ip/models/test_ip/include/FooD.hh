@@ -15,21 +15,19 @@ PROGRAMMERS:
 namespace FooNamespace
 {
 
-// RestartableSecondOrderODEIntegrator
-class FooC : public FooA<1>
-{
-public:
-   int C;
-};
+    // RestartableSecondOrderODEIntegrator
+    class FooC : public FooA<1>
+    {
+        public:
+            int C;
+    };
 
-// RestartableSimpleSecondOrderODEIntegrator
-template<int T>
-class FooD : public FooC
-{
-public:
-   int D = T;
-};
-
+    // RestartableSimpleSecondOrderODEIntegrator
+    template <int T> class FooD : public FooC
+    {
+        public:
+            int D = T;
+    };
 
 }
 

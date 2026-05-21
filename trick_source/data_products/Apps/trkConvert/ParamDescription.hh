@@ -3,14 +3,14 @@
 
 #include <stdio.h>
 
-struct ParamDescription {
+struct ParamDescription
+{
+        char* parameterName;
+        char* unitsName;
+        int32_t dataType;
+        int32_t dataSize;
 
-    char* parameterName;
-    char* unitsName;
-    int32_t dataType;
-    int32_t dataSize;
-
-    ParamDescription(){}
-    ParamDescription(FILE* fp);
+        ParamDescription() { }
+        ParamDescription(FILE* fp);
 };
 #endif

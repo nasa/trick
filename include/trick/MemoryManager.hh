@@ -6,66 +6,65 @@
 #ifndef MEMORYMANAGEMENT_HH
 #define MEMORYMANAGEMENT_HH
 
-#include <map>
-#include <string>
-#include <vector>
-#include <list>
-#include <set>
-#include <iostream>
-#include <stdexcept>
-#include <pthread.h>
-#include <functional>
-
+#include "trick/CheckPointAgent.hh"
 #include "trick/attributes.h"
-#include "trick/reference.h"
-#include "trick/parameter_types.h"
 #include "trick/io_alloc.h"
 #include "trick/mm_error.h"
+#include "trick/parameter_types.h"
+#include "trick/reference.h"
 #include "trick/var.h"
 
-#include "trick/CheckPointAgent.hh"
+#include <functional>
+#include <iostream>
+#include <list>
+#include <map>
+#include <pthread.h>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 // forward declare the units converter types used by ref_assignment
-union cv_converter ;
-struct ut_system ;
+union cv_converter;
+struct ut_system;
 
-namespace Trick {
+namespace Trick
+{
 
-    typedef std::map<void*, ALLOC_INFO*, std::greater<void*> > ALLOC_INFO_MAP;
-    typedef std::map<void*, ALLOC_INFO*, std::greater<void*> >::const_iterator ALLOC_INFO_MAP_ITER ;
+    typedef std::map<void*, ALLOC_INFO*, std::greater<void*>> ALLOC_INFO_MAP;
+    typedef std::map<void*, ALLOC_INFO*, std::greater<void*>>::const_iterator ALLOC_INFO_MAP_ITER;
     typedef std::map<std::string, ALLOC_INFO*> VARIABLE_MAP;
-    typedef std::map<std::string, ALLOC_INFO*>::const_iterator VARIABLE_MAP_ITER ;
+    typedef std::map<std::string, ALLOC_INFO*>::const_iterator VARIABLE_MAP_ITER;
     typedef std::map<std::string, ENUM_ATTR*> ENUMERATION_MAP;
 
-/**
-  The Memory Manager provides memory-resource administration services.
-  To provide these services, it tracks information about chunks of memory.
+    /**
+      The Memory Manager provides memory-resource administration services.
+      To provide these services, it tracks information about chunks of memory.
 
-  These chunks of memory can come from one of two places:
-  @li You can ask the Memory Manager to allocate memory according a
-      declaration [using declare_var()].
-  @li You can provide an address to memory that you've somehow acquired,
-      together with a declaration of what's at that address
-      [using declare_extern_var()].
+      These chunks of memory can come from one of two places:
+      @li You can ask the Memory Manager to allocate memory according a
+          declaration [using declare_var()].
+      @li You can provide an address to memory that you've somehow acquired,
+          together with a declaration of what's at that address
+          [using declare_extern_var()].
 
-  By tracking the address and declaration information, the Memory Manager
-  it is able, on request, to write a human-readable representation of those memory
-  resources to a file [using write_checkpoint()]. The memory resources can be later
-  restored from this checkpoint file using read_checkpoint() or init_from_checkpoint().
+      By tracking the address and declaration information, the Memory Manager
+      it is able, on request, to write a human-readable representation of those memory
+      resources to a file [using write_checkpoint()]. The memory resources can be later
+      restored from this checkpoint file using read_checkpoint() or init_from_checkpoint().
 
-  It can also return addresses of named subcomponents of memory resources.
+      It can also return addresses of named subcomponents of memory resources.
 
- */
-    class MemoryManager {
-
+     */
+    class MemoryManager
+    {
         public:
-
             /**
              Memory Manager constructor.
              @par NOTE:
              Only one instance of the MemoryManager is allowed to exist per process.
              */
-            MemoryManager() ;
+            MemoryManager();
 
             /**
              Memory Manager destructor.
@@ -83,7 +82,7 @@ namespace Trick {
              @return - an address to the allocated memory or NULL on failure.
 
              */
-            void* declare_var( const char* declaration);
+            void* declare_var(const char* declaration);
 
             /**
              Allocate an anonymous, one dimensional array. The elements of the array are specified by the
@@ -93,7 +92,7 @@ namespace Trick {
              @param n_elems - The number of items of the given type to allocate.
              @return - an address to the allocated memory or NULL on failure.
              */
-            void* declare_var( const char* enh_type_spec, int n_elems);
+            void* declare_var(const char* enh_type_spec, int n_elems);
 
             /**
              This is the general version of declare_var(), which allocates a contiguous
@@ -115,7 +114,8 @@ namespace Trick {
              @param cdims - array of dimension sizes.
              @return - an address to the allocated memory or NULL on failure.
              */
-            void* declare_var(TRICK_TYPE type, std::string class_name, int n_stars, std::string var_name, int n_cdims, int *cdims);
+            void* declare_var(
+                TRICK_TYPE type, std::string class_name, int n_stars, std::string var_name, int n_cdims, int* cdims);
 
             /**
              Alex's desecration of the cathedral.
@@ -130,7 +130,8 @@ namespace Trick {
              @param alloc_name - name of the allocation (optional)
              @return - an address to the allocated memory or NULL on failure.
              */
-            void* declare_operatornew_var( std::string class_name , unsigned int alloc_size , unsigned int element_size , std::string alloc_name = "" );
+            void* declare_operatornew_var(std::string class_name, unsigned int alloc_size, unsigned int element_size,
+                std::string alloc_name = "");
 
             /**
              This is a convenience version of declare_extern_var(), that declares an external variable
@@ -141,7 +142,7 @@ namespace Trick {
 
              @return - an address to the declared object or NULL on failure.
              */
-             void* declare_extern_var( void* address, const char * declaration);
+            void* declare_extern_var(void* address, const char* declaration);
 
             /**
              This is a convenience version of declare_extern_var(), that declares a
@@ -155,7 +156,7 @@ namespace Trick {
              @param n_elems - number of items of the given type to allocate.
              @return - an address to the declared object or NULL on failure.
              */
-             void* declare_extern_var( void* address, const char *element_definition, int n_elems);
+            void* declare_extern_var(void* address, const char* element_definition, int n_elems);
 
             /**
              Tell the Memory Manager about a memory object that it did not allocate.
@@ -176,13 +177,8 @@ namespace Trick {
              - the @b name used in the checkpoint file is that of a declared variable.
              - the io specification in the underlying ATTRIBUTES allows it.
              */
-             void* declare_extern_var( void* address,
-                                        TRICK_TYPE type,
-                                        std::string class_name,
-                                        int n_stars,
-                                        std::string var_name,
-                                        int n_cdims,
-                                        int *cdims);
+            void* declare_extern_var(void* address, TRICK_TYPE type, std::string class_name, int n_stars,
+                std::string var_name, int n_cdims, int* cdims);
 
             /**
              Resize multi-dimensional array by address.
@@ -192,7 +188,7 @@ namespace Trick {
              @param cdims - array of new dimension sizes.
              @return - a pointer to the resized array or NULL on failure.
              */
-            void* resize_array( void *address, int  n_cdims, int  *cdims);
+            void* resize_array(void* address, int n_cdims, int* cdims);
 
             /**
              Resize one-dimensional array by address.
@@ -200,7 +196,7 @@ namespace Trick {
              @param num - number of elements in 1 dimensional array.
              @return - a pointer to the resized array or NULL on failure.
              */
-            void* resize_array( void* address, int num);
+            void* resize_array(void* address, int num);
 
             /**
              Resize multi-dimensional array by name.
@@ -210,7 +206,7 @@ namespace Trick {
              @param cdims - array of new dimension sizes.
              @return - a pointer to the resized array or NULL on failure.
              */
-            void* resize_array( const char* name, int n_cdims, int *cdims);
+            void* resize_array(const char* name, int n_cdims, int* cdims);
 
             /**
              Resize one-dimensional array by name.
@@ -218,7 +214,7 @@ namespace Trick {
              @param num - number of elements in 1 dimensional array.
              @return - a pointer to the resized array or NULL on failure.
              */
-            void* resize_array( const char* name, int num);
+            void* resize_array(const char* name, int num);
 
             /**
              Duplicate the given character string.
@@ -226,7 +222,7 @@ namespace Trick {
              @return a duplicate character string.
              @todo Could this be made more general to duplicate a variable?
              */
-            char* mm_strdup( const char* s);
+            char* mm_strdup(const char* s);
 
             /**
              Test whether the given variable_name is in use .
@@ -240,37 +236,38 @@ namespace Trick {
               followed by zero or more asterisks, followed by an optional name,
               followed by zero or more bracketed integers.
 
-             @return - the size in bytes of the memory that would be allocated by the by the given declaration or 0 on failure.
+             @return - the size in bytes of the memory that would be allocated by the by the given declaration or 0 on
+             failure.
              */
-            size_t sizeof_type( const char* declaration);
+            size_t sizeof_type(const char* declaration);
 
             /**
              Test whether the given address is in Trick managed memory.
              @param address - The address to be tested.
              @return 0 = FALSE, 1 = TRUE.
              */
-            int is_alloced( void* address);
+            int is_alloced(void* address);
 
             /**
              Set the verbosity of MemoryManager debug messages.
              @param level - 0 = No debug messages. > 0 print debug messages.
              */
-             void set_debug_level( int level);
+            void set_debug_level(int level);
 
             /**
              Indicate whether a checkpoint should represent arrays and their values as one
              assignment or as individual assignments to each of its elements.
-             @param flag - true: Arrays and their values are represented as multiple assignments, one for each array element.
-                           false: (default) Arrays and their values are compactly represented as one assignment.
+             @param flag - true: Arrays and their values are represented as multiple assignments, one for each array
+             element. false: (default) Arrays and their values are compactly represented as one assignment.
              */
-             void set_expanded_arrays( bool flag);
+            void set_expanded_arrays(bool flag);
 
             /**
              Indicate whether a checkpoint should include assignments to variables whose values are 0.
              @param flag - true: (default) Assignments are created only for non zero-valued variables.
                            false: Assignments are created for all variables, regardless of their value.
              */
-             void set_reduced_checkpoint( bool flag);
+            void set_reduced_checkpoint(bool flag);
 
             /**
              Indicate whether a checkpoint should represent floating point values as "hexfloat" values.
@@ -279,34 +276,36 @@ namespace Trick {
              @param flag - false: Assignments are created for all variables, regardless of their value.
                            true: Assignments are created only for non zero-valued variables.
              */
-             void set_hexfloat_checkpoint( bool flag);
-
-             /**
-              Return if the checkpoint is set to use hexfloat format for floating point values.
-              @return true if hexfloat format is enabled, false otherwise.
-              */
-             bool is_hexfloat_checkpoint();
-
-             /**
-              Indicate whether print a comment line for "hexfloat" values using decimal representation.
-              Hexfloat format preserves the precision of floating point values, but isn't readable by
-              sane human beings.
-             @param flag - false: Don't print a comment line for "hexfloat" values using decimal representation.
-                           true: Print a comment line for "hexfloat" values using decimal representation.
-             */
-             void set_hexfloat_decimal_comment_checkpoint( bool flag);
+            void set_hexfloat_checkpoint(bool flag);
 
             /**
-             Set the value(s) of the variable at the given address to 0, 0.0, NULL, false or "", as appropriate for the type.
+             Return if the checkpoint is set to use hexfloat format for floating point values.
+             @return true if hexfloat format is enabled, false otherwise.
+             */
+            bool is_hexfloat_checkpoint();
+
+            /**
+             Indicate whether print a comment line for "hexfloat" values using decimal representation.
+             Hexfloat format preserves the precision of floating point values, but isn't readable by
+             sane human beings.
+            @param flag - false: Don't print a comment line for "hexfloat" values using decimal representation.
+                          true: Print a comment line for "hexfloat" values using decimal representation.
+            */
+            void set_hexfloat_decimal_comment_checkpoint(bool flag);
+
+            /**
+             Set the value(s) of the variable at the given address to 0, 0.0, NULL, false or "", as appropriate for the
+             type.
              @param address - The address of the variable to be cleared.
              */
-            void clear_var( void* address);
+            void clear_var(void* address);
 
             /**
-             Set the value(s) of the variable with the given name to 0, 0.0, NULL, false or "", as appropriate for the type.
+             Set the value(s) of the variable with the given name to 0, 0.0, NULL, false or "", as appropriate for the
+             type.
              @param var_name - The name of the variable to be cleared.
              */
-            void clear_var( const char* var_name);
+            void clear_var(const char* var_name);
 
             /**
              Set the value(s) of all variables to 0, 0.0, NULL, false or "", as appropriate for the type.
@@ -347,72 +346,72 @@ namespace Trick {
              Checkpoint all allocations known to the MemoryManager to the given stream.
              @param out_s output stream.
              */
-            void write_checkpoint( std::ostream& out_s);
+            void write_checkpoint(std::ostream& out_s);
 
             /**
              Checkpoint all allocations known to the MemoryManager to a file.
              @param filename  Name of file to be written.
              */
-            void write_checkpoint( const char* filename);
+            void write_checkpoint(const char* filename);
 
             /**
              Checkpoint the named variable (allocation) and it dependencies to the given stream.
              @param out_s output stream.
              @param var_name  Variable name.
              */
-            void write_checkpoint( std::ostream& out_s, const char* var_name);
+            void write_checkpoint(std::ostream& out_s, const char* var_name);
 
             /**
              Checkpoint the named variable (allocation) and it dependencies to a file.
              @param filename  Checkpoint file.
              @param var_name  Variable name.
              */
-            void write_checkpoint( const char* filename, const char* var_name);
+            void write_checkpoint(const char* filename, const char* var_name);
 
             /**
              Checkpoint the named variables and their dependencies to a stream.
              @param out_s output stream.
              @param var_name_list List of variable names.
              */
-            void write_checkpoint( std::ostream& out_s, std::vector<const char*>& var_name_list);
+            void write_checkpoint(std::ostream& out_s, std::vector<const char*>& var_name_list);
 
             /**
              Checkpoint the named variables and their dependencies to a file.
              @param filename output file name.
              @param var_name_list List of variable names.
              */
-            void write_checkpoint( const char* filename, std::vector<const char*>& var_name_list);
+            void write_checkpoint(const char* filename, std::vector<const char*>& var_name_list);
 
             /**
              Restore a checkpoint from the given stream.
              @param in_s - input stream.
              */
-            int read_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
+            int read_checkpoint(std::istream* in_s, bool do_restore_stls = restore_stls_default);
 
             /**
              Read a checkpoint from the file of the given name.
              @param filename - name of the checkpoint file to be read.
              */
-            int read_checkpoint( const char* filename, bool do_restore_stls = restore_stls_default);
+            int read_checkpoint(const char* filename, bool do_restore_stls = restore_stls_default);
 
             /**
              Read a checkpoint from the given string.
              @param s - string containing the checkpoint info.
              */
-            int read_checkpoint_from_string( const char* s, bool do_restore_stls = restore_stls_default );
+            int read_checkpoint_from_string(const char* s, bool do_restore_stls = restore_stls_default);
 
             /**
              Delete all TRICK_LOCAL variables and clear all TRICK_EXTERN variables. Then read
              and restore the checkpoint from the given stream.
              @param in_s - input stream.
              */
-            int init_from_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
+            int init_from_checkpoint(std::istream* in_s, bool do_restore_stls = restore_stls_default);
 
             /**
              Delete all TRICK_LOCAL variables and clear all TRICK_EXTERN variables. Then read
              and restore the checkpoint of the given filename.
              */
-            int init_from_checkpoint( const char* filename, bool do_restore_stls = restore_stls_default);
+            int init_from_checkpoint(const char* filename, bool do_restore_stls = restore_stls_default);
 
             /**
              Deallocate the memory for all TRICK_LOCAL variables and then forget about them.
@@ -428,7 +427,8 @@ namespace Trick {
              @param attr      - pointer to parent attributes structure.
              @return 0 on success, otherwise failure.
              */
-            int add_attr_info(const std::string& type_name , ATTRIBUTES* attr , const char * file_name = "None" , unsigned int line_num = 0 ) ;
+            int add_attr_info(const std::string& type_name, ATTRIBUTES* attr, const char* file_name = "None",
+                unsigned int line_num = 0);
 
             /**
              Adds a template name translation to our map.  The base template type is mangled to the io_src name
@@ -436,7 +436,7 @@ namespace Trick {
              @param attr_name - mangled attribute name
              @return 0 on success, otherwise failure.
              */
-            int add_template_name_trans(std::string template_name , std::string attr_name) ;
+            int add_template_name_trans(std::string template_name, std::string attr_name);
 
             /**
              Add a variable.
@@ -449,10 +449,7 @@ namespace Trick {
              @todo this needs a better description.
              @todo get rid of the units arg. It belongs as an assignment arg.
              */
-            void* add_var( TRICK_TYPE   type,
-                           const char*  class_name,
-                           VAR_DECLARE* var_declare,
-                           char*        units);
+            void* add_var(TRICK_TYPE type, const char* class_name, VAR_DECLARE* var_declare, char* units);
 
             /**
              Add a list of variables.
@@ -462,10 +459,7 @@ namespace Trick {
              @param units - units associated with the variable.
              @todo get rid of the units arg. It belongs as an assignment arg.
              */
-            int add_vars( TRICK_TYPE  type,
-                          const char* class_name,
-                          VAR_LIST*   var_list,
-                          char*       units);
+            int add_vars(TRICK_TYPE type, const char* class_name, VAR_LIST* var_list, char* units);
 
             /**
              Allocates memory for the variable specified by R. Note that R->address
@@ -477,7 +471,7 @@ namespace Trick {
              @param num Number of items to allocate.
              @return 0 on success, otherwise failure.
              */
-            int ref_allocate( REF2* R, int num ) ;
+            int ref_allocate(REF2* R, int num);
 
             /**
              Generate and return a REF2 reference object for the named variable.
@@ -485,13 +479,13 @@ namespace Trick {
              @param name - fully qualified variable name.
              @return pointer to REF2 object, or NULL on failure.
              */
-            REF2 *ref_attributes( const char* name);
+            REF2* ref_attributes(const char* name);
 
             /**
              @param address - Address for which a name reference is needed.
              @return a name reference for the given address.
              */
-            std::string ref_name_from_address (void *address) ;
+            std::string ref_name_from_address(void* address);
 
             /**
              Assigns values from the given value list to the memory locations
@@ -500,7 +494,7 @@ namespace Trick {
              @param V Tree of values to be assigned to the variable referenced by R.
              @return 0 on success, otherwise failure.
              */
-            int ref_assignment( REF2* R, V_TREE* V);
+            int ref_assignment(REF2* R, V_TREE* V);
 
             /**
              Populate the REF2 object pointed to by R with the attributes and address
@@ -510,7 +504,7 @@ namespace Trick {
              @return 0 on success, otherwise failure.
              @todo rename to ref_base.
              */
-            int ref_var( REF2* R, char* name);
+            int ref_var(REF2* R, char* name);
 
             /**
              Updates R, a reference to an arrayed object, to a reference
@@ -519,7 +513,7 @@ namespace Trick {
              @param V index of a sub-element the structured object referenced by R.
              @todo V_DATA arg needs to be changed to an int.
              */
-            int ref_dim( REF2* R, V_DATA* V);
+            int ref_dim(REF2* R, V_DATA* V);
 
             /**
              Updates R, a reference to a structured object, to a reference
@@ -527,7 +521,7 @@ namespace Trick {
              @param R reference to the structured object of which @b name names a sub-element.
              @param name name of a sub-element the structured object referenced by R.
              */
-            int ref_name(REF2 * R, char *name);
+            int ref_name(REF2* R, char* name);
 
             /**
              Return the value associated with the name.
@@ -540,37 +534,37 @@ namespace Trick {
              Return the number of array elements in the allocation.
              @param addr Address.
              */
-            int get_size(void *addr);
+            int get_size(void* addr);
 
             /**
              Return the number of array elements in the allocation following ptr.
              @param addr Address.
              */
-            int get_truncated_size(void *addr);
+            int get_truncated_size(void* addr);
 
             /**
              @todo does this work?
              */
-            int io_get_fixed_truncated_size(char *ptr, ATTRIBUTES * A, char *str, int dims, ATTRIBUTES * left_type);
+            int io_get_fixed_truncated_size(char* ptr, ATTRIBUTES* A, char* str, int dims, ATTRIBUTES* left_type);
 
             /**
              Get information for the allocation containing the specified address.
              @param addr The Address.
              */
-            ALLOC_INFO* get_alloc_info_of( void* addr);
+            ALLOC_INFO* get_alloc_info_of(void* addr);
 
             /**
              Get information for the allocation starting at the specified address.
              @param addr The Address.
              */
-            ALLOC_INFO* get_alloc_info_at( void* addr);
+            ALLOC_INFO* get_alloc_info_at(void* addr);
 
             /**
              Names an allocation in the ALLOC_INFO map to the incoming name.
              @param addr The Address.
              @param name The Name.
              */
-            int set_name_at( void* addr, const char * name);
+            int set_name_at(void* addr, const char* name);
 
             /**
              Adds a name of an allocation to the dependency list of allocations that are to be checkpointed.
@@ -578,27 +572,26 @@ namespace Trick {
              dependencies during the checkpoint process.
              @param name The name of the allocation.
              */
-            void add_checkpoint_alloc_dependency(const char * name);
+            void add_checkpoint_alloc_dependency(const char* name);
 
             /**
              Opens a handle to the shared library file.  The handles are used to look for io_src functions.
              @param file_name The name of the file to open.
              */
-            int add_shared_library_symbols( const char * file_name );
+            int add_shared_library_symbols(const char* file_name);
 
-
-            std::vector<void*> dlhandles ; /**< ** dynamic loader handle left open for all dl (dlsym) calls */
+            std::vector<void*> dlhandles; /**< ** dynamic loader handle left open for all dl (dlsym) calls */
 
             /**
              Get the current MemoryManager's CheckPointAgent
              */
-            CheckPointAgent * get_CheckPointAgent();
+            CheckPointAgent* get_CheckPointAgent();
 
             /**
              Set the MemoryManager's CheckPointAgent to a user-specified CheckPointAgent.
              @param agent pointer to the user-specified CheckPointAgent.
              */
-            void set_CheckPointAgent( CheckPointAgent* agent);
+            void set_CheckPointAgent(CheckPointAgent* agent);
 
             /**
              Set the MemoryManager's CheckPointAgent to the default, "Classic" CheckPointAgent.
@@ -612,7 +605,7 @@ namespace Trick {
             @param address - address of the variable.
             @param attr - data type attributes of the variable.
              */
-            void write_var( std::ostream& out_s, void* address, ATTRIBUTES* attr);
+            void write_var(std::ostream& out_s, void* address, ATTRIBUTES* attr);
 
             /**
             Write the contents of the variable at the given address, as described by the
@@ -620,7 +613,7 @@ namespace Trick {
             @param out_s - output stream.
             @param alloc_info - pointer to the ALLOC_INFO record for this variable.
              */
-            void write_var( std::ostream& out_s, ALLOC_INFO* alloc_info );
+            void write_var(std::ostream& out_s, ALLOC_INFO* alloc_info);
 
             /**
             Write the contents of the variable with the given name to the given stream.
@@ -628,7 +621,7 @@ namespace Trick {
             @param out_s - output stream.
             @param var_name - Name of the variable.
              */
-            void write_var( std::ostream& out_s, const char* var_name );
+            void write_var(std::ostream& out_s, const char* var_name);
 
             /**
             Write the contents of the variable at the given address to the given stream.
@@ -636,26 +629,27 @@ namespace Trick {
             @param out_s - output stream.
             @param address - address of the variable.
              */
-            void write_var( std::ostream& out_s, void* address );
+            void write_var(std::ostream& out_s, void* address);
 
             /**
              @attention This function is not meant for general use. Use write_var or write_checkpoint instead.
 
              Write the contents of the composite variable (struct|union|class) at the given address to the given stream.
              */
-            void write_composite_var( std::ostream& out_s, void* address, ATTRIBUTES* attr_list);
+            void write_composite_var(std::ostream& out_s, void* address, ATTRIBUTES* attr_list);
 
             /**
              @attention This function is not meant for general use. Use write_var or write_checkpoint instead.
 
              Write the contents of the arrayed variable at the given address to the given stream.
              */
-            void write_array_var( std::ostream& out_s, void* address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void write_array_var(std::ostream& out_s, void* address, ATTRIBUTES* attr, int curr_dim, int offset);
 
             /**
              Make a string representation of a declaration.
              */
-            std::string make_decl_string(TRICK_TYPE type, std::string class_name, int n_stars, std::string var_name, int n_cdims, int *cdims);
+            std::string make_decl_string(
+                TRICK_TYPE type, std::string class_name, int n_stars, std::string var_name, int n_cdims, int* cdims);
 
             /**
              * Given an address, populate the attributes instance describing the properties of the address and any
@@ -674,97 +668,102 @@ namespace Trick {
              */
             size_t io_src_sizeof_user_type(const char* user_type_name);
 
-            ALLOC_INFO_MAP_ITER alloc_info_map_begin() { return alloc_info_map.begin() ; } ;
-            ALLOC_INFO_MAP_ITER alloc_info_map_end() { return alloc_info_map.end() ; } ;
+            ALLOC_INFO_MAP_ITER alloc_info_map_begin() { return alloc_info_map.begin(); };
+            ALLOC_INFO_MAP_ITER alloc_info_map_end() { return alloc_info_map.end(); };
 
-            VARIABLE_MAP_ITER variable_map_begin() { return variable_map.begin() ; } ;
-            VARIABLE_MAP_ITER variable_map_end() { return variable_map.end() ; } ;
+            VARIABLE_MAP_ITER variable_map_begin() { return variable_map.begin(); };
+            VARIABLE_MAP_ITER variable_map_end() { return variable_map.end(); };
 
             int debug_level; /**< -- Debug level */
-            static void emitMessage( std::string s);
-            static void emitError( std::string s);
-            static void emitWarning( std::string s);
+            static void emitMessage(std::string s);
+            static void emitError(std::string s);
+            static void emitWarning(std::string s);
 
-            void write_JSON_alloc_info( std::ostream& s, ALLOC_INFO *alloc_info) ;
-            void write_JSON_alloc_list( std::ostream& s, int start_ix, int num) ;
+            void write_JSON_alloc_info(std::ostream& s, ALLOC_INFO* alloc_info);
+            void write_JSON_alloc_list(std::ostream& s, int start_ix, int num);
 
-            int set_restore_stls_default (bool on);
-            static bool restore_stls_default;  /**< -- true = restore STL variables on checkpoint restore if user does not specify option. false = don't */
-
+            int set_restore_stls_default(bool on);
+            static bool restore_stls_default; /**< -- true = restore STL variables on checkpoint restore if user does
+                                                 not specify option. false = don't */
 
         private:
-
-            static int instance_count;          /**< -- Number of instances of MemoryManager. Not allowed to exceed 1.*/
-            const char* local_anon_var_prefix;  /**< -- Temporary-variable-name prefix. */
+            static int instance_count; /**< -- Number of instances of MemoryManager. Not allowed to exceed 1.*/
+            const char* local_anon_var_prefix; /**< -- Temporary-variable-name prefix. */
             const char* extern_anon_var_prefix; /**< -- Temporary-variable-name prefix. */
             CheckPointAgent* currentCheckPointAgent; /**< ** currently active Check point agent. */
             CheckPointAgent* defaultCheckPointAgent; /**< ** the classic Check point agent. */
 
-            bool reduced_checkpoint;                    /**< -- true = Don't write zero valued variables in the checkpoint. false= Write all values. */
-            bool hexfloat_checkpoint;                   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */
-            bool hexfloat_decimal_comment_checkpoint;   /**< -- true = Add decimal representation comment for hexfloat values. false= no decimal representation comment. */
-            bool expanded_arrays;                       /**< -- true = array element values are set in separate assignments. */
+            bool reduced_checkpoint; /**< -- true = Don't write zero valued variables in the checkpoint. false= Write
+                                        all values. */
+            bool hexfloat_checkpoint; /**< -- true = Represent floating point values as hexidecimal to preserve
+                                         precision. false= Normal. */
+            bool hexfloat_decimal_comment_checkpoint; /**< -- true = Add decimal representation comment for hexfloat
+                                                         values. false= no decimal representation comment. */
+            bool expanded_arrays; /**< -- true = array element values are set in separate assignments. */
 
-            ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
-            VARIABLE_MAP    variable_map;    /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */
+            ALLOC_INFO_MAP alloc_info_map; /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed
+                                              allocations. */
+            VARIABLE_MAP variable_map; /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */
             ENUMERATION_MAP enumeration_map; /**< ** Enumeration map. */
-            pthread_mutex_t mm_mutex;        /**< ** Mutex to control access to memory manager maps */
+            pthread_mutex_t mm_mutex; /**< ** Mutex to control access to memory manager maps */
 
-            int alloc_info_map_counter ;     /**< ** counter to assign unique ids to allocations as they are added to map */
-            int extern_alloc_info_map_counter ; /**< ** counter to assign unique ids to allocations as they are added to map */
+            int alloc_info_map_counter; /**< ** counter to assign unique ids to allocations as they are added to map */
+            int extern_alloc_info_map_counter; /**< ** counter to assign unique ids to allocations as they are added to
+                                                  map */
 
             std::vector<ALLOC_INFO*> dependencies; /**< ** list of allocations used in a checkpoint. */
-            std::vector<ALLOC_INFO*> stl_dependencies; /**< ** list of allocations known to be STL checkpoint allocations */
-	    bool resetting_memory;
-	    std::list<void*> deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
+            std::vector<ALLOC_INFO*>
+                stl_dependencies; /**< ** list of allocations known to be STL checkpoint allocations */
+            bool resetting_memory;
+            std::list<void*>
+                deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
 
-            void execute_checkpoint( std::ostream& out_s );
+            void execute_checkpoint(std::ostream& out_s);
 
             /**
              Walks through allocation and allocates space for STLs
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_stl_dependencies( ALLOC_INFO* alloc_info );
-            void get_stl_dependencies_in_class( std::string name, char* address, ATTRIBUTES* attr) ;
-            void get_stl_dependencies_in_arrayed_class( std::string name,
-             char* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
-            void get_stl_dependencies_in_intrinsic( std::string name,
-             void* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
+            void get_stl_dependencies(ALLOC_INFO* alloc_info);
+            void get_stl_dependencies_in_class(std::string name, char* address, ATTRIBUTES* attr);
+            void get_stl_dependencies_in_arrayed_class(
+                std::string name, char* address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void get_stl_dependencies_in_intrinsic(
+                std::string name, void* address, ATTRIBUTES* attr, int curr_dim, int offset);
 
             /**
              Walks through allocations and restores STLs
              FIXME: I NEED DOCUMENTATION!
              */
-            void restore_stls( ALLOC_INFO* alloc_info );
-            void restore_stls_in_class( std::string name, char* address, ATTRIBUTES* attr) ;
-            void restore_stls_in_arrayed_class( std::string name,
-             char* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
-            void restore_stls_in_intrinsic( std::string name,
-             void* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
+            void restore_stls(ALLOC_INFO* alloc_info);
+            void restore_stls_in_class(std::string name, char* address, ATTRIBUTES* attr);
+            void restore_stls_in_arrayed_class(
+                std::string name, char* address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void restore_stls_in_intrinsic(std::string name, void* address, ATTRIBUTES* attr, int curr_dim, int offset);
 
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_allocation( ALLOC_INFO* alloc_info );
+            void get_alloc_deps_in_allocation(ALLOC_INFO* alloc_info);
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_allocation( const char* var_name );
+            void get_alloc_deps_in_allocation(const char* var_name);
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_class( char* address, ATTRIBUTES* attr);
+            void get_alloc_deps_in_class(char* address, ATTRIBUTES* attr);
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_arrayed_class( char* address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void get_alloc_deps_in_arrayed_class(char* address, ATTRIBUTES* attr, int curr_dim, int offset);
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_intrinsic( void* address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void get_alloc_deps_in_intrinsic(void* address, ATTRIBUTES* attr, int curr_dim, int offset);
 
-            std::set< std::string > primitive_types ; /**< ** Names of primitive types.  Used in add_attr_info */
-            std::map< std::string , std::string > template_name_map ; /**< ** Templates names => mangled attr names */
+            std::set<std::string> primitive_types; /**< ** Names of primitive types.  Used in add_attr_info */
+            std::map<std::string, std::string> template_name_map; /**< ** Templates names => mangled attr names */
 
             /**
              Assign the value(s) in v_tree to the variable at the given address.
@@ -778,7 +777,8 @@ namespace Trick {
              @param v_tree - RHS data to be assigned.
              @param cf - units conversion function.
              */
-            int assign_recursive(void* base_addr, ATTRIBUTES* attr, int curr_dim, int offset, V_TREE* v_tree, cv_converter * cf);
+            int assign_recursive(
+                void* base_addr, ATTRIBUTES* attr, int curr_dim, int offset, V_TREE* v_tree, cv_converter* cf);
 
             /**
              Copy the common elements from one array to another. The arrays must be of the same dimension,
@@ -795,7 +795,8 @@ namespace Trick {
              @param s_off - source offset in the current dimension.
              @param d_off - destination offset in the current dimension.
              */
-            void recursive_array_copy( void* s_base, void* d_base, int* s_cdims, int* d_cdims, size_t size, int n, int cur, int s_off, int d_off);
+            void recursive_array_copy(void* s_base, void* d_base, int* s_cdims, int* d_cdims, size_t size, int n,
+                int cur, int s_off, int d_off);
 
             /**
              Convenience version of recursive_array_copy.
@@ -807,23 +808,24 @@ namespace Trick {
              @param size - sizeof an individual array element.
              @param n - number of array dimensions. s_cdims and d_cdims are both this size.
              */
-            void array_copy( void* s_base, void* d_base, int* s_cdims, int* d_cdims, size_t size, int n);
+            void array_copy(void* s_base, void* d_base, int* s_cdims, int* d_cdims, size_t size, int n);
 
             /**
              {Trick_type, class_name, n_stars} ==> {sub_attr, size}
              */
-            int get_type_attributes( TRICK_TYPE& type, std::string user_type_name, int n_stars, ATTRIBUTES*& sub_attr, int& size);
+            int get_type_attributes(
+                TRICK_TYPE& type, std::string user_type_name, int n_stars, ATTRIBUTES*& sub_attr, int& size);
 
             /**
              Create reference attributes from the the given ALLOC_INFO record.
              @param alloc_info pointer to the ALLOC_INFO record.
              */
-            ATTRIBUTES* make_reference_attr( ALLOC_INFO* alloc_info);
+            ATTRIBUTES* make_reference_attr(ALLOC_INFO* alloc_info);
 
             /**
              Delete/free the given reference attributes.
              */
-            void free_reference_attr( ATTRIBUTES* reference_attr);
+            void free_reference_attr(ATTRIBUTES* reference_attr);
 
             /**
              Allocate one or more instances of the named class.
@@ -837,19 +839,19 @@ namespace Trick {
              Call the default destructor for one or more instances of the named class.
              @param alloc_info The alloc_info struct that contains the address and type to delete.
              */
-            void io_src_destruct_class(ALLOC_INFO * alloc_info);
+            void io_src_destruct_class(ALLOC_INFO* alloc_info);
 
             /**
              Call the proper class/struct delete for the address given in the ALLOC_INFO struct.
              @param alloc_info The alloc_info struct that contains the address and type to delete.
              */
-            void io_src_delete_class(ALLOC_INFO * alloc_info);
+            void io_src_delete_class(ALLOC_INFO* alloc_info);
 
             /**
              Clear the specified primitive or or array of primitives, beginning at the given base_address,
              described by attr, and whose specific array element is specified by curr_dim, and offset.
              */
-            void clear_rvalue( void* base_address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void clear_rvalue(void* base_address, ATTRIBUTES* attr, int curr_dim, int offset);
 
             /**
              Clear the variable at the given address. That is, set the value(s) of the variable
@@ -866,24 +868,24 @@ namespace Trick {
              This too is only meant to be called from within other "critical-section" code that
              is surrounded by mutex lock and unlock.
              */
-            void clear_class( char *address, ATTRIBUTES * A);
+            void clear_class(char* address, ATTRIBUTES* A);
 
             /**
             Clear the elements of the array at <address>, described by <attributes>, and whose .
             This too is only meant to be called from within other "critical-section" code that
             is surrounded by mutex lock and unlock.
              */
-            void clear_arrayed_class( char* address, ATTRIBUTES* A, int curr_dim, int offset);
+            void clear_arrayed_class(char* address, ATTRIBUTES* A, int curr_dim, int offset);
 
             /**
-             Write the given alloc_info data structure in a human readable to stdout. 
+             Write the given alloc_info data structure in a human readable to stdout.
              */
-            void debug_write_alloc_info( ALLOC_INFO *alloc_info);
+            void debug_write_alloc_info(ALLOC_INFO* alloc_info);
 
             /**
              Returns a pointer to the udunits system we are using.
              */
-            ut_system * get_unit_system() ;
+            ut_system* get_unit_system();
 
     }; // endof class MemoryManager
 

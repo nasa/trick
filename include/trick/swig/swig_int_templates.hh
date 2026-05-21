@@ -14,8 +14,7 @@
 #include <type_traits>
 #include <udunits2.h>
 
-template <typename T>
-static void test_attr_units_and_set(T& swig_inst, ATTRIBUTES& attr, const std::string& syname)
+template <typename T> static void test_attr_units_and_set(T& swig_inst, ATTRIBUTES& attr, const std::string& syname)
 {
     if (attr.units)
     {
@@ -24,12 +23,11 @@ static void test_attr_units_and_set(T& swig_inst, ATTRIBUTES& attr, const std::s
     else
     {
         std::string temp_name = Trick::UnitsMap::units_map()->get_units(syname.substr(0, syname.length() - 4));
-        swig_inst.units = temp_name;
+        swig_inst.units       = temp_name;
     }
 }
 
-template <>
-void test_attr_units_and_set<swig_ref>(swig_ref& swig_inst, ATTRIBUTES& attr, const std::string& syname)
+template <> void test_attr_units_and_set<swig_ref>(swig_ref& swig_inst, ATTRIBUTES& attr, const std::string& syname)
 {
     if (attr.units)
     {
@@ -37,17 +35,13 @@ void test_attr_units_and_set<swig_ref>(swig_ref& swig_inst, ATTRIBUTES& attr, co
     }
     else
     {
-        std::string temp_name = Trick::UnitsMap::units_map()->get_units(syname.substr(0, syname.length() - 4));
+        std::string temp_name     = Trick::UnitsMap::units_map()->get_units(syname.substr(0, syname.length() - 4));
         swig_inst.ref.attr->units = strdup(temp_name.c_str());
     }
 }
 
-static void init_swig_ref_attributes_for_dimensions(swig_ref& swig_inst,
-    ATTRIBUTES& addrAttr,
-    size_t offsetRemainder,
-    const std::string& symname,
-    const std::string& tname,
-    size_t expectedNumDimensions)
+static void init_swig_ref_attributes_for_dimensions(swig_ref& swig_inst, ATTRIBUTES& addrAttr, size_t offsetRemainder,
+    const std::string& symname, const std::string& tname, size_t expectedNumDimensions)
 {
     if (addrAttr.num_index == 0)
     {
@@ -64,8 +58,8 @@ static void init_swig_ref_attributes_for_dimensions(swig_ref& swig_inst,
         if (addrAttr.num_index == expectedNumDimensions)
         {
             swig_inst.ref.attr->num_index = addrAttr.num_index;
-            swig_inst.ref.address = (char*)swig_inst.ref.address - offsetRemainder;
-            swig_inst.ref.attr->offset = offsetRemainder;
+            swig_inst.ref.address         = (char*)swig_inst.ref.address - offsetRemainder;
+            swig_inst.ref.attr->offset    = offsetRemainder;
             for (int dim = 0; dim < addrAttr.num_index; ++dim)
             {
                 swig_inst.ref.attr->index[dim].size = addrAttr.index[dim].size;
@@ -82,7 +76,7 @@ static void init_swig_ref_attributes_for_dimensions(swig_ref& swig_inst,
             }
             // Flatten to 1d
             swig_inst.ref.attr->num_index = 1;
-            size_t totalElements = 1;
+            size_t totalElements          = 1;
             for (int dim = 0; dim < addrAttr.num_index; ++dim)
             {
                 if (addrAttr.index[dim].size != 0)
@@ -107,8 +101,8 @@ static void alloc_and_get_primitive_vs_enum_attributes(
     // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
     if (primAttr == NULL)
     {
-        primAttr = new ATTRIBUTES();
-        swig_inst.ref.attr = primAttr;
+        primAttr                 = new ATTRIBUTES();
+        swig_inst.ref.attr       = primAttr;
         swig_inst.ref.attr->size = sizeof(Pointee);
         switch (swig_inst.ref.attr->size)
         {
@@ -129,276 +123,362 @@ static void alloc_and_get_primitive_vs_enum_attributes(
             break;
         }
         swig_inst.ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
-        addrAttr.units = nullptr;
+        addrAttr.units         = nullptr;
     }
-    swig_inst.ref.attr = primAttr;
+    swig_inst.ref.attr            = primAttr;
     swig_inst.ref.attr->type_name = strdup(type_name.c_str());
 }
 
-template< class S , typename T > static int convert_and_set( T & output , void * my_argp , std::string to_units ) {
-    int ret = 0 ;
+template <class S, typename T> static int convert_and_set(T& output, void* my_argp, std::string to_units)
+{
+    int ret = 0;
 
-    S * temp_m = reinterpret_cast< S * >(my_argp) ;
-    if ( temp_m->units.compare("1") ) {
-        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
-        if ( !from ) {
+    S* temp_m = reinterpret_cast<S*>(my_argp);
+    if (temp_m->units.compare("1"))
+    {
+        ut_unit* from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII);
+        if (!from)
+        {
             std::string temp_str = std::string("could not covert from units " + temp_m->units);
-            PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
-            return -1 ;
+            PyErr_SetString(PyExc_AttributeError, (temp_str.c_str()));
+            return -1;
         }
-        ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), to_units.c_str(), UT_ASCII) ;
-        if ( !to ) {
-            std::string temp_str = std::string("could not covert to units " + to_units) ;
-            PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
-            return -1 ;
+        ut_unit* to = ut_parse(Trick::UdUnits::get_u_system(), to_units.c_str(), UT_ASCII);
+        if (!to)
+        {
+            std::string temp_str = std::string("could not covert to units " + to_units);
+            PyErr_SetString(PyExc_AttributeError, (temp_str.c_str()));
+            return -1;
         }
 
-        cv_converter * converter = ut_get_converter(from,to) ;
-        if ( converter ) {
-            output = (T)cv_convert_double(converter, temp_m->value ) ;
-            cv_free(converter) ;
-        } else {
-            PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
-            return -1 ;
+        cv_converter* converter = ut_get_converter(from, to);
+        if (converter)
+        {
+            output = (T)cv_convert_double(converter, temp_m->value);
+            cv_free(converter);
         }
-    } else {
-        output = (T)temp_m->value ;
+        else
+        {
+            PyErr_SetString(PyExc_AttributeError, "Units conversion Error");
+            return -1;
+        }
     }
-    return ret ;
+    else
+    {
+        output = (T)temp_m->value;
+    }
+    return ret;
 }
 
-template<typename T > static int typemap_in_scalar( T & output , PyObject *input , const char * symname ) {
-
+template <typename T> static int typemap_in_scalar(T& output, PyObject* input, const char* symname)
+{
     // SCALAR IN
-    std::string temp_name ;
-    std::string left_units ;
-    void * my_argp ;
-    int ret = 0 ;
+    std::string temp_name;
+    std::string left_units;
+    void* my_argp;
+    int ret = 0;
 
-    temp_name = symname ;
-    if ( temp_name.length() > 4 ) {
-        temp_name.erase(temp_name.length() - 4) ;
+    temp_name = symname;
+    if (temp_name.length() > 4)
+    {
+        temp_name.erase(temp_name.length() - 4);
     }
-    left_units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
-    //std::cerr << "\033[33mleft side units = " << left_units << "\033[00m" << std::endl ;
+    left_units = Trick::UnitsMap::units_map()->get_units(temp_name);
+    // std::cerr << "\033[33mleft side units = " << left_units << "\033[00m" << std::endl ;
 
-    if (SWIG_IsOK(SWIG_ConvertPtr(input, &my_argp,SWIG_TypeQuery("_p_swig_int"), 0 ))) {
-        ret = convert_and_set< swig_int , T >( output , my_argp , left_units ) ;
-    } else if (SWIG_IsOK(SWIG_ConvertPtr(input, &my_argp,SWIG_TypeQuery("_p_swig_double"), 0 ))) {
-        ret = convert_and_set< swig_double , T >( output , my_argp , left_units ) ;
-    } else if ( PyFloat_Check(input) ) {
-        output = (T)PyFloat_AsDouble(input) ;
-    } else if ( PyInt_Check(input) ) {
-        output = (T)PyInt_AsLong(input) ;
+    if (SWIG_IsOK(SWIG_ConvertPtr(input, &my_argp, SWIG_TypeQuery("_p_swig_int"), 0)))
+    {
+        ret = convert_and_set<swig_int, T>(output, my_argp, left_units);
+    }
+    else if (SWIG_IsOK(SWIG_ConvertPtr(input, &my_argp, SWIG_TypeQuery("_p_swig_double"), 0)))
+    {
+        ret = convert_and_set<swig_double, T>(output, my_argp, left_units);
+    }
+    else if (PyFloat_Check(input))
+    {
+        output = (T)PyFloat_AsDouble(input);
+    }
+    else if (PyInt_Check(input))
+    {
+        output = (T)PyInt_AsLong(input);
 // PyUnicode_GET_SIZE: deprecated since Python 3.3 and removed in Python 3.12
 // PyUnicode_GET_LENGTH: new in Python 3.3
 #if PY_VERSION_HEX >= 0x03000000
-    } else if ( PyUnicode_Check(input) ) {
-        #if defined(PyUnicode_GET_LENGTH)
-        if ( PyUnicode_GET_LENGTH(input) == 1 ) {
-        #else
-        if ( PyUnicode_GET_SIZE(input) == 1 ) {
-        #endif
-            PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
-            char * temp_str = PyBytes_AS_STRING(temp) ;
-            output = (T)temp_str[0] ;
+    }
+    else if (PyUnicode_Check(input))
+    {
+#if defined(PyUnicode_GET_LENGTH)
+        if (PyUnicode_GET_LENGTH(input) == 1)
+        {
+#else
+        if (PyUnicode_GET_SIZE(input) == 1)
+        {
+#endif
+            PyObject* temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
+            char* temp_str = PyBytes_AS_STRING(temp);
+            output         = (T)temp_str[0];
         }
 #else
-    } else if ( PyString_Check(input) ) {
+    }
+    else if (PyString_Check(input))
+    {
         // scalar char as a string.  Set the value of the output to the value of the first char.
-        if ( PyString_Size(input) == 1 ) {
-            char * temp_str = PyString_AsString(input) ;
-            output = (T)temp_str[0] ;
+        if (PyString_Size(input) == 1)
+        {
+            char* temp_str = PyString_AsString(input);
+            output         = (T)temp_str[0];
         }
 #endif
-    } else {
-        ret = -1 ;
+    }
+    else
+    {
+        ret = -1;
     }
 
-    return ret ;
+    return ret;
 }
 
-template<typename T > static T * typemap_in_1d( PyObject *input , unsigned int out_size, const char * symname ) {
-
-    void * argp2 ;
-    unsigned int ii ;
-    T * new_array ;
-    int ret ;
+template <typename T> static T* typemap_in_1d(PyObject* input, unsigned int out_size, const char* symname)
+{
+    void* argp2;
+    unsigned int ii;
+    T* new_array;
+    int ret;
 
     // convert list to tuple so we only have to deal with tuples in code below.
-    if (PyList_Check(input)) {
-        input = PyList_AsTuple(input) ;
+    if (PyList_Check(input))
+    {
+        input = PyList_AsTuple(input);
     }
 
-    if (PyTuple_Check(input)) {
-        unsigned int size = PyTuple_Size(input) ;
-        if ( size > out_size ) {
-           PyErr_SetString(PyExc_TypeError,"List too long to fit.");
-           return NULL ;
+    if (PyTuple_Check(input))
+    {
+        unsigned int size = PyTuple_Size(input);
+        if (size > out_size)
+        {
+            PyErr_SetString(PyExc_TypeError, "List too long to fit.");
+            return NULL;
         }
 
-        std::string temp_name ;
-        std::string left_units ;
+        std::string temp_name;
+        std::string left_units;
 
-        temp_name = symname ;
-        if ( temp_name.length() > 4 ) {
-            temp_name.erase(temp_name.length() - 4) ;
+        temp_name = symname;
+        if (temp_name.length() > 4)
+        {
+            temp_name.erase(temp_name.length() - 4);
         }
-        left_units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        left_units = Trick::UnitsMap::units_map()->get_units(temp_name);
 
-        new_array = (T *)calloc( out_size , sizeof(T));
+        new_array = (T*)calloc(out_size, sizeof(T));
 
-        for( ii = 0 ; ii < size ; ii++ ) {
-            PyObject *o = PyTuple_GetItem(input,ii) ;
-            if (PyFloat_Check(o)) {
-                new_array[ii] = (T)PyFloat_AsDouble(o) ;
-            } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2,SWIG_TypeQuery("_p_swig_int"), 0 ))) {
-                ret = convert_and_set< swig_int , T >( new_array[ii] , argp2 , left_units ) ;
-                if ( ret != 0 ) {
-                    free(new_array) ;
+        for (ii = 0; ii < size; ii++)
+        {
+            PyObject* o = PyTuple_GetItem(input, ii);
+            if (PyFloat_Check(o))
+            {
+                new_array[ii] = (T)PyFloat_AsDouble(o);
+            }
+            else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_int"), 0)))
+            {
+                ret = convert_and_set<swig_int, T>(new_array[ii], argp2, left_units);
+                if (ret != 0)
+                {
+                    free(new_array);
                     return NULL;
                 }
-            } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2,SWIG_TypeQuery("_p_swig_double"), 0 ))) {
-                ret = convert_and_set< swig_double , T >( new_array[ii] , argp2 , left_units ) ;
-                if ( ret != 0 ) {
-                    free(new_array) ;
+            }
+            else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_double"), 0)))
+            {
+                ret = convert_and_set<swig_double, T>(new_array[ii], argp2, left_units);
+                if (ret != 0)
+                {
+                    free(new_array);
                     return NULL;
                 }
-            } else if (PyInt_Check(o)) {
-                new_array[ii] = (T)PyInt_AsLong(o) ;
-            } else {
-                PyErr_SetString(PyExc_TypeError,"List must contain numerical values");
-                free(new_array) ;
+            }
+            else if (PyInt_Check(o))
+            {
+                new_array[ii] = (T)PyInt_AsLong(o);
+            }
+            else
+            {
+                PyErr_SetString(PyExc_TypeError, "List must contain numerical values");
+                free(new_array);
                 return NULL;
             }
         }
 #if PY_VERSION_HEX >= 0x03000000
-    } else if ( PyUnicode_Check(input) ) {
-        #if defined(PyUnicode_GET_LENGTH)
-        unsigned int size = PyUnicode_GET_LENGTH(input) ;
-        #else
-        unsigned int size = PyUnicode_GET_SIZE(input) ;
-        #endif
-        PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
-        char * temp_str = PyBytes_AS_STRING(temp) ;
+    }
+    else if (PyUnicode_Check(input))
+    {
+#if defined(PyUnicode_GET_LENGTH)
+        unsigned int size = PyUnicode_GET_LENGTH(input);
 #else
-    } else if ( PyString_Check(input) ) {
-        unsigned int size = PyString_Size(input) ;
-        char * temp_str = PyString_AsString(input) ;
+        unsigned int size = PyUnicode_GET_SIZE(input);
 #endif
-        if ( size > out_size ) {
-           PyErr_SetString(PyExc_TypeError,"List too long to fit.");
-           return NULL ;
+        PyObject* temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
+        char* temp_str = PyBytes_AS_STRING(temp);
+#else
+    }
+    else if (PyString_Check(input))
+    {
+        unsigned int size = PyString_Size(input);
+        char* temp_str    = PyString_AsString(input);
+#endif
+        if (size > out_size)
+        {
+            PyErr_SetString(PyExc_TypeError, "List too long to fit.");
+            return NULL;
         }
 
-        new_array = (T *)calloc( out_size , sizeof(T));
+        new_array = (T*)calloc(out_size, sizeof(T));
 
-        for( ii = 0 ; ii < size ; ii++ ){
-            new_array[ii] = (T)temp_str[ii] ;
+        for (ii = 0; ii < size; ii++)
+        {
+            new_array[ii] = (T)temp_str[ii];
         }
-    } else {
-        PyErr_SetString(PyExc_TypeError,"Input must be of type List");
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "Input must be of type List");
         return NULL;
     }
 
-    return new_array ;
+    return new_array;
 }
 
-template<typename T > static int typemap_in_1dp( PyObject *input , const char * basetype ,
-                                                 const char * symname , T ** output ) {
+template <typename T> static int typemap_in_1dp(PyObject* input, const char* basetype, const char* symname, T** output)
+{
     // INT *
-    void * argp2 ;
-    int ret ;
+    void* argp2;
+    int ret;
 
     // convert list to tuple so we only have to deal with tuples in code below.
-    if (PyList_Check(input)) {
-        input = PyList_AsTuple(input) ;
+    if (PyList_Check(input))
+    {
+        input = PyList_AsTuple(input);
     }
 
-    if (PyTuple_Check(input)) {
-        unsigned int size = PyTuple_Size(input) ;
-        unsigned int ii = 0;
+    if (PyTuple_Check(input))
+    {
+        unsigned int size = PyTuple_Size(input);
+        unsigned int ii   = 0;
 
-        std::string temp_name ;
-        std::string left_units ;
+        std::string temp_name;
+        std::string left_units;
 
-        temp_name = symname ;
-        if ( temp_name.length() > 4 ) {
-            temp_name.erase(temp_name.length() - 4) ;
+        temp_name = symname;
+        if (temp_name.length() > 4)
+        {
+            temp_name.erase(temp_name.length() - 4);
         }
-        left_units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        left_units = Trick::UnitsMap::units_map()->get_units(temp_name);
 
-        *output = (T *)TMM_declare_var_1d(basetype , size) ;
+        *output = (T*)TMM_declare_var_1d(basetype, size);
 
-        for( ii = 0 ; ii < size ; ii++ ) {
-            PyObject *o = PyTuple_GetItem(input,ii) ;
-            if (PyFloat_Check(o)) {
-                (*output)[ii] = (T)PyFloat_AsDouble(o) ;
-            } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2,SWIG_TypeQuery("_p_swig_int"), 0 ))) {
-                ret = convert_and_set< swig_int , T >( (*output)[ii] , argp2 , left_units ) ;
-                if ( ret != 0 ) {
-                    TMM_delete_var_a(*output) ;
-                    return -1;
-                }
-            } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2,SWIG_TypeQuery("_p_swig_double"), 0 ))) {
-                ret = convert_and_set< swig_double , T >( (*output)[ii] , argp2 , left_units ) ;
-                if ( ret != 0 ) {
-                    TMM_delete_var_a(*output) ;
-                    return -1;
-                }
-            } else if (PyInt_Check(o)) {
-                (*output)[ii] = (T)PyInt_AsLong(o) ;
-            } else {
-               PyErr_SetString(PyExc_TypeError,"List must contain int");
-               return -1;
+        for (ii = 0; ii < size; ii++)
+        {
+            PyObject* o = PyTuple_GetItem(input, ii);
+            if (PyFloat_Check(o))
+            {
+                (*output)[ii] = (T)PyFloat_AsDouble(o);
             }
-        }
-    } else if ( SWIG_IsOK(SWIG_ConvertPtr(input, &argp2,SWIG_TypeQuery("_p_swig_ref"), 0)) ) {
-        // Array to pointer assignment
-        swig_ref * temp_swig_ref = reinterpret_cast< swig_ref * >(argp2);
-        if ( temp_swig_ref != NULL ) {
-            *output = (T *)temp_swig_ref->ref.address ;
-        }
-        // package the array address as a void
-    } else if ( SWIG_IsOK(SWIG_ConvertPtr(input, &argp2,SWIG_TypeQuery("_p_REF2"), 0)) ) {
-        // We have an address coming in, we don't have to do any translation
-        REF2 * temp_ref = reinterpret_cast< REF2 * >(argp2) ;
-        if ( temp_ref != NULL ){
-            *output = (T *)temp_ref->address ;
-        }
-    } else if ( SWIG_IsOK(SWIG_ConvertPtr(input, &argp2,SWIG_TypeQuery("_p_void"), 0)) ) {
-        // We have an address coming in, we don't have to do any translation
-        *output = reinterpret_cast< T * >(argp2) ;
-    } else {
-        if ( !strncmp( basetype , "char" , 4 )) {
-#if PY_VERSION_HEX >= 0x03000000
-            if ( PyUnicode_Check(input) ) {
-                PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
-                *output = (T *)TMM_strdup(PyBytes_AS_STRING(temp)) ;
-#else
-            if ( PyString_Check(input) ) {
-                *output = (T *)TMM_strdup(PyString_AsString(input)) ;
-#endif
-            } else {
-                PyErr_SetString(PyExc_TypeError,"swig_int (char): Input must be of type List, string, or a pointer type");
+            else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_int"), 0)))
+            {
+                ret = convert_and_set<swig_int, T>((*output)[ii], argp2, left_units);
+                if (ret != 0)
+                {
+                    TMM_delete_var_a(*output);
+                    return -1;
+                }
+            }
+            else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_double"), 0)))
+            {
+                ret = convert_and_set<swig_double, T>((*output)[ii], argp2, left_units);
+                if (ret != 0)
+                {
+                    TMM_delete_var_a(*output);
+                    return -1;
+                }
+            }
+            else if (PyInt_Check(o))
+            {
+                (*output)[ii] = (T)PyInt_AsLong(o);
+            }
+            else
+            {
+                PyErr_SetString(PyExc_TypeError, "List must contain int");
                 return -1;
             }
-        } else {
-            PyErr_SetString(PyExc_TypeError,"swig_int: Input must be of type List or a pointer type");
+        }
+    }
+    else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_swig_ref"), 0)))
+    {
+        // Array to pointer assignment
+        swig_ref* temp_swig_ref = reinterpret_cast<swig_ref*>(argp2);
+        if (temp_swig_ref != NULL)
+        {
+            *output = (T*)temp_swig_ref->ref.address;
+        }
+        // package the array address as a void
+    }
+    else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_REF2"), 0)))
+    {
+        // We have an address coming in, we don't have to do any translation
+        REF2* temp_ref = reinterpret_cast<REF2*>(argp2);
+        if (temp_ref != NULL)
+        {
+            *output = (T*)temp_ref->address;
+        }
+    }
+    else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_void"), 0)))
+    {
+        // We have an address coming in, we don't have to do any translation
+        *output = reinterpret_cast<T*>(argp2);
+    }
+    else
+    {
+        if (!strncmp(basetype, "char", 4))
+        {
+#if PY_VERSION_HEX >= 0x03000000
+            if (PyUnicode_Check(input))
+            {
+                PyObject* temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
+                *output        = (T*)TMM_strdup(PyBytes_AS_STRING(temp));
+#else
+            if (PyString_Check(input))
+            {
+                *output = (T*)TMM_strdup(PyString_AsString(input));
+#endif
+            }
+            else
+            {
+                PyErr_SetString(
+                    PyExc_TypeError, "swig_int (char): Input must be of type List, string, or a pointer type");
+                return -1;
+            }
+        }
+        else
+        {
+            PyErr_SetString(PyExc_TypeError, "swig_int: Input must be of type List or a pointer type");
             return -1;
         }
     }
 
-    return 0 ;
+    return 0;
 }
 
 // Specialization for pointer types (char*, void*, etc.) - when T is already a pointer, we need T* not T**
-template<typename T > static int typemap_in_1dp( PyObject *input , const char * basetype ,
-                                                 const char * symname , T * output ) {
+template <typename T> static int typemap_in_1dp(PyObject* input, const char* basetype, const char* symname, T* output)
+{
     // Check if T is a pointer type by seeing if basetype contains '*'
     std::string type_str(basetype);
-    if (type_str.find('*') != std::string::npos || type_str.find("pointer") != std::string::npos) {
-        PyErr_SetString(PyExc_TypeError, "Trick does not support arrays/containers with pointer-typed elements (char*[], void*[], std::vector<char*>, etc.)");
+    if (type_str.find('*') != std::string::npos || type_str.find("pointer") != std::string::npos)
+    {
+        PyErr_SetString(PyExc_TypeError,
+            "Trick does not support arrays/containers with pointer-typed elements (char*[], void*[], "
+            "std::vector<char*>, etc.)");
         return -1;
     }
     // For non-pointer types, this shouldn't be called, but fall through to avoid issues
@@ -408,58 +488,68 @@ template<typename T > static int typemap_in_1dp( PyObject *input , const char * 
 
 // Allocate and populate T** from nested Python lists/tuples
 // Dynamic allocation for both dimensions via Trick Memory Manager
-template<typename T > static int typemap_in_2dp( PyObject *input , const char * basetype ,
-                                                 const char * symname , T *** output ) {
+template <typename T> static int typemap_in_2dp(PyObject* input, const char* basetype, const char* symname, T*** output)
+{
     // INT ** IN from nested lists
-    void * argp2 ;
+    void* argp2;
 
     // convert list to tuple so we only have to deal with tuples
-    if (PyList_Check(input)) {
-        input = PyList_AsTuple(input) ;
+    if (PyList_Check(input))
+    {
+        input = PyList_AsTuple(input);
     }
 
-    if (PyTuple_Check(input)) {
-        unsigned int size0 = PyTuple_Size(input) ;
+    if (PyTuple_Check(input))
+    {
+        unsigned int size0 = PyTuple_Size(input);
 
-        if (size0 == 0) {
+        if (size0 == 0)
+        {
             *output = NULL;
             return 0;
         }
 
         // Check first element to determine inner dimension
-        PyObject *first_row = PyTuple_GetItem(input, 0);
-        if (!PyTuple_Check(first_row) && !PyList_Check(first_row)) {
+        PyObject* first_row = PyTuple_GetItem(input, 0);
+        if (!PyTuple_Check(first_row) && !PyList_Check(first_row))
+        {
             PyErr_SetString(PyExc_TypeError, "Expected nested list/tuple for 2D array assignment");
             return -1;
         }
 
-        if (PyList_Check(first_row)) {
+        if (PyList_Check(first_row))
+        {
             first_row = PyList_AsTuple(first_row);
         }
 
         // Allocate array of pointers - need to add "*" to basetype for pointer array
         std::string pointer_type = std::string(basetype) + "*";
-        *output = (T **)TMM_declare_var_1d(pointer_type.c_str(), (int)size0);
-        if (*output == NULL) {
+        *output                  = (T**)TMM_declare_var_1d(pointer_type.c_str(), (int)size0);
+        if (*output == NULL)
+        {
             PyErr_SetString(PyExc_MemoryError, "Failed to allocate 2D array");
             return -1;
         }
 
         std::string temp_name = symname;
-        if (temp_name.length() > 4) {
+        if (temp_name.length() > 4)
+        {
             temp_name.erase(temp_name.length() - 4);
         }
         std::string left_units = Trick::UnitsMap::units_map()->get_units(temp_name);
 
         // Process each row
-        for (unsigned int ii = 0; ii < size0; ii++) {
-            PyObject *row = PyTuple_GetItem(input, ii);
+        for (unsigned int ii = 0; ii < size0; ii++)
+        {
+            PyObject* row = PyTuple_GetItem(input, ii);
 
-            if (PyList_Check(row)) {
+            if (PyList_Check(row))
+            {
                 row = PyList_AsTuple(row);
             }
 
-            if (!PyTuple_Check(row)) {
+            if (!PyTuple_Check(row))
+            {
                 TMM_delete_var_a(*output);
                 PyErr_SetString(PyExc_TypeError, "All elements must be lists/tuples");
                 return -1;
@@ -468,34 +558,47 @@ template<typename T > static int typemap_in_2dp( PyObject *input , const char * 
             unsigned int size1 = PyTuple_Size(row);
 
             // Allocate this row
-            (*output)[ii] = (T *)TMM_declare_var_1d(basetype, (int)size1);
-            if ((*output)[ii] == NULL) {
+            (*output)[ii] = (T*)TMM_declare_var_1d(basetype, (int)size1);
+            if ((*output)[ii] == NULL)
+            {
                 TMM_delete_var_a(*output);
                 PyErr_SetString(PyExc_MemoryError, "Failed to allocate array row");
                 return -1;
             }
 
             // Fill in the row values
-            for (unsigned int jj = 0; jj < size1; jj++) {
-                PyObject *o = PyTuple_GetItem(row, jj);
+            for (unsigned int jj = 0; jj < size1; jj++)
+            {
+                PyObject* o = PyTuple_GetItem(row, jj);
 
-                if (PyFloat_Check(o)) {
+                if (PyFloat_Check(o))
+                {
                     (*output)[ii][jj] = (T)PyFloat_AsDouble(o);
-                } else if (PyInt_Check(o)) {
+                }
+                else if (PyInt_Check(o))
+                {
                     (*output)[ii][jj] = (T)PyInt_AsLong(o);
-                } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_int"), 0))) {
+                }
+                else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_int"), 0)))
+                {
                     int ret = convert_and_set<swig_int, T>((*output)[ii][jj], argp2, left_units);
-                    if (ret != 0) {
+                    if (ret != 0)
+                    {
                         TMM_delete_var_a(*output);
                         return -1;
                     }
-                } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_double"), 0))) {
+                }
+                else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_double"), 0)))
+                {
                     int ret = convert_and_set<swig_double, T>((*output)[ii][jj], argp2, left_units);
-                    if (ret != 0) {
+                    if (ret != 0)
+                    {
                         TMM_delete_var_a(*output);
                         return -1;
                     }
-                } else {
+                }
+                else
+                {
                     TMM_delete_var_a(*output);
                     PyErr_SetString(PyExc_TypeError, "Array element must be numeric");
                     return -1;
@@ -511,11 +614,13 @@ template<typename T > static int typemap_in_2dp( PyObject *input , const char * 
 }
 
 // Specialization for 2dp with pointer types - reject arrays of pointer elements
-template<typename T > static int typemap_in_2dp( PyObject *input , const char * basetype ,
-                                                 const char * symname , T ** output ) {
+template <typename T> static int typemap_in_2dp(PyObject* input, const char* basetype, const char* symname, T** output)
+{
     std::string type_str(basetype);
-    if (type_str.find('*') != std::string::npos || type_str.find("pointer") != std::string::npos) {
-        PyErr_SetString(PyExc_TypeError, "Trick does not support 2D arrays with pointer-typed elements (e.g., int*** where elements are int*)");
+    if (type_str.find('*') != std::string::npos || type_str.find("pointer") != std::string::npos)
+    {
+        PyErr_SetString(PyExc_TypeError,
+            "Trick does not support 2D arrays with pointer-typed elements (e.g., int*** where elements are int*)");
         return -1;
     }
     PyErr_SetString(PyExc_TypeError, "Unexpected call to typemap_in_2dp with wrong signature");
@@ -524,55 +629,65 @@ template<typename T > static int typemap_in_2dp( PyObject *input , const char * 
 
 // Allocate and populate T*** from triple-nested Python lists/tuples
 // Dynamic allocation for all three dimensions via Trick Memory Manager
-template<typename T > static int typemap_in_3dp( PyObject *input , const char * basetype ,
-                                                 const char * symname , T **** output ) {
+template <typename T>
+static int typemap_in_3dp(PyObject* input, const char* basetype, const char* symname, T**** output)
+{
     // INT *** IN from triple-nested lists
-    void * argp2 ;
+    void* argp2;
 
     // convert list to tuple so we only have to deal with tuples
-    if (PyList_Check(input)) {
-        input = PyList_AsTuple(input) ;
+    if (PyList_Check(input))
+    {
+        input = PyList_AsTuple(input);
     }
 
-    if (PyTuple_Check(input)) {
-        unsigned int size0 = PyTuple_Size(input) ;
+    if (PyTuple_Check(input))
+    {
+        unsigned int size0 = PyTuple_Size(input);
 
-        if (size0 == 0) {
+        if (size0 == 0)
+        {
             *output = NULL;
             return 0;
         }
 
         // Check first element to ensure it's a nested list
-        PyObject *first_layer = PyTuple_GetItem(input, 0);
-        if (!PyTuple_Check(first_layer) && !PyList_Check(first_layer)) {
+        PyObject* first_layer = PyTuple_GetItem(input, 0);
+        if (!PyTuple_Check(first_layer) && !PyList_Check(first_layer))
+        {
             PyErr_SetString(PyExc_TypeError, "Expected triple-nested list/tuple for 3D array assignment");
             return -1;
         }
 
         // Allocate array of pointers to pointers - need "int**" type
         std::string pointer2_type = std::string(basetype) + "**";
-        *output = (T ***)TMM_declare_var_1d(pointer2_type.c_str(), (int)size0);
-        if (*output == NULL) {
+        *output                   = (T***)TMM_declare_var_1d(pointer2_type.c_str(), (int)size0);
+        if (*output == NULL)
+        {
             PyErr_SetString(PyExc_MemoryError, "Failed to allocate 3D array (dimension 1)");
             return -1;
         }
 
         std::string temp_name = symname;
-        if (temp_name.length() > 4) {
+        if (temp_name.length() > 4)
+        {
             temp_name.erase(temp_name.length() - 4);
         }
-        std::string left_units = Trick::UnitsMap::units_map()->get_units(temp_name);
+        std::string left_units   = Trick::UnitsMap::units_map()->get_units(temp_name);
         std::string pointer_type = std::string(basetype) + "*";
 
         // Process each outer element (each 2D array)
-        for (unsigned int ii = 0; ii < size0; ii++) {
-            PyObject *layer2 = PyTuple_GetItem(input, ii);
+        for (unsigned int ii = 0; ii < size0; ii++)
+        {
+            PyObject* layer2 = PyTuple_GetItem(input, ii);
 
-            if (PyList_Check(layer2)) {
+            if (PyList_Check(layer2))
+            {
                 layer2 = PyList_AsTuple(layer2);
             }
 
-            if (!PyTuple_Check(layer2)) {
+            if (!PyTuple_Check(layer2))
+            {
                 TMM_delete_var_a(*output);
                 PyErr_SetString(PyExc_TypeError, "All elements must be lists/tuples (dimension 2)");
                 return -1;
@@ -581,22 +696,26 @@ template<typename T > static int typemap_in_3dp( PyObject *input , const char * 
             unsigned int size1 = PyTuple_Size(layer2);
 
             // Allocate array of pointers for second dimension - need "int*" type
-            (*output)[ii] = (T **)TMM_declare_var_1d(pointer_type.c_str(), (int)size1);
-            if ((*output)[ii] == NULL) {
+            (*output)[ii] = (T**)TMM_declare_var_1d(pointer_type.c_str(), (int)size1);
+            if ((*output)[ii] == NULL)
+            {
                 TMM_delete_var_a(*output);
                 PyErr_SetString(PyExc_MemoryError, "Failed to allocate 3D array (dimension 2)");
                 return -1;
             }
 
             // Process each middle element (each 1D array)
-            for (unsigned int jj = 0; jj < size1; jj++) {
-                PyObject *layer3 = PyTuple_GetItem(layer2, jj);
+            for (unsigned int jj = 0; jj < size1; jj++)
+            {
+                PyObject* layer3 = PyTuple_GetItem(layer2, jj);
 
-                if (PyList_Check(layer3)) {
+                if (PyList_Check(layer3))
+                {
                     layer3 = PyList_AsTuple(layer3);
                 }
 
-                if (!PyTuple_Check(layer3)) {
+                if (!PyTuple_Check(layer3))
+                {
                     TMM_delete_var_a(*output);
                     PyErr_SetString(PyExc_TypeError, "All elements must be lists/tuples (dimension 3)");
                     return -1;
@@ -605,34 +724,47 @@ template<typename T > static int typemap_in_3dp( PyObject *input , const char * 
                 unsigned int size2 = PyTuple_Size(layer3);
 
                 // Allocate innermost array
-                (*output)[ii][jj] = (T *)TMM_declare_var_1d(basetype, (int)size2);
-                if ((*output)[ii][jj] == NULL) {
+                (*output)[ii][jj] = (T*)TMM_declare_var_1d(basetype, (int)size2);
+                if ((*output)[ii][jj] == NULL)
+                {
                     TMM_delete_var_a(*output);
                     PyErr_SetString(PyExc_MemoryError, "Failed to allocate 3D array (dimension 3)");
                     return -1;
                 }
 
                 // Fill in the innermost values
-                for (unsigned int kk = 0; kk < size2; kk++) {
-                    PyObject *o = PyTuple_GetItem(layer3, kk);
+                for (unsigned int kk = 0; kk < size2; kk++)
+                {
+                    PyObject* o = PyTuple_GetItem(layer3, kk);
 
-                    if (PyFloat_Check(o)) {
+                    if (PyFloat_Check(o))
+                    {
                         (*output)[ii][jj][kk] = (T)PyFloat_AsDouble(o);
-                    } else if (PyInt_Check(o)) {
+                    }
+                    else if (PyInt_Check(o))
+                    {
                         (*output)[ii][jj][kk] = (T)PyInt_AsLong(o);
-                    } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_int"), 0))) {
+                    }
+                    else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_int"), 0)))
+                    {
                         int ret = convert_and_set<swig_int, T>((*output)[ii][jj][kk], argp2, left_units);
-                        if (ret != 0) {
+                        if (ret != 0)
+                        {
                             TMM_delete_var_a(*output);
                             return -1;
                         }
-                    } else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_double"), 0))) {
+                    }
+                    else if (SWIG_IsOK(SWIG_ConvertPtr(o, &argp2, SWIG_TypeQuery("_p_swig_double"), 0)))
+                    {
                         int ret = convert_and_set<swig_double, T>((*output)[ii][jj][kk], argp2, left_units);
-                        if (ret != 0) {
+                        if (ret != 0)
+                        {
                             TMM_delete_var_a(*output);
                             return -1;
                         }
-                    } else {
+                    }
+                    else
+                    {
                         TMM_delete_var_a(*output);
                         PyErr_SetString(PyExc_TypeError, "Array element must be numeric");
                         return -1;
@@ -649,232 +781,283 @@ template<typename T > static int typemap_in_3dp( PyObject *input , const char * 
 }
 
 // Specialization for 3dp with pointer types - reject arrays of pointer elements
-template<typename T > static int typemap_in_3dp( PyObject *input , const char * basetype ,
-                                                 const char * symname , T *** output ) {
+template <typename T> static int typemap_in_3dp(PyObject* input, const char* basetype, const char* symname, T*** output)
+{
     std::string type_str(basetype);
-    if (type_str.find('*') != std::string::npos || type_str.find("pointer") != std::string::npos) {
-        PyErr_SetString(PyExc_TypeError, "Trick does not support 3D arrays with pointer-typed elements at intermediate levels");
+    if (type_str.find('*') != std::string::npos || type_str.find("pointer") != std::string::npos)
+    {
+        PyErr_SetString(
+            PyExc_TypeError, "Trick does not support 3D arrays with pointer-typed elements at intermediate levels");
         return -1;
     }
     PyErr_SetString(PyExc_TypeError, "Unexpected call to typemap_in_3dp with wrong signature");
     return -1;
 }
 
-template<typename T, typename baseT > static void * typemap_in_2d( PyObject *input , unsigned int out_dim0, unsigned int out_dim1, const char * symname ) {
+template <typename T, typename baseT>
+static void* typemap_in_2d(PyObject* input, unsigned int out_dim0, unsigned int out_dim1, const char* symname)
+{
+    // INT[ANY][ANY] IN
 
-    //INT[ANY][ANY] IN
-
-    void * argp2 ;
-    unsigned int ii , jj ;
-    unsigned int size0, size1 ;
-    T * new_array ;
-    int ret ;
+    void* argp2;
+    unsigned int ii, jj;
+    unsigned int size0, size1;
+    T* new_array;
+    int ret;
 
     // convert list to tuple so we only have to deal with tuples in code below.
-    if (PyList_Check(input)) {
-        input = PyList_AsTuple(input) ;
+    if (PyList_Check(input))
+    {
+        input = PyList_AsTuple(input);
     }
 
-    if (PyTuple_Check(input)) {
-
-        size0 = PyTuple_Size(input) ;
-        if ( size0 > out_dim0 ) {
-           PyErr_SetString(PyExc_TypeError,"Outer list too long to fit.");
-           return NULL ;
+    if (PyTuple_Check(input))
+    {
+        size0 = PyTuple_Size(input);
+        if (size0 > out_dim0)
+        {
+            PyErr_SetString(PyExc_TypeError, "Outer list too long to fit.");
+            return NULL;
         }
 
-        std::string temp_name ;
-        std::string left_units ;
+        std::string temp_name;
+        std::string left_units;
 
-        temp_name = symname ;
-        if ( temp_name.length() > 4 ) {
-            temp_name.erase(temp_name.length() - 4) ;
+        temp_name = symname;
+        if (temp_name.length() > 4)
+        {
+            temp_name.erase(temp_name.length() - 4);
         }
-        left_units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        left_units = Trick::UnitsMap::units_map()->get_units(temp_name);
 
-        new_array = (T *)calloc( out_dim0 , sizeof(T));
+        new_array = (T*)calloc(out_dim0, sizeof(T));
 
-        for( ii = 0 ; ii < size0 ; ii++ ) {
-            PyObject *o = PyTuple_GetItem( input, ii ) ;
+        for (ii = 0; ii < size0; ii++)
+        {
+            PyObject* o = PyTuple_GetItem(input, ii);
 
             // convert list to tuple so we only have to deal with tuples in code below.
-            if (PyList_Check(o)) {
-                o = PyList_AsTuple(o) ;
+            if (PyList_Check(o))
+            {
+                o = PyList_AsTuple(o);
             }
 
-            if (PyTuple_Check(o)) {
-
-                size1 = PyTuple_Size(o) ;
-                if ( size1 > out_dim1 ) {
-                    PyErr_SetString(PyExc_TypeError,"List too long to fit.");
-                    return NULL ;
+            if (PyTuple_Check(o))
+            {
+                size1 = PyTuple_Size(o);
+                if (size1 > out_dim1)
+                {
+                    PyErr_SetString(PyExc_TypeError, "List too long to fit.");
+                    return NULL;
                 }
 
-                for( jj = 0 ; jj < size1 ; jj++ ){
+                for (jj = 0; jj < size1; jj++)
+                {
+                    PyObject* o2 = PyTuple_GetItem(o, jj);
 
-                    PyObject *o2 = PyTuple_GetItem( o , jj ) ;
-
-                    if (PyFloat_Check(o2)) {
-                        new_array[ii][jj] = (baseT)PyFloat_AsDouble(o2) ;
-                    } else if (SWIG_IsOK(SWIG_ConvertPtr(o2, &argp2, SWIG_TypeQuery("_p_swig_int"), 0 ))) {
-                        ret = convert_and_set< swig_int , baseT >( new_array[ii][jj] , argp2 , left_units ) ;
-                        if ( ret != 0 ) {
-                            free(new_array) ;
+                    if (PyFloat_Check(o2))
+                    {
+                        new_array[ii][jj] = (baseT)PyFloat_AsDouble(o2);
+                    }
+                    else if (SWIG_IsOK(SWIG_ConvertPtr(o2, &argp2, SWIG_TypeQuery("_p_swig_int"), 0)))
+                    {
+                        ret = convert_and_set<swig_int, baseT>(new_array[ii][jj], argp2, left_units);
+                        if (ret != 0)
+                        {
+                            free(new_array);
                             return NULL;
                         }
-                    } else if (SWIG_IsOK(SWIG_ConvertPtr(o2, &argp2, SWIG_TypeQuery("_p_swig_double"), 0 ))) {
-                        ret = convert_and_set< swig_double , baseT >( new_array[ii][jj] , argp2 , left_units ) ;
-                        if ( ret != 0 ) {
-                            free(new_array) ;
+                    }
+                    else if (SWIG_IsOK(SWIG_ConvertPtr(o2, &argp2, SWIG_TypeQuery("_p_swig_double"), 0)))
+                    {
+                        ret = convert_and_set<swig_double, baseT>(new_array[ii][jj], argp2, left_units);
+                        if (ret != 0)
+                        {
+                            free(new_array);
                             return NULL;
                         }
-                    } else if (PyInt_Check(o2)) {
-                        new_array[ii][jj] = (baseT)PyInt_AsLong(o2) ;
+                    }
+                    else if (PyInt_Check(o2))
+                    {
+                        new_array[ii][jj] = (baseT)PyInt_AsLong(o2);
                     }
                 }
 #if PY_VERSION_HEX >= 0x03000000
-            } else if ( PyUnicode_Check(o) ) {
-                #if defined(PyUnicode_GET_LENGTH)
-                unsigned int size = PyUnicode_GET_LENGTH(o) ;
-                #else
-                unsigned int size = PyUnicode_GET_SIZE(o) ;
-                #endif
-                PyObject * temp = PyUnicode_AsEncodedString(o, "utf-8", "Error ~");
-                char * temp_str = PyBytes_AS_STRING(temp) ;
+            }
+            else if (PyUnicode_Check(o))
+            {
+#if defined(PyUnicode_GET_LENGTH)
+                unsigned int size = PyUnicode_GET_LENGTH(o);
 #else
-            } else if ( PyString_Check(o) ) {
-                unsigned int size = PyString_Size(o) ;
-                char * temp_str = PyString_AsString(o) ;
+                unsigned int size = PyUnicode_GET_SIZE(o);
 #endif
-                if ( size > out_dim1 ) {
-                   PyErr_SetString(PyExc_TypeError,"String too long to fit.");
-                   return NULL ;
+                PyObject* temp = PyUnicode_AsEncodedString(o, "utf-8", "Error ~");
+                char* temp_str = PyBytes_AS_STRING(temp);
+#else
+            }
+            else if (PyString_Check(o))
+            {
+                unsigned int size = PyString_Size(o);
+                char* temp_str    = PyString_AsString(o);
+#endif
+                if (size > out_dim1)
+                {
+                    PyErr_SetString(PyExc_TypeError, "String too long to fit.");
+                    return NULL;
                 }
 
-                for( jj = 0 ; jj < size ; jj++ ){
-                    new_array[ii][jj] = (baseT)temp_str[jj] ;
+                for (jj = 0; jj < size; jj++)
+                {
+                    new_array[ii][jj] = (baseT)temp_str[jj];
                 }
-            } else {
-               PyErr_SetString(PyExc_TypeError,"Input must be list of lists");
-               return NULL;
+            }
+            else
+            {
+                PyErr_SetString(PyExc_TypeError, "Input must be list of lists");
+                return NULL;
             }
         }
-    } else {
-        PyErr_SetString(PyExc_TypeError,"Input must be of type List");
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "Input must be of type List");
         return NULL;
     }
 
-    return new_array ;
+    return new_array;
 }
 
 // Fixed size 3D array input typemap
-template<typename T, typename baseT > static void * typemap_in_3d( PyObject *input , unsigned int out_dim0, 
-                                                                    unsigned int out_dim1, unsigned int out_dim2,
-                                                                    const char * symname ) {
+template <typename T, typename baseT>
+static void* typemap_in_3d(
+    PyObject* input, unsigned int out_dim0, unsigned int out_dim1, unsigned int out_dim2, const char* symname)
+{
+    // INT[ANY][ANY][ANY] IN
 
-    //INT[ANY][ANY][ANY] IN
-
-    void * argp2 ;
-    unsigned int ii , jj , kk ;
-    unsigned int size0, size1, size2 ;
-    T * new_array ;
-    int ret ;
+    void* argp2;
+    unsigned int ii, jj, kk;
+    unsigned int size0, size1, size2;
+    T* new_array;
+    int ret;
 
     // convert list to tuple so we only have to deal with tuples in code below.
-    if (PyList_Check(input)) {
-        input = PyList_AsTuple(input) ;
+    if (PyList_Check(input))
+    {
+        input = PyList_AsTuple(input);
     }
 
-    if (PyTuple_Check(input)) {
-
-        size0 = PyTuple_Size(input) ;
-        if ( size0 > out_dim0 ) {
-           PyErr_SetString(PyExc_TypeError,"Outer list too long to fit.");
-           return NULL ;
+    if (PyTuple_Check(input))
+    {
+        size0 = PyTuple_Size(input);
+        if (size0 > out_dim0)
+        {
+            PyErr_SetString(PyExc_TypeError, "Outer list too long to fit.");
+            return NULL;
         }
 
-        std::string temp_name ;
-        std::string left_units ;
+        std::string temp_name;
+        std::string left_units;
 
-        temp_name = symname ;
-        if ( temp_name.length() > 4 ) {
-            temp_name.erase(temp_name.length() - 4) ;
+        temp_name = symname;
+        if (temp_name.length() > 4)
+        {
+            temp_name.erase(temp_name.length() - 4);
         }
-        left_units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+        left_units = Trick::UnitsMap::units_map()->get_units(temp_name);
 
-        new_array = (T *)calloc( out_dim0 , sizeof(T));
+        new_array = (T*)calloc(out_dim0, sizeof(T));
 
-        for( ii = 0 ; ii < size0 ; ii++ ) {
-            PyObject *o = PyTuple_GetItem( input, ii ) ;
+        for (ii = 0; ii < size0; ii++)
+        {
+            PyObject* o = PyTuple_GetItem(input, ii);
 
             // convert list to tuple so we only have to deal with tuples in code below.
-            if (PyList_Check(o)) {
-                o = PyList_AsTuple(o) ;
+            if (PyList_Check(o))
+            {
+                o = PyList_AsTuple(o);
             }
 
-            if (PyTuple_Check(o)) {
-
-                size1 = PyTuple_Size(o) ;
-                if ( size1 > out_dim1 ) {
-                    PyErr_SetString(PyExc_TypeError,"Middle list too long to fit.");
-                    return NULL ;
+            if (PyTuple_Check(o))
+            {
+                size1 = PyTuple_Size(o);
+                if (size1 > out_dim1)
+                {
+                    PyErr_SetString(PyExc_TypeError, "Middle list too long to fit.");
+                    return NULL;
                 }
 
-                for( jj = 0 ; jj < size1 ; jj++ ){
-
-                    PyObject *o2 = PyTuple_GetItem( o , jj ) ;
+                for (jj = 0; jj < size1; jj++)
+                {
+                    PyObject* o2 = PyTuple_GetItem(o, jj);
 
                     // convert list to tuple
-                    if (PyList_Check(o2)) {
-                        o2 = PyList_AsTuple(o2) ;
+                    if (PyList_Check(o2))
+                    {
+                        o2 = PyList_AsTuple(o2);
                     }
 
-                    if (PyTuple_Check(o2)) {
-
-                        size2 = PyTuple_Size(o2) ;
-                        if ( size2 > out_dim2 ) {
-                            PyErr_SetString(PyExc_TypeError,"Inner list too long to fit.");
-                            return NULL ;
+                    if (PyTuple_Check(o2))
+                    {
+                        size2 = PyTuple_Size(o2);
+                        if (size2 > out_dim2)
+                        {
+                            PyErr_SetString(PyExc_TypeError, "Inner list too long to fit.");
+                            return NULL;
                         }
 
-                        for( kk = 0 ; kk < size2 ; kk++ ){
+                        for (kk = 0; kk < size2; kk++)
+                        {
+                            PyObject* o3 = PyTuple_GetItem(o2, kk);
 
-                            PyObject *o3 = PyTuple_GetItem( o2 , kk ) ;
-
-                            if (PyFloat_Check(o3)) {
-                                new_array[ii][jj][kk] = (baseT)PyFloat_AsDouble(o3) ;
-                            } else if (SWIG_IsOK(SWIG_ConvertPtr(o3, &argp2, SWIG_TypeQuery("_p_swig_int"), 0 ))) {
-                                ret = convert_and_set< swig_int , baseT >( new_array[ii][jj][kk] , argp2 , left_units ) ;
-                                if ( ret != 0 ) {
-                                    free(new_array) ;
+                            if (PyFloat_Check(o3))
+                            {
+                                new_array[ii][jj][kk] = (baseT)PyFloat_AsDouble(o3);
+                            }
+                            else if (SWIG_IsOK(SWIG_ConvertPtr(o3, &argp2, SWIG_TypeQuery("_p_swig_int"), 0)))
+                            {
+                                ret = convert_and_set<swig_int, baseT>(new_array[ii][jj][kk], argp2, left_units);
+                                if (ret != 0)
+                                {
+                                    free(new_array);
                                     return NULL;
                                 }
-                            } else if (SWIG_IsOK(SWIG_ConvertPtr(o3, &argp2, SWIG_TypeQuery("_p_swig_double"), 0 ))) {
-                                ret = convert_and_set< swig_double , baseT >( new_array[ii][jj][kk] , argp2 , left_units ) ;
-                                if ( ret != 0 ) {
-                                    free(new_array) ;
+                            }
+                            else if (SWIG_IsOK(SWIG_ConvertPtr(o3, &argp2, SWIG_TypeQuery("_p_swig_double"), 0)))
+                            {
+                                ret = convert_and_set<swig_double, baseT>(new_array[ii][jj][kk], argp2, left_units);
+                                if (ret != 0)
+                                {
+                                    free(new_array);
                                     return NULL;
                                 }
-                            } else if (PyInt_Check(o3)) {
-                                new_array[ii][jj][kk] = (baseT)PyInt_AsLong(o3) ;
+                            }
+                            else if (PyInt_Check(o3))
+                            {
+                                new_array[ii][jj][kk] = (baseT)PyInt_AsLong(o3);
                             }
                         }
-                    } else {
-                       PyErr_SetString(PyExc_TypeError,"Input must be list of lists of lists");
-                       return NULL;
+                    }
+                    else
+                    {
+                        PyErr_SetString(PyExc_TypeError, "Input must be list of lists of lists");
+                        return NULL;
                     }
                 }
-            } else {
-               PyErr_SetString(PyExc_TypeError,"Input must be list of lists");
-               return NULL;
+            }
+            else
+            {
+                PyErr_SetString(PyExc_TypeError, "Input must be list of lists");
+                return NULL;
             }
         }
-    } else {
-        PyErr_SetString(PyExc_TypeError,"Input must be of type List");
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "Input must be of type List");
         return NULL;
     }
 
-    return new_array ;
+    return new_array;
 }
 
 // =====================================================================
@@ -882,44 +1065,47 @@ template<typename T, typename baseT > static void * typemap_in_3d( PyObject *inp
 // =====================================================================
 
 // StrTraits — maps a string type to its Trick type constant and name string
-template<typename T> struct StrTraits;
+template <typename T> struct StrTraits;
 
 template <> struct StrTraits<std::string>
 {
-    static constexpr TRICK_TYPE   trick_type = TRICK_STRING;
-    static constexpr const char * type_name  = "std::string";
-    static std::string from_pyunicode(PyObject *item)
-    {
-        const char *utf8 = PyUnicode_AsUTF8(item);
-        return utf8 ? std::string(utf8) : std::string();
-    }
+        static constexpr TRICK_TYPE trick_type = TRICK_STRING;
+        static constexpr const char* type_name = "std::string";
+        static std::string from_pyunicode(PyObject* item)
+        {
+            const char* utf8 = PyUnicode_AsUTF8(item);
+            return utf8 ? std::string(utf8) : std::string();
+        }
 };
 
 template <> struct StrTraits<std::wstring>
 {
-    static constexpr TRICK_TYPE   trick_type = TRICK_WSTRING;
-    static constexpr const char * type_name  = "std::wstring";
-    static std::wstring from_pyunicode(PyObject *item)
-    {
-        Py_ssize_t wlen;
-        wchar_t *wcs = PyUnicode_AsWideCharString(item, &wlen);
-        if (!wcs)
-            return std::wstring();
-        std::wstring result(wcs, wlen);
-        PyMem_Free(wcs);
-        return result;
-    }
+        static constexpr TRICK_TYPE trick_type = TRICK_WSTRING;
+        static constexpr const char* type_name = "std::wstring";
+        static std::wstring from_pyunicode(PyObject* item)
+        {
+            Py_ssize_t wlen;
+            wchar_t* wcs = PyUnicode_AsWideCharString(item, &wlen);
+            if (!wcs)
+                return std::wstring();
+            std::wstring result(wcs, wlen);
+            PyMem_Free(wcs);
+            return result;
+        }
 };
 
 // str_typemap_in_1d — Python sequence -> new T[out_size]()
-template<typename T>
-static T* str_typemap_in_1d(PyObject *input, unsigned int out_size) {
-    T *arr = new T[out_size]();
-    if (!PySequence_Check(input)) return arr;
+template <typename T> static T* str_typemap_in_1d(PyObject* input, unsigned int out_size)
+{
+    T* arr = new T[out_size]();
+    if (!PySequence_Check(input))
+        return arr;
     Py_ssize_t n = PySequence_Length(input);
-    if (n > (Py_ssize_t)out_size) n = (Py_ssize_t)out_size;
-    for (Py_ssize_t i = 0; i < n; ++i) {
-        PyObject *item = PySequence_GetItem(input, i);
+    if (n > (Py_ssize_t)out_size)
+        n = (Py_ssize_t)out_size;
+    for (Py_ssize_t i = 0; i < n; ++i)
+    {
+        PyObject* item = PySequence_GetItem(input, i);
         if (item && PyUnicode_Check(item))
             arr[i] = StrTraits<T>::from_pyunicode(item);
         Py_XDECREF(item);
@@ -928,19 +1114,25 @@ static T* str_typemap_in_1d(PyObject *input, unsigned int out_size) {
 }
 
 // str_typemap_in_2d — Python list-of-lists -> flat new T[d0*d1]()
-template<typename T>
-static T* str_typemap_in_2d(PyObject *input, unsigned int d0, unsigned int d1) {
-    T *flat = new T[d0 * d1]();
-    if (!PySequence_Check(input)) return flat;
+template <typename T> static T* str_typemap_in_2d(PyObject* input, unsigned int d0, unsigned int d1)
+{
+    T* flat = new T[d0 * d1]();
+    if (!PySequence_Check(input))
+        return flat;
     Py_ssize_t n0 = PySequence_Length(input);
-    if (n0 > (Py_ssize_t)d0) n0 = (Py_ssize_t)d0;
-    for (Py_ssize_t i = 0; i < n0; ++i) {
-        PyObject *row = PySequence_GetItem(input, i);
-        if (row && PySequence_Check(row)) {
+    if (n0 > (Py_ssize_t)d0)
+        n0 = (Py_ssize_t)d0;
+    for (Py_ssize_t i = 0; i < n0; ++i)
+    {
+        PyObject* row = PySequence_GetItem(input, i);
+        if (row && PySequence_Check(row))
+        {
             Py_ssize_t n1 = PySequence_Length(row);
-            if (n1 > (Py_ssize_t)d1) n1 = (Py_ssize_t)d1;
-            for (Py_ssize_t j = 0; j < n1; ++j) {
-                PyObject *item = PySequence_GetItem(row, j);
+            if (n1 > (Py_ssize_t)d1)
+                n1 = (Py_ssize_t)d1;
+            for (Py_ssize_t j = 0; j < n1; ++j)
+            {
+                PyObject* item = PySequence_GetItem(row, j);
                 if (item && PyUnicode_Check(item))
                     flat[i * d1 + j] = StrTraits<T>::from_pyunicode(item);
                 Py_XDECREF(item);
@@ -952,26 +1144,35 @@ static T* str_typemap_in_2d(PyObject *input, unsigned int d0, unsigned int d1) {
 }
 
 // str_typemap_in_3d — Python list-of-lists-of-lists -> flat new T[d0*d1*d2]()
-template<typename T>
-static T* str_typemap_in_3d(PyObject *input, unsigned int d0, unsigned int d1, unsigned int d2) {
-    T *flat = new T[d0 * d1 * d2]();
-    if (!PySequence_Check(input)) return flat;
+template <typename T> static T* str_typemap_in_3d(PyObject* input, unsigned int d0, unsigned int d1, unsigned int d2)
+{
+    T* flat = new T[d0 * d1 * d2]();
+    if (!PySequence_Check(input))
+        return flat;
     Py_ssize_t n0 = PySequence_Length(input);
-    if (n0 > (Py_ssize_t)d0) n0 = (Py_ssize_t)d0;
-    for (Py_ssize_t i = 0; i < n0; ++i) {
-        PyObject *row0 = PySequence_GetItem(input, i);
-        if (row0 && PySequence_Check(row0)) {
+    if (n0 > (Py_ssize_t)d0)
+        n0 = (Py_ssize_t)d0;
+    for (Py_ssize_t i = 0; i < n0; ++i)
+    {
+        PyObject* row0 = PySequence_GetItem(input, i);
+        if (row0 && PySequence_Check(row0))
+        {
             Py_ssize_t n1 = PySequence_Length(row0);
-            if (n1 > (Py_ssize_t)d1) n1 = (Py_ssize_t)d1;
-            for (Py_ssize_t j = 0; j < n1; ++j) {
-                PyObject *row1 = PySequence_GetItem(row0, j);
-                if (row1 && PySequence_Check(row1)) {
+            if (n1 > (Py_ssize_t)d1)
+                n1 = (Py_ssize_t)d1;
+            for (Py_ssize_t j = 0; j < n1; ++j)
+            {
+                PyObject* row1 = PySequence_GetItem(row0, j);
+                if (row1 && PySequence_Check(row1))
+                {
                     Py_ssize_t n2 = PySequence_Length(row1);
-                    if (n2 > (Py_ssize_t)d2) n2 = (Py_ssize_t)d2;
-                    for (Py_ssize_t k = 0; k < n2; ++k) {
-                        PyObject *item = PySequence_GetItem(row1, k);
+                    if (n2 > (Py_ssize_t)d2)
+                        n2 = (Py_ssize_t)d2;
+                    for (Py_ssize_t k = 0; k < n2; ++k)
+                    {
+                        PyObject* item = PySequence_GetItem(row1, k);
                         if (item && PyUnicode_Check(item))
-                            flat[i*d1*d2 + j*d2 + k] = StrTraits<T>::from_pyunicode(item);
+                            flat[i * d1 * d2 + j * d2 + k] = StrTraits<T>::from_pyunicode(item);
                         Py_XDECREF(item);
                     }
                 }
@@ -984,74 +1185,94 @@ static T* str_typemap_in_3d(PyObject *input, unsigned int d0, unsigned int d1, u
 }
 
 // str_make_fixed_swig_ref — build a swig_ref for a fixed-size string array (1D/2D/3D)
-template<typename T>
-static swig_ref* str_make_fixed_swig_ref(void *addr, int num_dims, int d0, int d1 = 0, int d2 = 0) {
-    swig_ref *t = new swig_ref;
-    t->ref.address = addr;
-    t->ref.units = NULL;
-    t->ref.attr = new ATTRIBUTES();
-    t->ref.attr->size = sizeof(T);
-    t->ref.attr->type = StrTraits<T>::trick_type;
-    t->ref.attr->type_name = strdup(StrTraits<T>::type_name);
-    t->ref.attr->units = strdup("1");
-    t->ref.attr->attr = NULL;
-    t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
-    t->ref.attr->num_index = num_dims;
-    t->ref.attr->index[0].size = d0; t->ref.attr->index[0].start = 0;
-    if (num_dims >= 2) { t->ref.attr->index[1].size = d1; t->ref.attr->index[1].start = 0; }
-    if (num_dims >= 3) { t->ref.attr->index[2].size = d2; t->ref.attr->index[2].start = 0; }
+template <typename T> static swig_ref* str_make_fixed_swig_ref(void* addr, int num_dims, int d0, int d1 = 0, int d2 = 0)
+{
+    swig_ref* t                 = new swig_ref;
+    t->ref.address              = addr;
+    t->ref.units                = NULL;
+    t->ref.attr                 = new ATTRIBUTES();
+    t->ref.attr->size           = sizeof(T);
+    t->ref.attr->type           = StrTraits<T>::trick_type;
+    t->ref.attr->type_name      = strdup(StrTraits<T>::type_name);
+    t->ref.attr->units          = strdup("1");
+    t->ref.attr->attr           = NULL;
+    t->ref.attr->io             = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+    t->ref.attr->num_index      = num_dims;
+    t->ref.attr->index[0].size  = d0;
+    t->ref.attr->index[0].start = 0;
+    if (num_dims >= 2)
+    {
+        t->ref.attr->index[1].size  = d1;
+        t->ref.attr->index[1].start = 0;
+    }
+    if (num_dims >= 3)
+    {
+        t->ref.attr->index[2].size  = d2;
+        t->ref.attr->index[2].start = 0;
+    }
     t->ref.create_add_path = 0;
-    t->ref.num_index = 0;
-    t->ref.num_index_left = num_dims;
-    t->ref.ref_type = REF_ADDRESS;
+    t->ref.num_index       = 0;
+    t->ref.num_index_left  = num_dims;
+    t->ref.ref_type        = REF_ADDRESS;
     return t;
 }
 
 // str_make_ptr_swig_ref — build a swig_ref for a dynamically allocated string pointer,
 // querying MemoryManager for real allocation dimensions
-template<typename T>
-static swig_ref* str_make_ptr_swig_ref(T *addr, const std::string& symname, const std::string& tname) {
-    swig_ref *t = new swig_ref;
-    t->ref.address = (void *)addr;
-    t->ref.units = NULL;
-    t->ref.attr = new ATTRIBUTES();
-    t->ref.attr->size = sizeof(T);
-    t->ref.attr->type = StrTraits<T>::trick_type;
+template <typename T>
+static swig_ref* str_make_ptr_swig_ref(T* addr, const std::string& symname, const std::string& tname)
+{
+    swig_ref* t            = new swig_ref;
+    t->ref.address         = (void*)addr;
+    t->ref.units           = NULL;
+    t->ref.attr            = new ATTRIBUTES();
+    t->ref.attr->size      = sizeof(T);
+    t->ref.attr->type      = StrTraits<T>::trick_type;
     t->ref.attr->type_name = strdup(StrTraits<T>::type_name);
-    t->ref.attr->units = strdup("1");
-    t->ref.attr->attr = NULL;
-    t->ref.attr->io = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
+    t->ref.attr->units     = strdup("1");
+    t->ref.attr->attr      = NULL;
+    t->ref.attr->io        = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT;
     size_t offsetRemainder = 0;
-    ATTRIBUTES addrAttr = {};
-    trick_MM->get_attributes_for_address((void *)addr, addrAttr, offsetRemainder);
+    ATTRIBUTES addrAttr    = {};
+    trick_MM->get_attributes_for_address((void*)addr, addrAttr, offsetRemainder);
     init_swig_ref_attributes_for_dimensions(*t, addrAttr, offsetRemainder, symname, tname, 1);
     t->ref.create_add_path = 0;
-    t->ref.num_index = 0;
-    t->ref.num_index_left = t->ref.attr->num_index;
-    t->ref.ref_type = REF_ADDRESS;
+    t->ref.num_index       = 0;
+    t->ref.num_index_left  = t->ref.attr->num_index;
+    t->ref.ref_type        = REF_ADDRESS;
     return t;
 }
 
 // str_typemap_in_ptr — convert a Python swig_ref/REF2/void*/None to T*
 // Returns 0 on success, -1 if the input type is not recognised (caller should SWIG_exception_fail)
-template<typename T>
-static int str_typemap_in_ptr(PyObject *input, T **output) {
-    void *argp2;
-    if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_swig_ref"), 0))) {
-        swig_ref *r = reinterpret_cast<swig_ref *>(argp2);
-        if (r) *output = (T *)r->ref.address;
-    } else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_REF2"), 0))) {
-        REF2 *r = reinterpret_cast<REF2 *>(argp2);
-        if (r) *output = (T *)r->address;
-    } else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_void"), 0))) {
-        *output = reinterpret_cast<T *>(argp2);
-    } else if (input == Py_None) {
+template <typename T> static int str_typemap_in_ptr(PyObject* input, T** output)
+{
+    void* argp2;
+    if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_swig_ref"), 0)))
+    {
+        swig_ref* r = reinterpret_cast<swig_ref*>(argp2);
+        if (r)
+            *output = (T*)r->ref.address;
+    }
+    else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_REF2"), 0)))
+    {
+        REF2* r = reinterpret_cast<REF2*>(argp2);
+        if (r)
+            *output = (T*)r->address;
+    }
+    else if (SWIG_IsOK(SWIG_ConvertPtr(input, &argp2, SWIG_TypeQuery("_p_void"), 0)))
+    {
+        *output = reinterpret_cast<T*>(argp2);
+    }
+    else if (input == Py_None)
+    {
         *output = nullptr;
-    } else {
+    }
+    else
+    {
         return -1;
     }
     return 0;
 }
 
 #endif
-

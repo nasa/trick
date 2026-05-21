@@ -5,23 +5,25 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 #ifndef WSSESSION_HH
 #define WSSESSION_HH
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #ifndef SWIG
 #include "CivetServer.h"
 #endif
 
-#include "trick/WebSocketSession.hh"
 #include "VariableServerVariable.hh"
 
-class VariableServerSession : public WebSocketSession {
+#include "trick/WebSocketSession.hh"
+
+class VariableServerSession : public WebSocketSession
+{
     public:
-        VariableServerSession(struct mg_connection *nc);
+        VariableServerSession(struct mg_connection* nc);
         ~VariableServerSession();
-        void marshallData();                             /* -- base */
-        void sendMessage();                              /* -- base */
-        int  handleMessage(const std::string&);          /* -- base */
+        void marshallData(); /* -- base */
+        void sendMessage(); /* -- base */
+        int handleMessage(const std::string&); /* -- base */
 
         void setTimeInterval(unsigned int milliseconds);
         void addVariable(char* vname);
@@ -34,7 +36,7 @@ class VariableServerSession : public WebSocketSession {
         // static int bad_ref_int ;
 
     private:
-        int sendErrorMessage(const char* fmt, ... );
+        int sendErrorMessage(const char* fmt, ...);
         int sendSieMessage(void);
         int sendUnitsMessage(const char* vname);
         // REF2* make_error_ref(const char* in_name);
@@ -47,5 +49,5 @@ class VariableServerSession : public WebSocketSession {
         long long intervalTimeTics;
 };
 
-WebSocketSession* makeVariableServerSession( struct mg_connection *nc );
+WebSocketSession* makeVariableServerSession(struct mg_connection* nc);
 #endif

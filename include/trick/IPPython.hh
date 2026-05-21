@@ -16,92 +16,92 @@
 #ifndef IPPYTHON_HH
 #define IPPYTHON_HH
 
-#include <string>
 #include "trick/InputProcessor.hh"
 
-namespace Trick {
+#include <string>
 
-/**
-  This class provides Python input processing.
-  @author Alex Lin, Danny Strauss
- */
+namespace Trick
+{
 
-    class IPPython : public InputProcessor {
+    /**
+      This class provides Python input processing.
+      @author Alex Lin, Danny Strauss
+     */
 
-        friend class IPPythonEvent;
+    class IPPython : public InputProcessor
+    {
+            friend class IPPythonEvent;
 
         public:
-
             /** Returned value from event condition evaluation.\n */
-            int return_val ;                              /**< trick_io(**) trick_units(--) */
+            int return_val; /**< trick_io(**) trick_units(--) */
 
             /**
              @brief Constructor.
             */
-            IPPython() ;
+            IPPython();
 
             /**
              @brief Creates python handles for all memory manager named variables.
             */
-            void get_TMM_named_variables() ;
+            void get_TMM_named_variables();
 
             /**
              @brief Get the status of the units conversion message flag
             */
-            bool get_units_conversion_msgs() ;
+            bool get_units_conversion_msgs();
 
             /**
              @brief Setting to see units conversions warnings
             */
-            void shoot_the_units_conversion_messenger(bool onoff) ;
+            void shoot_the_units_conversion_messenger(bool onoff);
 
             /**
              @brief Initialize and run the Python input processor on the user input file.
             */
-            virtual int init() ;
+            virtual int init();
 
             /**
              @brief @userdesc Command to shutdown the simulation now.
              @par Python Usage:
              @code trick.shutdown() @endcode
             */
-            virtual int shutdown() ;
+            virtual int shutdown();
 
             /**
              @brief Command to parse the given string.
             */
-            virtual int parse(std::string in_string) ;
+            virtual int parse(std::string in_string);
 
             /**
              @brief Command to parse the given string as a condition statement.
             */
-            virtual int parse_condition(std::string in_string, int & cond_return_val) ;
+            virtual int parse_condition(std::string in_string, int& cond_return_val);
 
             /**
              @brief Restore variables with memory manager names to python space.
              @return always 0
             */
-            int restart() ;
+            int restart();
 
-        protected :
+        protected:
             /** TODO: remove units_conversion_msgs in 2021 */
             /** false = see units conversion messages, true = head in sand */
-            bool units_conversion_msgs ;
-
-    } ;
+            bool units_conversion_msgs;
+    };
 
 }
 
-extern "C" {
-//SWIG generated routine.
-void init_swig_modules(void) ;
+extern "C"
+{
+    // SWIG generated routine.
+    void init_swig_modules(void);
 
-/* Call this if you you refuse to fix your units problems and want to shoot the messenger instead */
-void shoot_the_units_conversion_messenger() ;
-void revive_the_units_conversion_messenger() ;
+    /* Call this if you you refuse to fix your units problems and want to shoot the messenger instead */
+    void shoot_the_units_conversion_messenger();
+    void revive_the_units_conversion_messenger();
 
-int check_units_conversion_messenger_for_signs_of_life() ;
+    int check_units_conversion_messenger_for_signs_of_life();
 }
 
 #endif
-

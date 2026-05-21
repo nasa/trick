@@ -10,10 +10,9 @@
 
 #include "trick/trick_math.h"
 
-
-void quat_norm(double q2[4],    /* Out: quaternion */
-               double q1[4])
-{                                      /* In: quaternion */
+void quat_norm(double q2[4], /* Out: quaternion */
+    double q1[4])
+{ /* In: quaternion */
 
     double coef;
 

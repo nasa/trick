@@ -9,13 +9,14 @@ PROGRAMMERS:
 #ifndef SIMOBJECT_HH
 #define SIMOBJECT_HH
 
-#include <string>
-#include <vector>
-#include <map>
-
 #include "trick/JobData.hh"
 
-namespace Trick {
+#include <map>
+#include <string>
+#include <vector>
+
+namespace Trick
+{
 
     /**
      * This class is the base class for all SimObjects in the simulation.  It contains a the list of
@@ -29,44 +30,46 @@ namespace Trick {
      *
      */
 
-    class SimObject {
-
+    class SimObject
+    {
         public:
-
-            SimObject () : object_disabled(false) {}
+            SimObject()
+                : object_disabled(false)
+            {
+            }
 
             /** Name of SimObject given to object */
-            std::string  name ;                                /* trick_units(--) */
+            std::string name; /* trick_units(--) */
 
             /** SimObject id assigned by CP */
-            int  id ;                                           /* trick_units(--) */
+            int id; /* trick_units(--) */
 
             /** Indicates if the sim_object is enabled */
-            bool object_disabled;                              /* trick_units(--) */
+            bool object_disabled; /* trick_units(--) */
 
             /** Save the job disabled states when the entire sim object is disabled */
-            std::map <Trick::JobData *, bool> saved_job_states;    /* trick_io(**) */
+            std::map<Trick::JobData*, bool> saved_job_states; /* trick_io(**) */
 
             /** Included simobjects -- currently not used */
-            std::vector <SimObject *> pre_component_objects ;  /* trick_io(**) */
+            std::vector<SimObject*> pre_component_objects; /* trick_io(**) */
 
             /** Included simobjects -- currently not used */
-            std::vector <SimObject *> post_component_objects ; /* trick_io(**) */
+            std::vector<SimObject*> post_component_objects; /* trick_io(**) */
 
             /**  Jobs in this sim_object */
-            std::vector <Trick::JobData *> jobs ;              /* trick_io(**) */
+            std::vector<Trick::JobData*> jobs; /* trick_io(**) */
 
             /** Default destructor that doesn't do anything. */
-            virtual ~SimObject() ;
+            virtual ~SimObject();
 
             /**  Returns a job with a specific name. */
-            Trick::JobData * get_job( std::string job_name , unsigned int instance_num = 1 ) ;
+            Trick::JobData* get_job(std::string job_name, unsigned int instance_num = 1);
 
             /**  Add a job tag to all jobs in this sim_object */
-            int add_tag( std::string ) ;
+            int add_tag(std::string);
 
             /**  Add a job tag to particular job in this sim_object */
-            int add_tag_to_job( std::string job_tag , std::string job_name ) ;
+            int add_tag_to_job(std::string job_tag, std::string job_name);
 
             /**
              * Includes a lower level SimObject where the lower level jobs are called before this SimObject
@@ -74,7 +77,7 @@ namespace Trick {
              * @param name - name of lower level SimObject
              * @return always 0
              */
-            int add_pre_component_object(SimObject * in_object, std::string name) ;
+            int add_pre_component_object(SimObject* in_object, std::string name);
 
             /**
              * Includes a lower level SimObject where the lower level jobs are called after this SimObject
@@ -82,7 +85,7 @@ namespace Trick {
              * @param name - name of lower level SimObject
              * @return always 0
              */
-            int add_post_component_object(SimObject * in_object, std::string name) ;
+            int add_post_component_object(SimObject* in_object, std::string name);
 
             /**
              * Adds a job to the sim_object.  This call is typically in the S_source.cpp file
@@ -98,21 +101,20 @@ namespace Trick {
              * @param in_stop - job stop time specified in S_define
              * @return the job added to the queue
              */
-            Trick::JobData * add_job(int in_thread, int in_id, const char * in_job_class_name , void* sup_class_data ,
-                        double in_cycle, const char * in_name, const char * in_tag = "", int in_phase = 60000 ,
-                        double in_start = 0.0 , double in_stop = 1.0e37) ;
-
+            Trick::JobData* add_job(int in_thread, int in_id, const char* in_job_class_name, void* sup_class_data,
+                double in_cycle, const char* in_name, const char* in_tag = "", int in_phase = 60000,
+                double in_start = 0.0, double in_stop = 1.0e37);
 
             /**
              * Enables all jobs in the SimObject
              */
-            void enable_all_jobs() ;
-            void enable() ;
+            void enable_all_jobs();
+            void enable();
 
             /**
              * Disables all jobs in the SimObject
              */
-            void disable_all_jobs() ;
+            void disable_all_jobs();
             void disable();
 
             /**
@@ -120,18 +122,16 @@ namespace Trick {
              * @param curr_job - the current job instance
              * @return always 0
              */
-            virtual int call_function( Trick::JobData * curr_job ) = 0 ;
+            virtual int call_function(Trick::JobData* curr_job) = 0;
 
             /**
              * Calls all jobs that are "dynamic_event" class
              * @param curr_job - the current job instance
              * @return always 0
              */
-            virtual double call_function_double( Trick::JobData * curr_job ) = 0 ;
+            virtual double call_function_double(Trick::JobData* curr_job) = 0;
+    };
 
-    } ;
-
-} ;
+};
 
 #endif
-

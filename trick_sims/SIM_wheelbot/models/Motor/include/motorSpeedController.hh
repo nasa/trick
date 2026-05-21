@@ -4,18 +4,16 @@
 #ifndef MOTOR_SPEED_CONTROLLER_HH
 #define MOTOR_SPEED_CONTROLLER_HH
 
-class MotorSpeedController {
-
+class MotorSpeedController
+{
     public:
-    virtual ~MotorSpeedController() {}
+        virtual ~MotorSpeedController() { }
 
-    virtual void setCommandedSpeed( double commanded_speed ) {
-        commandedSpeed = commanded_speed;
-    }
-    double getCommandedSpeed() { return commandedSpeed; }
+        virtual void setCommandedSpeed(double commanded_speed) { commandedSpeed = commanded_speed; }
+        double getCommandedSpeed() { return commandedSpeed; }
 
     protected:
-    double commandedSpeed;
+        double commandedSpeed;
 };
 
 #endif

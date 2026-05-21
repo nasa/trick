@@ -16,64 +16,62 @@
 #ifndef MESSAGEFILE_HH
 #define MESSAGEFILE_HH
 
-#include <string>
-#include <iostream>
-#include <fstream>
 #include "trick/MessageSubscriber.hh"
 
-namespace Trick {
+#include <fstream>
+#include <iostream>
+#include <string>
+
+namespace Trick
+{
 
     /**
      * This MessageFile is a class that inherits from MessageSubscriber.
      * It defines a type of MessageSubscriber with its received message sending to a file.
      */
-    class MessageFile : public MessageSubscriber {
-
+    class MessageFile : public MessageSubscriber
+    {
         public:
-
             /** The file name of a file which the messages goes to. \n*/
-            std::string file_name ; /**< trick_units(--) trick_io(io) */
+            std::string file_name; /**< trick_units(--) trick_io(io) */
 
             /**
              @brief The constructor.
              */
-            MessageFile() ;
+            MessageFile();
 
             /**
              @brief The destructor.
              */
-            ~MessageFile() ;
+            ~MessageFile();
 
             /**
              @brief Output message to the file.
              */
-            virtual void update( unsigned int level , std::string header , std::string message );
+            virtual void update(unsigned int level, std::string header, std::string message);
 
             /**
              @brief Set a file name for a file which the messages received by this subscriber goes to.
              @return always 0
              */
-            int set_file_name(std::string in_name) ;
+            int set_file_name(std::string in_name);
 
             /**
              @brief Initializes this subscriber.
              @return always 0
              */
-            virtual int init() ;
+            virtual int init();
 
-            virtual int restart() ;
-
+            virtual int restart();
 
         protected:
             /** The output file stream. \n */
-            std::fstream out_stream ;    /**< trick_io(**) */
+            std::fstream out_stream; /**< trick_io(**) */
 
             // This object is not copyable (fstream).  Add private copy so SWIG knows not to wrap this
-            void operator =(const Trick::MessageFile &) {};
-
-    } ;
+            void operator=(const Trick::MessageFile&) { };
+    };
 
 }
 
 #endif
-

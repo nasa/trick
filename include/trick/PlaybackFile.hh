@@ -6,30 +6,30 @@
 #ifndef PLAYBACKFILE_HH
 #define PLAYBACKFILE_HH
 
-#include <string>
-#include <iostream>
-#include <fstream>
 #include "trick/MessageFile.hh"
 
-namespace Trick {
+#include <fstream>
+#include <iostream>
+#include <string>
+
+namespace Trick
+{
 
     /**
      * This PlaybackFile is a class that inherits from MessageFile.
      * It defines a type of MessageSubscriber with its received message sending to a file.
      */
-    class PlaybackFile : public MessageFile {
-
+    class PlaybackFile : public MessageFile
+    {
         public:
-
-            PlaybackFile() ;
+            PlaybackFile();
 
             /**
              @brief Output message to the file.
              */
-            virtual void update( unsigned int level , std::string header , std::string message ) ;
-    } ;
+            virtual void update(unsigned int level, std::string header, std::string message);
+    };
 
 }
 
 #endif
-

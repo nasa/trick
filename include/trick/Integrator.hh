@@ -4,15 +4,15 @@
  PURPOSE: (Integrator Base Class)
  */
 #if defined(TRICK_VER) && !defined(TEST)
-    #include "trick/memorymanager_c_intf.h"
-    #define INTEG_NEW(class) (class*)TMM_declare_var_1d(#class,1)
-    #define INTEG_ALLOC(typespec, num) (typespec*)TMM_declare_var_1d(#typespec,(num))
-    #define INTEG_FREE(p) TMM_delete_var_a(p)
+#include "trick/memorymanager_c_intf.h"
+#define INTEG_NEW(class) (class*)TMM_declare_var_1d(#class, 1)
+#define INTEG_ALLOC(typespec, num) (typespec*)TMM_declare_var_1d(#typespec, (num))
+#define INTEG_FREE(p) TMM_delete_var_a(p)
 #else
-    #include <stdlib.h>
-    #define INTEG_NEW(class) new class
-    #define INTEG_ALLOC(typespec, num) (typespec*)calloc((size_t)num,sizeof(typespec))
-    #define INTEG_FREE(p) free(p)
+#include <stdlib.h>
+#define INTEG_NEW(class) new class
+#define INTEG_ALLOC(typespec, num) (typespec*)calloc((size_t)num, sizeof(typespec))
+#define INTEG_FREE(p) free(p)
 #endif
 #include <cstdarg>
 /*
@@ -24,7 +24,8 @@
 /**
  *  Below are the supported types of integration schemes.
  */
-typedef enum {
+typedef enum
+{
     Euler                   = 0, /* 1st Order Explicit Euler */
     Euler_Cromer            = 1, /* The simple symplectic Euler-Cromer */
     Nystrom_Lear_2          = 2, /* 2nd Order Nystrom Lear */
@@ -38,122 +39,119 @@ typedef enum {
     User_Defined            = 10 /* User defined integrator */
 } Integrator_type;
 
-namespace Trick {
-/**
- *  Contains the information shared by all of the Integrator Schemes.
- *
- * @author John Penn
- * @author Alex Lin
- * @author Donna Panter
- *
- * @date May 2010
- */
-    class Integrator {
+namespace Trick
+{
+    /**
+     *  Contains the information shared by all of the Integrator Schemes.
+     *
+     * @author John Penn
+     * @author Alex Lin
+     * @author Donna Panter
+     *
+     * @date May 2010
+     */
+    class Integrator
+    {
+        public:
+            Integrator();
+            virtual ~Integrator() { };
 
-    public:
+            virtual void initialize(int State_size, double Dt) = 0;
+            virtual int integrate()                            = 0;
 
-        Integrator();
-        virtual ~Integrator() {};
-
-        virtual void initialize(int State_size, double Dt) = 0;
-        virtual int integrate() = 0;
-
-        virtual int integrate_1st_order_ode (
-           double const* derivs_in, double* state_in_out);
-        virtual int integrate_2nd_order_ode (
-           double const* accel, double* velocity, double* position);
+            virtual int integrate_1st_order_ode(double const* derivs_in, double* state_in_out);
+            virtual int integrate_2nd_order_ode(double const* accel, double* velocity, double* position);
 
 #ifndef SWIGPYTHON
-        void state_reset ();
-        void state_element_in (unsigned int index , double* state_p);
+            void state_reset();
+            void state_element_in(unsigned int index, double* state_p);
 #endif
 
 #ifndef SWIGPYTHON
-        void state_in (double* arg1, va_list argp);
+            void state_in(double* arg1, va_list argp);
 #endif
-        void state_in (double* arg1, ...)
+            void state_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+#ifdef __GNUC__
+#if __GNUC__ >= 4
+                __attribute__((sentinel))
 #endif
-        ;
+#endif
+#endif
+                ;
 #ifndef SWIGPYTHON
-        void deriv_in (double* arg1, va_list argp);
+            void deriv_in(double* arg1, va_list argp);
 #endif
-        void deriv_in (double* arg1, ...)
+            void deriv_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+#ifdef __GNUC__
+#if __GNUC__ >= 4
+                __attribute__((sentinel))
 #endif
-        ;
+#endif
+#endif
+                ;
 #ifndef SWIGPYTHON
-        void state_out (double* arg1, va_list argp);
+            void state_out(double* arg1, va_list argp);
 #endif
-        void state_out(double* arg1, ...)
+            void state_out(double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+#ifdef __GNUC__
+#if __GNUC__ >= 4
+                __attribute__((sentinel))
 #endif
-        ;
+#endif
+#endif
+                ;
 
 #ifndef SWIGPYTHON
-        void deriv2_in (double* arg1, va_list argp);
+            void deriv2_in(double* arg1, va_list argp);
 #endif
-        void deriv2_in (double* arg1, ...)
+            void deriv2_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+#ifdef __GNUC__
+#if __GNUC__ >= 4
+                __attribute__((sentinel))
 #endif
-        ;
+#endif
+#endif
+                ;
 
-        int num_state;
+            int num_state;
 
-        int intermediate_step;
+            int intermediate_step;
 
-        bool first_step_deriv;
-        bool last_step_deriv;
-        bool is_2nd_order_ODE_technique;  // -- set by integration technique
-        bool use_deriv2;                  // -- set by integration technique
+            bool first_step_deriv;
+            bool last_step_deriv;
+            bool is_2nd_order_ODE_technique; // -- set by integration technique
+            bool use_deriv2; // -- set by integration technique
 
-        double dt;               // -- set by IntegLoopSimObject.cpp
-        double target_integ_time; // -- set by IntegLoopScheduler.cpp. Final integration time regardless of
-                                  //    intermediate step.
+            double dt; // -- set by IntegLoopSimObject.cpp
+            double target_integ_time; // -- set by IntegLoopScheduler.cpp. Final integration time regardless of
+                                      //    intermediate step.
 #ifndef USE_ER7_UTILS_INTEGRATORS
-        double **state_origin;
+            double** state_origin;
 #endif
-        double *state;
-        double **deriv;
-        double **deriv2;
-        double **state_ws;
+            double* state;
+            double** deriv;
+            double** deriv2;
+            double** state_ws;
 
-        double time;
-        double time_0;
+            double time;
+            double time_0;
 
-        int verbosity;
+            int verbosity;
 
-        virtual bool get_first_step_deriv() ;
-        virtual void set_first_step_deriv(bool first_step) ;
-        virtual bool get_last_step_deriv() ;
-        virtual void set_last_step_deriv(bool last_step) ;
-        virtual void set_verbosity(int level);
-        virtual void reset() {}
-        virtual Integrator_type get_Integrator_type() { return (User_Defined); };
-
+            virtual bool get_first_step_deriv();
+            virtual void set_first_step_deriv(bool first_step);
+            virtual bool get_last_step_deriv();
+            virtual void set_last_step_deriv(bool last_step);
+            virtual void set_verbosity(int level);
+            virtual void reset() { }
+            virtual Integrator_type get_Integrator_type() { return (User_Defined); };
     };
 
-    Integrator* getIntegrator( Integrator_type Alg, unsigned int State_size, double Dt = 0.0 );
+    Integrator* getIntegrator(Integrator_type Alg, unsigned int State_size, double Dt = 0.0);
 
 }
 
