@@ -52,14 +52,27 @@ bool VariableVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializat
 {
     clang::CXXRecordDecl* trec = tst->getAsCXXRecordDecl();
 
-    if (debug_level >= 2)
-    {
-        std::cout << "\nVariableVisitor VisitTemplateSpecializationType" << std::endl;
-        trec->dump();
-        std::cout << std::endl;
+    /* Skip dependent template specializations (e.g. Foo<T> where T is a template
+       parameter).
+       These occur from out-of-class static member definitions such as:
+            template <class T> int Foo<T>::POTATO = 1;
+        where POTATO is a static member of the class template Foo such as:
+            template <class T> class Foo { static int POTATO; };
+       If not skipped for this case, desugar().getAsString() called below would return
+       the literal string "Foo<T>".  Emitting sizeof(Foo<T>) in a non-template io_src
+       function causes a compile error ("undeclared identifier T"). */
+    if ( tst->isDependentType() ) {
+        return true ;
     }
 
-    /* The getDifinition() call retrieves the resolved template if it exists.  The call
+    clang::CXXRecordDecl *trec = tst->getAsCXXRecordDecl() ;
+
+    if ( debug_level >=2 ) {
+        std::cout << "\nVariableVisitor VisitTemplateSpecializationType" << std::endl ;
+        trec->dump() ; std::cout << std::endl ;
+    }
+
+    /* The getDefinition() call retrieves the resolved template if it exists.  The call
        returns NULL if the template was defined but never used */
     clang::TagDecl* td = trec->getDefinition();
 

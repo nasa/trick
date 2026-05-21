@@ -6,8 +6,10 @@
  * code that does not compile (as long as
  * https://github.com/nasa/trick/issues/422 isn't fixed).
  */
-class IcgExclude2A
-{
+//*
+    // "//*" would fail ICG, but since this file is on the TRICK_ICG_EXCLUDE list, it should be fully excluded from ICG and not cause a problem.
+//*
+class IcgExclude2A {
     private:
         void operator=(const IcgExclude2A&);
 };
