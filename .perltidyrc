@@ -1,15 +1,15 @@
 # .perltidyrc — Trick project Perl formatting rules
--l=120
--i=4
--ci=4
--xci
--mci
--nst
--b
--bext='/'
--se
--nolq
--pt=1
--sbt=1
--bt=1
--conv
+-l=120      # maximum line length (default 80)
+-i=4        # spaces per indentation level (default 4)
+-ci=4       # spaces for continuation indentation (default 2); matches -i so nested lines align evenly
+-xci        # extend continuation indentation deeper into structures — improves readability when -ci == -i
+-mci        # minimize continuation indentation for code snippets that start mid-indent
+-nst        # do not send output to stdout; write to file (required when using -b)
+-b          # modify files in place (backup first)
+-bext='/'   # delete backup after a clean run; keep it if errors were detected
+-se         # send perltidy error messages to stderr instead of a .ERR sidecar file
+-nolq       # do not outdent long quoted strings (keep their indentation intact)
+-pt=1       # paren tightness: space inside outer parens, no space before inner calls (default)
+-sbt=1      # square-bracket tightness: same middle-ground rule as -pt=1 (default)
+-bt=1       # non-block brace tightness: same middle-ground rule as -pt=1 (default)
+-conv       # iterate until formatting converges (equivalent to -it=4); stops early if stable
