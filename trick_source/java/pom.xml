@@ -1,17 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>trick-java</groupId>
   <artifactId>trick-java</artifactId>
   <version>25.0.3-beta</version>
-
   <name>trick-java</name>
-
   <url>https://github.com/nasa/trick</url>
-
   <profiles>
     <profile>
       <id>cmake</id>
@@ -35,21 +33,18 @@
       </activation>
     </profile>
   </profiles>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <trick_version>dev</trick_version>
   </properties>
-
   <repositories>
     <repository>
       <id>third-party</id>
       <url>file://${basedir}/src/lib/</url>
     </repository>
   </repositories>
-
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -105,7 +100,6 @@
     </dependency>
   </dependencies>
   <build>
-
     <directory>../../libexec/trick/java/build</directory>
     <plugins>
       <plugin>
@@ -122,7 +116,6 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.2.1</version>
         <executions>
-
           <execution>
             <id>tv</id>
             <phase>package</phase>
@@ -138,7 +131,6 @@
               <finalName>TrickView</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>simcontrol</id>
             <phase>package</phase>
@@ -154,7 +146,6 @@
               <finalName>SimControl</finalName>
             </configuration>
             </execution>
-
           <execution>
             <id>trickify</id>
             <phase>package</phase>
@@ -170,7 +161,6 @@
               <finalName>Trickify</finalName>
             </configuration>
             </execution>
-            
             <execution>
             <id>sniffer</id>
             <phase>package</phase>
@@ -186,7 +176,6 @@
               <finalName>SimSniffer</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>mtv</id>
             <phase>package</phase>
@@ -202,7 +191,6 @@
               <finalName>MTV</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>trickqp</id>
             <phase>package</phase>
@@ -218,7 +206,6 @@
               <finalName>QP</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>trickdp</id>
             <phase>package</phase>
@@ -234,7 +221,6 @@
               <finalName>DP</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>dre</id>
             <phase>package</phase>
@@ -250,7 +236,6 @@
               <finalName>Dre</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>Sie</id>
             <phase>package</phase>
@@ -266,7 +251,6 @@
               <finalName>Sie</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>plot</id>
             <phase>package</phase>
@@ -282,7 +266,6 @@
               <finalName>JXPlot</finalName>
             </configuration>
           </execution>
-
           <execution>
             <id>montemonitor</id>
             <phase>package</phase>
@@ -299,7 +282,6 @@
             </configuration>
           </execution>
           <execution>
-
             <id>jobperf</id>
             <phase>package</phase>
             <goals>
@@ -314,14 +296,26 @@
               <finalName>JPerf</finalName>
             </configuration>
           </execution>
-
         </executions>
-      </plugin> 
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <java>
+            <palantirJavaFormat>
+              <style>PALANTIR</style>
+            </palantirJavaFormat>
+            <removeUnusedImports />
+            <trimTrailingWhitespace />
+            <endWithNewline />
+          </java>
+        </configuration>
+      </plugin>
     </plugins>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
-   
-
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
@@ -347,7 +341,6 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>
         </plugin>
-
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
           <version>2.5.2</version>
@@ -365,7 +358,6 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
