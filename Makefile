@@ -302,16 +302,22 @@ test: unit_test sim_test
 
 test32: sim_test32
 
+JAVA_TEST_DIR = ${TRICK_HOME}/trick_source/java
+
 .PHONY: $(UNIT_TEST_DIRS)
 $(UNIT_TEST_DIRS):
 	@ $(MAKE) -C $@ test
 
-unit_test: $(UNIT_TEST_DIRS) $(DPX_UNIT_TEST_DIR)
+unit_test: $(UNIT_TEST_DIRS) $(DPX_UNIT_TEST_DIR) $(JAVA_TEST_DIR)
 
 # DPX test excluded from releases because of size
 .PHONY: $(DPX_UNIT_TEST_DIR)
 $(DPX_UNIT_TEST_DIR):
 	@ if [ -d ${DPX_UNIT_TEST_DIR} ]; then $(MAKE) -C $@ test; fi
+
+.PHONY: $(JAVA_TEST_DIR)
+$(JAVA_TEST_DIR):
+	@ $(MAKE) -C $@ test
 
 
 sim_test:
