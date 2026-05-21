@@ -336,7 +336,7 @@ extra-coverage-builds:
 
 code-coverage: test extra-coverage-builds
 	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info --ignore-errors mismatch
-	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info
+	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info --ignore-errors unused
 	rm coverage_large.info
 	lcov --list coverage.info
 
