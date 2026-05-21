@@ -61,15 +61,18 @@ bool VariableVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializat
        If not skipped for this case, desugar().getAsString() called below would return
        the literal string "Foo<T>".  Emitting sizeof(Foo<T>) in a non-template io_src
        function causes a compile error ("undeclared identifier T"). */
-    if ( tst->isDependentType() ) {
-        return true ;
+    if (tst->isDependentType())
+    {
+        return true;
     }
 
-    clang::CXXRecordDecl *trec = tst->getAsCXXRecordDecl() ;
+    clang::CXXRecordDecl* trec = tst->getAsCXXRecordDecl();
 
-    if ( debug_level >=2 ) {
-        std::cout << "\nVariableVisitor VisitTemplateSpecializationType" << std::endl ;
-        trec->dump() ; std::cout << std::endl ;
+    if (debug_level >= 2)
+    {
+        std::cout << "\nVariableVisitor VisitTemplateSpecializationType" << std::endl;
+        trec->dump();
+        std::cout << std::endl;
     }
 
     /* The getDefinition() call retrieves the resolved template if it exists.  The call

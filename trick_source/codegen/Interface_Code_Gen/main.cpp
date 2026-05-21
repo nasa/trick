@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
     // DiagnosticConsumer is set later in the code to our ICGDiagnosticConsumer and here is nullptr
     ci.createDiagnostics(*vfs); // Create diagnostics for clang 20+
 #else
-    ci.createDiagnostics();
+ci.createDiagnostics();
 #endif
     ci.getDiagnosticOpts().ShowColors = 1;
     ci.getDiagnostics().setIgnoreAllWarnings(true);
@@ -392,7 +392,7 @@ int main(int argc, char* argv[])
 #elif (LIBCLANG_MAJOR >= 18)
     const clang::FileEntryRef fileEntryRef = llvm::cantFail(ci.getFileManager().getFileRef(inputFilePath));
 #else
-    const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
+const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
 #endif
     free(inputFilePath);
 #if ((LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18)) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
@@ -402,7 +402,7 @@ int main(int argc, char* argv[])
     ci.getSourceManager().setMainFileID(
         ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
-    ci.getSourceManager().createMainFileID(fileEntry);
+ci.getSourceManager().createMainFileID(fileEntry);
 #endif
     ICGDiagnosticConsumer* icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
     ci.getDiagnostics().setClient(icgDiagConsumer);

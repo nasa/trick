@@ -7,9 +7,11 @@
  * https://github.com/nasa/trick/issues/422 isn't fixed).
  */
 //*
-    // "//*" would fail ICG, but since this file is on the TRICK_EXCLUDE list, it should be fully excluded from ICG and not cause a problem.
+// "//*" would fail ICG, but since this file is on the TRICK_EXCLUDE list, it should be fully excluded from ICG and not
+// cause a problem.
 //*
-class Exclude2A {
+class Exclude2A
+{
     private:
         void operator=(const Exclude2A&);
 };

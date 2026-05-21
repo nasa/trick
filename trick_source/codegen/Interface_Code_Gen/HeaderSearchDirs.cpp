@@ -335,46 +335,56 @@ bool HeaderSearchDirs::isPathInICGExclude(const std::string& in_dir)
     return false;
 }
 
-bool HeaderSearchDirs::isPathExcludedFromICG (const std::string& in_dir ) {
-
-    return isPathInExclude(in_dir) || isPathInICGExclude(in_dir) ;
+bool HeaderSearchDirs::isPathExcludedFromICG(const std::string& in_dir)
+{
+    return isPathInExclude(in_dir) || isPathInICGExclude(in_dir);
 }
 
-bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
-
-    std::vector<std::string>::iterator vit ;
-    for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; ++vit ) {
-        if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
-            if ( ! isPathInExtLibOverrides(in_dir) ) {
-                return true ;
+bool HeaderSearchDirs::isPathInExtLib(const std::string& in_dir)
+{
+    std::vector<std::string>::iterator vit;
+    for (vit = ext_lib_dirs.begin(); vit != ext_lib_dirs.end(); ++vit)
+    {
+        if (!in_dir.compare(0, (*vit).size(), (*vit)))
+        {
+            if (!isPathInExtLibOverrides(in_dir))
+            {
+                return true;
             }
         }
     }
 
-    return false ;
+    return false;
 }
 
-bool HeaderSearchDirs::isPathInExtLibOverrides (const std::string& in_dir ) {
-
-    std::vector<std::string>::iterator vit ;
-    for ( vit = ext_lib_dirs_overrides.begin() ; vit != ext_lib_dirs_overrides.end() ; ++vit ) {
-        if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
-            return true ;
+bool HeaderSearchDirs::isPathInExtLibOverrides(const std::string& in_dir)
+{
+    std::vector<std::string>::iterator vit;
+    for (vit = ext_lib_dirs_overrides.begin(); vit != ext_lib_dirs_overrides.end(); ++vit)
+    {
+        if (!in_dir.compare(0, (*vit).size(), (*vit)))
+        {
+            return true;
         }
     }
 
-    return false ;
+    return false;
 }
 
-bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_dir ) {
-    if ( icg_nocomment_files.find(in_dir) != icg_nocomment_files.end() ) {
-        return icg_nocomment_files[in_dir] ;
+bool HeaderSearchDirs::isPathInICGNoComment(const std::string& in_dir)
+{
+    if (icg_nocomment_files.find(in_dir) != icg_nocomment_files.end())
+    {
+        return icg_nocomment_files[in_dir];
     }
-    else {
-        std::vector<std::string>::iterator vit ;
-        for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; ++vit ) {
-            if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
-                icg_nocomment_files[in_dir] = true ;
+    else
+    {
+        std::vector<std::string>::iterator vit;
+        for (vit = icg_nocomment_dirs.begin(); vit != icg_nocomment_dirs.end(); ++vit)
+        {
+            if (!in_dir.compare(0, (*vit).size(), (*vit)))
+            {
+                icg_nocomment_files[in_dir] = true;
                 return true;
             }
         }

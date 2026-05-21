@@ -15,32 +15,38 @@ PYTHON_MODULE: (Foo)
 namespace Foo
 {
 
-typedef struct
-{
-    char* foodName;
-    double calories;
-} FooFoodInStruct;
+    typedef struct
+    {
+            char* foodName;
+            double calories;
+    } FooFoodInStruct;
 
-struct FooFoodInStructNoTypedef
-{
-    char* foodName;
-    double calories;
-};
+    struct FooFoodInStructNoTypedef
+    {
+            char* foodName;
+            double calories;
+    };
 
-enum Yummy {
-    Butter,
-    Bacon,
-    Doughnuts
-};
+    enum Yummy
+    {
+        Butter,
+        Bacon,
+        Doughnuts
+    };
 
-class YummyFood {
-  public:
-    YummyFood() : yummy(Bacon) {}
-    void print_me() { std::cout << "Foo::YummyFood::print_me!" << std::endl; }
-    Yummy yummy;
-    FooFoodInStruct *foo_food_in_struct; // Array of FooFoodInStruct to test a struct in a namespace
-    FooFoodInStructNoTypedef *foo_food_in_struct_no_typedef; // Array of FooFoodInStructNoTypedef to test a struct in a namespace
-};
+    class YummyFood
+    {
+        public:
+            YummyFood()
+                : yummy(Bacon)
+            {
+            }
+            void print_me() { std::cout << "Foo::YummyFood::print_me!" << std::endl; }
+            Yummy yummy;
+            FooFoodInStruct* foo_food_in_struct; // Array of FooFoodInStruct to test a struct in a namespace
+            FooFoodInStructNoTypedef*
+                foo_food_in_struct_no_typedef; // Array of FooFoodInStructNoTypedef to test a struct in a namespace
+    };
 
 }
 

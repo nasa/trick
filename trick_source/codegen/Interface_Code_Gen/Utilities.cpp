@@ -81,9 +81,11 @@ bool isInUserCode(clang::CompilerInstance& ci, clang::SourceLocation sl, HeaderS
     bool ret            = false;
     char* resolved_path = getResolvedPath(ci, sl);
 
-    if ( resolved_path != NULL ) {
-        if ( hsd.isPathInUserDir(resolved_path) and ! hsd.isPathExcludedFromICG(resolved_path)) {
-            ret = true ;
+    if (resolved_path != NULL)
+    {
+        if (hsd.isPathInUserDir(resolved_path) and !hsd.isPathExcludedFromICG(resolved_path))
+        {
+            ret = true;
         }
         free(resolved_path);
     }
@@ -95,10 +97,12 @@ bool isInUserOrTrickCode(clang::CompilerInstance& ci, clang::SourceLocation sl, 
 {
     bool ret            = false;
     char* resolved_path = getResolvedPath(ci, sl);
-    
-    if ( resolved_path != NULL ) {
-        if ( hsd.isPathInUserOrTrickDir(resolved_path) and ! hsd.isPathExcludedFromICG(resolved_path)) {
-            ret = true ;
+
+    if (resolved_path != NULL)
+    {
+        if (hsd.isPathInUserOrTrickDir(resolved_path) and !hsd.isPathExcludedFromICG(resolved_path))
+        {
+            ret = true;
         }
         free(resolved_path);
     }
@@ -111,8 +115,10 @@ std::string getFileName(clang::CompilerInstance& ci, clang::SourceLocation sl, H
     std::string file_name;
     char* resolved_path = getResolvedPath(ci, sl);
 
-    if (resolved_path != NULL ) {
-        if (hsd.isPathInUserDir(resolved_path) and ! hsd.isPathExcludedFromICG(resolved_path)) {
+    if (resolved_path != NULL)
+    {
+        if (hsd.isPathInUserDir(resolved_path) and !hsd.isPathExcludedFromICG(resolved_path))
+        {
             file_name.append(resolved_path);
         }
         free(resolved_path);
