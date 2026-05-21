@@ -64,6 +64,17 @@ class HeaderSearchDirs {
           */
         bool isPathInICGExclude (const std::string& path) ;
 
+        /** Returns true if a path should be treated as fully excluded from ICG.
+            TRICK_EXCLUDE is the broader exclude that excludes a directory from 
+            the most CP processing including ICG, while TRICK_ICG_EXCLUDE is meant 
+            to exclude a directory from only ICG processing. Therefore, if a path 
+            is in TRICK_EXCLUDE, it should be fully excluded from ICG, in addition 
+            to TRICK_ICG_EXCLUDE and TRICK_SYSTEM_ICG_EXCLUDE.
+            @param path = path to be checked
+            @return true = path should be ignored by early ICG processing.
+          */
+        bool isPathExcludedFromICG (const std::string& path) ;
+
         /** Returns true if directory is a subdirectory of an external library directory listed
             in the TRICK_EXT_LIB_DIRS environment variable, and is also not a subdirectory listed 
             in TRICK_EXT_LIB_DIRS_OVERRIDES
