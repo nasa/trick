@@ -13,7 +13,7 @@ jobs:
       checks: write # Allow creating check runs
     steps:
       - name: Publish Test Report
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@df6247429542221bc30d46a036ee47af1102c451 # v2
         with:
           # Match artifact from the specific attempt that triggered this report
           artifact: Trick_macos_attempt_${{ github.event.workflow_run.run_attempt }}
