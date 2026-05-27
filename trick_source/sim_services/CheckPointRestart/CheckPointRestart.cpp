@@ -130,10 +130,14 @@ int Trick::CheckPointRestart::checkpoint(double in_time, std::string file_name) 
         if ( new_time < write_checkpoint_job->next_tics ) {
             write_checkpoint_job->next_tics = new_time ;
         }
+
+        if ( chkpnt_resume_sim_map.find(new_time) == chkpnt_resume_sim_map.end() ) {
+            chkpnt_resume_sim_map[new_time] = true ;
+        }
         
         if (!file_name.empty()) chkpnt_names[new_time] = file_name;
         
-        the_exec->freeze(in_time);
+        the_exec->freeze(in_time, false);
         //std::cout << "\033[33mSET CHECKPOINT TIME " << in_time << " " << new_time << "\033[0m" << std::endl ;
     } else {
         message_publish(MSG_ERROR, "Checkpoint time specified in the past. specified %f, current_time %f\n",
@@ -141,6 +145,12 @@ int Trick::CheckPointRestart::checkpoint(double in_time, std::string file_name) 
     }
 
     return(0) ;
+}
+
+void Trick::CheckPointRestart::note_scheduled_freeze(long long in_time_tics) {
+    // If a freeze is scheduled at the same time as a checkpoint, the checkpoint will be taken and sim will not resume afterwards.
+    // Otherwise, sim will resume after the checkpoint as the scheduled checkpoint auto freezes sim before taking the checkpoint.
+    chkpnt_resume_sim_map[in_time_tics] = false ;
 }
 
 int Trick::CheckPointRestart::set_safestore_time(double in_time) {
@@ -188,8 +198,8 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
 
     mode = the_exec->get_mode();
 
-    if (mode == Run) {
-        std::string msg_format  = "WARNING: Saving a checkpoint in 'Run Mode' may cause non time-homogeneous data. ";
+    if (mode != Freeze) {
+        std::string msg_format  = "WARNING: Saving a checkpoint not in 'Freeze' mode may cause non time-homogeneous data. ";
                     msg_format += "Current Mode: %s (%d)\n";
         message_publish(MSG_WARNING, msg_format.c_str(),
                         simModeCharString(mode), mode);
@@ -268,6 +278,7 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
 int Trick::CheckPointRestart::write_checkpoint() {
 
     long long curr_time = exec_get_time_tics() ;
+    bool should_resume_sim = true ;
 
     // checkpoint time is set in a read event that occurs at top of frame
     if ( curr_time == checkpoint_times.top() ) {
@@ -281,6 +292,11 @@ int Trick::CheckPointRestart::write_checkpoint() {
             write_checkpoint_job->next_tics = checkpoint_times.top() ;
         } else {
             write_checkpoint_job->next_tics = TRICK_MAX_LONG_LONG ;
+        }
+
+        if ( chkpnt_resume_sim_map.find(curr_time) != chkpnt_resume_sim_map.end() ) {
+            should_resume_sim = chkpnt_resume_sim_map[curr_time] ;
+            chkpnt_resume_sim_map.erase(curr_time) ;
         }
 
         double sim_time = exec_get_sim_time() ;
@@ -297,7 +313,9 @@ int Trick::CheckPointRestart::write_checkpoint() {
 
         checkpoint( file_name );
 
-		the_exec->run();
+        if ( should_resume_sim ) {
+            the_exec->run();
+        }
     }
 
     return(0) ;

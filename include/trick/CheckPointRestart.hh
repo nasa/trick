@@ -30,6 +30,9 @@ namespace Trick {
             /** Map to track custom named checkpoints based on the scheduled times */
             std::map<long long, std::string> chkpnt_names;          /* ** */
 
+            /** Map to track whether a scheduled checkpoint should resume sim. */
+            std::map<long long, bool> chkpnt_resume_sim_map;          /* ** */
+
         protected:
             /** queue to hold jobs to be called before a checkpoint is dumped. */
             Trick::ScheduledJobQueue checkpoint_queue ;              /* ** */
@@ -216,6 +219,12 @@ namespace Trick {
              @return always 0
              */
             virtual int checkpoint(double in_time, std::string file_name = "") ;
+
+            /**
+             * Record that a non-checkpoint freeze was scheduled at a given time.
+             * @param in_time_tics - simulation time in tics
+             */
+            void note_scheduled_freeze(long long in_time_tics) ;
 
             /**
              * Executes the pre_init_checkpoint
