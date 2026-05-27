@@ -409,6 +409,9 @@ int Trick::ClassicCheckPointAgent::is_nil_valued( void* address,
                } else if ((size_t)attr->size == sizeof(short)) {
                    test_addr = (char*)address + offset * sizeof(short);
                    if (*(short*)test_addr == 0) return(1);
+               } else if ((size_t)attr->size == sizeof(char)) {
+                   test_addr = (char*)address + offset * sizeof(char);
+                   if (*(char*)test_addr == 0) return(1);
                } else {
                    return(-1);
                }
@@ -453,6 +456,10 @@ int Trick::ClassicCheckPointAgent::is_nil_valued( void* address,
            case TRICK_STRING :
                test_addr = (char*)address + offset * sizeof(void*);
                if (*(std::string*)test_addr == "") return(1);
+               break;
+           case TRICK_WSTRING :
+               test_addr = (char*)address + offset * sizeof(std::wstring);
+               if (*(std::wstring*)test_addr == L"") return(1);
                break;
            case TRICK_STL :
                // Can't test properly, always return 0 to indicate the STL is not empty.
@@ -578,6 +585,14 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
                 } else if ((size_t)attr->size == sizeof(short)) {
                     src_addr = (char*)address + offset * sizeof(short);
                     value =  *(short*)src_addr;
+                } else if ((size_t)attr->size == sizeof(char)) {
+                    src_addr = (char*)address + offset * sizeof(char);
+                    ENUM_ATTR* eattr = (ENUM_ATTR*)attr->attr;
+                    if (eattr != nullptr && (eattr[0].mods & 0x40000000)) {
+                        value = (int)(unsigned char)*(char*)src_addr;
+                    } else {
+                        value = (int)*(char*)src_addr;
+                    }
                 } else {
                     std::cerr << __FUNCTION__ << ": enumeration size error." << std::endl;
                     std::cerr.flush();
@@ -694,6 +709,16 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
             src_addr = (char*)address + offset * sizeof(std::string);
             write_quoted_str(chkpnt_os, (*(std::string*)src_addr).c_str());
             break;
+        case TRICK_WSTRING: {
+            src_addr = (char*)address + offset * sizeof(std::wstring);
+            const std::wstring& wstr = *(std::wstring*)src_addr;
+            size_t ncs_len = wcs_to_ncs_len(wstr.c_str()) + 1;
+            char* ncs_buf = new char[ncs_len];
+            wcs_to_ncs(wstr.c_str(), ncs_buf, ncs_len);
+            write_quoted_str(chkpnt_os, ncs_buf);
+            delete[] ncs_buf;
+            break;
+        }
         case TRICK_OPAQUE_TYPE:
             chkpnt_os << std::endl << "// ERROR - OPAQUE data type (" << attr->type_name << ") cannot be checkpointed." << std::endl;
             message_publish(MSG_ERROR, "Checkpoint Agent ERROR: OPAQUE data type (%s) cannot be checkpointed.\n", attr->type_name) ;

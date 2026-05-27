@@ -395,6 +395,14 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         _address = (void *)(str_ptr->c_str()) ;
     }
 
+    // if this variable is a wstring we need to get the raw wide character string out of it.
+    if ((_trick_type == TRICK_WSTRING) && !_deref)
+    {
+        std::wstring *wstr_ptr = (std::wstring *)_var_info->address;
+        // Get a pointer to the internal wide character array
+        _address = (void *)(wstr_ptr->c_str());
+    }
+
     // if this variable itself is a pointer, dereference it
     if ( _deref ) {
         _address = *(void**)_var_info->address ;
@@ -413,7 +421,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         if (_address == NULL) {
             _size = 0 ;
         } else {
-            _size = wcslen((wchar_t *)_address) * sizeof(wchar_t);
+            _size = (wcslen((wchar_t *)_address) + 1) * sizeof(wchar_t);
         }
     }
     if(_address != NULL) {

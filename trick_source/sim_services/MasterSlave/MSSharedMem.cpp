@@ -164,7 +164,7 @@ MS_SIM_COMMAND Trick::MSSharedMem::read_command() {
             readtry_time = read_wait(&ts_Start);
         }
         if (!MSQ_ISEMPTY(shm_addr->slave_command)) {
-            command = MSQ_FRONT(shm_addr->slave_command);
+            command = (MS_SIM_COMMAND)MSQ_FRONT(shm_addr->slave_command);
 //fprintf(stderr, "+++++read_command pid=%d command=%d (from slave)\n", getpid(), command);
             MSQ_POP(shm_addr->slave_command);
             return (command) ;
@@ -183,7 +183,7 @@ MS_SIM_COMMAND Trick::MSSharedMem::read_command() {
             readtry_time = read_wait(&ts_Start);
         }
         if (!MSQ_ISEMPTY(shm_addr->master_command)) {
-            command = MSQ_FRONT(shm_addr->master_command);
+            command = (MS_SIM_COMMAND)MSQ_FRONT(shm_addr->master_command);
 //fprintf(stderr, "+++++read_command pid=%d command=%d (from master)\n", getpid(), command);
             MSQ_POP(shm_addr->master_command);
             return (command) ;

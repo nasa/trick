@@ -458,6 +458,20 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
     if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string") ||
          ! type_name.compare("std::__cxx11::basic_string") ) {
+        // Check template argument to distinguish std::string (char) from std::wstring (wchar_t)
+        const clang::ClassTemplateSpecializationDecl* spec =
+            llvm::dyn_cast<clang::ClassTemplateSpecializationDecl>(rt->getDecl());
+        if (spec && spec->getTemplateArgs().size() > 0) {
+            const clang::TemplateArgument& first_arg = spec->getTemplateArgs().get(0);
+            if (first_arg.getKind() == clang::TemplateArgument::Type) {
+                clang::QualType qt = first_arg.getAsType();
+                if (qt->isWideCharType()) {
+                    fdes->setEnumString("TRICK_WSTRING") ;
+                    fdes->setTypeName("std::wstring") ;
+                    return false ;
+                }
+            }
+        }
         fdes->setEnumString("TRICK_STRING") ;
         fdes->setTypeName("std::string") ;
         return false ;
@@ -661,6 +675,15 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     fdes->setEnumString("TRICK_STRUCTURED") ;
     fdes->setRecord(true) ;
     // We have our type, return false to stop processing this AST branch
+    return false;
+}
+
+// Suppress IO attributes for function pointer fields (e.g. double (*get_vel)()).
+// Without this, the traversal recurses into the function's return type and incorrectly
+// generates an IO attribute for the field (e.g. TRICK_DOUBLE for get_vel as if it were a double *).
+bool FieldVisitor::VisitFunctionProtoType(clang::FunctionProtoType *fpt)
+{
+    fdes->setIO(0);
     return false;
 }
 

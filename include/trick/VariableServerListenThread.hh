@@ -84,7 +84,6 @@ namespace Trick {
             /* Multicast broadcaster */
             MulticastGroup * _multicast;     /**<  trick_io(**) trick_units(--)  */
 
-            bool allowConnections;                   /**<  trick_io(**) trick_units(--)  */
             unsigned int pendingConnections;         /**<  trick_io(**) trick_units(--)  */
             pthread_mutex_t connectionMutex;         /**<  trick_io(**) trick_units(--)  */
             pthread_cond_t  noPendingConnections_cv; /**<  trick_io(**) trick_units(--)  */

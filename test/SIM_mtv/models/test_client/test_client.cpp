@@ -136,11 +136,11 @@ TEST_F(MtvTest, CyclicConditionList)
     ASSERT_EQ(status, 0) << "Could not connect to variable server";
 
     // Subscribe to all four condition_list fields MtvApp.java uses.
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].enabled\")\n";
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_time\")\n";
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_count\")\n";
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].hold\")\n";
-    socket << "trick.var_cycle(0.1)\n";
+    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].enabled\")\n" 
+        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_time\")\n"
+        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].fired_count\")\n"
+        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].condition_list[0][0].hold\")\n"
+        "trick.var_cycle(0.1)\n";
 
     // Read one cycle of data; the var server should send back 4 values.
     std::string reply = socket.recv_line();
@@ -169,10 +169,10 @@ TEST_F(MtvTest, CyclicActionList)
 {
     ASSERT_EQ(status, 0) << "Could not connect to variable server";
 
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].enabled\")\n";
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_time\")\n";
-    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_count\")\n";
-    socket << "trick.var_cycle(0.1)\n";
+    socket << "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].enabled\")\n"
+        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_time\")\n"
+        "trick.var_add(\"trick_ip.mtv.mtv_list[0][0].action_list[0][0].ran_count\")\n"
+        "trick.var_cycle(0.1)\n";
 
     std::string reply = socket.recv_line();
     auto tokens       = split_tabs(reply);
