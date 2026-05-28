@@ -48,8 +48,8 @@ int Trick::MemoryManager::delete_var(void* address ) {
                 // This will call a destructor ONLY if alloc_info->type is TRICK_STRUCTURED.
                 // Otherwise it does nothing.
                 io_src_destruct_class( alloc_info );
-
-                free( address);
+                // Be consistent with the way allocated memory is freed in MemoryManager destructor
+                free( (char*)address - alloc_info->sentinel_bytes );
             } else if ( alloc_info->alloc_type == TRICK_ALLOC_NEW ) {
                 io_src_delete_class( alloc_info );
             }

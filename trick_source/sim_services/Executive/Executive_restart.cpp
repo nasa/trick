@@ -95,9 +95,17 @@ int Trick::Executive::restart() {
     // we have restarted from a checkpoint, we will be skipping initialization jobs.
     restart_called = true ;
 
-    /* Delete temporary memory used to restore jobs */
-    TMM_delete_var_a(all_jobs_for_checkpoint) ;
-    all_jobs_for_checkpoint = NULL ;
+    /* Delete temporary memory used to restore jobs.
+       After a checkpoint load the MM may have allocated "all_jobs" at a new
+       address while all_jobs_for_checkpoint was restored to the old address
+       from the checkpoint file.  TMM_delete_var_a on a stale address won't
+       touch variable_map, so follow up with TMM_delete_var_n to ensure the
+       name is deleted regardless of the address. */
+    if ( all_jobs_for_checkpoint != NULL ) {
+        TMM_delete_var_a(all_jobs_for_checkpoint) ;
+        all_jobs_for_checkpoint = NULL ;
+    }
+    TMM_delete_var_n("all_jobs") ;  /* no-op if already removed by delete_var_a */
 
     /* Set the main thread current time to the simulation time tics value, used with Executive::get_sim_time() */
 
