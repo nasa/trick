@@ -1,4 +1,3 @@
-
 #include "trick/sim_mode.h"
 
 const char* simModeCharString(SIM_MODE mode)

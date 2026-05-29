@@ -1,4 +1,3 @@
-
 #include "trick/Executive.hh"
 
 #include "trick/CheckPointRestart.hh"
@@ -95,4 +94,3 @@ int Trick::Executive::sched_freeze_to_exec_command(bool end_of_frame) {
     return(0) ;
 
 }
-

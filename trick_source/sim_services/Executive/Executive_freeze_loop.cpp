@@ -1,4 +1,3 @@
-
 #include "trick/Executive.hh"
 
 #include "trick/CheckPointRestart.hh"
