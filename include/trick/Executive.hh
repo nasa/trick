@@ -1244,7 +1244,7 @@ namespace Trick {
              @param user_requested - whether the freeze was requested outside checkpoint scheduling
              @return always 0
             */
-            virtual int freeze(double in_time, bool user_requested) ;
+            virtual int freeze(double in_time, bool user_requested);
 
             /**
              @userdesc Command to terminate the simulation now. Set exec_command to ExitCmd.

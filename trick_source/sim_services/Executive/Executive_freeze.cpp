@@ -1,15 +1,16 @@
 
-#include <iostream>
-#include <sstream>
+#include "trick/Executive.hh"
 
 #include "trick/CheckPointRestart.hh"
 #include "trick/TrickConstant.hh"
-#include "trick/Executive.hh"
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
-extern Trick::CheckPointRestart * the_cpr ;
+#include <iostream>
+#include <sstream>
+
+extern Trick::CheckPointRestart* the_cpr;
 
 int Trick::Executive::get_freeze_job(std::string sim_object_name) {
     freeze_job = get_job(sim_object_name + ".sched_freeze_to_exec_command") ;
@@ -34,18 +35,17 @@ int Trick::Executive::freeze() {
 
 }
 
-int Trick::Executive::freeze(double in_time) {
-    return freeze(in_time, true) ;
-}
+int Trick::Executive::freeze(double in_time) { return freeze(in_time, true); }
 
-int Trick::Executive::freeze(double in_time, bool user_requested) {
-
+int Trick::Executive::freeze(double in_time, bool user_requested)
+{
     long long new_time ;
     new_time = (long long)(in_time * time_tic_value) ;
 
     if (new_time > time_tics ) {
-        if ( user_requested && the_cpr != NULL ) {
-            the_cpr->note_scheduled_freeze(new_time) ;
+        if (user_requested && the_cpr != NULL)
+        {
+            the_cpr->note_scheduled_freeze(new_time);
         }
         freeze_times.push(new_time) ;
         if ( new_time < freeze_job->next_tics ) {
@@ -57,8 +57,7 @@ int Trick::Executive::freeze(double in_time, bool user_requested) {
          in_time , get_sim_time()) ;
     }
 
-    return(0) ;
-
+    return (0);
 }
 
 /**
