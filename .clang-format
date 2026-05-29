@@ -1,25 +1,31 @@
 ---
-BasedOnStyle: WebKit                    # start from WebKit's style; all unset options inherit from it
-AccessModifierOffset: -2                # outdent public:/private:/protected: by 2 spaces relative to class body
-AlignAfterOpenBracket: Align            # horizontally align arguments to the column after an open bracket
-AlignArrayOfStructures: Left            # align struct-array initializer columns, left-justifying each field
-AlignConsecutiveAssignments: Consecutive # align = signs in consecutive assignment lines (no gap lines required)
+BasedOnStyle: WebKit
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments:
+  Enabled: true
+  AlignCompound: true
+  AlignFunctionDeclarations: true
+  AlignFunctionPointers: true
+AllowShortLambdasOnASingleLine: Inline
 AlignTrailingComments:
-  Kind: Always                          # always column-align trailing // comments within a block
-BreakBeforeBraces: Allman               # always place opening braces on their own line (Allman/BSD style)
-ColumnLimit: 120                        # wrap lines that exceed 120 columns (default 80)
-IncludeBlocks: Regroup                  # merge all #include blocks then re-split into groups by category priority
+  Kind: Always
+BreakBeforeBraces: Allman
+ColumnLimit: 120
+IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^("|<)trick/'
-    Priority: 2                         # trick/ headers: group 2 (after local headers, before system)
+    Priority: 2
   - Regex: '^("|<)(llvm|llvm-c|clang|clang-c)/'
-    Priority: 3                         # LLVM/Clang headers: group 3
+    Priority: 3
   - Regex: '^("|<)(gtest|gmock)/'
-    Priority: 5                         # test framework headers: group 5 (last named group)
+    Priority: 5
   - Regex: "^<.*>"
-    Priority: 4                         # other system/angle-bracket headers: group 4
+    Priority: 4
   - Regex: ".*"
-    Priority: 1                         # everything else (local ""  headers): group 1 (first)
-KeepEmptyLinesAtEOF: false              # strip trailing blank lines at end of file
-KeepEmptyLinesAtTheStartOfBlocks: false # strip blank lines at the start of a block body
+    Priority: 1
+IndentAccessModifiers: true
+KeepEmptyLinesAtEOF: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+NamespaceIndentation: All
 ...
