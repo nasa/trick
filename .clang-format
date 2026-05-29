@@ -28,4 +28,10 @@ IndentAccessModifiers: true
 KeepEmptyLinesAtEOF: false
 KeepEmptyLinesAtTheStartOfBlocks: false
 NamespaceIndentation: All
+---
+Language: Java
+DisableFormat: true
+---
+Language: JavaScript
+DisableFormat: true
 ...
