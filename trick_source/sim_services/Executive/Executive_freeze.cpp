@@ -91,6 +91,5 @@ int Trick::Executive::sched_freeze_to_exec_command(bool end_of_frame) {
         }
     }
 
-    return(0) ;
-
+    return (0);
 }
