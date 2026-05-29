@@ -25,6 +25,7 @@ IncludeCategories:
   - Regex: ".*"
     Priority: 1
 IndentAccessModifiers: true
+InsertNewlineAtEOF: true
 KeepEmptyLines:
   AtEndOfFile: false
   AtStartOfBlock: false
