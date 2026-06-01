@@ -1,19 +1,19 @@
 class Trick < Formula
   desc "Simulation development framework"
   homepage "https://github.com/nasa/trick"
-  url "https://github.com/nasa/trick/archive/refs/tags/25.0.2.tar.gz"
-  sha256 "0e51ee68d7239423a18b144dea9e0560125c523a0e2d8a914933ace1bba39dd3"
+  url "https://github.com/nasa/trick/archive/refs/tags/25.1.0.tar.gz"
+  sha256 "e4dcbc5e618e2805d9560ef5b7cacb1cd98a360fae5b69272ce72a7ba076dbb2"
   license "NASA-1.3"
   revision 1
   head "https://github.com/nasa/trick.git", branch: "master"
 
   bottle do
-    root_url "https://github.com/nasa/trick/releases/download/25.0.2"
-    sha256 cellar: :any, arm64_tahoe:   "f14affa551747806b9fc7eeea6184a0e9c73a19efe799f3d2196aee491679d28"
-    sha256 cellar: :any, arm64_sequoia: "0114ecbadfc3d5bd20c1b86d844e7ec4360d2c33b0a0c81947c1f581f730df09"
+    root_url "https://github.com/nasa/trick/releases/download/25.1.0"
+    sha256 cellar: :any, arm64_tahoe:   "094dc0c7cd02288b3626910f79fbd402d4a18851315b8ae36ea4a6bfc1b97b5e"
+    sha256 cellar: :any, arm64_sequoia: "a1e4e084ffa19317040ba790c11eddb9809336c7e02a0bf600462fabf9aec109"
   end
 
-  LLVM_VERSION = "21".freeze
+  LLVM_VERSION = "22".freeze
 
   depends_on "pkgconf" => :build
   depends_on arch: :arm64
@@ -24,7 +24,7 @@ class Trick < Formula
   depends_on "libaec"
   depends_on "libx11"
   depends_on "libxt"
-  depends_on "llvm@21"
+  depends_on "llvm@22"
   depends_on :macos
   depends_on "maven"
   depends_on "openjdk"
