@@ -131,9 +131,9 @@ int Trick::CheckPointRestart::checkpoint(double in_time, std::string file_name)
             write_checkpoint_job->next_tics = new_time ;
         }
 
-        if (chkpnt_resume_sim_map.find(new_time) == chkpnt_resume_sim_map.end())
+        if (chkpnt_write_auto_resume_by_time.find(new_time) == chkpnt_write_auto_resume_by_time.end())
         {
-            chkpnt_resume_sim_map[new_time] = true;
+            chkpnt_write_auto_resume_by_time[new_time] = true;
         }
 
         if (!file_name.empty())
@@ -154,7 +154,7 @@ void Trick::CheckPointRestart::note_scheduled_freeze(long long in_time_tics)
     // If a freeze is scheduled at the same time as a checkpoint, the checkpoint will be taken and sim will not resume
     // afterwards. Otherwise, sim will resume after the checkpoint as the scheduled checkpoint auto freezes sim before
     // taking the checkpoint.
-    chkpnt_resume_sim_map[in_time_tics] = false;
+    chkpnt_write_auto_resume_by_time[in_time_tics] = false;
 }
 
 int Trick::CheckPointRestart::set_safestore_time(double in_time) {
@@ -298,10 +298,10 @@ int Trick::CheckPointRestart::write_checkpoint() {
             write_checkpoint_job->next_tics = TRICK_MAX_LONG_LONG ;
         }
 
-        if (chkpnt_resume_sim_map.find(curr_time) != chkpnt_resume_sim_map.end())
+        if (chkpnt_write_auto_resume_by_time.find(curr_time) != chkpnt_write_auto_resume_by_time.end())
         {
-            should_resume_sim = chkpnt_resume_sim_map[curr_time];
-            chkpnt_resume_sim_map.erase(curr_time);
+            should_resume_sim = chkpnt_write_auto_resume_by_time[curr_time];
+            chkpnt_write_auto_resume_by_time.erase(curr_time);
         }
 
         double sim_time = exec_get_sim_time() ;
@@ -378,7 +378,7 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
         // To forbid loading a checkpoint in RUN mode, remove the following two lines and the second to last line in
         // load_checkpoint_job()
         the_exec->freeze();
-        auto_freeze = true;
+        chkpnt_load_auto_freeze = true;
     }
 
     load_checkpoint_file_name = file_name ;
@@ -450,7 +450,7 @@ int Trick::CheckPointRestart::load_checkpoint_job() {
             message_publish(MSG_INFO, "Could not find checkpoint file %s.\n", load_checkpoint_file_name.c_str()) ;
         }
         load_checkpoint_file_name.clear() ;
-        if (auto_freeze)
+        if (chkpnt_load_auto_freeze)
             the_exec->run();
     }
 

@@ -23,14 +23,14 @@ namespace Trick {
      */
     class CheckPointRestart : public Trick::Scheduler {
         private:
-            /** Flag to track if an automatic freeze has been triggered */
-            bool auto_freeze = false; /* ** */
+            /** Flag to track if an automatic freeze has been triggered for loading checkpoint */
+            bool chkpnt_load_auto_freeze = false; /* ** */
 
             /** Map to track custom named checkpoints based on the scheduled times */
             std::map<long long, std::string> chkpnt_names; /* ** */
 
             /** Map to track whether a scheduled checkpoint should resume sim. */
-            std::map<long long, bool> chkpnt_resume_sim_map; /* ** */
+            std::map<long long, bool> chkpnt_write_auto_resume_by_time; /* ** */
 
         protected:
             /** queue to hold jobs to be called before a checkpoint is dumped. */
