@@ -60,12 +60,20 @@
     }
 }
 
+%typemap(out) bool {
+    // BOOL OUT — bool is unitless, skip get_units()
+    swig_int* t = new swig_int;
+    t->value = (long long)result;
+    t->units = "";
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_int"), SWIG_POINTER_OWN);
+}
+
 %typemap(out) char , unsigned char , signed char ,
               short , unsigned short , signed short ,
               int , unsigned int , signed int ,
               long , unsigned long , signed long ,
               long long , unsigned long long , signed long long ,
-              enum SWIGTYPE , bool {
+              enum SWIGTYPE {
     // INT OUT
     // swig_int_typemap.i : 70
     swig_int* t = new swig_int;
