@@ -1,0 +1,16 @@
+---
+BasedOnStyle: InheritParentConfig
+IncludeCategories:
+  - Regex:    '"trick/VariableServer\.hh"'
+    Priority: 0
+  - Regex:    '^("|<)trick/'
+    Priority: 2
+  - Regex:    '^("|<)(llvm|llvm-c|clang|clang-c)/'
+    Priority: 3
+  - Regex:    "^<.*>"
+    Priority: 4
+  - Regex:    '^("|<)(gtest|gmock)/'
+    Priority: 5
+  - Regex:    ".*"
+    Priority: 1
+...
