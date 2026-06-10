@@ -303,6 +303,7 @@
         <artifactId>spotless-maven-plugin</artifactId>
         <version>3.5.1</version>
         <configuration>
+          <ratchetFrom>026cc6dfd201feee5845b8e19451af425824e5a2</ratchetFrom>
           <java>
             <palantirJavaFormat>
               <style>PALANTIR</style>
