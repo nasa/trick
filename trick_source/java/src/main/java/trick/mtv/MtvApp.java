@@ -21,6 +21,7 @@ import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
 import trick.common.TrickApplication;
 import trick.common.utils.VariableServerConnection;
+import trick.common.utils.VariableServerRefusedConnectionException;
 import trick.mtv.MtvView.Mode;
 import trick.mtv.MtvView.RowType;
 
@@ -40,7 +41,7 @@ public class MtvApp extends TrickApplication {
     public double sim_time = 0.0; //   1st var to get: Current sim time
     public static int last_update_ticker; //   2nd var to get: Running count of mtv table added or deleted event(s)
     public final int time_tics = 1000000; // For converting time tics to seconds
-    // private boolean updating=false;       // True when mtv gui is being updated, so ignore var server data
+    // private boolean updating = false; // True when mtv gui is being updated, so ignore var server data
     public static boolean confirmExit = true; // Do you want the "do you really want to exit" popup ??
     public boolean need_update = false; // True when event data has changed and need to udpate display
     public boolean one_shot = false; // True when paused and need to get one shot of data from var server
@@ -67,8 +68,7 @@ public class MtvApp extends TrickApplication {
         JRadioButton butt; // button used in customize_event_display
     }
 
-    public static ArrayList<EventInfo> mtv_events =
-            new ArrayList<EventInfo>(100); // Save info about events in gui (mtv_count)
+    public static ArrayList<EventInfo> mtv_events = new ArrayList<>(100); // Save info about events in gui (mtv_count)
 
     /**
      * Main method launching the application.
@@ -224,23 +224,23 @@ public class MtvApp extends TrickApplication {
 
                     mtv_events.get(ii).cond = new String[mtv_events.get(ii).cond_count];
                     for (int jj = 0; jj < mtv_events.get(ii).cond_count; jj++) {
-                        // vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].cond[" +jj+ "].comment\");
-                        // trick.var_send(); trick.var_clear();");
+                        // vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].cond[" + jj
+                        //         + "].comment\"); trick.var_send(); trick.var_clear();");
                         // mtv_events.get(ii).cond[jj] = vscom.get();
                         mtv_events.get(ii).cond[jj] = results[rindex + jj];
                     }
                     rindex += mtv_events.get(ii).cond_count;
                     mtv_events.get(ii).act = new String[mtv_events.get(ii).act_count];
                     for (int jj = 0; jj < mtv_events.get(ii).act_count; jj++) {
-                        // vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].act[" +jj+ "].comment\");
-                        // trick.var_send(); trick.var_clear();");
+                        // vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].act[" + jj
+                        //         + "].comment\"); trick.var_send(); trick.var_clear();");
                         // mtv_events.get(ii).act[jj] = vscom.get();
                         mtv_events.get(ii).act[jj] = results[rindex + jj];
                     }
                     rindex += mtv_events.get(ii).act_count;
                     if (mtv_events.get(ii).before_after > 0) {
-                        // vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].target_job\");
-                        // trick.var_send(); trick.var_clear();");
+                        // vscom.put("trick.var_add(\"trick_ip.mtv.mtv_list[" + ii
+                        //         + "][0].target_job\"); trick.var_send(); trick.var_clear();");
                         // mtv_events.get(ii).target_job = vscom.get();
                         mtv_events.get(ii).target_job = results[rindex + 0];
                         rindex++;
@@ -318,6 +318,11 @@ public class MtvApp extends TrickApplication {
             } // end if vscom != null
         } catch (NumberFormatException nfe) {
             System.out.println("MTV initialize() " + nfe.toString() + ".");
+        } catch (VariableServerRefusedConnectionException refused) {
+            System.out.println("MTV initialize() " + refused.toString() + ".");
+            vscom = null;
+            JOptionPane.showMessageDialog(
+                    null, refused.getMessage(), "Unable to Connect to Simulation", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ioe) {
             System.out.println("MTV initialize() " + ioe.toString() + ".");
             vscom = null;
@@ -347,10 +352,9 @@ public class MtvApp extends TrickApplication {
     protected void startup() {
         Vector<Object> row;
         Vector<Object> default_row =
-                new Vector<Object>(Arrays.asList(false, null, null, null, null, null, false, null, false));
-        // Vector<Object> default_row = new
-        // Vector<Object>(Arrays.asList(false,null,null,null,null,null,false,null,null)); //DANNY add hidden column on
-        // end
+                new Vector<>(Arrays.asList(false, null, null, null, null, null, false, null, false));
+        // Vector<Object> default_row = new Vector<Object>(Arrays.asList(
+        //         false, null, null, null, null, null, false, null, null)); // DANNY add hidden column on end
         int rownum;
         boolean deadrow;
 
@@ -373,23 +377,23 @@ public class MtvApp extends TrickApplication {
 
         // Add a row to the table for each event to display
         for (int ii = 0; ii < mtv_count; ii++) {
-            row = new Vector<Object>(default_row);
+            row = new Vector<>(default_row);
             mtv_view.event_table_rows.addElement(row);
             rownum = mtv_view.event_table_rows.size() - 1;
             mtv_events.get(map[ii]).row = rownum;
             // Add a row for each condition
             for (int jj = 0; jj < mtv_events.get(map[ii]).cond_count; jj++) {
-                row = new Vector<Object>(default_row);
+                row = new Vector<>(default_row);
                 mtv_view.event_table_rows.addElement(row);
-                // rownum = mtv_view.event_table_rows.size()-1;
-                // mtv_view.event_table.setValueAt("   condition("+jj+")", rownum, 1);
+                // rownum = mtv_view.event_table_rows.size() - 1;
+                // mtv_view.event_table.setValueAt("   condition(" + jj + ")", rownum, 1);
             }
             // Add a row for each action
             for (int jj = 0; jj < mtv_events.get(map[ii]).act_count; jj++) {
-                row = new Vector<Object>(default_row);
+                row = new Vector<>(default_row);
                 mtv_view.event_table_rows.addElement(row);
-                // rownum = mtv_view.event_table_rows.size()-1;
-                // mtv_view.event_table.setValueAt("      action("+jj+")", rownum, 1);
+                // rownum = mtv_view.event_table_rows.size() - 1;
+                // mtv_view.event_table.setValueAt("      action(" + jj + ")", rownum, 1);
             }
         }
 
@@ -452,7 +456,7 @@ public class MtvApp extends TrickApplication {
                 mtv_view.canEditRow[rownum] = !deadrow;
                 mtv_view.event_table.setValueAt(
                         "__act(" + jj + "): " + mtv_events.get(map[ii]).act[jj], rownum, 1); // Action comment
-                // mtv_view.event_table.setValueAt("      action("+jj+")", rownum, 1);       // Action indicator
+                // mtv_view.event_table.setValueAt("      action(" + jj + ")", rownum, 1); // Action indicator
                 // mtv_view.event_table.setValueAt(mtv_events.get(map[ii]).name, rownum, 8); // Hidden Name DANNY
             }
         }
@@ -534,7 +538,6 @@ public class MtvApp extends TrickApplication {
             } catch (IOException ioe) {
                 System.out.println("MTV update() " + ioe.toString() + ".");
             }
-            /***/
             // do I need this delay?
             try {
                 // wait for a little more than a cycle so var server can finish sending any data
@@ -544,7 +547,6 @@ public class MtvApp extends TrickApplication {
                 // System.out.println("...wait done.");
             } catch (InterruptedException ignore) {
             }
-            /***/
         }
 
         mtv_view.event_table_rows.removeAllElements();
@@ -677,11 +679,11 @@ public class MtvApp extends TrickApplication {
                             // System.out.println("simtime=" + sim_time);
                         }
                         update_ticker = Integer.parseInt(results[index + 1]);
-                        // System.out.println("update ticker=" +update_ticker);
+                        // System.out.println("update ticker=" + update_ticker);
                         if (update_ticker != last_update_ticker) {
                             // event(s) have been added or deleted in user code, time to update mtv event table
-                            // System.out.println("last update ticker=" +last_update_ticker+ " update_ticker="
-                            // +update_ticker);
+                            // System.out.println(
+                            //         "last update ticker=" + last_update_ticker + " update_ticker=" + update_ticker);
                             last_update_ticker = update_ticker;
                             update();
                             continue;

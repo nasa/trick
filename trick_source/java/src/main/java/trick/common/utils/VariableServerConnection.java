@@ -23,6 +23,12 @@ public class VariableServerConnection implements AutoCloseable {
     /** maximum binary packet size sent by the Variable Server */
     public static final int maximumPacketSize = 8192;
 
+    /**
+     * default time, in milliseconds, to wait for the Variable Server to prove it is
+     * actually servicing a newly established connection before giving up
+     */
+    public static final int connectionValidationTimeout = 2000;
+
     /** Variable Server data mode */
     public enum DataMode {
         ASCII,
@@ -65,6 +71,7 @@ public class VariableServerConnection implements AutoCloseable {
         socket = new Socket(host, port);
         inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        validateConnection(connectionValidationTimeout);
     }
 
     /**
@@ -84,6 +91,63 @@ public class VariableServerConnection implements AutoCloseable {
         socket.connect(addr, timeout);
         inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        validateConnection(timeout > 0 ? timeout : connectionValidationTimeout);
+    }
+
+    /**
+     * Confirms that the variable server is actually servicing this connection.
+     *
+     * A socket connect succeeds at the TCP level even when the variable server is
+     * disabled, is not accepting connections, or has rejected this client, because
+     * the kernel completes the handshake regardless of whether the server accepts
+     * the connection. Without a bounded check, the first read would then block
+     * forever. This sends a {@code var_exists} command (which always elicits exactly
+     * one response line and does not change server state) and waits a bounded amount
+     * of time for the reply. If none arrives, or the server closes the connection,
+     * the connection is closed and a {@link VariableServerRefusedConnectionException}
+     * is thrown so callers can fail gracefully instead of hanging.
+     *
+     * @param timeoutMillis how long to wait for the handshake reply, in milliseconds
+     * @throws IOException if the variable server does not service the connection
+     */
+    private void validateConnection(int timeoutMillis) throws IOException {
+        if (timeoutMillis <= 0) {
+            timeoutMillis = connectionValidationTimeout;
+        }
+
+        boolean healthy = false;
+        try {
+            socket.setSoTimeout(timeoutMillis);
+            put("trick.var_exists(\"trick_variable_server_handshake\")");
+
+            if (inputStream.readLine() == null) {
+                // The server accepted the socket and then closed it without servicing us.
+                // The variable server rejected this client: it is disabled, is not accepting
+                // connections, or this client's IP address is not on its allowlist.
+                throw new VariableServerRefusedConnectionException(
+                        "The simulation's variable server refused the connection. It may be disabled, not accepting"
+                                + " connections, or this client may not be permitted by its IP allowlist.");
+            }
+
+            healthy = true;
+        } catch (SocketTimeoutException socketTimeoutException) {
+            // The socket connected, but the server never responded. The variable
+            // server is disabled or is not accepting connections.
+            throw new VariableServerRefusedConnectionException(
+                    "No response from the simulation's variable server. It may be disabled or not "
+                            + "accepting connections.",
+                    socketTimeoutException);
+        } finally {
+            if (healthy) {
+                // Restore blocking reads for normal (possibly slow or paused) cyclic data.
+                socket.setSoTimeout(0);
+            } else {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     /**

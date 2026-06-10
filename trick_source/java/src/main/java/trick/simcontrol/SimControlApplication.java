@@ -14,10 +14,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -86,6 +83,7 @@ import trick.common.ui.components.FontChooser;
 import trick.common.ui.panels.AnimationPlayer;
 import trick.common.ui.panels.FindBar;
 import trick.common.utils.VariableServerConnection;
+import trick.common.utils.VariableServerRefusedConnectionException;
 import trick.simcontrol.utils.SimControlActionController;
 import trick.simcontrol.utils.SimState;
 
@@ -433,6 +431,12 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 errMsg += "\n Please try a different host name (e.g. localhost)";
                 errOnInitConnect = true;
                 printErrorMessage(errMsg);
+            } catch (VariableServerRefusedConnectionException refused) {
+                /** Connected at the socket level, but the variable server is disabled,
+                 * not accepting connections, or rejected this client. */
+                errMsg += "\n " + refused.getMessage();
+                errOnInitConnect = true;
+                printErrorMessage(errMsg);
             } catch (IOException ioe) {
                 /** Port number is unavailable, or there is no connection, etc. */
                 errMsg += "\n Invalid TCP/IP port number \"" + port + "\"";
@@ -509,13 +513,13 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                  * Commented out the following code as slaves is a vector and can't be accessed at this point.
                  * Uncomment the following code if we can in the future.
                  */
-                /*commandSimcom.put("trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].sim_path\") \n" +
-                                 "trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].S_main_name\") \n ");
-                                  "trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].run_input_file\") \n" +
-                                  "trick.sim_serives.var_send( ) \n" +
-                                  "trick.sim_services.var_clear( ) \n");
-                results = commandSimcom.get().split("\t");
-                simRunDirField[i].setText(results[1] + java.io.File.separator + results[2] + " " + results[2]);*/
+                // commandSimcom.put("trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].sim_path\") \n"
+                //         + "trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].S_main_name\") \n "
+                //         + "trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].run_input_file\") \n"
+                //         + "trick.sim_serives.var_send( ) \n"
+                //         + "trick.sim_services.var_clear( ) \n");
+                // results = commandSimcom.get().split("\t");
+                // simRunDirField[i].setText(results[1] + java.io.File.separator + results[2] + " " + results[2]);
                 simRunDirField[i].setText("Slave " + i);
             }
 
@@ -532,7 +536,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             message_present = Integer.parseInt(results[1]);
 
             if (message_present == 1) {
-                commandSimcom.put("trick.var_add(\"trick_message.mdevice.port\") \n" + "trick.var_send() \n"
+                commandSimcom.put("trick.var_add(\"trick_message.mdevice.port\") \n"
+                        + "trick.var_send() \n"
                         + "trick.var_clear() \n");
                 results = commandSimcom.get().split("\t");
                 message_port = Integer.parseInt(results[1]);
@@ -811,10 +816,10 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             // whenever there is data in statusSimcom socket, do something
             String status_vars;
 
-            status_vars =
-                    "trick.var_add(\"trick_sys.sched.time_tics\") \n" + "trick.var_add(\"trick_sys.sched.mode\") \n"
-                            + "trick.var_add(\"trick_real_time.rt_sync.actual_run_ratio\") \n"
-                            + "trick.var_add(\"trick_real_time.rt_sync.active\") \n";
+            status_vars = "trick.var_add(\"trick_sys.sched.time_tics\") \n"
+                    + "trick.var_add(\"trick_sys.sched.mode\") \n"
+                    + "trick.var_add(\"trick_real_time.rt_sync.actual_run_ratio\") \n"
+                    + "trick.var_add(\"trick_real_time.rt_sync.active\") \n";
 
             if (debug_present != 0) {
                 status_vars += "trick.var_add(\"trick_instruments.debug_pause.debug_pause_flag\")\n";
@@ -1016,13 +1021,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         // By default, Data Recording is On.
         dataRecButton.setSelected(true);
 
-        dataRecButton.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent evt) {
-                if (evt.getStateChange() == ItemEvent.SELECTED) {
-                    dataRecButton.setText("Data Rec On");
-                } else {
-                    dataRecButton.setText("Data Rec Off");
-                }
+        dataRecButton.addItemListener(evt -> {
+            if (evt.getStateChange() == ItemEvent.SELECTED) {
+                dataRecButton.setText("Data Rec On");
+            } else {
+                dataRecButton.setText("Data Rec Off");
             }
         });
 
@@ -1044,13 +1047,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
         liteButton = new JToggleButton(getAction("lite"));
         liteButton.setSelected(false);
-        liteButton.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent evt) {
-                if (evt.getStateChange() == ItemEvent.SELECTED) {
-                    liteButton.setText("Full");
-                } else {
-                    liteButton.setText("Lite");
-                }
+        liteButton.addItemListener(evt -> {
+            if (evt.getStateChange() == ItemEvent.SELECTED) {
+                liteButton.setText("Full");
+            } else {
+                liteButton.setText("Lite");
             }
         });
 
@@ -1224,11 +1225,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             }
         };
         runningSimList.setEditable(true);
-        runningSimList.getEditor().addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                connect();
-            }
-        });
+        runningSimList.getEditor().addActionListener(ae -> connect());
         String hostPort = null;
         if (host != null && port != -1) {
             hostPort = host + " : " + port;
@@ -1352,7 +1349,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Returns all {@link Action} names associated with the Commands panel.
      */
     private String[] getAllCommandActions() {
-        ArrayList<String> actions = new ArrayList<String>();
+        ArrayList<String> actions = new ArrayList<>();
 
         actions.add("stepSim,recordingSim,startSim,realtime,freezeSim,"
                 + "dumpChkpntASCII,shutdownSim,loadChkpnt,lite,quit");

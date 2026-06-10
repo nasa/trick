@@ -1,15 +1,13 @@
 package trick.sniffer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import javax.swing.Timer;
 
 /**
@@ -28,10 +26,10 @@ public class SimulationSniffer extends Thread {
     MulticastSocket multicastSocket;
 
     /** active sims */
-    Vector<SimulationEntry> simulations = new Vector<SimulationEntry>();
+    Vector<SimulationEntry> simulations = new Vector<>();
 
     /** registered listeners */
-    Vector<SimulationListener> simulationListeners = new Vector<SimulationListener>();
+    Vector<SimulationListener> simulationListeners = new Vector<>();
 
     /**
      * sets the execution state of this thread.
@@ -60,11 +58,8 @@ public class SimulationSniffer extends Thread {
     @Override
     public void run() {
         try {
-            multicastSocket = new MulticastSocket(9265) {
-                {
-                    joinGroup(InetAddress.getByName("239.3.14.15"));
-                }
-            };
+            multicastSocket = new MulticastSocket(9265);
+            multicastSocket.joinGroup(InetAddress.getByName("239.3.14.15"));
             byte[] buffer = new byte[4096];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
@@ -162,13 +157,9 @@ public class SimulationSniffer extends Thread {
      * @return a list of all available simulations
      */
     public List<SimulationInformation> getSimulationInformation() {
-        return new ArrayList<SimulationInformation>(simulations.size()) {
-            {
-                for (SimulationEntry simulationEntry : simulations) {
-                    add(simulationEntry.simulationInformation);
-                }
-            }
-        };
+        return simulations.stream()
+                .map(simulationEntry -> simulationEntry.simulationInformation)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -184,19 +175,24 @@ public class SimulationSniffer extends Thread {
          * After five seconds, remove the simulation from the list unless it
          * reannounces itself over the multicast channel.
          */
-        public final Timer timer =
-                new Timer(5000, new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        simulations.remove(SimulationEntry.this);
-                        for (SimulationListener simulationListener : simulationListeners) {
-                            simulationListener.simulationRemoved(simulationInformation);
-                        }
-                    }
-                }) {
-                    {
-                        setRepeats(false);
-                    }
-                };
+        public final Timer timer = createRemovalTimer();
+
+        /**
+         * Creates the one-shot timer that removes this simulation from the list
+         * after five seconds unless it reannounces itself.
+         *
+         * @return the configured removal timer
+         */
+        private Timer createRemovalTimer() {
+            Timer removalTimer = new Timer(5000, e -> {
+                simulations.remove(SimulationEntry.this);
+                for (SimulationListener simulationListener : simulationListeners) {
+                    simulationListener.simulationRemoved(simulationInformation);
+                }
+            });
+            removalTimer.setRepeats(false);
+            return removalTimer;
+        }
 
         /**
          * constructor
