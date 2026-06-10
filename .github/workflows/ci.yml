@@ -182,7 +182,7 @@ jobs:
           echo "Changed Java files:"
           echo "$JAVA_FILES"
 
-          if ! mvn -f trick_source/java/pom.xml --batch-mode -q spotless:check -Dspotless.ratchetFrom="$BASE"; then
+          if ! mvn -f trick_source/java/pom.xml --batch-mode -q spotless:check; then
             echo ""
             echo "::error::Changed Java files are not correctly formatted."
             echo "::error::To fix, run: mvn -f trick_source/java/pom.xml spotless:apply"
