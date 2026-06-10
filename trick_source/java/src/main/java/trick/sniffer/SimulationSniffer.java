@@ -73,20 +73,22 @@ public class SimulationSniffer extends Thread {
                     synchronized (this) {
                         try {
                             wait();
-                        } catch (InterruptedException interruptedException) {}
+                        } catch (InterruptedException interruptedException) {
+                        }
                     }
                 }
 
                 multicastSocket.receive(packet);
 
                 // Remove the trailing newline, and split the tab-delimitted message.
-                String[] info = new String(packet.getData(), packet.getOffset(), packet.getLength()).replace("\n", "").split("\t");
+                String[] info = new String(packet.getData(), packet.getOffset(), packet.getLength())
+                        .replace("\n", "")
+                        .split("\t");
 
                 // Reset the packet length or future messages will be clipped.
                 packet.setLength(buffer.length);
 
-                SimulationEntry simulationEntry = new SimulationEntry(
-                    new SimulationInformation(
+                SimulationEntry simulationEntry = new SimulationEntry(new SimulationInformation(
                         info[0],
                         info[1],
                         info[2],
@@ -98,9 +100,7 @@ public class SimulationSniffer extends Thread {
                         info[8],
                         info.length > 9 ? info[9] : "",
                         info.length > 10 ? info[10] : "",
-                        info.length > 11 ? info[11] : ""
-                    )
-                );
+                        info.length > 11 ? info[11] : ""));
 
                 // If the sim is already on the list, restart its timer; otherwise, add it.
                 int index = simulations.indexOf(simulationEntry);
@@ -184,21 +184,19 @@ public class SimulationSniffer extends Thread {
          * After five seconds, remove the simulation from the list unless it
          * reannounces itself over the multicast channel.
          */
-        public final Timer timer = new Timer(
-            5000,
-            new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    simulations.remove(SimulationEntry.this);
-                    for (SimulationListener simulationListener : simulationListeners) {
-                        simulationListener.simulationRemoved(simulationInformation);
+        public final Timer timer =
+                new Timer(5000, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        simulations.remove(SimulationEntry.this);
+                        for (SimulationListener simulationListener : simulationListeners) {
+                            simulationListener.simulationRemoved(simulationInformation);
+                        }
                     }
-                }
-            }
-        ) {
-            {
-                setRepeats(false);
-            }
-        };
+                }) {
+                    {
+                        setRepeats(false);
+                    }
+                };
 
         /**
          * constructor

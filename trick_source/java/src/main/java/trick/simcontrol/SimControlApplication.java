@@ -1,15 +1,15 @@
-
-//========================================
+// ========================================
 //    Package
-//========================================
+// ========================================
 package trick.simcontrol;
 
-//========================================
+// ========================================
 //    Imports
-//========================================
+// ========================================
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -18,7 +18,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.Desktop;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -30,9 +29,9 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -47,7 +46,6 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -72,7 +70,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledEditorKit;
-
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
@@ -83,7 +80,6 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.JXTitledSeparator;
-
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.components.FontChooser;
@@ -93,7 +89,6 @@ import trick.common.utils.VariableServerConnection;
 import trick.simcontrol.utils.SimControlActionController;
 import trick.simcontrol.utils.SimState;
 
-
 /**
  * The Sim Control application class which is a sub class of {@link TrickApplication}.
  *
@@ -101,26 +96,24 @@ import trick.simcontrol.utils.SimState;
  */
 public class SimControlApplication extends TrickApplication implements PropertyChangeListener {
 
-    //========================================
+    // ========================================
     //    Public data
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //    Protected data
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //    Private Data
-    //========================================
+    // ========================================
     private int modeIndex = -1;
-    private int debug_flag ;
-    private int debug_present ;
-    private int overrun_present ;
-    private int message_present ;
-    private int message_port ;
-    
+    private int debug_flag;
+    private int debug_present;
+    private int overrun_present;
+    private int message_present;
+    private int message_port;
+
     /** whether automatically exit when sim is done/killed. */
     private static boolean isAutoExitOn;
 
@@ -132,9 +125,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private boolean enableProgressBar = true;
 
     private JTextField recTime;
-    //private JTextField realtimeTime;
-    //private JTextField metTime;
-    //private JTextField gmtTime;
+    // private JTextField realtimeTime;
+    // private JTextField metTime;
+    // private JTextField gmtTime;
     private JTextField simRealtimeRatio;
 
     private JXTitledPanel simOverrunPanel;
@@ -169,30 +162,29 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private VariableServerConnection statusSimcom;
 
     // Socket for receiving health and status messages
-    private SocketChannel healthStatusSocketChannel ;
-   
+    private SocketChannel healthStatusSocketChannel;
+
     private JComboBox runningSimList;
     private static String host;
     private static int port = -1;
     private static boolean isRestartOptionOn;
-    //True if an error was encountered during the attempt to connect to Variable Server during intialize()
+    // True if an error was encountered during the attempt to connect to Variable Server during intialize()
     private boolean errOnInitConnect = false;
-    
+
     // The object of SimState that has Sim state data.
     private SimState simState;
     private String customizedCheckpointObjects;
 
     private static Charset charset;
-    
 
-    final private static String LOCALHOST = "localhost";
+    private static final String LOCALHOST = "localhost";
 
-	final private Dimension FULL_SIZE = new Dimension(680, 640);
-	final private Dimension LITE_SIZE = new Dimension(340, 360);
+    private final Dimension FULL_SIZE = new Dimension(680, 640);
+    private final Dimension LITE_SIZE = new Dimension(340, 360);
 
-    //========================================
+    // ========================================
     //    Actions
-    //========================================
+    // ========================================
     @Action
     public void showStatusFont() {
         Font font = FontChooser.showDialog(statusMsgPane, "Choose Font", statusMsgPane.getFont());
@@ -200,7 +192,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             statusMsgPane.setFont(font);
         }
     }
-    
+
     @Action
     public void saveStatusMsgs() {
         String initialName = "sim_msg_";
@@ -233,12 +225,12 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     @Action
     public void startTV() {
-        launchTrickApplication("tv",  "--host " + host + " --port " + port);
+        launchTrickApplication("tv", "--host " + host + " --port " + port);
     }
 
     @Action
     public void startMTV() {
-        launchTrickApplication("mtv",  host + " " + port);
+        launchTrickApplication("mtv", host + " " + port);
     }
 
     @Action
@@ -246,8 +238,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
                 Desktop.getDesktop().browse(new URI("https://nasa.github.io/trick/index"));
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("Exception occurred while opening wiki: " + e.getMessage());
             }
         }
@@ -265,7 +256,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     @Action
     public void checkpointObjects() {
-        customizedCheckpointObjects = actionController.handleCheckpointObjects(getMainFrame(), customizedCheckpointObjects);
+        customizedCheckpointObjects =
+                actionController.handleCheckpointObjects(getMainFrame(), customizedCheckpointObjects);
     }
 
     @Action
@@ -305,22 +297,23 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     @Action
     public void dumpChkpntASCII() {
- 
+
         String fileName = "chkpnt_" + simState.getTwoFractionFormatted(simState.getExecOutTime());
 
         // if customizedCheckpointObjects are specified, remove all white spaces.
         if (customizedCheckpointObjects != null) {
-                customizedCheckpointObjects = customizedCheckpointObjects.trim();
-                Pattern pattern = Pattern.compile("\\s+");
-                Matcher matcher = pattern.matcher(customizedCheckpointObjects);
-                if (matcher.find()) {
-                        // replace all white spaces with nothing, basically remove all white spaces
-                        // so that server side doesn't need to trim the spaces for each sim object name.
-                        customizedCheckpointObjects = matcher.replaceAll("");
-                }
+            customizedCheckpointObjects = customizedCheckpointObjects.trim();
+            Pattern pattern = Pattern.compile("\\s+");
+            Matcher matcher = pattern.matcher(customizedCheckpointObjects);
+            if (matcher.find()) {
+                // replace all white spaces with nothing, basically remove all white spaces
+                // so that server side doesn't need to trim the spaces for each sim object name.
+                customizedCheckpointObjects = matcher.replaceAll("");
+            }
         }
 
-        actionController.handleDumpChkpntASCII(customizedCheckpointObjects, simState.getRunPath(), fileName, getMainFrame());
+        actionController.handleDumpChkpntASCII(
+                customizedCheckpointObjects, simState.getRunPath(), fileName, getMainFrame());
         runtimeStatePanel.setTitle("Dumping ASCII Checkpoint");
         currentSimStatusDesc = "PreCheckpoint";
     }
@@ -334,11 +327,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     @Action
     public void lite() {
-    	if (liteButton.isSelected()) {
-    		getMainFrame().setSize(LITE_SIZE);
-    	} else {
-    		getMainFrame().setSize(FULL_SIZE);
-    	}
+        if (liteButton.isSelected()) {
+            getMainFrame().setSize(LITE_SIZE);
+        } else {
+            getMainFrame().setSize(FULL_SIZE);
+        }
     }
 
     /**
@@ -347,47 +340,48 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     @Action
     public void connect() {
-        // get host and port for selected sim  	
+        // get host and port for selected sim
         if (runningSimList != null && runningSimList.getSelectedItem() != null) {
-        	String selectedStr = runningSimList.getSelectedItem().toString();
-        	// remove the run info if it is shown
-        	int leftPre = selectedStr.indexOf("(");
-        	if (leftPre != -1) {
-        		selectedStr = selectedStr.substring(0, leftPre);
-        	}
-        	// can be separated either by : or whitespace
-        	String[] elements = selectedStr.split(":");
-        	
-        	if (elements == null || elements.length < 2) {
-        		elements = selectedStr.split("\\s+");
-        	}
-        	
-        	if (elements == null || elements.length < 2) {       
-				String errMsg = "Can't connect! Please provide valid host name and port number separated by : or whitespace!";		
+            String selectedStr = runningSimList.getSelectedItem().toString();
+            // remove the run info if it is shown
+            int leftPre = selectedStr.indexOf("(");
+            if (leftPre != -1) {
+                selectedStr = selectedStr.substring(0, leftPre);
+            }
+            // can be separated either by : or whitespace
+            String[] elements = selectedStr.split(":");
+
+            if (elements == null || elements.length < 2) {
+                elements = selectedStr.split("\\s+");
+            }
+
+            if (elements == null || elements.length < 2) {
+                String errMsg =
+                        "Can't connect! Please provide valid host name and port number separated by : or whitespace!";
                 printErrorMessage(errMsg);
-        		return;
-        	}
-        	host = elements[0].trim();
-        	try {
-        	port = Integer.parseInt(elements[1].trim());
-        	} catch (NumberFormatException nfe) {
-				String errMsg = elements[1] + " is not a valid port number!";
-        		printErrorMessage(errMsg);
-        		return;
-        	}
+                return;
+            }
+            host = elements[0].trim();
+            try {
+                port = Integer.parseInt(elements[1].trim());
+            } catch (NumberFormatException nfe) {
+                String errMsg = elements[1] + " is not a valid port number!";
+                printErrorMessage(errMsg);
+                return;
+            }
         }
-        
+
         getInitializationPacket();
-        
+
         if (commandSimcom == null) {
-			String errMsg = "Sorry, can't connect. Please make sure the availability of both server and port!";
-			printErrorMessage(errMsg);
+            String errMsg = "Sorry, can't connect. Please make sure the availability of both server and port!";
+            printErrorMessage(errMsg);
             return;
-        } else {            
+        } else {
             Object[] keys = actionMap.allKeys();
             // If there is a server connection established, enable all actions.
             for (int i = 0; i < keys.length; i++) {
-                String theKey = (String)keys[i];
+                String theKey = (String) keys[i];
                 getAction(theKey).setEnabled(true);
             }
         }
@@ -397,64 +391,63 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         startStatusMonitors();
     }
 
-    
     /**
      * Helper method for starting monitors for sim status as well as health status.
      */
-	private void startStatusMonitors() {
-		MonitorSimStatusTask monitorSimStatusTask = new MonitorSimStatusTask(this);
+    private void startStatusMonitors() {
+        MonitorSimStatusTask monitorSimStatusTask = new MonitorSimStatusTask(this);
         monitorSimStatusTask.addPropertyChangeListener(this);
         getContext().getTaskService().execute(monitorSimStatusTask);
 
         // For receiving hs messages.
         getContext().getTaskService().execute(new MonitorHealthStatusTask(this));
-	}
-	
-    //========================================
+    }
+
+    // ========================================
     //    Set/Get methods
-    //========================================
+    // ========================================
     /**
      * Gets the initialization packet from Variable Server if it is up.
      */
-    public void getInitializationPacket() {    	
+    public void getInitializationPacket() {
         String simRunDir = null;
-        String[] results = null;      
+        String[] results = null;
         boolean masterslave_enabled;
         try {
-			String errMsg = "Error: SimControlApplication:getInitializationPacket()";
+            String errMsg = "Error: SimControlApplication:getInitializationPacket()";
             try {
-            	if (host != null && port != -1) {
+                if (host != null && port != -1) {
                     commandSimcom = new VariableServerConnection(host, port, varServerTimeout);
-            	} else {
-            		commandSimcom = null;
-            	}
+                } else {
+                    commandSimcom = null;
+                }
             } catch (UnknownHostException host_exception) {
                 /** The IP address of the host could not be determined. */
-                errMsg += "\n Unknown host \""+host+"\"";
+                errMsg += "\n Unknown host \"" + host + "\"";
                 errMsg += "\n Please use a valid host name (e.g. localhost)";
-                errOnInitConnect = true;   
+                errOnInitConnect = true;
                 printErrorMessage(errMsg);
             } catch (SocketTimeoutException ste) {
                 /** Connection attempt timed out. */
-                errMsg += "\n Connection Timeout \""+host+"\"";
+                errMsg += "\n Connection Timeout \"" + host + "\"";
                 errMsg += "\n Please try a different host name (e.g. localhost)";
                 errOnInitConnect = true;
-                printErrorMessage(errMsg);           
+                printErrorMessage(errMsg);
             } catch (IOException ioe) {
                 /** Port number is unavailable, or there is no connection, etc. */
-                errMsg += "\n Invalid TCP/IP port number \""+port+"\"";
+                errMsg += "\n Invalid TCP/IP port number \"" + port + "\"";
                 errMsg += "\n Please check the server and enter a proper port number!";
                 errMsg += "\n IOException ..." + ioe;
                 errMsg += "\n If there is no connection, please make sure SIM is up running properly!";
                 errOnInitConnect = true;
                 printErrorMessage(errMsg);
-            } 
-            
-            if (commandSimcom == null) {
-            	(new RetrieveHostPortTask()).execute();
-            	return;
             }
-                       
+
+            if (commandSimcom == null) {
+                (new RetrieveHostPortTask()).execute();
+                return;
+            }
+
             actionController.setVariableServerConnection(commandSimcom);
 
             simState = new SimState();
@@ -464,47 +457,47 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             masterslave_enabled = results[1].equals("1");
 
             commandSimcom.put("trick.var_set_client_tag(\"SimControl\")\n");
-            commandSimcom.put("trick.var_add(\"trick_sys.sched.sim_start\") \n" +
-            		          "trick.var_add(\"trick_sys.sched.terminate_time\") \n" +
-                              "trick.var_add(\"trick_sys.sched.time_tic_value\") \n" +
-                              "trick.var_add(\"trick_cmd_args.cmd_args.default_dir\") \n" +
-                              "trick.var_add(\"trick_cmd_args.cmd_args.cmdline_name\") \n" +
-                              "trick.var_add(\"trick_cmd_args.cmd_args.input_file\") \n" +
-                              "trick.var_add(\"trick_cmd_args.cmd_args.run_dir\") \n");
-            
+            commandSimcom.put("trick.var_add(\"trick_sys.sched.sim_start\") \n"
+                    + "trick.var_add(\"trick_sys.sched.terminate_time\") \n"
+                    + "trick.var_add(\"trick_sys.sched.time_tic_value\") \n"
+                    + "trick.var_add(\"trick_cmd_args.cmd_args.default_dir\") \n"
+                    + "trick.var_add(\"trick_cmd_args.cmd_args.cmdline_name\") \n"
+                    + "trick.var_add(\"trick_cmd_args.cmd_args.input_file\") \n"
+                    + "trick.var_add(\"trick_cmd_args.cmd_args.run_dir\") \n");
+
             if (masterslave_enabled) {
                 commandSimcom.put("trick.var_add(\"trick_master_slave.master.num_slaves\") \n");
             }
 
-            commandSimcom.put("trick.var_send() \n" +
-                              "trick.var_clear() \n");
+            commandSimcom.put("trick.var_send() \n" + "trick.var_clear() \n");
 
             results = commandSimcom.get().split("\t");
             if (results != null && results.length > 0) {
                 execTimeTicValue = Double.parseDouble(results[3]);
                 simStartTime = Double.parseDouble(results[1]);
-                long terminateTime = Long.parseLong(results[2]);                
+                long terminateTime = Long.parseLong(results[2]);
                 if (terminateTime >= Long.MAX_VALUE - 1) {
-                	enableProgressBar = false;
+                    enableProgressBar = false;
                 }
-                
+
                 // need to minus the sim start time as it could be a number other than 0.0
-                simStopTime = terminateTime/execTimeTicValue - simStartTime;
+                simStopTime = terminateTime / execTimeTicValue - simStartTime;
             }
 
             slaveCount = masterslave_enabled ? Integer.parseInt(results[8]) : 0;
 
-            simRunDirField = new JTextField[slaveCount+1];
-            overrunField = new JTextField[slaveCount+1];
+            simRunDirField = new JTextField[slaveCount + 1];
+            overrunField = new JTextField[slaveCount + 1];
 
             for (int i = 0; i < simRunDirField.length; i++) {
-                if (i==0) {
-                    simRunDirField[i] = new JTextField(results[4] + java.io.File.separator + results[5] + " " + results[6]);
+                if (i == 0) {
+                    simRunDirField[i] =
+                            new JTextField(results[4] + java.io.File.separator + results[5] + " " + results[6]);
                 } else {
                     simRunDirField[i] = new JTextField();
                 }
                 overrunField[i] = new JTextField("    ");
-                overrunField[i].setPreferredSize( new Dimension(60, overrunField[i].getHeight()) );
+                overrunField[i].setPreferredSize(new Dimension(60, overrunField[i].getHeight()));
             }
             simRunDir = results[7];
             simRunDir = results[4] + java.io.File.separator + simRunDir;
@@ -512,10 +505,10 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             simState.setRunPath(simRunDir);
 
             for (int i = 1; i < simRunDirField.length; i++) {
-            	/**
-            	 * Commented out the following code as slaves is a vector and can't be accessed at this point.
+                /**
+                 * Commented out the following code as slaves is a vector and can't be accessed at this point.
                  * Uncomment the following code if we can in the future.
-            	 */
+                 */
                 /*commandSimcom.put("trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].sim_path\") \n" +
                                  "trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].S_main_name\") \n ");
                                   "trick.sim_services.var_add(\"master_slave.master.slaves[" + i + "].run_input_file\") \n" +
@@ -523,28 +516,26 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                                   "trick.sim_services.var_clear( ) \n");
                 results = commandSimcom.get().split("\t");
                 simRunDirField[i].setText(results[1] + java.io.File.separator + results[2] + " " + results[2]);*/
-            	simRunDirField[i].setText("Slave " + i);
+                simRunDirField[i].setText("Slave " + i);
             }
-            
-            commandSimcom.put("trick.var_exists(\"trick_instruments.debug_pause.debug_pause_flag\")\n") ;
+
+            commandSimcom.put("trick.var_exists(\"trick_instruments.debug_pause.debug_pause_flag\")\n");
             results = commandSimcom.get().split("\t");
             debug_present = Integer.parseInt(results[1]);
 
-            commandSimcom.put("trick.var_exists(\"trick_real_time.rt_sync.total_overrun\")\n") ;
+            commandSimcom.put("trick.var_exists(\"trick_real_time.rt_sync.total_overrun\")\n");
             results = commandSimcom.get().split("\t");
             overrun_present = Integer.parseInt(results[1]);
 
-            commandSimcom.put("trick.var_exists(\"trick_message.mdevice.port\")\n") ;
+            commandSimcom.put("trick.var_exists(\"trick_message.mdevice.port\")\n");
             results = commandSimcom.get().split("\t");
             message_present = Integer.parseInt(results[1]);
 
-            if ( message_present == 1 ) {
-                commandSimcom.put("trick.var_add(\"trick_message.mdevice.port\") \n" +
-                                  "trick.var_send() \n" +
-                                  "trick.var_clear() \n");
+            if (message_present == 1) {
+                commandSimcom.put("trick.var_add(\"trick_message.mdevice.port\") \n" + "trick.var_send() \n"
+                        + "trick.var_clear() \n");
                 results = commandSimcom.get().split("\t");
-                message_port = Integer.parseInt(results[1]) ;
-
+                message_port = Integer.parseInt(results[1]);
             }
             // If simOverrunPanel is already created, meaning the GUI was setup without connecting to the server.
             // Now, the user hits the Connect button to connect. Therefore, we need to update this panel once
@@ -552,32 +543,27 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             if (simOverrunPanel != null) {
                 (new RebuildSimOverrunPanelTask()).execute();
             }
-        }
-        catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
 
-        }
-        catch (NullPointerException npe) {
+        } catch (NullPointerException npe) {
             npe.printStackTrace();
         }
     }
 
-
-    //========================================
+    // ========================================
     //    Methods
-    //========================================
+    // ========================================
     /**
      * Invoked when SimStatusMonitor task's progress property changes.
      * This is required by {@link PropertyChangeListener}.
      */
     public void propertyChange(PropertyChangeEvent evt) {
         if ("progress" == evt.getPropertyName()) {
-          int progress = (Integer) evt.getNewValue();
-          progressBar.setValue(progress);
+            int progress = (Integer) evt.getNewValue();
+            progressBar.setValue(progress);
         }
-
     }
 
     /**
@@ -594,10 +580,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 statusSimcom.close();
             }
             if (healthStatusSocketChannel != null) {
-            healthStatusSocketChannel.close() ;
+                healthStatusSocketChannel.close();
             }
-        }
-        catch (java.io.IOException ioe) {
+        } catch (java.io.IOException ioe) {
         }
     }
 
@@ -623,37 +608,37 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     @Override
     protected void ready() {
-    	super.ready();
+        super.ready();
 
-    	logoImagePanel.start();
+        logoImagePanel.start();
 
-    	// The following code was commented out and moved to the end of startup()
-    	// due to framework having issues with certain Java versions. In certain Java
-    	// version such as JDK1.6.0_20, ready() never gets called???
-    	// 05-24-2011, found out that if there was any SwingTask or Thread started
-    	// before ready() in application framework, JDK1.6.0_20 would fail to realize
-    	// the startup() is done. That's why ready() never gets called even though startup()
-    	// is done. So modified the code to start the logo animation player after startup()
-    	// and moved the following code back to where it should be.
+        // The following code was commented out and moved to the end of startup()
+        // due to framework having issues with certain Java versions. In certain Java
+        // version such as JDK1.6.0_20, ready() never gets called???
+        // 05-24-2011, found out that if there was any SwingTask or Thread started
+        // before ready() in application framework, JDK1.6.0_20 would fail to realize
+        // the startup() is done. That's why ready() never gets called even though startup()
+        // is done. So modified the code to start the logo animation player after startup()
+        // and moved the following code back to where it should be.
         if (commandSimcom == null) {
-        	logoImagePanel.pause();
+            logoImagePanel.pause();
             Object[] keys = actionMap.allKeys();
             // If there is no server connection, disable all actions except connect and quit.
             for (int i = 0; i < keys.length; i++) {
-                String theKey = (String)keys[i];
+                String theKey = (String) keys[i];
                 if (!(theKey.equals("connect") || theKey.equals("quit"))) {
                     getAction(theKey).setEnabled(false);
                 }
             }
             String errMsg = "No server connection. Please connect!";
-			printErrorMessage(errMsg);
+            printErrorMessage(errMsg);
             return;
         }
-        
+
         if (isRestartOptionOn) {
-        	printSendHS();
+            printSendHS();
         }
-        
+
         scheduleGetSimState();
 
         startStatusMonitors();
@@ -671,7 +656,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         super.startup();
 
         // dont't want to the confirmation dialog for sim control panel
-    	removeExitListener(exitListener);
+        removeExitListener(exitListener);
 
         View view = getMainView();
         view.setComponent(createMainPanel());
@@ -679,44 +664,46 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         view.setToolBar(createToolBar());
         view.setStatusBar(createStatusBar());
 
-        if(errOnInitConnect && (runningSimList != null) ) {
-            runningSimList.addItem("localhost : " + port);  
-        } 
+        if (errOnInitConnect && (runningSimList != null)) {
+            runningSimList.addItem("localhost : " + port);
+        }
 
         show(view);
     }
 
-	/**
-	 * Prints an error message to the status message pane. In the event there is an error with it, a JOptionPane will pop up.
-	 * @param err
-	 */
-	protected void printErrorMessage(String err) {
-		try {
-			// Get the document attached to the Status Message Pane 
-			Document doc = statusMsgPane.getDocument();
+    /**
+     * Prints an error message to the status message pane. In the event there is an error with it, a JOptionPane will pop up.
+     * @param err
+     */
+    protected void printErrorMessage(String err) {
+        try {
+            // Get the document attached to the Status Message Pane
+            Document doc = statusMsgPane.getDocument();
 
-			// Set the font color to red and the background to black
-			StyleContext sc = new StyleContext();               
-			Style redStyle = sc.addStyle("Red", null);
-			setColorStyleAttr(redStyle, Color.red, Color.black);
+            // Set the font color to red and the background to black
+            StyleContext sc = new StyleContext();
+            Style redStyle = sc.addStyle("Red", null);
+            setColorStyleAttr(redStyle, Color.red, Color.black);
 
-			// Add the error message to the bottom of the message pane
-			doc.insertString(doc.getLength(), err + "\n", redStyle);
+            // Add the error message to the bottom of the message pane
+            doc.insertString(doc.getLength(), err + "\n", redStyle);
 
-			// If Lite mode is engaged, or the window is small enough 
-			// to obscure the message pane, create a popup for the error as well.
-			if (liteButton.isSelected() || getMainFrame().getSize().height <= LITE_SIZE.height + 50) {
-				JOptionPane.showMessageDialog(getMainFrame(), err, "Sim Control Panel Error", JOptionPane.ERROR_MESSAGE);
-			}
-		} catch (BadLocationException ble) {
-			JOptionPane.showMessageDialog(getMainFrame(), 
-										  "Status Message Pane had an issue when printing: " + err, 
-										  "Status Message Pane Error", 
-										  JOptionPane.ERROR_MESSAGE);
-		} catch (NullPointerException npe) {
-			System.err.println( "Sim Control Error at Initialization: \n" + err);
-		}
-	}
+            // If Lite mode is engaged, or the window is small enough
+            // to obscure the message pane, create a popup for the error as well.
+            if (liteButton.isSelected() || getMainFrame().getSize().height <= LITE_SIZE.height + 50) {
+                JOptionPane.showMessageDialog(
+                        getMainFrame(), err, "Sim Control Panel Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (BadLocationException ble) {
+            JOptionPane.showMessageDialog(
+                    getMainFrame(),
+                    "Status Message Pane had an issue when printing: " + err,
+                    "Status Message Pane Error",
+                    JOptionPane.ERROR_MESSAGE);
+        } catch (NullPointerException npe) {
+            System.err.println("Sim Control Error at Initialization: \n" + err);
+        }
+    }
 
     /**
      * Main method for this application.
@@ -724,16 +711,17 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     public static void main(String[] args) {
         Application.launch(SimControlApplication.class, args);
-        
+
         // Arrays.toString(args) converts such as localhost 7000 -r to [localhost, 7000, -r],
         // so need to remove [, ] and all white spaces.
-        String commandLine = (Arrays.toString(args)).replace("[","").replace("]", "").replaceAll("\\s+", "");
+        String commandLine =
+                (Arrays.toString(args)).replace("[", "").replace("]", "").replaceAll("\\s+", "");
 
         // check to see if -r or -restart is used
         Pattern restartOptionPattern = Pattern.compile("(\\-r|\\-restart)(,|$)");
         Matcher matcher = restartOptionPattern.matcher(commandLine);
 
-        // if -r | -restart is used, set the flag and then remove it from the command line 
+        // if -r | -restart is used, set the flag and then remove it from the command line
         if (matcher.find()) {
             isRestartOptionOn = true;
             commandLine = matcher.replaceAll("");
@@ -745,27 +733,27 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
         if (autoExitMatcher.find()) {
             isAutoExitOn = true;
-            commandLine = autoExitMatcher.replaceAll("");            
-        } 
-        
+            commandLine = autoExitMatcher.replaceAll("");
+        }
+
         Scanner commandScanner = new Scanner(commandLine).useDelimiter(",");
         // now need to figure out host and port, if not specified, available host&port will be listed
         if (commandScanner.hasNextInt()) {
-        	port = commandScanner.nextInt();
-        	if (commandScanner.hasNext()) {
-        		host = commandScanner.next();
-        	}
+            port = commandScanner.nextInt();
+            if (commandScanner.hasNext()) {
+                host = commandScanner.next();
+            }
         } else {
-        	if (commandScanner.hasNext()) {
-        		host = commandScanner.next();
-        		if (commandScanner.hasNextInt()) {
-        			port = commandScanner.nextInt();
-        		}
-        	}
-        }      
-        
+            if (commandScanner.hasNext()) {
+                host = commandScanner.next();
+                if (commandScanner.hasNextInt()) {
+                    port = commandScanner.nextInt();
+                }
+            }
+        }
+
         if (commandScanner != null) {
-        	commandScanner.close();
+            commandScanner.close();
         }
     }
 
@@ -773,47 +761,45 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Helper method to print the send_hs file to the statusMsgPane.
      */
     private void printSendHS() {
-    	if (simState != null) {
-    		File sendHS = new File(simState.getRunPath() + java.io.File.separator + "send_hs");
-    		if (!sendHS.exists()) {
-    			return;
-    		}
-    		
-    		String lineText = null;
-    		
-    		Document doc = statusMsgPane.getDocument();
+        if (simState != null) {
+            File sendHS = new File(simState.getRunPath() + java.io.File.separator + "send_hs");
+            if (!sendHS.exists()) {
+                return;
+            }
+
+            String lineText = null;
+
+            Document doc = statusMsgPane.getDocument();
             StyleContext sc = new StyleContext();
-            
+
             // normal style is white on black
             Style defaultStyle = sc.addStyle("Default", null);
             setColorStyleAttr(defaultStyle, Color.white, Color.black);
-            
+
             BufferedReader reader = null;
-    		try {   			
-    			reader = new BufferedReader(new FileReader(sendHS));
-    			while ((lineText = reader.readLine()) != null) {
-    				doc.insertString(doc.getLength(), lineText+System.getProperty("line.separator"), defaultStyle);
-    			}   				
-    		} catch (FileNotFoundException fnfe) {
-    			// do nothing
-    		} catch (IOException ioe) {
-    			// do nothing
-    		} catch (BadLocationException ble) {
-    			// do nothing
-    		}
-    		
-    		finally {
-    			try {
-    				if (reader != null) {
-    					reader.close();
-    				}
-    			} catch (IOException ioe) {
-    				
-    			}
-    		}
-    	}
+            try {
+                reader = new BufferedReader(new FileReader(sendHS));
+                while ((lineText = reader.readLine()) != null) {
+                    doc.insertString(doc.getLength(), lineText + System.getProperty("line.separator"), defaultStyle);
+                }
+            } catch (FileNotFoundException fnfe) {
+                // do nothing
+            } catch (IOException ioe) {
+                // do nothing
+            } catch (BadLocationException ble) {
+                // do nothing
+            } finally {
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException ioe) {
+
+                }
+            }
+        }
     }
-    
+
     /**
      * Adds all the variables to variable server for getting SIM states.
      */
@@ -823,34 +809,32 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             statusSimcom.put("trick.var_set_client_tag(\"SimControl2\")\n");
 
             // whenever there is data in statusSimcom socket, do something
-            String status_vars ;
+            String status_vars;
 
-            status_vars = "trick.var_add(\"trick_sys.sched.time_tics\") \n" +
-                          "trick.var_add(\"trick_sys.sched.mode\") \n" +
-                          "trick.var_add(\"trick_real_time.rt_sync.actual_run_ratio\") \n" +
-                          "trick.var_add(\"trick_real_time.rt_sync.active\") \n";
+            status_vars =
+                    "trick.var_add(\"trick_sys.sched.time_tics\") \n" + "trick.var_add(\"trick_sys.sched.mode\") \n"
+                            + "trick.var_add(\"trick_real_time.rt_sync.actual_run_ratio\") \n"
+                            + "trick.var_add(\"trick_real_time.rt_sync.active\") \n";
 
-            if ( debug_present != 0 ) {
-                status_vars += "trick.var_add(\"trick_instruments.debug_pause.debug_pause_flag\")\n" ;
+            if (debug_present != 0) {
+                status_vars += "trick.var_add(\"trick_instruments.debug_pause.debug_pause_flag\")\n";
             }
-            if ( overrun_present != 0 ) {
-                status_vars += "trick.var_add(\"trick_real_time.rt_sync.total_overrun\")\n" ;
+            if (overrun_present != 0) {
+                status_vars += "trick.var_add(\"trick_real_time.rt_sync.total_overrun\")\n";
             }
-            statusSimcom.put(status_vars) ;
+            statusSimcom.put(status_vars);
 
             statusSimcom.put("trick.var_cycle(0.25)\n");
 
-            getAction("connect").setEnabled(false);         
+            getAction("connect").setEnabled(false);
             runningSimList.setEnabled(false);
-        }
-        catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             statusLabel.setText("Not Ready");
             statusLabel.setEnabled(false);
             statusSimcom = null;
-            getAction("connect").setEnabled(true);           
+            getAction("connect").setEnabled(true);
             runningSimList.setEnabled(true);
             getAction("startSim").setEnabled(false);
         }
@@ -885,12 +869,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         }
     }
 
-
     /**
      * Creates the main panel for this application.
      */
     @Override
-	protected JComponent createMainPanel() {
+    protected JComponent createMainPanel() {
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
         JXPanel litePanel = new JXPanel();
@@ -902,7 +885,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.weighty = 0.1;
-        runtimeStatePanel = (JXTitledPanel)createRuntimeStatePanel();
+        runtimeStatePanel = (JXTitledPanel) createRuntimeStatePanel();
         litePanel.add(runtimeStatePanel, gridBagConstraints);
 
         gridBagConstraints.gridx = 0;
@@ -914,7 +897,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth= 1;
+        gridBagConstraints.gridwidth = 1;
         JPanel timePanel = createTimePanel();
         litePanel.add(timePanel, gridBagConstraints);
 
@@ -923,22 +906,20 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
         // user defined trick logo as specified by TRICK_LOGO, use it if it exists.
         if (UIUtils.getTrickLogo() != null && (new File(UIUtils.getTrickLogo())).exists()) {
-        	trickLogoName = UIUtils.getTrickLogo();
+            trickLogoName = UIUtils.getTrickLogo();
         }
 
         if (UIUtils.getTrickLogoStep() != null) {
             try {
                 int timeStep = Integer.parseInt(UIUtils.getTrickLogoStep());
                 logoImagePanel = new AnimationPlayer(trickLogoName, timeStep);
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 logoImagePanel = new AnimationPlayer(trickLogoName);
             }
-        }
-        else {
+        } else {
             logoImagePanel = new AnimationPlayer(trickLogoName);
         }
-        
+
         logoImagePanel.setToolTipText("Trick Version " + UIUtils.getTrickVersion());
 
         JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, litePanel, logoImagePanel);
@@ -946,7 +927,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
         JXPanel bottomPanel = new JXPanel();
         bottomPanel.setLayout(new java.awt.BorderLayout());
-        simOverrunPanel = (JXTitledPanel)createSimOverrunPanel();
+        simOverrunPanel = (JXTitledPanel) createSimOverrunPanel();
         bottomPanel.add(simOverrunPanel, BorderLayout.NORTH);
         bottomPanel.add(createStatusMsgPanel(), BorderLayout.CENTER);
 
@@ -963,35 +944,20 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * inherited from the Application class.
      */
     @Override
-	protected JMenuBar createMenuBar() {
+    protected JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         String[] fileMenuActionNames = {
-            "showStatusFont",
-            "---",
-            "saveStatusMsgs",
-            "clearStatusMsgs",
-            "---",
-            "lookAndFeel",
-            "---",
-            "quit"
+            "showStatusFont", "---", "saveStatusMsgs", "clearStatusMsgs", "---", "lookAndFeel", "---", "quit"
         };
         String[] actionsMenuActionNames = {
-            "startTV",
-            "startMTV",
-            "---",
-            "freezeAt",
-            "freezeIn",
-            "---",
-            "checkpointObjects",
-            "---",
-            "throttle"
+            "startTV", "startMTV", "---", "freezeAt", "freezeIn", "---", "checkpointObjects", "---", "throttle"
         };
 
         menuBar.add(createMenu("fileMenu", fileMenuActionNames));
         menuBar.add(createMenu("actionsMenu", actionsMenuActionNames));
         return menuBar;
     }
-    
+
     /**
      * Creates the tool bar for the application.
      *
@@ -999,21 +965,13 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     @Override
     protected JToolBar createToolBar() {
-        String[] toolbarActionNames = {
-                "startTV",
-                "---",
-                "startMTV",             
-                "---",
-                "throttle",             
-                "---",
-                "openWiki"
-            };
-        JToolBar toolBar = new JToolBar(); 
+        String[] toolbarActionNames = {"startTV", "---", "startMTV", "---", "throttle", "---", "openWiki"};
+        JToolBar toolBar = new JToolBar();
         for (String actionName : toolbarActionNames) {
             if (actionName.equals("---")) {
                 toolBar.addSeparator();
             } else {
-                toolBar.add(createButton(actionName, false));                
+                toolBar.add(createButton(actionName, false));
             }
         }
         toolBar.add(Box.createHorizontalGlue());
@@ -1040,15 +998,15 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Creates the panel for holding all the command buttons.
      */
     private JPanel createCommandsPanel() {
-    	JXTitledPanel titledCommandsPanel = new JXTitledPanel();
-    	titledCommandsPanel.setBorder(BorderFactory.createEmptyBorder(5,10,10,10));
-    	titledCommandsPanel.setTitle("Commands");
+        JXTitledPanel titledCommandsPanel = new JXTitledPanel();
+        titledCommandsPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+        titledCommandsPanel.setTitle("Commands");
         JXPanel commandsPanel = new JXPanel();
         titledCommandsPanel.setContentContainer(commandsPanel);
-        
+
         // 2 columns and 5 rows, each component has the same width and height.
-        GridLayout gridLayout = new GridLayout(5,2,2,4);
-        
+        GridLayout gridLayout = new GridLayout(5, 2, 2, 4);
+
         commandsPanel.setLayout(gridLayout);
 
         commandsPanel.add(new JButton(getAction("stepSim")));
@@ -1060,17 +1018,17 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
         dataRecButton.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
-                if (evt.getStateChange() == ItemEvent.SELECTED) {                   
+                if (evt.getStateChange() == ItemEvent.SELECTED) {
                     dataRecButton.setText("Data Rec On");
-                } else {                    
-                     dataRecButton.setText("Data Rec Off");                  
+                } else {
+                    dataRecButton.setText("Data Rec Off");
                 }
             }
         });
 
         realtimeButton = new JToggleButton(getAction("realtime"));
         realtimeButton.setSelected(true);
-        
+
         commandsPanel.add(dataRecButton);
         commandsPanel.add(new JButton(getAction("startSim")));
         commandsPanel.add(realtimeButton);
@@ -1089,9 +1047,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         liteButton.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
                 if (evt.getStateChange() == ItemEvent.SELECTED) {
-                	liteButton.setText("Full");
+                    liteButton.setText("Full");
                 } else {
-                	liteButton.setText("Lite");
+                    liteButton.setText("Lite");
                 }
             }
         });
@@ -1108,14 +1066,14 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     private JPanel createTimePanel() {
         JXTitledPanel titledTimePanel = new JXTitledPanel();
-        titledTimePanel.setBorder(BorderFactory.createEmptyBorder(5,10,10,10));
+        titledTimePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
 
         titledTimePanel.setTitle("Time");
         JXPanel timePanel = new JXPanel();
         titledTimePanel.setContentContainer(timePanel);
 
         // 1 column and 4 rows, each component has the same width and height.
-        GridLayout gridLayout = new GridLayout(4,1,2,6);
+        GridLayout gridLayout = new GridLayout(4, 1, 2, 6);
 
         timePanel.setLayout(gridLayout);
 
@@ -1123,7 +1081,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         timePanel.add(recLabel);
 
         recTime = new JTextField("0.00");
-        //recTime.setPreferredSize(recTime.getMinimumSize());
+        // recTime.setPreferredSize(recTime.getMinimumSize());
         recTime.setEditable(false);
         timePanel.add(recTime);
 
@@ -1150,7 +1108,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         timePanel.add(new JXLabel("Sim / Real Time"));
 
         simRealtimeRatio = new JTextField("0.00");
-        //simRealtimeRatio.setPreferredSize(simRealtimeRatio.getMinimumSize());
+        // simRealtimeRatio.setPreferredSize(simRealtimeRatio.getMinimumSize());
         simRealtimeRatio.setEditable(false);
         timePanel.add(simRealtimeRatio);
 
@@ -1174,9 +1132,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * corresponding panel.
      */
     private void addFieldsToSimOverrunPanel(JXTitledPanel titledPanel) {
-    	JPanel panel = new JPanel();
-    	panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-    	
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+
         JPanel simRunPanel = new JPanel();
         simRunPanel.setLayout(new BoxLayout(simRunPanel, BoxLayout.Y_AXIS));
 
@@ -1196,13 +1154,12 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             simRunPanel.add(simRunDirField[i]);
             overRunPanel.add(overrunField[i]);
         }
-        
+
         panel.add(simRunPanel);
         panel.add(overRunPanel);
 
         titledPanel.add(panel, BorderLayout.CENTER);
     }
-
 
     /**
      * Creates the panel for displaying the sim health status messages.
@@ -1210,11 +1167,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private JPanel createStatusMsgPanel() {
         statusMsgPane = new JXEditorPane();
         statusMsgPane.setDocument(new DefaultStyledDocument());
-        statusMsgPane.setEditorKit(new StyledEditorKit());    
+        statusMsgPane.setEditorKit(new StyledEditorKit());
         statusMsgPane.putClientProperty(JXEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         statusMsgPane.setBackground(Color.black);
 
-        int curr_font_size = statusMsgPane.getFont().getSize() ;
+        int curr_font_size = statusMsgPane.getFont().getSize();
         Font font = new Font("Monospaced", Font.PLAIN, curr_font_size);
         statusMsgPane.setFont(font);
 
@@ -1226,16 +1183,17 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     /**
      * Creates the status bar that displays connection status such as host, port.
-     *      
+     *
      * @return a {@link JXStatusBar}
      */
     @Override
-    //for Java 7, the type of elements of JComboBox needs to be specified to avoid the warning and it's not supported in Java 6
+    // for Java 7, the type of elements of JComboBox needs to be specified to avoid the warning and it's not supported
+    // in Java 6
     @SuppressWarnings("unchecked")
-	protected JComponent createStatusBar() {
+    protected JComponent createStatusBar() {
         JXStatusBar statusBar = new JXStatusBar();
         statusLabel = new JXLabel("");
-        
+
         statusBar.add(statusLabel);
 
         JPanel hostPortPanel = new JPanel();
@@ -1243,7 +1201,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         JXTitledSeparator hostPortHeader = new JXTitledSeparator();
         hostPortHeader.setHorizontalAlignment(SwingConstants.CENTER);
         hostPortHeader.setTitle("Host : Port (Run Info)");
-      
+
         runningSimList = new JComboBox() {
             @Override
             public void setEnabled(boolean enabled) {
@@ -1266,28 +1224,29 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             }
         };
         runningSimList.setEditable(true);
-        runningSimList.getEditor().addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent ae) {
-        		connect();
-        	}
+        runningSimList.getEditor().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                connect();
+            }
         });
         String hostPort = null;
         if (host != null && port != -1) {
-        	hostPort = host + " : " + port;
+            hostPort = host + " : " + port;
         }
         // if host is parsed in as an argument, add it to the hostList
-        if (hostPort != null && !UIUtils.comboBoxContains((DefaultComboBoxModel)runningSimList.getModel(), hostPort)) {
-    		runningSimList.addItem(hostPort);
-    		runningSimList.setSelectedItem(hostPort);
-    	}
-        
-        runningSimList.setToolTipText("<html>Sims that are running and can be connected to. The manual input format is <host><:|whitespace><port>.</html>");
+        if (hostPort != null && !UIUtils.comboBoxContains((DefaultComboBoxModel) runningSimList.getModel(), hostPort)) {
+            runningSimList.addItem(hostPort);
+            runningSimList.setSelectedItem(hostPort);
+        }
+
+        runningSimList.setToolTipText(
+                "<html>Sims that are running and can be connected to. The manual input format is <host><:|whitespace><port>.</html>");
         hostPortPanel.add(hostPortHeader, BorderLayout.NORTH);
         hostPortPanel.add(runningSimList, BorderLayout.CENTER);
-               
+
         statusBar.add(hostPortPanel, JXStatusBar.Constraint.ResizeBehavior.FILL);
         JButton connectBtn = new JButton(getAction("connect"));
-        
+
         statusBar.add(connectBtn);
 
         return statusBar;
@@ -1302,35 +1261,34 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         recTime.setText(simState.getTwoFractionFormatted(simState.getExecOutTime()));
 
         if (simState.getRealtimeActive() == 1) {
-        	if (realtimeButton.getText().equals("RealTime Off")) {
-        		realtimeButton.setSelected(true);
-        		realtimeButton.setText("RealTime On");
-        		getAction("stepSim").setEnabled(true);
-        	}
+            if (realtimeButton.getText().equals("RealTime Off")) {
+                realtimeButton.setSelected(true);
+                realtimeButton.setText("RealTime On");
+                getAction("stepSim").setEnabled(true);
+            }
         } else {
-        	if (realtimeButton.getText().equals("RealTime On")) {
-        		realtimeButton.setSelected(false);
-        		realtimeButton.setText("RealTime Off");
-        		getAction("stepSim").setEnabled(false);
-        	}
+            if (realtimeButton.getText().equals("RealTime On")) {
+                realtimeButton.setSelected(false);
+                realtimeButton.setText("RealTime Off");
+                getAction("stepSim").setEnabled(false);
+            }
         }
 
         simRealtimeRatio.setText(simState.getTwoFractionFormatted(simState.getSimRealtimeRatio()));
 
         // Track Master sim overruns
         overrunField[0].setText(Integer.toString(simState.getOverruns()));
-        if ( simState.getOverruns() > 0 ) {
-            overrunField[0].setForeground(new Color(205, 0, 0));  // red3
+        if (simState.getOverruns() > 0) {
+            overrunField[0].setForeground(new Color(205, 0, 0)); // red3
         } else {
             overrunField[0].setForeground(Color.getColor("#000000"));
         }
         simOverrunPanel.revalidate();
 
         // Update the GUI when that status is changed.
-        if ( !newStatusDesc.equals(currentSimStatusDesc) ) {
+        if (!newStatusDesc.equals(currentSimStatusDesc)) {
 
-            switch ( simState.getMode() ) {
-
+            switch (simState.getMode()) {
                 case SimState.INITIALIZATION_MODE:
                     enableAllCommands();
                     setActionsEnabled("startSim,freezeSim,recordingSim,realtime,quit", false);
@@ -1338,8 +1296,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     break;
 
                 case SimState.FREEZE_MODE:
-                    if ( currentSimStatusDesc.equals("PreCheckpoint") ) {
-                        ;/* Skip a cycle so the checkpoint status has time to display briefly */
+                    if (currentSimStatusDesc.equals("PreCheckpoint")) {
+                        ; /* Skip a cycle so the checkpoint status has time to display briefly */
                     } else {
                         enableAllCommands();
                         setActionsEnabled("freezeSim,quit", false);
@@ -1360,7 +1318,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 case SimState.EXIT_MODE:
                 case SimState.COMPLETE_MODE:
                     disableAllCommands();
-                    setActionsEnabled( "lite,quit", true );
+                    setActionsEnabled("lite,quit", true);
                     statusLabel.setText("Done");
                     statusLabel.setEnabled(false);
                     logoImagePanel.stop();
@@ -1376,8 +1334,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Enable all buttons on the Commands panel.
      */
     private void enableAllCommands() {
-        for ( String btn : getAllCommandActions() ) {
-            setActionsEnabled( btn, true );
+        for (String btn : getAllCommandActions()) {
+            setActionsEnabled(btn, true);
         }
     }
 
@@ -1385,8 +1343,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Disable all buttons on the Commands panel.
      */
     private void disableAllCommands() {
-        for ( String btn : getAllCommandActions() ) {
-            setActionsEnabled( btn, false );
+        for (String btn : getAllCommandActions()) {
+            setActionsEnabled(btn, false);
         }
     }
 
@@ -1396,8 +1354,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private String[] getAllCommandActions() {
         ArrayList<String> actions = new ArrayList<String>();
 
-        actions.add("stepSim,recordingSim,startSim,realtime,freezeSim," +
-        		"dumpChkpntASCII,shutdownSim,loadChkpnt,lite,quit");
+        actions.add("stepSim,recordingSim,startSim,realtime,freezeSim,"
+                + "dumpChkpntASCII,shutdownSim,loadChkpnt,lite,quit");
         return actions.toArray(new String[0]);
     }
 
@@ -1427,69 +1385,71 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     }*/
 
-
-    //========================================
+    // ========================================
     //    Inner Classes
-    //========================================
+    // ========================================
     private class RetrieveHostPortTask extends SwingWorker<Void, Void> {
-    	
-    	private MulticastSocket multicastSocket = null;
-    	
-    	@Override
+
+        private MulticastSocket multicastSocket = null;
+
+        @Override
         public Void doInBackground() {
-    		while (getAction("connect").isEnabled()) {
-    			retrieveHostPort();
-    		}
+            while (getAction("connect").isEnabled()) {
+                retrieveHostPort();
+            }
             return null;
         }
-    	
-    	@Override
-    	public void done() {
-    		if (multicastSocket != null) {
+
+        @Override
+        public void done() {
+            if (multicastSocket != null) {
                 multicastSocket.close();
             }
-    	}
-    	
-    	/**
-    	 * Helper method for retrieving the host and its listening ports.
-    	 * 
-    	 */
-    	//for Java 7, the type of elements of JComboBox needs to be specified to avoid the warning and it's not supported in Java 6
-    	@SuppressWarnings("unchecked")
-    	private void retrieveHostPort() {
-    	    try {
-    	    	multicastSocket = new MulticastSocket(9265);
-    	        InetAddress group = InetAddress.getByName("239.3.14.15");
-    	        multicastSocket.joinGroup(group);
-    	         
-    	        byte[] buffer = new byte[1024];
-    	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-    	        multicastSocket.receive(packet);
+        }
 
-    	        // Remove the trailing newline, and split the tab-delimitted message.
-    	        String[] info = new String(packet.getData(), packet.getOffset(), packet.getLength()).replace("\n", "").split("\t");
-    	        // Reset the packet length or future messages will be clipped.
-    	        packet.setLength(buffer.length);
-    	        // version Trick 10 or later	           	       
-    	        if (info[7] != null) {	    	        
-	    	        if (runningSimList != null) {
-	    	        	String hostPort = info[0] + " : " + info[1] + " (" + info[5] + " " + info[6] + ")";
-	    	        	if (!UIUtils.comboBoxContains((DefaultComboBoxModel)runningSimList.getModel(), hostPort)) {
-	    	        		// only show localhost's resource
-	    	        		// TODO: may want to have whole network resource
-	    	        		if (InetAddress.getLocalHost().equals(InetAddress.getByName(info[0]))) {
-	    	        			runningSimList.addItem(hostPort);
-	    	        			runningSimList.setSelectedItem(hostPort);	    	        			
-	    	        		}
-	    	        	}	    	        	
-	    	        }
-    	        }
-    	    } catch (IOException ioe) {
-    	    	// do nothing
-    	    }    		
-    	}   	
+        /**
+         * Helper method for retrieving the host and its listening ports.
+         *
+         */
+        // for Java 7, the type of elements of JComboBox needs to be specified to avoid the warning and it's not
+        // supported in Java 6
+        @SuppressWarnings("unchecked")
+        private void retrieveHostPort() {
+            try {
+                multicastSocket = new MulticastSocket(9265);
+                InetAddress group = InetAddress.getByName("239.3.14.15");
+                multicastSocket.joinGroup(group);
+
+                byte[] buffer = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                multicastSocket.receive(packet);
+
+                // Remove the trailing newline, and split the tab-delimitted message.
+                String[] info = new String(packet.getData(), packet.getOffset(), packet.getLength())
+                        .replace("\n", "")
+                        .split("\t");
+                // Reset the packet length or future messages will be clipped.
+                packet.setLength(buffer.length);
+                // version Trick 10 or later
+                if (info[7] != null) {
+                    if (runningSimList != null) {
+                        String hostPort = info[0] + " : " + info[1] + " (" + info[5] + " " + info[6] + ")";
+                        if (!UIUtils.comboBoxContains((DefaultComboBoxModel) runningSimList.getModel(), hostPort)) {
+                            // only show localhost's resource
+                            // TODO: may want to have whole network resource
+                            if (InetAddress.getLocalHost().equals(InetAddress.getByName(info[0]))) {
+                                runningSimList.addItem(hostPort);
+                                runningSimList.setSelectedItem(hostPort);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException ioe) {
+                // do nothing
+            }
+        }
     }
-        
+
     /**
      * Inner class for the task of rebuiding those fields for Sim run & overrun info.
      * This is used when the user launch Sim Control before starting the server.
@@ -1497,19 +1457,20 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private class RebuildSimOverrunPanelTask extends SwingWorker<Void, Void> {
         @Override
         public Void doInBackground() {
-            for(int i=2; i<simOverrunPanel.getComponentCount(); i++) {
+            for (int i = 2; i < simOverrunPanel.getComponentCount(); i++) {
                 simOverrunPanel.remove(simOverrunPanel.getComponent(i));
             }
 
             addFieldsToSimOverrunPanel(simOverrunPanel);
             return null;
         }
+
         @Override
-		public void done() {
+        public void done() {
             simOverrunPanel.validate();
         }
     }
-    
+
     /**
      * Helper method for setting style attribute.
      */
@@ -1526,7 +1487,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         public MonitorHealthStatusTask(Application app) {
             super(app);
         }
-        
+
         /*
          * Main task. Executed in background thread.
          */
@@ -1539,34 +1500,34 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             CharBuffer charBuffer = null;
             Document doc = statusMsgPane.getDocument();
             StyleContext sc = new StyleContext();
-            
+
             // normal style is white on black
             Style defaultStyle = sc.addStyle("Default", null);
-            
+
             setColorStyleAttr(defaultStyle, Color.white, Color.black);
-            
+
             // green - is there any reason not using the Color.green?
-            Color greenColor = new Color(150,230,30);
+            Color greenColor = new Color(150, 230, 30);
             Style greenStyle = sc.addStyle("Green", null);
             setColorStyleAttr(greenStyle, greenColor, Color.black);
-            
+
             // yellow
             Style yellowStyle = sc.addStyle("Yellow", null);
             setColorStyleAttr(yellowStyle, Color.yellow, Color.black);
-            
+
             // red
             Style redStyle = sc.addStyle("Red", null);
             setColorStyleAttr(redStyle, Color.red, Color.black);
-            
+
             // cyan
             Style cyanStyle = sc.addStyle("Cyan", null);
             setColorStyleAttr(cyanStyle, Color.cyan, Color.black);
-            
-            try {
-                healthStatusSocketChannel = SocketChannel.open() ;
-                healthStatusSocketChannel.configureBlocking(true) ;
 
-                healthStatusSocketChannel.connect(new InetSocketAddress(host, message_port)) ;
+            try {
+                healthStatusSocketChannel = SocketChannel.open();
+                healthStatusSocketChannel.configureBlocking(true);
+
+                healthStatusSocketChannel.connect(new InetSocketAddress(host, message_port));
             } catch (IOException e) {
             } catch (UnresolvedAddressException uae) {
                 /** Connection to variable server is not working with the
@@ -1595,48 +1556,48 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                                     int returnCounts = statusMsgPane.getText().split("\n", -1).length;
 
                                     if (returnCounts > 99999) {
-                                    	doc.remove(0, doc.getLength());
+                                        doc.remove(0, doc.getLength());
                                     }
 
                                     // interpret ansi escape color sequences
-                                    String tokens[] = charStr.split("\033") ;
+                                    String tokens[] = charStr.split("\033");
                                     // ansi escape is 4 characters: [NNm where NN is 2 digit color number
                                     for (String token : tokens) {
-                                        int ansicolor = 0 ;
+                                        int ansicolor = 0;
                                         String coloredpart = token;
                                         if (token.charAt(0) == '\133') { // open square bracket
-                                        	// get the 1st m locaction
-                                        	int mLoc = token.indexOf('m');
-                                        	if (mLoc != -1) {
-                                        		try {
-                                        			ansicolor = Integer.parseInt(token.substring(1, mLoc));
-                                        			coloredpart = token.substring(mLoc+1);
-                                        		} catch (Exception ex) {
-                                        			// do nothing, coloredpart is printed in normal
-                                        		}
-                                        	}
+                                            // get the 1st m locaction
+                                            int mLoc = token.indexOf('m');
+                                            if (mLoc != -1) {
+                                                try {
+                                                    ansicolor = Integer.parseInt(token.substring(1, mLoc));
+                                                    coloredpart = token.substring(mLoc + 1);
+                                                } catch (Exception ex) {
+                                                    // do nothing, coloredpart is printed in normal
+                                                }
+                                            }
                                         }
                                         if (coloredpart.length() == 0) {
                                             continue;
                                         }
                                         switch (ansicolor) {
-                                            case 0 :  // normal
-                                                doc.insertString(doc.getLength(), coloredpart, defaultStyle) ;
+                                            case 0: // normal
+                                                doc.insertString(doc.getLength(), coloredpart, defaultStyle);
                                                 break;
-                                            case 32 : // green
-                                                doc.insertString(doc.getLength(), coloredpart, greenStyle) ;
+                                            case 32: // green
+                                                doc.insertString(doc.getLength(), coloredpart, greenStyle);
                                                 break;
-                                            case 33 : // yellow
-                                                doc.insertString(doc.getLength(), coloredpart, yellowStyle) ;
+                                            case 33: // yellow
+                                                doc.insertString(doc.getLength(), coloredpart, yellowStyle);
                                                 break;
-                                            case 31 : // red
-                                                doc.insertString(doc.getLength(), coloredpart, redStyle) ;
+                                            case 31: // red
+                                                doc.insertString(doc.getLength(), coloredpart, redStyle);
                                                 break;
-                                            case 36 : // cyan
-                                                doc.insertString(doc.getLength(), coloredpart, cyanStyle) ;
+                                            case 36: // cyan
+                                                doc.insertString(doc.getLength(), coloredpart, cyanStyle);
                                                 break;
-                                            default : // normal
-                                                doc.insertString(doc.getLength(), coloredpart, defaultStyle) ;
+                                            default: // normal
+                                                doc.insertString(doc.getLength(), coloredpart, defaultStyle);
                                                 break;
                                         }
                                     }
@@ -1659,7 +1620,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 } finally {
                     if (runtimeStatePanel.getTitle() == "Sim Complete") {
                         // Always scroll to the end
-                        statusMsgPane.setCaretPosition(statusMsgPane.getDocument().getLength());
+                        statusMsgPane.setCaretPosition(
+                                statusMsgPane.getDocument().getLength());
                         break;
                     }
                 }
@@ -1671,7 +1633,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         protected void finished() {
             try {
                 if (healthStatusSocketChannel != null) {
-                    healthStatusSocketChannel.close() ;
+                    healthStatusSocketChannel.close();
                 }
             } catch (java.io.IOException ioe) {
 
@@ -1696,7 +1658,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         @Override
         protected Void doInBackground() {
             String results[] = null;
-            int ii ;
+            int ii;
 
             while (true) {
 
@@ -1705,24 +1667,23 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     if (statusSimcom != null) {
 
                         String resultsStr = statusSimcom.get();
-                        if (resultsStr == null) 
-                            break;
+                        if (resultsStr == null) break;
 
                         results = resultsStr.split("\t");
-                        ii = 1 ;
+                        ii = 1;
 
                         // whenever there is data in statusSimcom socket, do something
                         if (results != null && results[0].equals("0")) {
                             // "trick_sys.sched.time_tics"
                             if (results[ii] != null && results[ii] != "") {
-                                double time_tics = Double.parseDouble(results[ii]);                                
-                                double execOutTime = time_tics/execTimeTicValue;
+                                double time_tics = Double.parseDouble(results[ii]);
+                                double execOutTime = time_tics / execTimeTicValue;
                                 // TODO: test to see if the commented code needed
-                                //if (execOutTime < 0 && simStartTime >= 0) {
+                                // if (execOutTime < 0 && simStartTime >= 0) {
                                 //	simStartTime = execOutTime;
-                                //}
+                                // }
                                 simState.setExecOutTime(execOutTime);
-                                ii++ ;
+                                ii++;
                             }
 
                             // "trick_sys.sched.mode"
@@ -1731,9 +1692,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                                 simState.setMode(modeIndex);
                                 switch (modeIndex) {
                                     case SimState.INITIALIZATION_MODE:
-                                    	//currentSimStatusDesc = "Ready to Run";
-                                        //setSimStateDesc(currentSimStatusDesc);
-                                        //break;
+                                    // currentSimStatusDesc = "Ready to Run";
+                                    // setSimStateDesc(currentSimStatusDesc);
+                                    // break;
                                     case SimState.DEBUG_STEPPING_MODE:
                                     case SimState.EXIT_MODE:
                                         break;
@@ -1741,17 +1702,18 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                                     // during this mode and that could have a new elapsed time.
                                     case SimState.FREEZE_MODE:
                                     case SimState.RUN_MODE:
-                                    	// need to minus the sim start time as it could be a negative number
-                                    	setProgress(Math.abs((float)((simState.getExecOutTime()-simStartTime)/simStopTime)));                                    	
+                                        // need to minus the sim start time as it could be a negative number
+                                        setProgress(Math.abs(
+                                                (float) ((simState.getExecOutTime() - simStartTime) / simStopTime)));
                                         break;
                                 }
-                                ii++ ;
+                                ii++;
                             }
 
                             // "real_time.rt_sync.actual_run_ratio"
                             if (results.length > ii && results[ii] != null && results[ii] != "") {
                                 simState.setSimRealtimeRatio(Float.parseFloat(results[ii]));
-                                ii++ ;
+                                ii++;
                             }
 
                             // "real_time.rt_sync.active"
@@ -1763,16 +1725,19 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                             // "instruments.debug_pause.debug_pause_flag"
                             if (debug_present == 1 && results.length > ii && results[ii] != null && results[ii] != "") {
                                 debug_flag = Integer.parseInt(results[ii]);
-                                if ( debug_flag == 1 ) {
+                                if (debug_flag == 1) {
                                     simState.setMode(SimState.DEBUG_STEPPING_MODE);
                                 }
-                                ii++ ;
+                                ii++;
                             }
 
                             // "real_time.rt_sync.total_overrun"
-                            if (overrun_present == 1 && results.length > ii && results[ii] != null && results[ii] != "") {
+                            if (overrun_present == 1
+                                    && results.length > ii
+                                    && results[ii] != null
+                                    && results[ii] != "") {
                                 simState.setOverruns(Integer.parseInt(results[ii]));
-                                ii++ ;
+                                ii++;
                             }
                             updateGUI();
                         } else {
@@ -1815,10 +1780,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     statusSimcom.close();
                 }
                 if (isAutoExitOn) {
-                	exit();
+                    exit();
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
             }
         }
     }

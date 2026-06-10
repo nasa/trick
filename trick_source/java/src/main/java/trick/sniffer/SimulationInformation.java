@@ -78,19 +78,18 @@ public class SimulationInformation implements Comparable<SimulationInformation> 
      * @param execMode simulation execution mode as an integer string
      */
     public SimulationInformation(
-        String machine,
-        String handshakePort,
-        String user,
-        String processID,
-        String simDirectory,
-        String sMainFile,
-        String runDirectory,
-        String version,
-        String tag,
-        String noHandshakePort,
-        String vsEnabled,
-        String execMode
-    ) {
+            String machine,
+            String handshakePort,
+            String user,
+            String processID,
+            String simDirectory,
+            String sMainFile,
+            String runDirectory,
+            String version,
+            String tag,
+            String noHandshakePort,
+            String vsEnabled,
+            String execMode) {
         this.machine = machine;
         this.handshakePort = handshakePort;
         this.noHandshakePort = noHandshakePort;
@@ -156,18 +155,16 @@ public class SimulationInformation implements Comparable<SimulationInformation> 
 
         SimulationInformation simulationInformation = (SimulationInformation) object;
 
-        return (
-            machine.equals(simulationInformation.machine) &&
-            handshakePort.equals(simulationInformation.handshakePort) &&
-            noHandshakePort.equals(simulationInformation.noHandshakePort) &&
-            user.equals(simulationInformation.user) &&
-            processID.equals(simulationInformation.processID) &&
-            version.equals(simulationInformation.version) &&
-            sMainFile.equals(simulationInformation.sMainFile) &&
-            simDirectory.equals(simulationInformation.simDirectory) &&
-            runDirectory.equals(simulationInformation.runDirectory) &&
-            tag.equals(simulationInformation.tag)
-        );
+        return (machine.equals(simulationInformation.machine)
+                && handshakePort.equals(simulationInformation.handshakePort)
+                && noHandshakePort.equals(simulationInformation.noHandshakePort)
+                && user.equals(simulationInformation.user)
+                && processID.equals(simulationInformation.processID)
+                && version.equals(simulationInformation.version)
+                && sMainFile.equals(simulationInformation.sMainFile)
+                && simDirectory.equals(simulationInformation.simDirectory)
+                && runDirectory.equals(simulationInformation.runDirectory)
+                && tag.equals(simulationInformation.tag));
     }
 
     @Override
