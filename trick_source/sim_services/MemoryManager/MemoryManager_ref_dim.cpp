@@ -267,12 +267,15 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
                             return (TRICK_PARAMETER_ARRAY_SIZE);
                         }
                     } else { // Dynamic array case
-                        // Check if the index is out of bounds if the pointer points to a dynamic array
-                        if (index_value >= (get_size(*(void**)(R->address)))) {
+                        // Check if the index is out of bounds if the pointer points to a dynamic array.
+                        // R->address is already dereferenced to the heap array.
+                        if (index_value >= (get_size(R->address)))
+                        {
                             /* print out of bounds error message if MM debug_level is greater than 1 */
                             if (debug_level > 1) {
                                 std::stringstream message;
-                                message << index_value << " is out of bounds for " << R->reference << " (size=" << get_size(*(void**)(R->address)) << ").";
+                                message << index_value << " is out of bounds for " << R->reference
+                                        << " (size=" << get_size(R->address) << ").";
                                 emitError(message.str());
                             }
                             free(ref2);
