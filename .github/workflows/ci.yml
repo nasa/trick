@@ -37,7 +37,7 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y clang-format perltidy python3-pip maven
+          sudo apt-get install -y clang-format-20 perltidy python3-pip maven
           pip3 install --break-system-packages ruff
 
       - name: Check clang-format on changed C/C++ lines
@@ -53,7 +53,7 @@ jobs:
             BASE=$(git merge-base origin/master HEAD)
           fi
 
-          DIFF=$(git clang-format --diff "$BASE" --extensions c,h,cpp,hpp,cc,hh) || true
+          DIFF=$(/usr/lib/llvm-20/bin/git-clang-format --binary /usr/lib/llvm-20/bin/clang-format --diff "$BASE" --extensions c,h,cpp,hpp,cc,hh) || true
 
           if echo "$DIFF" | grep -q '^diff'; then
             echo "$DIFF"
