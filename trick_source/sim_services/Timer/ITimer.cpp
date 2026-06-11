@@ -104,24 +104,27 @@ int Trick::ITimer::start(double in_frame_time) {
         }
         // Arm the itimer slightly early so clock_spin() can busy-wait to the
         // frame boundary.  On macOS, timer coalescing can delay SIGALRM delivery
-        // by 3-15ms, so scale the value to 5% of the frame (with a range of 2-8ms). 
+        // by 3-15ms, so scale the value to 5% of the frame (with a range of 2-8ms).
         // On Linux a fixed 2ms is sufficient.
 #if __APPLE__
         {
             // Frames < 10ms are already rejected above, so frame_usec >= 10000 thus >= 8000
             // When frame_sec == 0, meaning the borrow path only triggers for frames >= 1s.
-            unsigned int scaled_usec = (unsigned int)(in_frame_time * 1000000) / 20 ; // 5% of frame
-            if ( scaled_usec < 2000 ) scaled_usec = 2000 ;
-            if ( scaled_usec > 8000 ) scaled_usec = 8000 ;
-            if ( frame_usec < scaled_usec ) 
+            unsigned int scaled_usec = (unsigned int)(in_frame_time * 1000000) / 20; // 5% of frame
+            if (scaled_usec < 2000)
+                scaled_usec = 2000;
+            if (scaled_usec > 8000)
+                scaled_usec = 8000;
+            if (frame_usec < scaled_usec)
             {
-                frame_sec  -= 1 ;
-                frame_usec += 1000000 ;
+                frame_sec  -= 1;
+                frame_usec += 1000000;
             }
-            frame_usec -= scaled_usec ;
+            frame_usec -= scaled_usec;
         }
 #else
-        if ( frame_usec < 2000 && frame_sec > 0 ) {
+        if (frame_usec < 2000 && frame_sec > 0)
+        {
             frame_sec  -= 1 ;
             frame_usec += 1000000 ;
         }
