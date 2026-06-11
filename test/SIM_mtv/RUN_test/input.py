@@ -31,13 +31,21 @@ def main():
     trick.add_event(event_a)
 
     # -------------------------------------------------------
-    # Event B: condition_var + action so the test can verify
-    # a second event appears in mtv_count and that
-    # condition_list / action_list paths work for index 1 too.
+    # Event B: lives at mtv_list index 1, with TWO conditions
+    # and TWO actions so condition_list[1] / action_list[1]
+    # exist. Index >= 1 is the regression case from issue
+    # #2139: MemoryManager's dynamic-array bounds check
+    # rejected mtv_list[1] (and any other index >= 1 on a
+    # named TMM pointer array), so every event after the
+    # first came back as BAD_REF.
+    # condition_var() gets no comment, so its comment
+    # defaults to the variable name string.
     # -------------------------------------------------------
     event_b = trick.new_event("event_b")
     event_b.condition_var(0, "mobj.fire_condition")
-    event_b.action(0, "mobj.action_counter+=10", "act_b_comment")
+    event_b.condition(1, "False", "cond_b_comment_1")
+    event_b.action(0, "mobj.action_counter+=10", "act_b_comment_0")
+    event_b.action(1, "mobj.action_counter+=100", "act_b_comment_1")
     event_b.set_cycle(0.1)
     event_b.activate()
     trick.add_event(event_b)

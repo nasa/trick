@@ -166,6 +166,10 @@ public class MtvApp extends TrickApplication {
                 popup.setSize(400, 100);
                 popup.setVisible(true);
 
+                // NOTE: The variable order parsed below is produced by Trick::MTV::send_event_data()
+                // (MTV.cpp) and is verified by test/SIM_mtv (SendEventDataComments in
+                // test_client.cpp). If the layout changes in any of these places, the
+                // others must change with it.
                 vscom.put("trick.mtv_send_event_data();"); // get all event data from Trick
                 numvars = Integer.parseInt(vscom.get());
                 results = vscom.get(numvars).split("\t");
@@ -253,6 +257,13 @@ public class MtvApp extends TrickApplication {
                 map = new int[mtv_count]; // this will map the gui event table index to the mtv_events data
 
                 // -------------------------- get cyclical event data ---------------------------
+                // NOTE: The variable paths built below MUST stay in step with the SIM_mtv test
+                // (mtvapp_event_vars() in test/SIM_mtv/models/test_client/test_client.cpp),
+                // which replicates this exact subscription set so CI catches paths the
+                // variable server cannot resolve. Issue #2139 (events with index >= 1
+                // failing to load) slipped through because the test hand-wrote correct
+                // paths while this code emitted broken ones. If you add, remove, or
+                // rename a var_add below, update the test to match.
                 mtv_var_count = 0;
                 vscom.put("trick.var_cycle(" + var_cycle + ")");
                 // tell var server to get sim time and mtv_udpate_ticker cyclically
