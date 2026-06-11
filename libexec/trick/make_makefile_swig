@@ -203,7 +203,7 @@ build/top.i: build/CP_instances
 
 # SWIG_SRC =====================================================================
 
-SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
+SWIG_SRC = \$(patsubst %.i,%.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 \$(SWIG_SRC) : %.cpp: %.i | %.d \$(SWIG_I)
 \t\$(PRINT_SWIG)
@@ -215,7 +215,7 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 # SWIG_OBJECTS =================================================================
 
-SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
+SWIG_OBJECTS = \$(patsubst %.cpp,%.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
 
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
