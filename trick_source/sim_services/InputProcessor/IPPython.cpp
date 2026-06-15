@@ -220,7 +220,13 @@ int Trick::IPPython::shutdown() {
 
     if ( Py_IsInitialized() ) {
         // Obtain the GIL so that we can shut down properly
-        Py_BLOCK_THREADS
+        // Check if the thread state is actually saved before trying to restore it
+        // Python thread state is NULL when using JIT Input
+        if ( _save != NULL ) 
+        {
+            Py_BLOCK_THREADS
+            _save = NULL ;
+        }
         Py_Finalize();
     }
     return(0) ;
