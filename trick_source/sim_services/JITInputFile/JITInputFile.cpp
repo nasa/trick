@@ -171,7 +171,7 @@ int Trick::JITInputFile::compile(std::string file_name) {
     add_library(library_fullpath_name);
     // Add file name to map with the same lib info as the full library path
     // This allows users to refer to the library by the file name instead of the full path.
-    file_to_libinfo_map[file_name] = file_to_libinfo_map[library_fullpath_name] ;
+    file_to_libinfo_map[file_name] = file_to_libinfo_map[library_fullpath_name];
 
     return 0 ;
 
