@@ -14,17 +14,22 @@ PURPOSE: (SignalA directly defines creal64_T - simulates a Simulink-generated he
 #define CREAL64_T_DEFINED
 typedef double real64_T;
 
-typedef struct {
-    real64_T re;
-    real64_T im;
+typedef struct
+{
+        real64_T re;
+        real64_T im;
 } creal64_T;
 #endif
 
-class SignalA {
-  public:
-    SignalA() : value() {}
-    creal64_T value;
-    creal64_T *value_a_array;
+class SignalA
+{
+    public:
+        SignalA()
+            : value()
+        {
+        }
+        creal64_T value;
+        creal64_T* value_a_array;
 };
 
 #endif

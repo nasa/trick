@@ -34,7 +34,7 @@ def main():
         "global typedef struct",
     )
 
-    # global same typedef struct (creal64_T) declared in two different headers (SignalA.hh and SignalB.hh) 
+    # global same typedef struct (creal64_T) declared in two different headers (SignalA.hh and SignalB.hh)
     # regression test for duplicate castAs* symbol
     ball.signal_a.value_a_array = trick.alloc_type(1, "creal64_T")
     ball.signal_b.value_b_array = trick.alloc_type(1, "creal64_T")
@@ -42,18 +42,58 @@ def main():
     ball.signal_a.value_a_array[0].im = 2.0
     ball.signal_b.value_b_array[0].re = 3.0
     ball.signal_b.value_b_array[0].im = 4.0
-    TRICK_EXPECT_EQ( ball.signal_a.value_a_array[0].re , 1.0, test_suite , "duplicate typedef struct in two headers" )
-    TRICK_EXPECT_EQ( ball.signal_a.value_a_array[0].im , 2.0, test_suite , "duplicate typedef struct in two headers" )
-    TRICK_EXPECT_EQ( ball.signal_b.value_b_array[0].re , 3.0, test_suite , "duplicate typedef struct in two headers" )
-    TRICK_EXPECT_EQ( ball.signal_b.value_b_array[0].im , 4.0, test_suite , "duplicate typedef struct in two headers" )
+    TRICK_EXPECT_EQ(
+        ball.signal_a.value_a_array[0].re,
+        1.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
+    TRICK_EXPECT_EQ(
+        ball.signal_a.value_a_array[0].im,
+        2.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
+    TRICK_EXPECT_EQ(
+        ball.signal_b.value_b_array[0].re,
+        3.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
+    TRICK_EXPECT_EQ(
+        ball.signal_b.value_b_array[0].im,
+        4.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
     ball.signal_a.value.re = 1.0
     ball.signal_a.value.im = 2.0
     ball.signal_b.value.re = 3.0
     ball.signal_b.value.im = 4.0
-    TRICK_EXPECT_EQ( ball.signal_a.value.re , 1.0, test_suite , "duplicate typedef struct in two headers" )
-    TRICK_EXPECT_EQ( ball.signal_a.value.im , 2.0, test_suite , "duplicate typedef struct in two headers" )
-    TRICK_EXPECT_EQ( ball.signal_b.value.re , 3.0, test_suite , "duplicate typedef struct in two headers" )
-    TRICK_EXPECT_EQ( ball.signal_b.value.im , 4.0, test_suite , "duplicate typedef struct in two headers" )
+    TRICK_EXPECT_EQ(
+        ball.signal_a.value.re,
+        1.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
+    TRICK_EXPECT_EQ(
+        ball.signal_a.value.im,
+        2.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
+    TRICK_EXPECT_EQ(
+        ball.signal_b.value.re,
+        3.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
+    TRICK_EXPECT_EQ(
+        ball.signal_b.value.im,
+        4.0,
+        test_suite,
+        "duplicate typedef struct in two headers",
+    )
 
     # struct in a namespace
     ball.foo_yummyfood.foo_food_in_struct = trick.alloc_type(2, "Foo::FooFoodInStruct")
