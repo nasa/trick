@@ -15,16 +15,23 @@ def main():
     ball.foo_yummyfood.print_me()
     print
 
+    # global typedef struct (not in a namespace)
+    ball.trick_food.globalFoodItems = trick.alloc_type(1, "GlobalFoodItem")
+    ball.trick_food.globalFoodItems[0].itemName = "Hotdog"
+    ball.trick_food.globalFoodItems[0].price = 3.50
+    TRICK_EXPECT_EQ( str(ball.trick_food.globalFoodItems[0].itemName) , "Hotdog", test_suite , "global typedef struct" )
+    TRICK_EXPECT_EQ( ball.trick_food.globalFoodItems[0].price , 3.50, test_suite , "global typedef struct" )
+
     # struct in a namespace
     ball.foo_yummyfood.foo_food_in_struct = trick.alloc_type(2, "Foo::FooFoodInStruct")
     ball.foo_yummyfood.foo_food_in_struct[0].foodName = "Pizza"
     ball.foo_yummyfood.foo_food_in_struct[0].calories = 100.0
     ball.foo_yummyfood.foo_food_in_struct[1].foodName = "Ice Cream"
     ball.foo_yummyfood.foo_food_in_struct[1].calories = 200.0
-    TRICK_EXPECT_EQ( str(ball.foo_yummyfood.foo_food_in_struct[0].foodName) , "Pizza", test_suite , "struct in a namespace" )
-    TRICK_EXPECT_EQ( ball.foo_yummyfood.foo_food_in_struct[0].calories , 100.0, test_suite , "struct in a namespace" )
-    TRICK_EXPECT_EQ( str(ball.foo_yummyfood.foo_food_in_struct[1].foodName) , "Ice Cream", test_suite , "struct in a namespace" )
-    TRICK_EXPECT_EQ( ball.foo_yummyfood.foo_food_in_struct[1].calories , 200.0, test_suite , "struct in a namespace" )
+    TRICK_EXPECT_EQ( str(ball.foo_yummyfood.foo_food_in_struct[0].foodName) , "Pizza", test_suite , "typedef struct in a namespace" )
+    TRICK_EXPECT_EQ( ball.foo_yummyfood.foo_food_in_struct[0].calories , 100.0, test_suite , "typedef struct in a namespace" )
+    TRICK_EXPECT_EQ( str(ball.foo_yummyfood.foo_food_in_struct[1].foodName) , "Ice Cream", test_suite , "typedef struct in a namespace" )
+    TRICK_EXPECT_EQ( ball.foo_yummyfood.foo_food_in_struct[1].calories , 200.0, test_suite , "typedef struct in a namespace" )
 
     # struct in a namespace without typedef
     ball.foo_yummyfood.foo_food_in_struct_no_typedef = trick.alloc_type(2, "Foo::FooFoodInStructNoTypedef")
