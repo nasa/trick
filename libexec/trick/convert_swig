@@ -64,34 +64,29 @@ my $typedef_def = qr/typedef\s+                            # the word typedef
                \s*;                                        # semicolon
              /sx;
 
-my $typedef_enum_def =
-  qr/typedef\s+enum\s*                # the words typedef enum
+my $typedef_enum_def = qr/typedef\s+enum\s*                # the words typedef enum
                (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
                {(?:\s*\d+\s*)*                             # opening brace and possible comments
                (?:.*?}\s*                                  # everything to closing brace
                [\w,\s\*]*\s*;)                             # enum name and ;
              /sx;
 
-my $typedef_const_struct =
-qr/typedef\s+const\s+(?:struct|union)\s*     # the words typedef const struct|union
+my $typedef_const_struct = qr/typedef\s+const\s+(?:struct|union)\s*     # the words typedef const struct|union
                (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
                {                                           # opening brace
              /sx;
-my $typedef_struct =
-  qr/typedef\s+(?:struct|union)\s*     # the words typedef struct|union
+my $typedef_struct = qr/typedef\s+(?:struct|union)\s*     # the words typedef struct|union
                (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
                {                                           # opening brace
              /sx;
 my $namespace_def = qr/namespace\s*                        # keyword namespace
              (?:\s+[_A-Za-z]\w*)                           # class name
             /sx;
-my $enum_class_def =
-qr/enum\s+(?:class|struct)\s*       # keywords enum_class or struct (alias to enum class)
+my $enum_class_def = qr/enum\s+(?:class|struct)\s*       # keywords enum_class or struct (alias to enum class)
                (?:\s+[_A-Za-z]\w*)\s*                      # class or struct name
                (?:\{|:(?!\:))                              # { or punctuator :
              /sx;
-my $class_def =
-  qr/(?:class|struct)\s*                   # keyword class or struct
+my $class_def = qr/(?:class|struct)\s*                   # keyword class or struct
                (?:\s+[_A-Za-z]\w*)\s*                      # class name
                (?:\{|:(?!\:))                              # { or punctuator :
              /sx;
@@ -106,22 +101,20 @@ my $template_var_def = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
                /sx;
 
 # This list is the list of all STL types to ignore.
-my %all_stl_names =
-  qw(vector 1 list 1 deque 1 set 1 multiset 1 map 1 unordered_map 1 multimap 1 hash_set 1
-  hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
-  array 1
-  std::vector 1 std::list 1 std::deque 1 std::set 1 std::multiset 1 std::map 1 std::unordered_map 1 std::multimap 1 std::hash_set 1
-  std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
-  std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1);
+my %all_stl_names = qw(vector 1 list 1 deque 1 set 1 multiset 1 map 1 unordered_map 1 multimap 1 hash_set 1
+    hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+    array 1
+    std::vector 1 std::list 1 std::deque 1 std::set 1 std::multiset 1 std::map 1 std::unordered_map 1 std::multimap 1 std::hash_set 1
+    std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
+    std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1);
 
 # This is a partial list of STL types to ignore.  We do not ignore vector, map, list if we allow STLs
-my %stl_names =
-  qw(deque 1 set 1 multiset 1 unordered_map 1 multimap 1 hash_set 1
-  hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
-  array 1
-  std::deque 1 std::set 1 std::multiset 1 std::unordered_map 1 std::multimap 1 std::hash_set 1
-  std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
-  std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1);
+my %stl_names = qw(deque 1 set 1 multiset 1 unordered_map 1 multimap 1 hash_set 1
+    hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+    array 1
+    std::deque 1 std::set 1 std::multiset 1 std::unordered_map 1 std::multimap 1 std::hash_set 1
+    std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
+    std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1);
 
 Getopt::Long::Configure("bundling");
 GetOptions(
@@ -229,26 +222,23 @@ sub process_file() {
 
         my @comment_sections = index_comments(@file_contents);
         for ( my $idx = @comment_sections - 2 ; $idx >= 0 ; $idx -= 2 ) {
-            my $comment_length =
-              @comment_sections[ $idx + 1 ] - @comment_sections[$idx] + 1;
+            my $comment_length = @comment_sections[ $idx + 1 ] - @comment_sections[$idx] + 1;
             substr $raw_contents, @comment_sections[$idx], $comment_length, "";
         }
 
 ##      The init_attr functions cause problems when we try and wrap them with SWIG.
 ##      We can safely remove them from the header files.
 ##      Remove the friend init_attr functions that appear in multiline define statements
-        $raw_contents =~
-          s/\\\n\s*friend\s+void\s+init_attr[^(]+\s*\(\s*\)(\s*);?/$1/sg;
+        $raw_contents =~ s/\\\n\s*friend\s+void\s+init_attr[^(]+\s*\(\s*\)(\s*);?/$1/sg;
 ##      Remove the friend init_attr functions outside of multiline define statements
-        $raw_contents =~
-          s/friend\s+void\s+init_attr[^(]+\s*\(\s*\)(\s*);?/$1/sg;
+        $raw_contents =~ s/friend\s+void\s+init_attr[^(]+\s*\(\s*\)(\s*);?/$1/sg;
 
         #$raw_contents =~ s/friend\s+void\s+init_attr[^;]+;//sg ;
         $raw_contents =~ s/__const/const/sg;
 
 ##      For each of the #includes in the out_of_date header file
 ##      create a corresponding %import directive.
-      outer:
+    outer:
         foreach ( split /^/, $raw_contents ) {
 
             #TODO: Rebuild multi line pp directives?
@@ -269,8 +259,7 @@ sub process_file() {
                     or $file_name =~ /trick_utils/
                     or $file_name =~ /trick\// )
                 {
-                    $contents .= "\%import(module=\"sim_services\") \"trick/"
-                      . basename($file_name) . "\"\n";
+                    $contents .= "\%import(module=\"sim_services\") \"trick/" . basename($file_name) . "\"\n";
                     next;
                 }
 
@@ -287,7 +276,7 @@ sub process_file() {
 
                 # Get the canonical path (resolve ., .., and symbolic links)
                 $file_name =
-                  abs_path( dirname($file_name) ) . "/" . basename($file_name);
+                    abs_path( dirname($file_name) ) . "/" . basename($file_name);
 
                 # Skip excluded paths
                 foreach my $i ( @exclude_paths, @swig_exclude_paths ) {
@@ -364,8 +353,8 @@ sub process_file() {
         print OUT "\n$new_contents";
         print OUT "$contents\n";
 
-# Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
-# file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
+       # Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
+       # file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
         undef %class_typemap_printed;
         foreach my $c (@class_names) {
             if ( !exists $class_typemap_printed{$c} ) {
@@ -422,8 +411,7 @@ sub usage() {
 ##
 
 sub process_contents($$$$) {
-    my ( $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref )
-      = @_;
+    my ( $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref ) = @_;
 
     while (
         $$contents_ref =~ s/^(.*?)(?:($typedef_struct)|
@@ -432,7 +420,7 @@ sub process_contents($$$$) {
                                     ($namespace_def)|
                                     ($enum_class_def)|
                                     ($class_def))//sx
-      )
+        )
     {
         my ($non_var)                     = $1;
         my ($typedef_struct_string)       = $2;
@@ -451,18 +439,14 @@ sub process_contents($$$$) {
 ## Handle the case of: typedef_struct ==> typedef (struct | union ) <name> '{' ...
 ##
         if ( $typedef_struct_string ne "" ) {
-            process_typedef_struct(
-                $typedef_struct_string, $contents_ref,
-                $new_contents_ref,      $curr_namespace,
-                $class_names_ref
-            );
+            process_typedef_struct( $typedef_struct_string, $contents_ref, $new_contents_ref, $curr_namespace,
+                $class_names_ref );
         }
 ##
 ## Handle the case of: typedef_struct ==> typedef const (struct | union ) <name> '{' ...
 ##
         if ( $typedef_const_struct_string ne "" ) {
-            process_typedef_const_struct( $typedef_const_struct_string,
-                $contents_ref );
+            process_typedef_const_struct( $typedef_const_struct_string, $contents_ref );
         }
 ##
 ## Handle the case of: template_def ==> template '<' <template-parameters> '>' class <class-name> ...
@@ -476,10 +460,7 @@ sub process_contents($$$$) {
 ## Handle the case of: namespace_def ==> namespace <name>
 ##
         if ( $namespace_string ne "" ) {
-            process_namespace(
-                $namespace_string, $contents_ref, $new_contents_ref,
-                $curr_namespace,   $class_names_ref
-            );
+            process_namespace( $namespace_string, $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref );
         }
 ##
 ##  Handle the case of: class_def ==> enum class <enum-name> ( '{' | ':' )
@@ -492,10 +473,7 @@ sub process_contents($$$$) {
 ##  Handle the case of: class_def ==> ( class | struct ) <class-name> ( '{' | ':' )
 ##
         if ( $class_string ne "" ) {
-            process_class(
-                $class_string,   $contents_ref, $new_contents_ref,
-                $curr_namespace, $class_names_ref
-            );
+            process_class( $class_string, $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref );
         }
     }
 }
@@ -525,7 +503,7 @@ sub process_template($$) {
 # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
 # The function call is inserted after the 1st { of the class template so it is placed at the top
     $$contents_ref =~
-s/{\n/{\n\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n/m;
+        s/{\n/{\n\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n/m;
     if ( $$contents_ref =~ s/^(\s*;)//s ) {
         $$new_contents_ref .= $1;
     }
@@ -535,8 +513,7 @@ s/{\n/{\n\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swi
         $$new_contents_ref .= $1;
 
         # grab the rest of the template
-        ( $extracted, $$contents_ref ) =
-          extract_bracketed( "{" . $$contents_ref, "{}" );
+        ( $extracted, $$contents_ref ) = extract_bracketed( "{" . $$contents_ref, "{}" );
 
         # remove added extra opening "brace"
         $extracted =~ s/^\{//;
@@ -581,10 +558,7 @@ s/{\n/{\n\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swi
 ## process_contents()
 ##
 sub process_namespace($$$$$) {
-    my (
-        $namespace_string, $contents_ref, $new_contents_ref,
-        $curr_namespace,   $class_names_ref
-    ) = @_;
+    my ( $namespace_string, $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref ) = @_;
     my $extracted;
     my ($namespace_name);
 
@@ -600,8 +574,7 @@ sub process_namespace($$$$$) {
     ( $extracted, $$contents_ref ) = extract_bracketed( $$contents_ref, "{}" );
 
     # Process the contents of the namespace
-    process_contents( \$extracted, $new_contents_ref, $namespace_name,
-        $class_names_ref );
+    process_contents( \$extracted, $new_contents_ref, $namespace_name, $class_names_ref );
 
     # Append whatever wasn't matched in process contents to the new file.
     $$new_contents_ref .= $extracted;
@@ -636,10 +609,7 @@ sub process_namespace($$$$$) {
 ## <func-depend name="extract_bracketed">
 
 sub process_class($$$$$) {
-    my (
-        $class_string,   $contents_ref, $new_contents_ref,
-        $curr_namespace, $class_names_ref
-    ) = @_;
+    my ( $class_string, $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref ) = @_;
 
     my $extracted;
     my ($class_name);
@@ -647,8 +617,7 @@ sub process_class($$$$$) {
     my @unqualified_template_typedefs;
 
 ## Extract the class_name from the class_string
-    $class_string =~
-      /^(?:class|struct)\s+               # keyword class or struct
+    $class_string =~ /^(?:class|struct)\s+               # keyword class or struct
                       ([_A-Za-z]\w*)                     # class name
                       \s*[\{\:]$
                      /sx or die "Internal error";
@@ -662,10 +631,9 @@ sub process_class($$$$$) {
 
 # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
     $my_class_contents .=
-"\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n";
+        "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n";
 
-    ( $extracted, $$contents_ref ) =
-      extract_bracketed( "{" . $$contents_ref, "{}" );
+    ( $extracted, $$contents_ref ) = extract_bracketed( "{" . $$contents_ref, "{}" );
 
     # remove the trailing semicolon because we may append text to the class.
     $$contents_ref =~ s/^\s*;//s;
@@ -681,8 +649,8 @@ sub process_class($$$$$) {
 
     my $isSwigExcludeBlock = 0;
 
-  # templated variables need to be declared with the SWIG %template directive.
-  # This loop looks for any templated variables and creates the %template lines.
+    # templated variables need to be declared with the SWIG %template directive.
+    # This loop looks for any templated variables and creates the %template lines.
     while ( $extracted =~ s/^(.*?)(?:($template_var_def))//sx ) {
         my ($non_var)              = $1;
         my ($template_var_def_str) = $2;
@@ -694,16 +662,13 @@ sub process_class($$$$$) {
             my $ifndefSwig = $non_var;
             my $moreNonVar = 1;
 
-# search for all instances of #ifndef SWIG, #if !defined(SWIG), and #endif prior to template variable
-# update $isSwigExcludeBlock to the last instance*
-# exit when no match is found
-# *  this script does not track preprocessor scope, so any #endif will set $isSwigExcludeBlock to 0
-#    in other words we don't support SWIGing nested preprocessor if statements, use at your peril
+            # search for all instances of #ifndef SWIG, #if !defined(SWIG), and #endif prior to template variable
+            # update $isSwigExcludeBlock to the last instance*
+            # exit when no match is found
+            # *  this script does not track preprocessor scope, so any #endif will set $isSwigExcludeBlock to 0
+            #    in other words we don't support SWIGing nested preprocessor if statements, use at your peril
             while ( $moreNonVar == 1 ) {
-                if ( $ifndefSwig =~
-s/(#\s*ifndef\s*SWIG)|(#\s*if\s*!\s*defined\s*\(\s*SWIG\s*\))|(#\s*endif\s*)//
-                  )
-                {
+                if ( $ifndefSwig =~ s/(#\s*ifndef\s*SWIG)|(#\s*if\s*!\s*defined\s*\(\s*SWIG\s*\))|(#\s*endif\s*)// ) {
                     if ( $1 ne "" or $2 ne "" ) {
                         $isSwigExcludeBlock = 1;
                     }
@@ -736,56 +701,53 @@ s/(#\s*ifndef\s*SWIG)|(#\s*if\s*!\s*defined\s*\(\s*SWIG\s*\))|(#\s*endif\s*)//
                         or ( !$stls and !exists $all_stl_names{$template_type} )
                     )
                     and $template_full_type !~ /(std::)?wstring/
-                  )
+                    )
                 {
 
                     my ($template_type_no_sp) = $template_full_type;
                     $template_type_no_sp =~ s/\s//g;
 
-                 #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
+                    #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( !exists $processed_templates{$template_type_no_sp} ) {
 
                         my $sanitized_namespace = $curr_namespace =~ s/:/_/gr;
-                        my $identifier =
-                          "${sanitized_namespace}${class_name}_${var_name}";
-                        my $trick_swig_template =
-                          "TRICK_SWIG_TEMPLATE_$identifier";
+                        my $identifier          = "${sanitized_namespace}${class_name}_${var_name}";
+                        my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier";
 
                         # Insert template directive immediately before instance
                         # This is required as of SWIG 4
                         my $typedef = "\n#ifndef $trick_swig_template\n";
                         $typedef .= "#define $trick_swig_template\n";
-                        $typedef .=
-                          "\%template($identifier) $template_full_type;\n";
+                        $typedef .= "\%template($identifier) $template_full_type;\n";
                         $typedef .= "#endif\n";
 
-      # A SWIG %template directive must:
-      # 1. Appear before each template instantiation
-      # 2. Be in scope where the instantiation is declared
-      # 3. Not be enclosed within a different namespace
-      #
-      # See https://www.swig.org/Doc4.2/SWIGPlus.html#SWIGPlus_template_scoping
-      #
-      # Generally, convert_swig is not smart enough to put all %template
-      # directives in the right scope because:
-      # 1. We do not keep track of what scope each type we encounter is
-      #    declared in.
-      # 2. We cannot easily add %template directives to already-processed
-      #    scopes.
-      #
-      # As a compromise:
-      # 1. For an unqualified template instantiation, the template declaration
-      #    is necessarily in the current or a containing scope. Hope it's in the
-      #    current namespace and put the %template directive there. This will
-      #    create invalid SWIG input code for templates declared in a containing
-      #    namespace and for member templates declared in this class.
-      # 2. For a qualified template instantiation, the template declaration is
-      #    in a (possibly nested) scope contained by the current or a containing
-      #    scope. Assume the instantiation is fully qualified and put it in the
-      #    global namespace. This will create invalid SWIG code for partially-
-      #    qualified instantiations.
-      #
-      # See https://github.com/nasa/trick/issues/768
+                        # A SWIG %template directive must:
+                        # 1. Appear before each template instantiation
+                        # 2. Be in scope where the instantiation is declared
+                        # 3. Not be enclosed within a different namespace
+                        #
+                        # See https://www.swig.org/Doc4.2/SWIGPlus.html#SWIGPlus_template_scoping
+                        #
+                        # Generally, convert_swig is not smart enough to put all %template
+                        # directives in the right scope because:
+                        # 1. We do not keep track of what scope each type we encounter is
+                        #    declared in.
+                        # 2. We cannot easily add %template directives to already-processed
+                        #    scopes.
+                        #
+                        # As a compromise:
+                        # 1. For an unqualified template instantiation, the template declaration
+                        #    is necessarily in the current or a containing scope. Hope it's in the
+                        #    current namespace and put the %template directive there. This will
+                        #    create invalid SWIG input code for templates declared in a containing
+                        #    namespace and for member templates declared in this class.
+                        # 2. For a qualified template instantiation, the template declaration is
+                        #    in a (possibly nested) scope contained by the current or a containing
+                        #    scope. Assume the instantiation is fully qualified and put it in the
+                        #    global namespace. This will create invalid SWIG code for partially-
+                        #    qualified instantiations.
+                        #
+                        # See https://github.com/nasa/trick/issues/768
 
                         if ( $isSwigExcludeBlock == 0 ) {
                             if ( $template_full_type =~ /^\w*(::\w+)+</ ) {
@@ -831,14 +793,14 @@ s/(#\s*ifndef\s*SWIG)|(#\s*if\s*!\s*defined\s*\(\s*SWIG\s*\))|(#\s*endif\s*)//
         }
     }
 
-# write the class contents and semicolon to ensure any template declarations below are after the semicolon.
+    # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
     $$new_contents_ref .= "\n" . $my_class_contents . $extracted . ";\n";
 
     my $c_ = "$curr_namespace$class_name";
     $c_ =~ s/\:/_/g;
 
-# Add a #define line that signals that this class has been processed by swig. Classes excluded in #if 0 blocks will
-# not have this #define defined.
+    # Add a #define line that signals that this class has been processed by swig. Classes excluded in #if 0 blocks will
+    # not have this #define defined.
     $$new_contents_ref .= "#define TRICK_SWIG_DEFINED_$c_";
 }
 
@@ -875,10 +837,7 @@ s/(#\s*ifndef\s*SWIG)|(#\s*if\s*!\s*defined\s*\(\s*SWIG\s*\))|(#\s*endif\s*)//
 ##
 sub process_typedef_struct($$$$$) {
 
-    my (
-        $typedef_struct_string, $contents_ref, $new_contents_ref,
-        $curr_namespace,        $class_names_ref
-    ) = @_;
+    my ( $typedef_struct_string, $contents_ref, $new_contents_ref, $curr_namespace, $class_names_ref ) = @_;
 
     my $extracted;
     my ( $tail, $my_struct_contents, $struct_names, @struct_names );
@@ -887,13 +846,11 @@ sub process_typedef_struct($$$$$) {
 
     $$new_contents_ref .= $typedef_struct_string;
 
-    $typedef_struct_string =~
-      s/((?:typedef\s+)?(struct|union)\s*   # the words typedef struct|union
+    $typedef_struct_string =~ s/((?:typedef\s+)?(struct|union)\s*   # the words typedef struct|union
          ([_A-Za-z]\w*)?\s*                                         # optional name
          {)//sx;
 
-    ( $extracted, $$contents_ref ) =
-      extract_bracketed( "{" . $$contents_ref, "{}" );
+    ( $extracted, $$contents_ref ) = extract_bracketed( "{" . $$contents_ref, "{}" );
 
     #print "*** extracted = $extracted ***\n" ;
 
@@ -913,11 +870,11 @@ sub process_typedef_struct($$$$$) {
 
 # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper struct attribute assingment in input processor
             $my_struct_contents .=
-"\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    if '$s' in globals():\n        $s.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n";
+                "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    if '$s' in globals():\n        $s.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n";
 
-   # Generate the same define that process_class generates so the #ifdef-guarded
-   # %trick_cast_as() at the bottom of the .i file generates a cast helper
-   # with the fully-qualified type name (e.g. peer::Leek * castAspeer__Leek).
+            # Generate the same define that process_class generates so the #ifdef-guarded
+            # %trick_cast_as() at the bottom of the .i file generates a cast helper
+            # with the fully-qualified type name (e.g. peer::Leek * castAspeer__Leek).
             my $c_ = "${curr_namespace}${s}";
             $c_ =~ s/\:/_/g;
             $my_struct_contents .= "\n#define TRICK_SWIG_DEFINED_$c_";
@@ -943,8 +900,7 @@ sub process_typedef_const_struct($$$$) {
     my ( $typedef_const_struct_string, $contents_ref ) = @_;
     my $extracted;
 
-    ( $extracted, $$contents_ref ) =
-      extract_bracketed( "{" . $$contents_ref, "{}" );
+    ( $extracted, $$contents_ref ) = extract_bracketed( "{" . $$contents_ref, "{}" );
     $$contents_ref =~ s/^(\s*([\w,\s\*]+)?\s*;)//sx;
 
 }
