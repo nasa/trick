@@ -12,11 +12,10 @@ PYTHON_MODULE: ()
 
 #include <iostream>
 
-
 typedef struct
 {
-    char* itemName;
-    double price;
+        char* itemName;
+        double price;
 } GlobalFoodItem;
 
 enum Fast {
@@ -30,7 +29,7 @@ class Food {
     Food() : fast(Taco) {}
     void print_me() { std::cout << "Food::print_me!" << std::endl; }
     Fast fast;
-    GlobalFoodItem *globalFoodItems;
+    GlobalFoodItem* globalFoodItems;
 };
 
 
