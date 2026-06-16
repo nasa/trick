@@ -10,6 +10,8 @@ PURPOSE:
 ##include "BarFood.hh"
 ##include "FooYummyFood.hh"
 ##include "TrickFood.hh"
+##include "SignalA.hh"
+##include "SignalB.hh"
 
 class SimObj : public Trick::SimObject {
 
@@ -19,6 +21,8 @@ class SimObj : public Trick::SimObject {
         Bar::Food bar_food ;
         Foo::YummyFood foo_yummyfood ;
         Food trick_food;
+        SignalA signal_a;
+        SignalB signal_b;
 
         /** Constructor to add the jobs */
         SimObj() {

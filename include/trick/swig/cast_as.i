@@ -13,7 +13,7 @@
    conversion is used by the input processor to associate named allocations in the
    memory manager to names in pyton space.
  */
-TYPE * castAs##NAME( PyObject * obj1 ) {
+static TYPE * castAs##NAME( PyObject * obj1 ) {
     void *argp = NULL ;
     TYPE * ret = (TYPE *)NULL ;
 
