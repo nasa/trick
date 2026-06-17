@@ -172,12 +172,12 @@ namespace Trick {
             /**
              * Enable the job.
              */
-            void enable() ;
+            virtual void enable() ;
 
             /**
              * Disable the job.
              */
-            void disable() ;
+            virtual void disable() ;
 
             /**
              * Sets the job is handled flag
