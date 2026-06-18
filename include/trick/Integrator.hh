@@ -69,7 +69,7 @@ namespace Trick {
 #endif
 
 #ifndef SWIGPYTHON
-        virtual void state_in (double* arg1, va_list argp);
+        virtual void state_in(double* arg1, va_list argp);
 #endif
         void state_in (double* arg1, ...)
 #ifndef SWIGPYTHON
@@ -81,7 +81,7 @@ namespace Trick {
 #endif
         ;
 #ifndef SWIGPYTHON
-        virtual void deriv_in (double* arg1, va_list argp);
+        virtual void deriv_in(double* arg1, va_list argp);
 #endif
         void deriv_in (double* arg1, ...)
 #ifndef SWIGPYTHON
@@ -93,7 +93,7 @@ namespace Trick {
 #endif
         ;
 #ifndef SWIGPYTHON
-        virtual void state_out (double* arg1, va_list argp);
+        virtual void state_out(double* arg1, va_list argp);
 #endif
         void state_out(double* arg1, ...)
 #ifndef SWIGPYTHON
@@ -106,7 +106,7 @@ namespace Trick {
         ;
 
 #ifndef SWIGPYTHON
-        virtual void deriv2_in (double* arg1, va_list argp);
+        virtual void deriv2_in(double* arg1, va_list argp);
 #endif
         void deriv2_in (double* arg1, ...)
 #ifndef SWIGPYTHON
