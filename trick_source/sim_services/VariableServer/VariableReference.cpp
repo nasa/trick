@@ -1,21 +1,22 @@
-#include <stdlib.h>
-#include <iostream>
-#include <udunits2.h>
-#include <math.h> // for fpclassify
-#include <iomanip> // for setprecision
-#include <string.h>
-#include <sstream>
-
 #include "trick/VariableReference.hh"
-#include "trick/memorymanager_c_intf.h"
-#include "trick/wcs_ext.h"
-#include "trick/map_trick_units_to_udunits.hh"
-#include "trick/message_proto.h"
-#include "trick/message_type.h"
+
+#include "trick/ReferenceUtils.hh"
 #include "trick/UdUnits.hh"
 #include "trick/bitfield_proto.h"
+#include "trick/map_trick_units_to_udunits.hh"
+#include "trick/memorymanager_c_intf.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 #include "trick/trick_byteswap.h"
+#include "trick/wcs_ext.h"
 
+#include <iomanip> // for setprecision
+#include <iostream>
+#include <math.h> // for fpclassify
+#include <sstream>
+#include <stdlib.h>
+#include <string.h>
+#include <udunits2.h>
 
 // Static variables to be addresses that are known to be the error ref address
 int Trick::VariableReference::_bad_ref_int = 0 ;
@@ -123,87 +124,20 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     _size = _var_info->attr->size ;
     _deref = false;
 
-    // Deal with weirdness around string vs wstring
-    _trick_type = _var_info->attr->type ;
+    // Use ReferenceUtils for STL-aware type and size resolution.
+    // Handles cases such as: vec[0], xxx[2].yyy.zzz[3].www, xxx[2].yyy.zzz[3].aaa[0]
+    _trick_type        = Trick::ReferenceUtils::effective_trick_type(_var_info);
+    _used_stl_indexing = Trick::ReferenceUtils::is_stl_ref(_var_info);
 
-    // Special handling for indexed STL containers (e.g., vec[0], point_vec[0].x)
-    // We need to detect two cases:
-    // 1. Final attr is TRICK_STL AND we indexed it (e.g., vec[0]) - update type/size to element
-    // 2. Pattern "]." in reference - we indexed something then accessed a member (e.g., point_vec[0].x)
-    // 
-    // For case 1, we need to update _trick_type and _size to match the element type.
-    // For case 2, the final attr is already the member's attributes (e.g., double x), so _trick_type
-    // and _size are already correct - we just need to set the flag to skip follow_address_path().
-    //
-    // Important: If reference is just "vec" (no indexing), keep it as TRICK_STL container type.
-    _used_stl_indexing = false;
-    if ( _var_info->attr->type == TRICK_STL && _var_info->reference ) {
-        // Check if the STL container was actually indexed by checking if reference ends with ']'
-        // e.g., "vec[0]" ends with ']', but "vec" or "xxx[0].vec" do not
-        size_t len = strlen(_var_info->reference);
-        bool stl_was_indexed = (len > 0 && _var_info->reference[len - 1] == ']');
-
-        if (stl_was_indexed) {
-            // Case 1: Final attr is STL container AND we indexed it (e.g., vec[0])
-            // Update type and size to match the element, not the container
-            _trick_type = _var_info->attr->stl_elem_type;
-            _used_stl_indexing = true;
-
-            // Update _size to match the element type size, not the container size
-            switch (_trick_type) {
-                case TRICK_CHARACTER:
-                case TRICK_UNSIGNED_CHARACTER:
-                case TRICK_BOOLEAN:
-                    _size = sizeof(char);
-                    break;
-                case TRICK_SHORT:
-                case TRICK_UNSIGNED_SHORT:
-                    _size = sizeof(short);
-                    break;
-                case TRICK_INTEGER:
-                case TRICK_UNSIGNED_INTEGER:
-                case TRICK_ENUMERATED:
-                    _size = sizeof(int);
-                    break;
-                case TRICK_LONG:
-                case TRICK_UNSIGNED_LONG:
-                    _size = sizeof(long);
-                    break;
-                case TRICK_LONG_LONG:
-                case TRICK_UNSIGNED_LONG_LONG:
-                    _size = sizeof(long long);
-                    break;
-                case TRICK_FLOAT:
-                    _size = sizeof(float);
-                    break;
-                case TRICK_DOUBLE:
-                    _size = sizeof(double);
-                    break;
-                case TRICK_STRING:
-                case TRICK_WSTRING:
-                case TRICK_STRUCTURED:
-                    _size = sizeof(void*);
-                    break;
-                default:
-                    // Keep existing size for unknown types
-                    break;
-            }
-
-            // address already points to the element from ref_dim
-            // Treat as single value - nothing else necessary
-        }
-    } else {
-        // Case 2: Not a directly indexed STL container
-        // Handle mixed STL+pointer cases or regular array size calculations
-
-        // Check for STL indexing - set flag to skip follow_address_path call
-        // For mixed STL+pointer cases, this ensures follow_address_path is skipped
-        // For STL-only cases (no pointers), this flag doesn't change behavior since
-        // follow_address_path is only called when pointer_present == 1
-        if ( _var_info->stl_present == 1 ) {
-            _used_stl_indexing = true;
-        }
-
+    if (_used_stl_indexing)
+    {
+        // effective_trick_size returns the correct element byte size for every STL case
+        _size = (int)Trick::ReferenceUtils::effective_trick_size(_var_info);
+        // address already points to the correct element from ref_dim; treat as single value
+    }
+    else
+    {
+        // Non-STL: apply the original array dimension size calculation
         if ( _var_info->num_index == _var_info->attr->num_index ) {
             // single value - nothing else necessary
         } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
