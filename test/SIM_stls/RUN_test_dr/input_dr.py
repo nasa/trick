@@ -1,5 +1,9 @@
 import trick
 
+has_dhf5 = False
+if hasattr(trick, 'DRHDF5'):
+    has_dhf5 = True
+
 
 def main():
     trick.exec_set_job_onoff("the_object.stlc.addData", 1, True)
@@ -44,7 +48,6 @@ def main():
 
     drg.set_cycle(0.1)
     drg.freq = trick.DR_Always
-    drg.thisown = 0
     trick.add_data_record_group(drg, trick.DR_Buffer)
 
     # ---------------------------------------------------------------
@@ -69,12 +72,15 @@ def main():
     drg_bin.add_variable("the_object.stlc.vec_user_defined[0].vec[2]")
     drg_bin.set_cycle(0.1)
     drg_bin.freq = trick.DR_Always
-    drg_bin.thisown = 0
     trick.add_data_record_group(drg_bin, trick.DR_Buffer)
 
     # ---------------------------------------------------------------
-    # HDF5 data recording group — same variables
+    # HDF5 data recording group — same variables (only when HDF5 is available)
     # ---------------------------------------------------------------
+    if not has_dhf5:
+        trick.exec_set_freeze_frame(0.10)
+        trick.stop(1.0)
+        return
     drg_hdf5 = trick.DRHDF5("STL_DR_hdf5")
     drg_hdf5.add_variable("the_object.stlc.double_vector[0]")
     drg_hdf5.add_variable("the_object.stlc.double_vector[1]")
@@ -94,7 +100,6 @@ def main():
     drg_hdf5.add_variable("the_object.stlc.vec_user_defined[0].vec[2]")
     drg_hdf5.set_cycle(0.1)
     drg_hdf5.freq = trick.DR_Always
-    drg_hdf5.thisown = 0
     trick.add_data_record_group(drg_hdf5, trick.DR_Buffer)
 
     trick.exec_set_freeze_frame(0.10)
