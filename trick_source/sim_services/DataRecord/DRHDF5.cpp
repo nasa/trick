@@ -342,11 +342,10 @@ void append_var_packet_table(Trick::DataRecordBuffer *drb, char* buf, size_t rec
     default:
         H5PTappend(param_ds, records, buf);
         break;
-
-        if (data != 0) {
-            free(data);
-            data = 0;
-        }
+    }
+    if (data != 0)
+    {
+        free(data);
     }
 }
 #endif
