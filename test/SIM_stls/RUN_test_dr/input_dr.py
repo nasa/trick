@@ -1,7 +1,7 @@
 import trick
 
 has_dhf5 = False
-if hasattr(trick, 'DRHDF5'):
+if hasattr(trick, "DRHDF5"):
     has_dhf5 = True
 
 
