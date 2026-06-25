@@ -157,7 +157,7 @@ dnf update
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
 ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 \
-udunits2-devel which zlib-devel gtest-devel libX11-devel libXt-devel  \
+udunits2-devel which zlib-devel libX11-devel libXt-devel \
 python3-devel diffutils
 ```
 
@@ -194,7 +194,7 @@ Trick requires development packages from the base repositories.
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
 ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 udunits2-devel \
-which zlib-devel gtest-devel perl-Text-Balanced python-devel diffutils zip
+which zlib-devel perl-Text-Balanced python-devel diffutils zip
 ```
 
 Trick makes use of several optional packages if they are present on the system. These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing. These are available from the EPEL repository
@@ -221,12 +221,18 @@ apt-get update
 apt-get install -y bison clang flex git llvm make maven swig cmake \
 curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
 python3-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
-libgtest-dev default-jdk zip
+default-jdk zip
 
 # On some versions of Ubuntu (18.04 as of 04/2021), there may be multiple installations of python.
 # Our new python3-dev will be linked to python3 and python3-config in your bin.
 # To help trick find this instead of python2.7, we set an environment variable in our shell before calling configure:
 export PYTHON_VERSION=3
+```
+
+Trick makes use of several optional packages if they are present on the system. These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.
+
+```bash
+apt-get install -y libgtest-dev hdf5-tools libhdf5-dev libgsl-dev
 ```
 
 Note: If you need to use a specific JDK version, such as `openjdk-11-jdk`, you can replace `default-jdk` with `openjdk-11-jdk` under install packages as shown above. However, you need to check where the `java` and `javac` commands are located. For instance, Ubuntu 24 typically sets up JRE (21) headless by default, so the `java` (version 21 headless) command might be located in `/usr/bin`. When you install `openjdk-11-jdk`, both `java` (version 11) and `javac` (version 11) might be placed in `/usr/lib/jvm/java-11-openjdk-amd64/bin`, with only `javac` potentially also in `/usr/bin`. Consequently, running a Java GUI with the default PATH might use JRE 21 headless instead of JRE 11, even though you’re using JDK 11 for compiling, which may not be the desired configuration. Placing `/usr/lib/jvm/java-11-openjdk-amd64/bin` before `/usr/bin` in your PATH ensures that only JDK 11 is used.
