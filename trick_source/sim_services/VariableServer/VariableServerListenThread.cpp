@@ -168,10 +168,11 @@ void * Trick::VariableServerListenThread::thread_body() {
 
         // Look for a new client requesting a connection
         if (_listener->checkForNewConnections()) {
-
-            // Create a new thread to service this connection
-            if (the_vs->get_allow_connections())
+            // The variable server must be enabled (the master switch) and accepting
+            // connections; a disabled server keeps broadcasting but services no clients.
+            if (the_vs->get_enabled() && the_vs->get_allow_connections())
             {
+                // Create a new thread to service this connection (it accepts the connection itself).
                 pthread_mutex_lock(&connectionMutex);
                 pendingConnections ++;
 
@@ -192,6 +193,21 @@ void * Trick::VariableServerListenThread::thread_body() {
                     pthread_cond_signal( &noPendingConnections_cv );
                 }
                 pthread_mutex_unlock(&connectionMutex);
+            }
+            else
+            {
+                // The variable server is disabled or not accepting connections. Accept the
+                // pending connection and immediately close it. This drains the listen backlog
+                // (an unaccepted connection would keep waking this loop and starve broadcasting)
+                // and gives the client a prompt disconnect instead of leaving it to hang. No
+                // commands are ever read or executed on the rejected connection.
+                Trick::TCPConnection* rejected = _listener->setUpNewConnection();
+                if (rejected != NULL)
+                {
+                    rejected->start();
+                    rejected->disconnect();
+                    delete rejected;
+                }
             }
         } else if ( _broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled

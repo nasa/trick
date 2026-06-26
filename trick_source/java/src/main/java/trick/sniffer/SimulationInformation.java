@@ -3,6 +3,7 @@ package trick.sniffer;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Comparator;
 
 /**
  * encapsulates the data necessary to represent a simulation
@@ -78,19 +79,18 @@ public class SimulationInformation implements Comparable<SimulationInformation> 
      * @param execMode simulation execution mode as an integer string
      */
     public SimulationInformation(
-        String machine,
-        String handshakePort,
-        String user,
-        String processID,
-        String simDirectory,
-        String sMainFile,
-        String runDirectory,
-        String version,
-        String tag,
-        String noHandshakePort,
-        String vsEnabled,
-        String execMode
-    ) {
+            String machine,
+            String handshakePort,
+            String user,
+            String processID,
+            String simDirectory,
+            String sMainFile,
+            String runDirectory,
+            String version,
+            String tag,
+            String noHandshakePort,
+            String vsEnabled,
+            String execMode) {
         this.machine = machine;
         this.handshakePort = handshakePort;
         this.noHandshakePort = noHandshakePort;
@@ -118,30 +118,28 @@ public class SimulationInformation implements Comparable<SimulationInformation> 
         return Integer.parseInt(version);
     }
 
+    /**
+     * returns the local host name, or "localhost" if it cannot be determined
+     *
+     * @return the local host name
+     */
+    private static String localHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException unknownHostException) {
+            return "localhost";
+        }
+    }
+
     @Override
     public int compareTo(SimulationInformation simulationInformation) {
-        String localHost;
-        try {
-            localHost = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException unknownHostException) {
-            localHost = "localhost";
-        }
-        boolean iAmLocal = machine.equalsIgnoreCase(localHost);
-        boolean compareToIsLocal = simulationInformation.machine.equalsIgnoreCase(localHost);
-        if (!iAmLocal && !compareToIsLocal) {
-            int nameComparison = machine.compareToIgnoreCase(simulationInformation.machine);
-            if (nameComparison == 0) {
-                return handshakePort.compareToIgnoreCase(simulationInformation.handshakePort);
-            }
-            return nameComparison;
-        }
-        if (iAmLocal && !compareToIsLocal) {
-            return -1;
-        }
-        if (compareToIsLocal && !iAmLocal) {
-            return 1;
-        }
-        return handshakePort.compareToIgnoreCase(simulationInformation.handshakePort);
+        String localHost = localHostName();
+        // Local simulations sort ahead of remote ones; within each group, order by
+        // machine name and then port, both case-insensitively.
+        return Comparator.comparing((SimulationInformation sim) -> !sim.machine.equalsIgnoreCase(localHost))
+                .thenComparing(sim -> sim.machine, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(sim -> sim.handshakePort, String.CASE_INSENSITIVE_ORDER)
+                .compare(this, simulationInformation);
     }
 
     @Override
@@ -156,18 +154,16 @@ public class SimulationInformation implements Comparable<SimulationInformation> 
 
         SimulationInformation simulationInformation = (SimulationInformation) object;
 
-        return (
-            machine.equals(simulationInformation.machine) &&
-            handshakePort.equals(simulationInformation.handshakePort) &&
-            noHandshakePort.equals(simulationInformation.noHandshakePort) &&
-            user.equals(simulationInformation.user) &&
-            processID.equals(simulationInformation.processID) &&
-            version.equals(simulationInformation.version) &&
-            sMainFile.equals(simulationInformation.sMainFile) &&
-            simDirectory.equals(simulationInformation.simDirectory) &&
-            runDirectory.equals(simulationInformation.runDirectory) &&
-            tag.equals(simulationInformation.tag)
-        );
+        return (machine.equals(simulationInformation.machine)
+                && handshakePort.equals(simulationInformation.handshakePort)
+                && noHandshakePort.equals(simulationInformation.noHandshakePort)
+                && user.equals(simulationInformation.user)
+                && processID.equals(simulationInformation.processID)
+                && version.equals(simulationInformation.version)
+                && sMainFile.equals(simulationInformation.sMainFile)
+                && simDirectory.equals(simulationInformation.simDirectory)
+                && runDirectory.equals(simulationInformation.runDirectory)
+                && tag.equals(simulationInformation.tag));
     }
 
     @Override

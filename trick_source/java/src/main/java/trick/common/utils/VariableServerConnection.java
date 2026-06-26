@@ -1,4 +1,3 @@
-
 package trick.common.utils;
 
 import java.io.BufferedOutputStream;
@@ -6,12 +5,11 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.net.SocketTimeoutException;
-
+import java.net.UnknownHostException;
 
 /**
  * a generic variable server client that provides for sending commands and
@@ -25,8 +23,18 @@ public class VariableServerConnection implements AutoCloseable {
     /** maximum binary packet size sent by the Variable Server */
     public static final int maximumPacketSize = 8192;
 
+    /**
+     * default time, in milliseconds, to wait for the Variable Server to prove it is
+     * actually servicing a newly established connection before giving up
+     */
+    public static final int connectionValidationTimeout = 2000;
+
     /** Variable Server data mode */
-    public enum DataMode {ASCII, BINARY, BINARY_NO_NAMES};
+    public enum DataMode {
+        ASCII,
+        BINARY,
+        BINARY_NO_NAMES
+    };
 
     /** This really shouldn't be necessary. MTV needs to retrieve Variable Server data better. */
     public String results;
@@ -58,10 +66,12 @@ public class VariableServerConnection implements AutoCloseable {
      * @throws IOException IOException
      * @throws SecurityException SecurityException
      */
-    public VariableServerConnection(String host, int port) throws UnknownHostException, IOException, SecurityException, SocketTimeoutException {
+    public VariableServerConnection(String host, int port)
+            throws UnknownHostException, IOException, SecurityException, SocketTimeoutException {
         socket = new Socket(host, port);
         inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        validateConnection(connectionValidationTimeout);
     }
 
     /**
@@ -74,12 +84,70 @@ public class VariableServerConnection implements AutoCloseable {
      * @throws IOException IOException
      * @throws SecurityException SecurityException
      */
-    public VariableServerConnection(String host, int port, int timeout) throws UnknownHostException, IOException, SecurityException, SocketTimeoutException {
+    public VariableServerConnection(String host, int port, int timeout)
+            throws UnknownHostException, IOException, SecurityException, SocketTimeoutException {
         socket = new Socket();
         SocketAddress addr = new InetSocketAddress(host, port);
         socket.connect(addr, timeout);
         inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        validateConnection(timeout > 0 ? timeout : connectionValidationTimeout);
+    }
+
+    /**
+     * Confirms that the variable server is actually servicing this connection.
+     *
+     * A socket connect succeeds at the TCP level even when the variable server is
+     * disabled, is not accepting connections, or has rejected this client, because
+     * the kernel completes the handshake regardless of whether the server accepts
+     * the connection. Without a bounded check, the first read would then block
+     * forever. This sends a {@code var_exists} command (which always elicits exactly
+     * one response line and does not change server state) and waits a bounded amount
+     * of time for the reply. If none arrives, or the server closes the connection,
+     * the connection is closed and a {@link VariableServerRefusedConnectionException}
+     * is thrown so callers can fail gracefully instead of hanging.
+     *
+     * @param timeoutMillis how long to wait for the handshake reply, in milliseconds
+     * @throws IOException if the variable server does not service the connection
+     */
+    private void validateConnection(int timeoutMillis) throws IOException {
+        if (timeoutMillis <= 0) {
+            timeoutMillis = connectionValidationTimeout;
+        }
+
+        boolean healthy = false;
+        try {
+            socket.setSoTimeout(timeoutMillis);
+            put("trick.var_exists(\"trick_variable_server_handshake\")");
+
+            if (inputStream.readLine() == null) {
+                // The server accepted the socket and then closed it without servicing us.
+                // The variable server rejected this client: it is disabled, is not accepting
+                // connections, or this client's IP address is not on its allowlist.
+                throw new VariableServerRefusedConnectionException(
+                        "The simulation's variable server refused the connection. It may be disabled, not accepting"
+                                + " connections, or this client may not be permitted by its IP allowlist.");
+            }
+
+            healthy = true;
+        } catch (SocketTimeoutException socketTimeoutException) {
+            // The socket connected, but the server never responded. The variable
+            // server is disabled or is not accepting connections.
+            throw new VariableServerRefusedConnectionException(
+                    "No response from the simulation's variable server. It may be disabled or not "
+                            + "accepting connections.",
+                    socketTimeoutException);
+        } finally {
+            if (healthy) {
+                // Restore blocking reads for normal (possibly slow or paused) cyclic data.
+                socket.setSoTimeout(0);
+            } else {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     /**
@@ -303,21 +371,27 @@ public class VariableServerConnection implements AutoCloseable {
     private long convertBinaryData(byte[] buffer, int index, int size) {
         long byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8;
         // int is size 4, longlong and double are size 8
-        byte1 = (0xFF & ((int)buffer[index]));
-        byte2 = (0xFF & ((int)buffer[index+1]));
-        byte3 = (0xFF & ((int)buffer[index+2]));
-        byte4 = (0xFF & ((int)buffer[index+3]));
-        if (size==8) {
-            byte5 = (0xFF & ((int)buffer[index+4]));
-            byte6 = (0xFF & ((int)buffer[index+5]));
-            byte7 = (0xFF & ((int)buffer[index+6]));
-            byte8 = (0xFF & ((int)buffer[index+7]));
+        byte1 = (0xFF & ((int) buffer[index]));
+        byte2 = (0xFF & ((int) buffer[index + 1]));
+        byte3 = (0xFF & ((int) buffer[index + 2]));
+        byte4 = (0xFF & ((int) buffer[index + 3]));
+        if (size == 8) {
+            byte5 = (0xFF & ((int) buffer[index + 4]));
+            byte6 = (0xFF & ((int) buffer[index + 5]));
+            byte7 = (0xFF & ((int) buffer[index + 6]));
+            byte8 = (0xFF & ((int) buffer[index + 7]));
             // little -> big endian
-            return (long) (byte8<<56 | byte7<<48 | byte6<<40 | byte5<<32 | byte4<<24 | byte3<<16 |
-              byte2<<8 | byte1);
+            return (long) (byte8 << 56
+                    | byte7 << 48
+                    | byte6 << 40
+                    | byte5 << 32
+                    | byte4 << 24
+                    | byte3 << 16
+                    | byte2 << 8
+                    | byte1);
         } else {
             // little -> big endian
-            return (long) (byte4<<24 | byte3<<16 | byte2<<8 | byte1);
+            return (long) (byte4 << 24 | byte3 << 16 | byte2 << 8 | byte1);
         }
     }
 
@@ -355,116 +429,117 @@ public class VariableServerConnection implements AutoCloseable {
      * @throws IOException IOException
      */
     public String get(int num_variables) throws IOException {
-      // num_variables (optional) is number of variables you expect to get (needed for binary multiple packet support)
+        // num_variables (optional) is number of variables you expect to get (needed for binary multiple packet support)
 
-      int bytes_read, index, msg_size, len, type, size;
-      int num_vars_processed, num_vars_in_msg;
-      int ival;
-      double dval;
-      String name, typename, val;
-      byte[] buffer = new byte[maximumPacketSize];
-      String vals[] = new String[1000];
-      int packet_count = 0;
+        int bytes_read, index, msg_size, len, type, size;
+        int num_vars_processed, num_vars_in_msg;
+        int ival;
+        double dval;
+        String name, typename, val;
+        byte[] buffer = new byte[maximumPacketSize];
+        String vals[] = new String[1000];
+        int packet_count = 0;
 
-      if (dataMode == DataMode.ASCII) {
-          results = inputStream.readLine();
-      } else { // binary
-          // handle multiple packets (continue reading if more variables and not eof of socket)
-          num_vars_processed = 0;
-          bytes_read = 0;
-          results = "";
-          while ((num_vars_processed < num_variables) && (bytes_read != -1)) {
-              vals[packet_count] = "";
-              // read binary header
-              bytes_read = socket.getInputStream().read(buffer, 0, 12);
-              if (bytes_read == -1) { // eof
-                  throw new IOException("Connection closed");
-              }
-              if ((int)buffer[0]==3) { // message indicator for send_event_data
-                  // simply a message header where msg_size=0 and num_vars_in_msg = number of event variables
-                  results += (int)convertBinaryData(buffer, 8, 4);
-                  return results;
-              } else if ((int)buffer[0] != 0) {
-                  System.out.println("VarClient: Bad binary message indicator : " +(int)buffer[0]+ ".");
-                  return "";
-              }
-              msg_size = (int)convertBinaryData(buffer, 4, 4);
-              //System.out.println("msg size=" + msg_size);
-              num_vars_in_msg = (int)convertBinaryData(buffer, 8, 4);
-              //System.out.println("numvars=" + num_vars_in_msg);
-              if (num_variables==1) {
-              // if user did not specify num_variables, get all vars in this message
-                  num_variables = num_vars_in_msg;
-              }
+        if (dataMode == DataMode.ASCII) {
+            results = inputStream.readLine();
+        } else { // binary
+            // handle multiple packets (continue reading if more variables and not eof of socket)
+            num_vars_processed = 0;
+            bytes_read = 0;
+            results = "";
+            while ((num_vars_processed < num_variables) && (bytes_read != -1)) {
+                vals[packet_count] = "";
+                // read binary header
+                bytes_read = socket.getInputStream().read(buffer, 0, 12);
+                if (bytes_read == -1) { // eof
+                    throw new IOException("Connection closed");
+                }
+                if ((int) buffer[0] == 3) { // message indicator for send_event_data
+                    // simply a message header where msg_size=0 and num_vars_in_msg = number of event variables
+                    results += (int) convertBinaryData(buffer, 8, 4);
+                    return results;
+                } else if ((int) buffer[0] != 0) {
+                    System.out.println("VarClient: Bad binary message indicator : " + (int) buffer[0] + ".");
+                    return "";
+                }
+                msg_size = (int) convertBinaryData(buffer, 4, 4);
+                // System.out.println("msg size=" + msg_size);
+                num_vars_in_msg = (int) convertBinaryData(buffer, 8, 4);
+                // System.out.println("numvars=" + num_vars_in_msg);
+                if (num_variables == 1) {
+                    // if user did not specify num_variables, get all vars in this message
+                    num_variables = num_vars_in_msg;
+                }
 
-              // read binary data
-              bytes_read = socket.getInputStream().read(buffer, 0, msg_size-8);
-              //System.out.println("bytes_read=" + bytes_read);
-              index = 0;
-              while (index < bytes_read) {
-                  if (num_vars_processed > 0) {
-                      vals[packet_count] += "\t";
-                  }
-                  if (dataMode != DataMode.BINARY_NO_NAMES) {
-                      len = (int)convertBinaryData(buffer, index, 4);
-                      index += 4;
-                      name = new String(buffer, index, len);
-                      index += len;
-                  }
-                  type = (int)convertBinaryData(buffer, index, 4);
-                  index += 4;
-                  size = (int)convertBinaryData(buffer, index, 4);
-                  // Trick10 type of char* is CHAR, change it to CHARSTRING
-                  if ((type == 1) && (size > 1)) {
-                      type = 3 ;
-                  }
-                  //System.out.println("type=" + type + " size=" +size);
+                // read binary data
+                bytes_read = socket.getInputStream().read(buffer, 0, msg_size - 8);
+                // System.out.println("bytes_read=" + bytes_read);
+                index = 0;
+                while (index < bytes_read) {
+                    if (num_vars_processed > 0) {
+                        vals[packet_count] += "\t";
+                    }
+                    if (dataMode != DataMode.BINARY_NO_NAMES) {
+                        len = (int) convertBinaryData(buffer, index, 4);
+                        index += 4;
+                        name = new String(buffer, index, len);
+                        index += len;
+                    }
+                    type = (int) convertBinaryData(buffer, index, 4);
+                    index += 4;
+                    size = (int) convertBinaryData(buffer, index, 4);
+                    // Trick10 type of char* is CHAR, change it to CHARSTRING
+                    if ((type == 1) && (size > 1)) {
+                        type = 3;
+                    }
+                    // System.out.println("type=" + type + " size=" +size);
 
-                  index += 4;
-                  switch (type) {
-                      case 1 :  // CHAR
-                      case 17 : // BOOLEAN
-                          //typename = "CHAR";
-                          ival = (char)buffer[index];
-                          vals[packet_count] += ival;
-                          break;
-                      case 3 :  // CHARSTRING
-                          //typename = "CHARSTRING";
-                          vals[packet_count] += new String(buffer, index, size-1); // do not include null terminator
-                          break;
-                      case 6 :  // INT
-                      case 7 :  // UNSIGNED INT
-                      case 21 : // ENUMERATED
-                      case 24 : // BAD REF
-                          //typename = "INT";
-                          ival = (int)convertBinaryData(buffer, index, 4);
-                          vals[packet_count] += ival;
-                          break;
-                      case 11 : // DOUBLE
-                          //typename = "DOUBLE";
-                          dval = Double.longBitsToDouble(convertBinaryData(buffer, index, 8));
-                          vals[packet_count] += dval;
-                          break;
-                      case 14 : // LONGLONG
-                          //typename = "LONGLONG";
-                          dval = (double)convertBinaryData(buffer, index, 8);
-                          vals[packet_count] += dval;
-                          break;
-                      default :
-                          //typename = "???";
-                          System.out.println("VarClient: Unknown type " +type+ " in get().");
-                          break;
-                  }
-                  index += size;
-                  num_vars_processed++;
-              } // while message data being parsed
-              results += vals[packet_count];
-              packet_count++;
-              //System.out.println("pkt " +packet_count+ " : numvars_processed= "+num_vars_processed + " / " +num_variables);
-          } // end while num_vars_processed < num_variables
-      } // end binary
-      return results;
-  }
+                    index += 4;
+                    switch (type) {
+                        case 1: // CHAR
+                        case 17: // BOOLEAN
+                            // typename = "CHAR";
+                            ival = (char) buffer[index];
+                            vals[packet_count] += ival;
+                            break;
+                        case 3: // CHARSTRING
+                            // typename = "CHARSTRING";
+                            vals[packet_count] += new String(buffer, index, size - 1); // do not include null terminator
+                            break;
+                        case 6: // INT
+                        case 7: // UNSIGNED INT
+                        case 21: // ENUMERATED
+                        case 24: // BAD REF
+                            // typename = "INT";
+                            ival = (int) convertBinaryData(buffer, index, 4);
+                            vals[packet_count] += ival;
+                            break;
+                        case 11: // DOUBLE
+                            // typename = "DOUBLE";
+                            dval = Double.longBitsToDouble(convertBinaryData(buffer, index, 8));
+                            vals[packet_count] += dval;
+                            break;
+                        case 14: // LONGLONG
+                            // typename = "LONGLONG";
+                            dval = (double) convertBinaryData(buffer, index, 8);
+                            vals[packet_count] += dval;
+                            break;
+                        default:
+                            // typename = "???";
+                            System.out.println("VarClient: Unknown type " + type + " in get().");
+                            break;
+                    }
+                    index += size;
+                    num_vars_processed++;
+                } // while message data being parsed
+                results += vals[packet_count];
+                packet_count++;
+                // System.out.println("pkt " +packet_count+ " : numvars_processed= "+num_vars_processed + " / "
+                // +num_variables);
+            } // end while num_vars_processed < num_variables
+        } // end binary
+        return results;
+    }
 
     /**
      * flushes any data that is still on the input stream
@@ -475,8 +550,7 @@ public class VariableServerConnection implements AutoCloseable {
         int numAvailableBytes = socket.getInputStream().available();
         if (numAvailableBytes > 0) {
             int numBytesRead = socket.getInputStream().read(buffer, 0, numAvailableBytes);
-            System.out.println("Flushed " + numBytesRead + " of " + numAvailableBytes +
-              " available bytes.");
+            System.out.println("Flushed " + numBytesRead + " of " + numAvailableBytes + " available bytes.");
         }
     }
 
@@ -487,10 +561,8 @@ public class VariableServerConnection implements AutoCloseable {
     public void close() throws IOException {
         try {
             put("trick.var_exit()");
-        }
-        finally {
+        } finally {
             socket.close();
         }
     }
-
 }

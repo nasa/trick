@@ -599,6 +599,15 @@ on your network sends it's information to this address and port so there may be 
 messages with variable server information available here.  Here is some
 C code that reads all messages on the variable server channel.
 
+A simulation broadcasts on this channel even when its variable server is disabled,
+so discovery tools (such as sim-sniffer) can still see the simulation and report its
+disabled state. The enabled flag is the master switch: while the variable server is
+disabled it refuses new client connections, and disabling it at runtime also drops
+any existing client sessions so no further commands are read or executed. Each
+broadcast message includes the variable server's enabled flag and the simulation's
+execution mode. To suppress broadcasting entirely, turn off broadcast on the listen
+thread before initialization.
+
 Note that the multicast protocol is disabled by default in MacOS.
 
 ```c
