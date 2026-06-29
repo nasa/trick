@@ -248,6 +248,12 @@ SIM_stls:
       returns: 0
     RUN_test/unit_test.py:
       returns: 0
+    RUN_test_dr/input_dr.py:
+      returns: 0
+      compare:
+        - test/SIM_stls/RUN_test_dr/log_STL_DR.csv vs. test/SIM_stls/RUN_test_dr/Ref_Logs/log_STL_DR_Master.csv
+        - test/SIM_stls/RUN_test_dr/log_STL_DR_bin.trk vs. test/SIM_stls/RUN_test_dr/Ref_Logs/log_STL_DR_bin_Master.trk
+      analyze: "test ! -f test/SIM_stls/RUN_test_dr/log_STL_DR_hdf5.header || diff test/SIM_stls/RUN_test_dr/log_STL_DR_hdf5.header test/SIM_stls/RUN_test_dr/Ref_Logs/log_STL_DR_hdf5_Master.header"
 
 SIM_test_dr:
   path: test/SIM_test_dr

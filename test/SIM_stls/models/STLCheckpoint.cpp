@@ -129,6 +129,11 @@ int STLCheckpoint::addData() {
     float_deque.push_back(65.4) ;
     float_deque.push_back(32.1) ;
 
+    int_array[0] = 10;
+    int_array[1] = 20;
+    int_array[2] = 30;
+    int_array[3] = 40;
+
     string_deque.push_back("Welcome") ;
     string_deque.push_back("to") ;
     string_deque.push_back("PhoneMart") ;

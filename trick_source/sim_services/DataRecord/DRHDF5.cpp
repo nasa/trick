@@ -5,16 +5,18 @@ PROGRAMMERS:
      ((Warwick Woodard) (NASA) (February 2010) (--) (Initial version))
 */
 
-#include <cstring>
-#include <iostream>
-#include <stdlib.h>
-
 #include "trick/DRHDF5.hh"
-#include "trick/parameter_types.h"
+
+#include "trick/ReferenceUtils.hh"
+#include "trick/bitfield_proto.h"
 #include "trick/command_line_protos.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
-#include "trick/bitfield_proto.h"
+#include "trick/parameter_types.h"
+
+#include <cstring>
+#include <iostream>
+#include <stdlib.h>
 
 Trick::DRHDF5::DRHDF5( std::string in_name, Trick::DR_Type dr_type ) : Trick::DataRecordGroup(in_name, dr_type) {
     register_group_with_mm(this, "Trick::DRHDF5") ;
@@ -97,66 +99,77 @@ int Trick::DRHDF5::format_specific_init() {
 
         /* Case statements taken from "parameter_types.h."
          *  HDF5 Native types found in "H5Tpublic.h." */
-        switch (rec_buffer[ii]->ref->attr->type) {
-            case TRICK_CHARACTER:
-                datatype = H5T_NATIVE_CHAR;
-                break;
-            case TRICK_UNSIGNED_CHARACTER:
-                datatype = H5T_NATIVE_UCHAR;
-                break;
-            case TRICK_STRING:
-                datatype = s256;
-                break;
-            case TRICK_SHORT:
-                datatype = H5T_NATIVE_SHORT;
-                break;
-            case TRICK_UNSIGNED_SHORT:
-                datatype = H5T_NATIVE_USHORT;
-                break;
-            case TRICK_ENUMERATED:
-            case TRICK_INTEGER:
+        switch (Trick::ReferenceUtils::effective_trick_type(rec_buffer[ii]->ref))
+        {
+        case TRICK_CHARACTER:
+            datatype = H5T_NATIVE_CHAR;
+            break;
+        case TRICK_UNSIGNED_CHARACTER:
+            datatype = H5T_NATIVE_UCHAR;
+            break;
+        case TRICK_STRING:
+            datatype = s256;
+            break;
+        case TRICK_SHORT:
+            datatype = H5T_NATIVE_SHORT;
+            break;
+        case TRICK_UNSIGNED_SHORT:
+            datatype = H5T_NATIVE_USHORT;
+            break;
+        case TRICK_ENUMERATED:
+        case TRICK_INTEGER:
+            datatype = H5T_NATIVE_INT;
+            break;
+        case TRICK_UNSIGNED_INTEGER:
+            datatype = H5T_NATIVE_UINT;
+            break;
+        case TRICK_LONG:
+            datatype = H5T_NATIVE_LONG;
+            break;
+        case TRICK_UNSIGNED_LONG:
+            datatype = H5T_NATIVE_ULONG;
+            break;
+        case TRICK_FLOAT:
+            datatype = H5T_NATIVE_FLOAT;
+            break;
+        case TRICK_DOUBLE:
+            datatype = H5T_NATIVE_DOUBLE;
+            break;
+        case TRICK_BITFIELD:
+            if (rec_buffer[ii]->ref->attr->size == sizeof(int))
+            {
                 datatype = H5T_NATIVE_INT;
-                break;
-            case TRICK_UNSIGNED_INTEGER:
+            }
+            else if (rec_buffer[ii]->ref->attr->size == sizeof(short))
+            {
+                datatype = H5T_NATIVE_SHORT;
+            }
+            else
+            {
+                datatype = H5T_NATIVE_CHAR;
+            }
+            break;
+        case TRICK_UNSIGNED_BITFIELD:
+            if (rec_buffer[ii]->ref->attr->size == sizeof(unsigned int))
+            {
                 datatype = H5T_NATIVE_UINT;
-                break;
-            case TRICK_LONG:
-                datatype = H5T_NATIVE_LONG;
-                break;
-            case TRICK_UNSIGNED_LONG:
-                datatype = H5T_NATIVE_ULONG;
-                break;
-            case TRICK_FLOAT:
-                datatype = H5T_NATIVE_FLOAT;
-                break;
-            case TRICK_DOUBLE:
-                datatype = H5T_NATIVE_DOUBLE;
-                break;
-            case TRICK_BITFIELD:
-                if (rec_buffer[ii]->ref->attr->size == sizeof(int)) {
-                    datatype = H5T_NATIVE_INT;
-                } else if (rec_buffer[ii]->ref->attr->size == sizeof(short)) {
-                    datatype = H5T_NATIVE_SHORT;
-                } else {
-                    datatype = H5T_NATIVE_CHAR;
-                }
-                break;
-            case TRICK_UNSIGNED_BITFIELD:
-                if (rec_buffer[ii]->ref->attr->size == sizeof(unsigned int)) {
-                    datatype = H5T_NATIVE_UINT;
-                } else if (rec_buffer[ii]->ref->attr->size == sizeof(unsigned short)) {
-                    datatype = H5T_NATIVE_USHORT;
-                } else {
-                    datatype = H5T_NATIVE_UCHAR;
-                }
-                break;
-            case TRICK_LONG_LONG:
-                datatype = H5T_NATIVE_LLONG;
-                break;
-            case TRICK_UNSIGNED_LONG_LONG:
-                datatype = H5T_NATIVE_ULLONG;
-                break;
-            case TRICK_BOOLEAN:
+            }
+            else if (rec_buffer[ii]->ref->attr->size == sizeof(unsigned short))
+            {
+                datatype = H5T_NATIVE_USHORT;
+            }
+            else
+            {
+                datatype = H5T_NATIVE_UCHAR;
+            }
+            break;
+        case TRICK_LONG_LONG:
+            datatype = H5T_NATIVE_LLONG;
+            break;
+        case TRICK_UNSIGNED_LONG_LONG:
+            datatype = H5T_NATIVE_ULLONG;
+            break;
+        case TRICK_BOOLEAN:
 #if ( __sun | __APPLE__ )
                 datatype = H5T_NATIVE_INT;
 #else
@@ -165,7 +178,7 @@ int Trick::DRHDF5::format_specific_init() {
                 break;
             default:
                 continue;
-        }
+            }
 
         /* Create packet table(s) to store "fixed-length" packets.
          *  A separate packet table (PT) is created for each variable.
@@ -201,7 +214,8 @@ int Trick::DRHDF5::format_specific_init() {
         buf = "log_" + group_name ;
         H5PTappend( file_names_id, 1, buf.c_str() );
         /* Param Type */
-        buf = type_string(rec_buffer[ii]->ref->attr->type, rec_buffer[ii]->ref->attr->size );
+        buf = type_string((int)Trick::ReferenceUtils::effective_trick_type(rec_buffer[ii]->ref),
+                          (int)Trick::ReferenceUtils::effective_trick_size(rec_buffer[ii]->ref));
         H5PTappend( param_types_id, 1, buf.c_str() );
         /* Param Units */
         if ( rec_buffer[ii]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
@@ -233,92 +247,105 @@ void append_var_packet_table(Trick::DataRecordBuffer *drb, char* buf, size_t rec
     void* data = 0;
     int bf;
 
-    switch (drb->ref->attr->type) {
-        case TRICK_CHARACTER:
-        case TRICK_UNSIGNED_CHARACTER:
-        case TRICK_STRING:
-        case TRICK_SHORT:
-        case TRICK_UNSIGNED_SHORT:
-        case TRICK_ENUMERATED:
-        case TRICK_INTEGER:
-        case TRICK_UNSIGNED_INTEGER:
-        case TRICK_LONG:
-        case TRICK_UNSIGNED_LONG:
-        case TRICK_FLOAT:
-        case TRICK_DOUBLE:
-            H5PTappend(param_ds, records , buf);
-            break;
-        case TRICK_BITFIELD:
-            bf = GET_BITFIELD(buf, drb->ref->attr->size, drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-            data = malloc(records * sizeof(bf));
-            
-            // Extract bitfield for each record from different segments of buf
-            for (size_t j = 0; j < records; j++) {               
-                // Calculate the correct offset in buf for each record
-                // Each record in buf has size of rec_buffer[ii]->ref->attr->size
-                size_t offset = j * drb->ref->attr->size;
+    switch (Trick::ReferenceUtils::effective_trick_type(drb->ref))
+    {
+    case TRICK_CHARACTER:
+    case TRICK_UNSIGNED_CHARACTER:
+    case TRICK_STRING:
+    case TRICK_SHORT:
+    case TRICK_UNSIGNED_SHORT:
+    case TRICK_ENUMERATED:
+    case TRICK_INTEGER:
+    case TRICK_UNSIGNED_INTEGER:
+    case TRICK_LONG:
+    case TRICK_UNSIGNED_LONG:
+    case TRICK_FLOAT:
+    case TRICK_DOUBLE:
+        H5PTappend(param_ds, records, buf);
+        break;
+    case TRICK_BITFIELD:
+        bf   = GET_BITFIELD(buf, drb->ref->attr->size, drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+        data = malloc(records * sizeof(bf));
 
-                if (drb->ref->attr->size == sizeof(int)) {
-                    ((int *)data)[j] = extract_bitfield_any(
-                                                    *(int *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                } else if (drb->ref->attr->size == sizeof(short)) {
-                    ((short *)data)[j] = extract_bitfield_any(
-                                                    *(short *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                } else if (drb->ref->attr->size == sizeof(char)) {
-                    ((char *)data)[j] = extract_bitfield_any(
-                                                    *(char *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                } else {
-                    ((int*)data)[j] = extract_bitfield_any(
-                                                    *(int *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                }
+        // Extract bitfield for each record from different segments of buf
+        for (size_t j = 0; j < records; j++)
+        {
+            // Calculate the correct offset in buf for each record
+            // Each record in buf has size of rec_buffer[ii]->ref->attr->size
+            size_t offset = j * drb->ref->attr->size;
+
+            if (drb->ref->attr->size == sizeof(int))
+            {
+                ((int*)data)[j] = extract_bitfield_any(*(int*)(buf + offset), drb->ref->attr->size,
+                                                       drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
             }
-            H5PTappend(param_ds, records, data);
-            break;
-        case TRICK_UNSIGNED_BITFIELD:
-            bf = GET_UNSIGNED_BITFIELD(buf, drb->ref->attr->size, drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-            data = malloc(records * sizeof(bf));
-
-            // Extract bitfield for each record from different segments of buf
-            for (size_t j = 0; j < records; j++) {               
-                // Calculate the correct offset in buf for each record
-                // Each record in buf has size of rec_buffer[ii]->ref->attr->size
-                size_t offset = j * drb->ref->attr->size;  // record_size would be the size of one record in buf
-
-                if (drb->ref->attr->size == sizeof(int)) {
-                    ((unsigned int *)data)[j] = extract_unsigned_bitfield_any(
-                                                    *(unsigned int *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                } else if (drb->ref->attr->size == sizeof(short)) {
-                    ((unsigned short *)data)[j] = extract_unsigned_bitfield_any(
-                                                    *(unsigned short *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                } else if (drb->ref->attr->size == sizeof(char)) {
-                    ((unsigned char *)data)[j] = extract_unsigned_bitfield_any(
-                                                    *(unsigned char *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                } else {
-                    ((int *)data)[j] = extract_unsigned_bitfield_any(
-                                                    *(int *)(buf+offset), drb->ref->attr->size,
-                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
-                }
+            else if (drb->ref->attr->size == sizeof(short))
+            {
+                ((short*)data)[j] = extract_bitfield_any(*(short*)(buf + offset), drb->ref->attr->size,
+                                                         drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
             }
-            H5PTappend(param_ds, records, data);
-            break;
-        case TRICK_LONG_LONG:
-        case TRICK_UNSIGNED_LONG_LONG:
-        case TRICK_BOOLEAN:
-        default:
-            H5PTappend(param_ds, records , buf);
-            break;
-
-        if (data != 0) {
-            free(data);
-            data = 0;
+            else if (drb->ref->attr->size == sizeof(char))
+            {
+                ((char*)data)[j] = extract_bitfield_any(*(char*)(buf + offset), drb->ref->attr->size,
+                                                        drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            }
+            else
+            {
+                ((int*)data)[j] = extract_bitfield_any(*(int*)(buf + offset), drb->ref->attr->size,
+                                                       drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            }
         }
+        H5PTappend(param_ds, records, data);
+        break;
+    case TRICK_UNSIGNED_BITFIELD:
+        bf   = GET_UNSIGNED_BITFIELD(buf, drb->ref->attr->size, drb->ref->attr->index[0].start,
+                                     drb->ref->attr->index[0].size);
+        data = malloc(records * sizeof(bf));
+
+        // Extract bitfield for each record from different segments of buf
+        for (size_t j = 0; j < records; j++)
+        {
+            // Calculate the correct offset in buf for each record
+            // Each record in buf has size of rec_buffer[ii]->ref->attr->size
+            size_t offset = j * drb->ref->attr->size; // record_size would be the size of one record in buf
+
+            if (drb->ref->attr->size == sizeof(int))
+            {
+                ((unsigned int*)data)[j]
+                    = extract_unsigned_bitfield_any(*(unsigned int*)(buf + offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            }
+            else if (drb->ref->attr->size == sizeof(short))
+            {
+                ((unsigned short*)data)[j]
+                    = extract_unsigned_bitfield_any(*(unsigned short*)(buf + offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            }
+            else if (drb->ref->attr->size == sizeof(char))
+            {
+                ((unsigned char*)data)[j]
+                    = extract_unsigned_bitfield_any(*(unsigned char*)(buf + offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            }
+            else
+            {
+                ((int*)data)[j]
+                    = extract_unsigned_bitfield_any(*(int*)(buf + offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            }
+        }
+        H5PTappend(param_ds, records, data);
+        break;
+    case TRICK_LONG_LONG:
+    case TRICK_UNSIGNED_LONG_LONG:
+    case TRICK_BOOLEAN:
+    default:
+        H5PTappend(param_ds, records, buf);
+        break;
+    }
+    if (data != 0)
+    {
+        free(data);
     }
 }
 #endif
