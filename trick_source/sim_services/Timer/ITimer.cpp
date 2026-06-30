@@ -99,6 +99,13 @@ int Trick::ITimer::start(double in_frame_time) {
 
         // check minimum time > 10ms
         if ( frame_sec == 0 && frame_usec < 10000 ) {
+            if (active)
+            {
+                message_publish(MSG_WARNING,
+                                "ITimer: frame time (%g s or %g ms) is less than 10ms minimum; "
+                                "itimer deactivated, falling back to clock_spin.\n",
+                                in_frame_time, in_frame_time * 1000);
+            }
             active = false ;
             return(0) ;
         }
