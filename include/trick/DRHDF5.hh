@@ -95,7 +95,7 @@ GROUP "/" {
              @code <my_drg> = trick.DRHDF5("<in_name>") @endcode
              @copydoc Trick::DataRecordGroup::DataRecordGroup(string in_name)
              */
-            DRHDF5( std::string in_name, Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_HDF5) ;
+            DRHDF5( std::string in_name, bool register_group = true, Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_HDF5) ;
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_header
