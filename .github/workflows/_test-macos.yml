@@ -1,0 +1,57 @@
+# Reusable workflow: macOS build & test.
+# Called by ci.yml. Do not add push/pull_request triggers here.
+name: macOS Build & Test
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test-macos:
+    name: macos-26
+    runs-on: macos-26
+    env:
+      MAKEFLAGS: -j4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      # Install googletest version 1.17.0 — the latest stable release as of 6/6/25
+      # Note: Need to periodically update googletest version to ensure tests can run
+      # against the latest.
+      # Specifying the version to ensure CI builds are stable and not unexpectedly
+      # broken by upstream changes.
+      - name: Install gtest 1.17.0
+        run: |
+          wget https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+          tar -xvf v1.17.0.tar.gz
+          cd googletest-1.17.0
+          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/homebrew
+          cmake --build build
+          sudo cmake --install build
+      - name: Install dependencies
+        run: |
+          brew update || true
+          brew upgrade || true
+          brew install --cask xquartz
+          brew install udunits openmotif maven
+          brew install swig llvm
+      - name: Build Trick
+        run: |
+          ./configure
+          make
+      - name: Test
+        run: |
+          python3 -m venv share/trick/trickops/.venv
+          . share/trick/trickops/.venv/bin/activate
+          pip3 install -r share/trick/trickops/requirements.txt
+          make test
+      - name: Upload Tests
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: Test - macOS
+          path: trick_test/*.xml
+          if-no-files-found: warn
+          retention-days: 1
