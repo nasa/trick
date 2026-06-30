@@ -1,0 +1,61 @@
+# Reusable workflow: TrickOps unit and doc tests.
+# Called by ci.yml. Do not add push/pull_request triggers here.
+name: TrickOps Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  trickops:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu 24.04
+            image: ubuntu:24.04
+            install: |
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y git python3 python3-venv perl perl-modules-5.38 qtbase5-dev wget unzip g++ make flex bison
+            qmake: qmake
+          - name: rocky 8
+            image: rockylinux/rockylinux:8
+            install: |
+              dnf install -y git python3-devel which perl perl-Digest-MD5 qt5-qtbase-devel bison clang flex make gcc gcc-c++ wget
+            qmake: qmake-qt5
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Install dependencies
+        run: ${{ matrix.install }}
+      - name: Create virtual environment
+        run: |
+          python3 -m venv share/trick/trickops/.venv
+          . share/trick/trickops/.venv/bin/activate
+          pip3 install --upgrade pip && pip3 install -r share/trick/trickops/requirements.txt
+      - name: Build koviz
+        run: |
+          git clone --depth 1 https://github.com/nasa/koviz.git /tmp/koviz
+          cd /tmp/koviz && ${{ matrix.qmake }} && make
+      - name: Run unit and doc tests
+        run: |
+          . share/trick/trickops/.venv/bin/activate
+          export PATH="/tmp/koviz/bin:${PATH}"
+          cd share/trick/trickops/tests && ./run_tests.py
+      - name: Upload test logs
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: TrickOps - ${{ matrix.name }}
+          path: |
+            share/trick/trickops/tests/*_doctest_log.txt
+            /tmp/log.*
