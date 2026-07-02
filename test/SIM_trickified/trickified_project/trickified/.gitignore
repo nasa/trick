@@ -2,4 +2,3 @@ build
 python
 trick
 full_file
-*.o
