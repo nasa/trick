@@ -1,3 +1,2 @@
-*.o
 dllist_unittest
 lqueue_unittest

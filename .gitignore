@@ -1,4 +1,5 @@
 # Build artifacts
+*.o
 object_*
 io_src
 swig
@@ -63,7 +64,6 @@ share/trick/makefiles/config_user.mk
 # Editor / OS
 *~
 *.swp
-*.dox
 .DS_Store
 .vscode/
 .cache/
