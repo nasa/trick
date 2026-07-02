@@ -1,0 +1,95 @@
+# Implements the ICG_CLANGLIBS selection algorithm from
+# autoconf/configure.ac:222-256 exactly, then sanity-checks the result with a
+# try_compile against CMakeTestFiles/TestICGLinkedLibs.cpp.
+#
+# Requires LLVM_LIB_DIR and CLANG_VERSION (from FindLLVMClang.cmake).
+# Exports: ICG_CLANGLIBS
+
+if(NOT DEFINED LLVM_LIB_DIR)
+    message(FATAL_ERROR "TrickClangLibs.cmake requires LLVM_LIB_DIR (include FindLLVMClang first)")
+endif()
+
+if(CLANG_VERSION AND CLANG_VERSION VERSION_GREATER_EQUAL "18.0.0")
+    set(_tr_old_clang_libs
+        "-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangASTMatchers -lclangAPINotes -lclangLex -lclangBasic"
+    )
+else()
+    set(_tr_old_clang_libs
+        "-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"
+    )
+endif()
+set(_tr_new_clang_libs "-lclang-cpp")
+
+if(EXISTS "${LLVM_LIB_DIR}/libclangFrontend.a" OR EXISTS "${LLVM_LIB_DIR}/libclangFrontend.so")
+    set(ICG_CLANGLIBS "${_tr_old_clang_libs}")
+elseif(EXISTS "${LLVM_LIB_DIR}/libclang-cpp.a" OR EXISTS "${LLVM_LIB_DIR}/libclang-cpp.so")
+    set(ICG_CLANGLIBS "${_tr_new_clang_libs}")
+else()
+    message(FATAL_ERROR "could not find clang libs in LLVM library: \"${LLVM_LIB_DIR}\"")
+endif()
+
+if(EXISTS "${LLVM_LIB_DIR}/libclangSupport.a")
+    set(ICG_CLANGLIBS "${ICG_CLANGLIBS} -lclangSupport")
+endif()
+if(EXISTS "${LLVM_LIB_DIR}/libclangOptions.a")
+    set(ICG_CLANGLIBS "${ICG_CLANGLIBS} -lclangOptions")
+endif()
+if(EXISTS "${LLVM_LIB_DIR}/libclangAnalysisLifetimeSafety.a")
+    set(ICG_CLANGLIBS "${ICG_CLANGLIBS} -lclangAnalysisLifetimeSafety")
+endif()
+
+# Sanity-*link* a real clang/LLVM TU against the derived ICG_CLANGLIBS. This
+# is the whole point of TestICGLinkedLibs.cpp: catch a wrong library
+# selection at configure time rather than at Phase 2's trick-ICG link step.
+# The link recipe mirrors trick_source/codegen/Interface_Code_Gen/Makefile
+# exactly (CLANGLIBS/LLVMLDFLAGS/CXXFLAGS construction).
+string(REGEX MATCH "^[0-9]+" _tr_llvm_version_major "${LLVM_VERSION_STRING}")
+
+execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --libs
+    OUTPUT_VARIABLE _tr_llvm_libs OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --system-libs
+    OUTPUT_VARIABLE _tr_llvm_system_libs OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --ldflags
+    OUTPUT_VARIABLE _tr_llvm_ldflags OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+set(_tr_icg_link_libs "${ICG_CLANGLIBS} ${_tr_llvm_libs}")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if(LLVM_VERSION_STRING VERSION_GREATER_EQUAL "3.5")
+        # Fedora adds -ledit as a system lib, but it isn't installed or required.
+        string(REPLACE "-ledit" "" _tr_llvm_system_libs_filtered "${_tr_llvm_system_libs}")
+        set(_tr_icg_link_libs "${_tr_icg_link_libs} ${_tr_llvm_system_libs_filtered}")
+    endif()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(_tr_icg_link_libs "${_tr_icg_link_libs} ${_tr_llvm_system_libs}")
+    if(_tr_llvm_version_major GREATER_EQUAL 16)
+        set(_tr_icg_link_libs "${_tr_icg_link_libs} -lc++abi -lclang-cpp")
+    else()
+        set(_tr_icg_link_libs "${_tr_icg_link_libs} -lc++abi")
+    endif()
+endif()
+
+if(_tr_llvm_version_major GREATER_EQUAL 16)
+    set(_tr_icg_cxx_std 17)
+elseif(_tr_llvm_version_major GREATER_EQUAL 10)
+    set(_tr_icg_cxx_std 14)
+else()
+    set(_tr_icg_cxx_std 11)
+endif()
+
+separate_arguments(_tr_icg_link_libs_list NATIVE_COMMAND "-L${LLVM_LIB_DIR} ${_tr_llvm_ldflags} ${_tr_icg_link_libs}")
+
+try_compile(TR_ICG_CLANG_HEADERS_COMPILE
+    ${CMAKE_BINARY_DIR}/CMakeFiles/TrickClangLibsCheck
+    ${CMAKE_CURRENT_SOURCE_DIR}/CMakeTestFiles/TestICGLinkedLibs.cpp
+    CMAKE_FLAGS
+        "-DINCLUDE_DIRECTORIES=${LLVM_INCLUDE_DIR}"
+    COMPILE_DEFINITIONS
+        -DLIBCLANG_MAJOR=${_tr_llvm_version_major}
+    LINK_LIBRARIES
+        ${_tr_icg_link_libs_list}
+    CXX_STANDARD ${_tr_icg_cxx_std}
+    OUTPUT_VARIABLE TR_ICG_CLANG_HEADERS_COMPILE_OUTPUT
+)
+if(NOT TR_ICG_CLANG_HEADERS_COMPILE)
+    message(FATAL_ERROR "ICG_CLANGLIBS (\"${ICG_CLANGLIBS}\") failed a sanity link against ${LLVM_LIB_DIR}:\n${TR_ICG_CLANG_HEADERS_COMPILE_OUTPUT}")
+endif()
