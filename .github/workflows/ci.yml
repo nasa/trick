@@ -516,10 +516,12 @@ jobs:
           ${{ matrix.arch_deps }}
       - name: Checkout repository
         uses: actions/checkout@v6
-      - name: Compare autoconf vs cmake config_user.mk
+      - name: Compare autoconf vs cmake config_user.mk (Phase 1)
         run: |
           echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
           test/build_config/compare_config_user.sh
+      - name: CMake build + archive parity vs make (Phase 2)
+        run: test/build_config/compare_archives.sh
 
   cmake-configure-macos:
     name: CMake Configure (macOS)
@@ -537,8 +539,10 @@ jobs:
           brew install --cask xquartz
           brew install udunits openmotif maven
           brew install swig llvm
-      - name: Compare autoconf vs cmake config_user.mk
+      - name: Compare autoconf vs cmake config_user.mk (Phase 1)
         run: test/build_config/compare_config_user.sh
+      - name: CMake build + archive parity vs make (Phase 2)
+        run: test/build_config/compare_archives.sh
 
   trickops:
     name: TrickOps (${{ matrix.name }})
