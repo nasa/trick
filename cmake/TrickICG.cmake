@@ -26,6 +26,25 @@
 set(TRICK_IO_SRC_DIR ${CMAKE_BINARY_DIR}/io_src)
 set(TRICK_IO_SRC_LIST_FILE ${TRICK_IO_SRC_DIR}/.generated_sources.cmake)
 
+# Conservative net (R7): a glob of every header ICG might transitively pull
+# in. This does two distinct jobs, both needed:
+#  - Passed to the custom command's DEPENDS below, so a *content* edit to any
+#    header already in this set (e.g. adding a checkpointable member to
+#    include/trick/Executive.hh) touches its mtime and makes the *next*
+#    `cmake --build` (no reconfigure needed) re-run trick-ICG and regenerate
+#    the stale io_*.cpp — this is the half that actually matters day to day.
+#  - CONFIGURE_DEPENDS additionally forces a reconfigure when the *set* of
+#    matching files changes (a header added/removed), so newly-created
+#    headers get picked up too.
+# It does not need to be an exact dependency list — same tradeoff as ICG's
+# own conservative header-set discovery — but it must actually be used
+# somewhere to do anything at all.
+file(GLOB_RECURSE _tr_all_trick_headers CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/include/trick/*.h
+    ${CMAKE_SOURCE_DIR}/include/trick/*.hh
+    ${CMAKE_SOURCE_DIR}/trick_source/er7_utils/*.hh
+)
+
 # ── Flags mirroring TRICK_SYSTEM_CXXFLAGS / TRICK_CXXFLAGS (Makefile.common:98-197) ──
 set(_tr_icg_flags
     -I${CMAKE_SOURCE_DIR}/trick_source
@@ -67,7 +86,7 @@ add_custom_command(
         -DOUTPUT_FILE=${TRICK_IO_SRC_LIST_FILE}
         -P ${CMAKE_SOURCE_DIR}/cmake/scripts/GenerateIOSrcList.cmake
     WORKING_DIRECTORY ${TRICK_IO_SRC_DIR}
-    DEPENDS trick-ICG ${CMAKE_SOURCE_DIR}/include/trick/files_to_ICG.hh
+    DEPENDS trick-ICG ${CMAKE_SOURCE_DIR}/include/trick/files_to_ICG.hh ${_tr_all_trick_headers}
     COMMENT "Running trick-ICG over Trick core headers (-sim_services)"
     VERBATIM
 )
@@ -87,11 +106,3 @@ else()
 endif()
 # Re-run configure automatically once trick_io_src_gen produces a fresh list.
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${TRICK_IO_SRC_LIST_FILE})
-# Conservative net: also reconfigure if any Trick header changes (R7 — this
-# is for cache-invalidation only, mirroring make's "rerun whenever headers
-# change" behavior; it does not need to be an exact dependency list).
-file(GLOB_RECURSE _tr_all_trick_headers CONFIGURE_DEPENDS
-    ${CMAKE_SOURCE_DIR}/include/trick/*.h
-    ${CMAKE_SOURCE_DIR}/include/trick/*.hh
-    ${CMAKE_SOURCE_DIR}/trick_source/er7_utils/*.hh
-)

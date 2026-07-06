@@ -92,10 +92,6 @@ set( TRICKMATH_SRC
 add_library( trick_math STATIC ${TRICKMATH_SRC})
 target_link_libraries( trick_math PUBLIC trick_build_flags )
 set_target_properties( trick_math PROPERTIES ARCHIVE_OUTPUT_NAME trick_math)
-
-if(GSL_HOME AND NOT GSL_HOME STREQUAL "/usr/local")
-    target_include_directories( trick_math PRIVATE ${GSL_HOME}/include )
-endif()
-if(GSL_HOME)
-    target_compile_definitions( trick_math PRIVATE _HAVE_GSL )
-endif()
+# GSL flags (when GSL_HOME is set) come from trick_build_flags — Makefile.common
+# puts them on TRICK_SYSTEM_CXXFLAGS globally, and math/Makefile has no local
+# override, so it only ever gets them that way in the real build too.
