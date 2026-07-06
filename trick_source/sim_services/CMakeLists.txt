@@ -262,13 +262,12 @@ if(HDF5_HOME)
         set_property(SOURCE DataRecord/DRHDF5.cpp APPEND PROPERTY COMPILE_OPTIONS "-I${HDF5_HOME}/include")
     endif()
 endif()
-# GSL support in MonteCarlo (MonteCarlo/Makefile:6-11).
-if(GSL_HOME)
-    set_property(SOURCE MonteCarlo/MonteCarlo.cpp APPEND PROPERTY COMPILE_DEFINITIONS _HAVE_GSL)
-    if(NOT GSL_HOME STREQUAL "/usr")
-        set_property(SOURCE MonteCarlo/MonteCarlo.cpp APPEND PROPERTY COMPILE_OPTIONS "-I${GSL_HOME}/include")
-    endif()
-endif()
+# GSL support for MonteCarlo.cpp comes from trick_build_flags (root
+# CMakeLists.txt), not a per-file override here: MonteCarlo/Makefile's own
+# GSL block is gated on $(HAVE_GSL), a variable nothing in the config system
+# ever sets — dead code. The _HAVE_GSL define MonteCarlo.cpp (and
+# include/trick/rand_generator.h) actually see in the real build comes
+# entirely from Makefile.common's global TRICK_SYSTEM_CXXFLAGS.
 
 add_subdirectory(MemoryManager)
 add_subdirectory(InputProcessor)

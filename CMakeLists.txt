@@ -90,11 +90,14 @@ find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
 # Flags shared by every Trick-core compile target, mirroring
-# TRICK_SYSTEM_CXXFLAGS/TRICK_CXXFLAGS (Makefile.common:98-197). A handful of
-# these (HDF5/GSL/Python includes, USE_CIVETWEB) only apply to specific
-# source files in the make build; applying them build-wide here is a
-# deliberate simplification (harmless extra -I/-D flags) rather than
-# reproducing every per-file override.
+# TRICK_SYSTEM_CXXFLAGS/TRICK_CXXFLAGS (Makefile.common:98-197). HDF5's
+# -DHDF5/-I only apply to DataRecord/DRHDF5.cpp in the make build too (that
+# file's own Makefile-local override — see sim_services/CMakeLists.txt), so
+# it stays per-file here rather than global. GSL is different: Makefile.common
+# itself puts -D_HAVE_GSL/-I on TRICK_SYSTEM_CXXFLAGS globally (every compiled
+# file inherits it); MonteCarlo/Makefile's own local-looking GSL override is
+# actually dead code (gated on a $(HAVE_GSL) variable nothing ever sets), so
+# GSL flags belong here, build-wide, not scoped to one file.
 add_library(trick_build_flags INTERFACE)
 target_compile_features(trick_build_flags INTERFACE cxx_std_17)
 target_compile_options(trick_build_flags INTERFACE -fpic)
@@ -127,6 +130,17 @@ endif()
 if(TRICK_CIVETWEB_HOME)
     target_compile_definitions(trick_build_flags INTERFACE USE_CIVETWEB)
     target_include_directories(trick_build_flags INTERFACE ${TRICK_CIVETWEB_HOME}/include)
+endif()
+if(GSL_HOME)
+    target_compile_definitions(trick_build_flags INTERFACE _HAVE_GSL)
+    # Makefile.common:164-177's nested ifneq excludes both /usr and
+    # /usr/local (the latter for e.g. Intel-mac Homebrew, whose default
+    # prefix is /usr/local rather than Apple Silicon's /opt/homebrew) from
+    # needing an explicit -I, since both are already on the compiler's
+    # default include search path.
+    if(NOT GSL_HOME STREQUAL "/usr" AND NOT GSL_HOME STREQUAL "/usr/local")
+        target_include_directories(trick_build_flags INTERFACE ${GSL_HOME}/include)
+    endif()
 endif()
 
 add_subdirectory(trick_source/codegen/Interface_Code_Gen)
