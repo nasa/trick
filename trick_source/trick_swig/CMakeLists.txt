@@ -1,7 +1,14 @@
 # libtrick_pyip.a: SWIG-generated Trick/Python interface code, ported from
 # this directory's Makefile (the authority — see A3/A4).
-
-find_package(SWIG 3.0 REQUIRED)
+#
+# SWIG_EXECUTABLE/SWIG_VERSION come from cmake/TrickPrograms.cmake's own
+# find_program(NAMES swig) — do NOT find_package(SWIG) here, it re-runs
+# FindSWIG.cmake's own executable search and can override SWIG_EXECUTABLE
+# with a version-suffixed binary (e.g. swig4.0), mismatching config_user.mk's
+# SWIG value (see CMAKE_MIGRATION_PLAN.md Phase 1/2 CI parity fixes).
+if(NOT SWIG_EXECUTABLE)
+    message(FATAL_ERROR "SWIG_EXECUTABLE not set — include(TrickPrograms) first")
+endif()
 
 # D3: CMake writes nothing into the source tree — .py wrappers land in the
 # build tree; Phase 3's `stage` install target is what assembles a runnable

@@ -56,21 +56,21 @@ cp "$CMAKE_GENERATED" "$WORKDIR/cmake_config_user.mk"
 
 # ── 3. Normalize both files ─────────────────────────────────────────────────
 # Accepted deltas:
-#  - PYTHON_LIB: configure's "tr '\r\n' ' '" leaves a trailing space that
-#    autoconf keeps and CMake's string(STRIP) removes.
 #  - TRICK_GCC_VERSION: autoconf uses "$CC -dumpfullversion -dumpversion";
 #    CMake uses CMAKE_CXX_COMPILER_VERSION. Both resolve to the compiler's
 #    dotted version triplet on every GCC we support; tolerate a trailing
 #    ".0" CMake sometimes omits (e.g. "11.4" vs "11.4.0").
-#
-# Known NOT-normalized, environment-specific delta (not a bug): on a
-# machine with more than one X11 provider installed (e.g. a dev Mac with
-# both Homebrew's libx11 formula AND the legacy /usr/X11 selector),
-# autoconf's AC_PATH_X and CMake's FindX11 module can each pick a
-# different, independently valid installation, producing a different
-# X_LIB_DIR value. Every CI image here installs exactly one X11 provider,
-# so this does not appear in CI; it is not worth replicating AC_PATH_X's
-# legacy search heuristic in CMake to chase it on developer machines.
+#  - X_LIB_DIR: confirmed in CI (not just hypothetical dev machines) on the
+#    macOS runner, which has more than one valid X11 provider installed
+#    (Homebrew's + Xquartz's /usr/X11); autoconf's AC_PATH_X and CMake's
+#    FindX11 module each independently pick a different, equally valid
+#    installation. Both resolve to a linkable libX11, so the value itself
+#    (not just its presence/absence) is ignored here rather than replicating
+#    AC_PATH_X's legacy search-order heuristic in CMake. On single-X11-
+#    provider platforms this value should now match exactly (see
+#    cmake/TrickPrograms.cmake's IMPLICIT_LINK_DIRECTORIES check) — this
+#    normalization is a safety net for the multi-provider case, not a mask
+#    for a real bug.
 normalize() {
     local infile="$1"
     local outfile="$2"
@@ -78,8 +78,8 @@ normalize() {
         -e 's/[[:space:]]+$//' \
         -e '/^[[:space:]]*#/d' \
         -e '/^[[:space:]]*$/d' \
-        -e 's/^(PYTHON_LIB[[:space:]]*=.*[^[:space:]])[[:space:]]+$/\1/' \
         -e 's/^(TRICK_GCC_VERSION[[:space:]]*=[[:space:]]*[0-9]+\.[0-9]+)$/\1.0/' \
+        -e 's/^X_LIB_DIR[[:space:]]*=.*/X_LIB_DIR = <ignored>/' \
         "$infile" | sort >"$outfile"
 }
 
