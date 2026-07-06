@@ -522,6 +522,10 @@ jobs:
           test/build_config/compare_config_user.sh
       - name: CMake build + archive parity vs make (Phase 2)
         run: test/build_config/compare_archives.sh
+      - name: CMake install + CTest (Phase 3)
+        run: |
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+          test/build_config/run_ctest.sh 'unit|sims'
 
   cmake-configure-macos:
     name: CMake Configure (macOS)
@@ -543,6 +547,10 @@ jobs:
         run: test/build_config/compare_config_user.sh
       - name: CMake build + archive parity vs make (Phase 2)
         run: test/build_config/compare_archives.sh
+      - name: CMake install + sim-flow CTest (Phase 3)
+        # gtest is not installed on the macOS runner, so run only the trick-CP
+        # sim-flow acceptance tests (LABEL sims), not the gtest unit suite.
+        run: test/build_config/run_ctest.sh sims
 
   trickops:
     name: TrickOps (${{ matrix.name }})

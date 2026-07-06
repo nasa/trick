@@ -150,3 +150,9 @@ add_library(trick STATIC
 target_link_libraries(trick PUBLIC trick_build_flags)
 set_target_properties(trick PROPERTIES ARCHIVE_OUTPUT_NAME trick)
 add_dependencies(trick trick_io_src_gen)
+
+# ──────────────────────────────────────────────────────────────────────────
+# Phase 3 — install rules, stage target, CTest
+# ──────────────────────────────────────────────────────────────────────────
+include(TrickInstall)
+include(TrickTest)
