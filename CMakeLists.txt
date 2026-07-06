@@ -82,5 +82,71 @@ configure_file(
     @ONLY
 )
 
-# Phase 2 adds: add_subdirectory(trick_source/codegen/Interface_Code_Gen) and
-# the rest of the native build (ICG, archives, SWIG). Phase 1 stops here.
+# ──────────────────────────────────────────────────────────────────────────
+# Phase 2 — core native build: ICG, io_src, archives, SWIG
+# ──────────────────────────────────────────────────────────────────────────
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Embed)
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
+
+# Flags shared by every Trick-core compile target, mirroring
+# TRICK_SYSTEM_CXXFLAGS/TRICK_CXXFLAGS (Makefile.common:98-197). A handful of
+# these (HDF5/GSL/Python includes, USE_CIVETWEB) only apply to specific
+# source files in the make build; applying them build-wide here is a
+# deliberate simplification (harmless extra -I/-D flags) rather than
+# reproducing every per-file override.
+add_library(trick_build_flags INTERFACE)
+target_compile_features(trick_build_flags INTERFACE cxx_std_17)
+target_compile_options(trick_build_flags INTERFACE -fpic)
+target_compile_definitions(trick_build_flags INTERFACE
+    TRICK_VER=${TRICK_MAJOR}
+    TRICK_MINOR=${TRICK_MINOR}
+)
+target_include_directories(trick_build_flags INTERFACE
+    ${CMAKE_SOURCE_DIR}/trick_source
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/trick/compat
+)
+if(UDUNITS_INCLUDES)
+    separate_arguments(_tr_udunits_includes_list NATIVE_COMMAND "${UDUNITS_INCLUDES}")
+    target_compile_options(trick_build_flags INTERFACE ${_tr_udunits_includes_list})
+endif()
+if(TRICK_USE_ER7_UTILS)
+    target_compile_definitions(trick_build_flags INTERFACE USE_ER7_UTILS_INTEGRATORS)
+    if(EXISTS ${CMAKE_SOURCE_DIR}/trick_source/er7_utils/CheckpointHelper)
+        target_compile_definitions(trick_build_flags INTERFACE USE_ER7_UTILS_CHECKPOINTHELPER)
+    endif()
+endif()
+if(TRICK_FORCE_32BIT)
+    target_compile_options(trick_build_flags INTERFACE -m32)
+    target_link_options(trick_build_flags INTERFACE -m32)
+endif()
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(trick_build_flags INTERFACE -fcolor-diagnostics)
+endif()
+if(TRICK_CIVETWEB_HOME)
+    target_compile_definitions(trick_build_flags INTERFACE USE_CIVETWEB)
+    target_include_directories(trick_build_flags INTERFACE ${TRICK_CIVETWEB_HOME}/include)
+endif()
+
+add_subdirectory(trick_source/codegen/Interface_Code_Gen)
+include(TrickICG)
+
+add_subdirectory(trick_source/sim_services)
+add_subdirectory(trick_source/trick_utils)
+if(TRICK_USE_ER7_UTILS)
+    add_subdirectory(trick_source/er7_utils)
+endif()
+add_subdirectory(trick_source/trick_swig)
+
+# libtrick.a = sim_services + trick_utils objects (minus MemoryManager and
+# the trick_utils dirs with their own archives) + the non-er7_utils io_src
+# objects (A3).
+add_library(trick STATIC
+    $<TARGET_OBJECTS:sim_services_objs>
+    $<TARGET_OBJECTS:trick_utils_objs>
+    ${TRICK_IO_SOURCES}
+)
+target_link_libraries(trick PUBLIC trick_build_flags)
+set_target_properties(trick PROPERTIES ARCHIVE_OUTPUT_NAME trick)
+add_dependencies(trick trick_io_src_gen)
