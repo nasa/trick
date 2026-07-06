@@ -50,9 +50,13 @@ execute_process(
     COMMAND ${PYTHON_CONFIG} ${_tr_python_libs_command}
     OUTPUT_VARIABLE PYTHON_LIBS
 )
+# configure.ac only does `tr '\r\n' ' '` on python-config's raw output — no
+# further stripping — so a leading/trailing space python-config itself emits
+# is preserved in config_user.mk. Don't string(STRIP ...) here: it produced a
+# byte-for-byte parity mismatch against autoconf's output on RHEL-family
+# pythons (see test/build_config/compare_config_user.sh CI failures).
 string(REPLACE "\r" " " PYTHON_LIBS "${PYTHON_LIBS}")
 string(REPLACE "\n" " " PYTHON_LIBS "${PYTHON_LIBS}")
-string(STRIP "${PYTHON_LIBS}" PYTHON_LIBS)
 
 # Always empty today (see A1) — kept as a named, substituted variable for
 # parity with config_user.mk.in's contract.

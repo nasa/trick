@@ -57,7 +57,25 @@ if(NOT _tr_perl_digest_md5 EQUAL 0)
 endif()
 
 # ── SWIG >= 3.0 (autoconf/m4/tr_swig_bin.m4) ───────────────────────────────
-find_package(SWIG 3.0 REQUIRED)
+# tr_swig_bin.m4 -> AX_PKG_SWIG -> AC_PATH_PROG([SWIG], [swig]) only ever
+# searches for the bare name "swig". find_package(SWIG)'s own executable
+# search can instead land on a version-suffixed binary (e.g. swig4.0) when
+# both exist on PATH, which mismatches config_user.mk's SWIG value even
+# though the version requirement is equally satisfied either way.
+find_program(SWIG_EXECUTABLE NAMES swig)
+if(NOT SWIG_EXECUTABLE)
+    message(FATAL_ERROR "could not find swig")
+endif()
+execute_process(
+    COMMAND ${SWIG_EXECUTABLE} -version
+    OUTPUT_VARIABLE _tr_swig_version_output
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+string(REGEX MATCH "SWIG Version ([0-9]+\\.[0-9]+\\.[0-9]+)" _ "${_tr_swig_version_output}")
+if(NOT CMAKE_MATCH_1 OR CMAKE_MATCH_1 VERSION_LESS "3.0")
+    message(FATAL_ERROR "Trick requires SWIG version >= 3.0, found: ${CMAKE_MATCH_1}")
+endif()
+set(SWIG_VERSION "${CMAKE_MATCH_1}")
 
 # ── zlib / libxml2 / threads ───────────────────────────────────────────────
 find_package(ZLIB REQUIRED)
@@ -77,10 +95,22 @@ set(PTHREAD_LIBS "-lpthread")
 find_package(X11)
 if(X11_FOUND)
     set(USE_X_WINDOWS 1)
+    set(_tr_x11_libdir "")
     if(X11_LIBRARY_DIRS)
-        set(X_LIB_DIR "-L${X11_LIBRARY_DIRS}")
+        set(_tr_x11_libdir "${X11_LIBRARY_DIRS}")
     elseif(X11_X11_LIB)
         get_filename_component(_tr_x11_libdir "${X11_X11_LIB}" DIRECTORY)
+    endif()
+    # AC_PATH_XTRA (tr_xwindows.m4:12) only sets X_LIB_DIR when $x_libraries
+    # is non-empty, which autoconf itself leaves empty whenever the compiler
+    # already finds X11 on its default library search path (the common case
+    # on Linux distros and Homebrew, where X11 libs live in
+    # /usr/lib/<triplet>, /usr/lib64, or /opt/homebrew/lib alongside
+    # everything else). CMake's FindX11 always returns an absolute dir
+    # regardless, so replicate autoconf's "only if nonstandard" behavior by
+    # checking against the compiler's own implicit link directories.
+    set(X_LIB_DIR "")
+    if(_tr_x11_libdir AND NOT _tr_x11_libdir IN_LIST CMAKE_C_IMPLICIT_LINK_DIRECTORIES)
         set(X_LIB_DIR "-L${_tr_x11_libdir}")
     endif()
     if(NOT X11_Xt_FOUND)
