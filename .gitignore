@@ -23,6 +23,7 @@ gmon.out
 Makefile_jsc_dirs
 
 # CMake
+build*/
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
