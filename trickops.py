@@ -1,5 +1,6 @@
-import sys
+import argparse
 import os
+import sys
 
 thisdir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.join(thisdir,"share/trick/trickops"))
@@ -10,15 +11,31 @@ from WorkflowCommon import Job
 max_retries = 5
 
 class SimTestWorkflow(TrickWorkflow):
-    def __init__( self, quiet, trick_top_level, cpus, config_file):
+    def __init__(self, quiet, trick_top_level, cpus, config_file, trick_dir=None):
         self.cpus = cpus
         # Create the trick_test directory if it doesn't already exist
         if not os.path.exists(trick_top_level + "/trick_test"):
           os.makedirs(trick_top_level + "/trick_test")
 
+        # trick_dir defaults to trick_top_level (historical behavior: sims and
+        # the installed Trick used by bin/trick-CP live in the same in-source
+        # tree). A CMake-driven test run passes them separately: sim
+        # directories (test/SIM_*) only exist in the source tree, but the
+        # installed product (bin/trick-CP, libexec/, share/) may be a staged
+        # out-of-source CMake install instead.
+        if trick_dir is None:
+            trick_dir = trick_top_level
+
         # Base Class initialize, this creates internal management structures
-        TrickWorkflow.__init__(self, project_top_level=(trick_top_level), log_dir=(trick_top_level +'/trickops_logs/'),
-            trick_dir=trick_top_level, config_file=(trick_top_level + "/" + config_file), cpus=self.cpus, quiet=quiet)
+        TrickWorkflow.__init__(
+            self,
+            project_top_level=(trick_top_level),
+            log_dir=(trick_top_level + "/trickops_logs/"),
+            trick_dir=trick_dir,
+            config_file=(trick_top_level + "/" + config_file),
+            cpus=self.cpus,
+            quiet=quiet,
+        )
     def run( self ):
       build_jobs      = self.get_jobs(kind='build')
 
@@ -85,7 +102,21 @@ class SimTestWorkflow(TrickWorkflow):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build, run, and compare all test sims for Trick',
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument( "--trick_top_level", type=str, help="Path to TRICK_HOME", default=thisdir)
+    parser.add_argument(
+        "--trick_top_level",
+        type=str,
+        help="Path to the project tree containing the sim "
+        "directories referenced by --config_file",
+        default=thisdir,
+    )
+    parser.add_argument(
+        "--trick_dir",
+        type=str,
+        help="Path to the installed/staged Trick (bin/trick-CP, "
+        "libexec/, share/) used to build the sims. Defaults to --trick_top_level (historical in-source "
+        "behavior, where sims and the Trick install share one tree).",
+        default=None,
+    )
     parser.add_argument( "--quiet", action="store_true", help="Suppress progress bars (automatically set to True if environment variable CI is present).")
     parser.add_argument( "--cpus", type=int, default=(os.cpu_count() if os.cpu_count() is not None else 8),
       help="Number of cpus to use for testing. For builds this number is used for MAKEFLAGS *and* number of "
@@ -94,4 +125,12 @@ if __name__ == "__main__":
 
     myargs = parser.parse_args()
     should_be_quiet = myargs.quiet or os.getenv('CI') is not None
-    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=myargs.trick_top_level, cpus=myargs.cpus, config_file=myargs.config_file).run())
+    sys.exit(
+        SimTestWorkflow(
+            quiet=should_be_quiet,
+            trick_top_level=myargs.trick_top_level,
+            trick_dir=myargs.trick_dir,
+            cpus=myargs.cpus,
+            config_file=myargs.config_file,
+        ).run()
+    )
