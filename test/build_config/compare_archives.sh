@@ -38,7 +38,8 @@ ARCHIVES=(
 if [ ! -f lib/libtrick.a ] && [ ! -f lib64/libtrick.a ]; then
     ./configure >"$WORKDIR/configure.log" 2>&1
     make -j"$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)" no_dp >"$WORKDIR/make.log" 2>&1 || {
-        echo "make failed; see $WORKDIR/make.log" >&2
+        echo "make failed; last 200 lines of $WORKDIR/make.log (deleted on exit, so printed here):" >&2
+        tail -n 200 "$WORKDIR/make.log" >&2
         exit 1
     }
 fi
@@ -52,7 +53,14 @@ cmake --build "$CMAKE_BUILD_DIR" --target trick-ICG trick_io_src_gen -j"$(getcon
     >"$WORKDIR/cmake_build_icg.log" 2>&1
 cmake -S . -B "$CMAKE_BUILD_DIR" >"$WORKDIR/cmake_configure2.log" 2>&1
 cmake --build "$CMAKE_BUILD_DIR" -j"$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)" >"$WORKDIR/cmake_build.log" 2>&1 || {
-    echo "cmake --build failed; see $WORKDIR/cmake_build.log" >&2
+    # WORKDIR is deleted by the EXIT trap before CI can capture it as an artifact,
+    # so a bare "see $WORKDIR/cmake_build.log" pointer is useless in CI output —
+    # print the actual failure here. Full build logs routinely exceed a few
+    # hundred lines (parallel -j output interleaves per-file compiler
+    # invocations); tail -n 300 keeps the pointer close enough to the real
+    # error line(s) without flooding the CI log.
+    echo "cmake --build failed; last 300 lines of the build log:" >&2
+    tail -n 300 "$WORKDIR/cmake_build.log" >&2
     exit 1
 }
 
