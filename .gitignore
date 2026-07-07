@@ -15,6 +15,8 @@ lib_Darwin_*
 coverage.info
 gmon.out
 Makefile_jsc_dirs
+.extracted
+__.SYMDEF
 
 # CMake
 build*/
