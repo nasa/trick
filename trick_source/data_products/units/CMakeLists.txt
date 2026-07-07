@@ -1,10 +1,13 @@
-
-set ( DP_UNITS_SRC
-  init_units_system
-  map_trick_units_to_udunits
-  units_conv
+# libtrick_units.a (data_products' own copy — unrelated to and not linked
+# against trick_source/trick_utils/units' same-named archive; see this
+# directory's makefile, whose output nothing else in the make flow
+# references). Built anyway to match `make all`'s artifact set.
+add_library(dp_units STATIC
+    init_units_system.cpp
+    map_trick_units_to_udunits.cpp
+    units_conv.c
 )
-
-add_library( dp_units STATIC ${DP_UNITS_SRC})
-target_include_directories( dp_units PUBLIC ${UDUNITS2_INCLUDES} )
-
+target_include_directories(dp_units PRIVATE ${CMAKE_SOURCE_DIR}/include)
+separate_arguments(_tr_dp_units_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
+target_compile_options(dp_units PRIVATE ${_tr_dp_units_udunits_includes})
+set_target_properties(dp_units PROPERTIES ARCHIVE_OUTPUT_NAME trick_units)

@@ -35,6 +35,9 @@ set(TRICK_INSTALL_ARCHIVES
 if(TRICK_USE_ER7_UTILS)
     list(APPEND TRICK_INSTALL_ARCHIVES er7_utils)
 endif()
+if(USE_CIVETWEB)
+    list(APPEND TRICK_INSTALL_ARCHIVES trickCivet)
+endif()
 install(TARGETS ${TRICK_INSTALL_ARCHIVES}
     ARCHIVE DESTINATION ${TRICK_LIB_SUBDIR}
 )
@@ -61,11 +64,20 @@ if(TRICK_USE_ER7_UTILS)
 endif()
 
 # ── libexec/trick: perl helpers (configuration_processor, make_makefile_*, pm/,
-#                   ...) verbatim. Java jars land here too but are a Phase 4 add.
+#                   ...) verbatim.
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/libexec/trick
     DESTINATION libexec
     USE_SOURCE_PERMISSIONS
 )
+
+# ── libexec/trick/java/build: Trick's Java GUI jars, built to the build tree
+#    by trick_source/java/CMakeLists.txt (D3 — never written into source).
+if(TRICK_USE_JAVA)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/build/
+        DESTINATION libexec/trick/java/build
+        FILES_MATCHING PATTERN "*.jar"
+    )
+endif()
 
 # ── share/trick: static content from source (makefiles, sim_objects, pymods,
 #    trickops, swig *.i and the checked-in *.py, ...). Exclude the generated
@@ -112,3 +124,9 @@ add_dependencies(stage
     trick-ICG
     trick_io_src_gen
 )
+if(TRICK_USE_JAVA)
+    add_dependencies(stage trick-java)
+endif()
+if(TRICK_BUILD_DP)
+    add_dependencies(stage trick-data-products)
+endif()
