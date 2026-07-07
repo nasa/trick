@@ -127,9 +127,14 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(trick_build_flags INTERFACE -fcolor-diagnostics)
 endif()
-if(TRICK_CIVETWEB_HOME)
+# USE_CIVETWEB/CIVETWEB_HOME (not the raw TRICK_CIVETWEB_HOME cache option)
+# are what cmake/TrickPrograms.cmake actually resolved detection to — an
+# unset TRICK_CIVETWEB_HOME can still auto-detect civetweb.h at /usr and set
+# USE_CIVETWEB=1, matching config_user.mk, so this must gate on the same
+# variables config_user.mk uses (see A1/tr_civetweb_home.m4).
+if(USE_CIVETWEB)
     target_compile_definitions(trick_build_flags INTERFACE USE_CIVETWEB)
-    target_include_directories(trick_build_flags INTERFACE ${TRICK_CIVETWEB_HOME}/include)
+    target_include_directories(trick_build_flags INTERFACE ${CIVETWEB_HOME}/include)
 endif()
 if(GSL_HOME)
     target_compile_definitions(trick_build_flags INTERFACE _HAVE_GSL)
@@ -164,6 +169,21 @@ add_library(trick STATIC
 target_link_libraries(trick PUBLIC trick_build_flags)
 set_target_properties(trick PROPERTIES ARCHIVE_OUTPUT_NAME trick)
 add_dependencies(trick trick_io_src_gen)
+
+# ──────────────────────────────────────────────────────────────────────────
+# Phase 4 — optional components: civetweb, Java GUIs, data_products
+# ──────────────────────────────────────────────────────────────────────────
+if(USE_CIVETWEB)
+    add_subdirectory(trick_source/web/CivetServer)
+endif()
+
+if(TRICK_USE_JAVA)
+    add_subdirectory(trick_source/java)
+endif()
+
+if(TRICK_BUILD_DP)
+    add_subdirectory(trick_source/data_products)
+endif()
 
 # ──────────────────────────────────────────────────────────────────────────
 # Phase 3 — install rules, stage target, CTest
