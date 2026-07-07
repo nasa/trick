@@ -34,23 +34,37 @@ target_include_directories(trick-gxplot PRIVATE
 separate_arguments(_tr_gxplot_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
 target_compile_options(trick-gxplot PRIVATE ${_tr_gxplot_udunits_includes})
 
-target_link_libraries(trick-gxplot PRIVATE
-    DPC DPM dp_log dp_var dp_eqparse dp_units
-    dpv_utils
+# Link order matters here: GNU ld (default on Linux) resolves symbols in a
+# single left-to-right pass, so a library must appear *after* whatever
+# consumes its symbols. This mirrors the makefile's ALL_LIBS + final link
+# line order exactly (CONTROLLER_LIBS MODEL_LIBS DP_LIBS HDF5_LIB -ldl
+# UDUNITS_LDFLAGS XLIBS LIBRTDEF CONTROLLER_LIBS -lDPV) — a prior version of
+# this file used a separate target_link_options() call for UDUNITS_LDFLAGS,
+# which does not guarantee it lands after the DPC/DPM/dp_units archives that
+# actually need it, and silently linked fine on macOS (ld64's linker is far
+# more forgiving of ordering) while failing with "undefined reference to
+# `ut_parse'" etc. on Linux.
+separate_arguments(_tr_gxplot_udunits_ldflags NATIVE_COMMAND "${UDUNITS_LDFLAGS}")
+set(_tr_gxplot_libs
+    DPC
+    DPM
+    dp_log dp_var dp_eqparse dp_units
+)
+if(HDF5_HOME)
+    list(APPEND _tr_gxplot_libs -L${HDF5_HOME}/lib -lhdf5_hl -lhdf5 -lsz)
+endif()
+list(APPEND _tr_gxplot_libs
+    dl
+    ${_tr_gxplot_udunits_ldflags}
     ${X11_Xt_LIB} ${X11_X11_LIB}
     ${LIBXML2_LIBRARIES}
-    DPC dpv_utils
-    dl
 )
-separate_arguments(_tr_gxplot_udunits_ldflags NATIVE_COMMAND "${UDUNITS_LDFLAGS}")
-target_link_options(trick-gxplot PRIVATE ${_tr_gxplot_udunits_ldflags})
-if(HDF5_HOME)
-    target_link_libraries(trick-gxplot PRIVATE -L${HDF5_HOME}/lib -lhdf5_hl -lhdf5 -lsz)
-endif()
 if(APPLE)
-    target_link_libraries(trick-gxplot PRIVATE -lc++abi)
+    list(APPEND _tr_gxplot_libs -lc++abi)
 else()
-    target_link_libraries(trick-gxplot PRIVATE rt)
+    list(APPEND _tr_gxplot_libs rt)
 endif()
+list(APPEND _tr_gxplot_libs DPC dpv_utils)
+target_link_libraries(trick-gxplot PRIVATE ${_tr_gxplot_libs})
 
 install(TARGETS trick-gxplot RUNTIME DESTINATION bin)
