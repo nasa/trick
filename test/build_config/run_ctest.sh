@@ -6,13 +6,21 @@
 # doubles as install/interface validation; the sim-flow tests are the universal
 # acceptance test (a real sim built and run by trick-CP from the installed prefix).
 #
-# Usage: test/build_config/run_ctest.sh [ctest-label-regex]   (default: unit|sims)
+# Usage: test/build_config/run_ctest.sh [ctest-label-regex]   (default: ^(unit|sims)$)
+#
+# The regex is matched by `ctest -L`, which does an unanchored substring
+# search, not an exact match — an unanchored "sims" would also select the
+# "sims_full" label (the full ~52-sim test_sims.yml suite via trickops.py,
+# cmake/TrickTest.cmake), which needs Python deps (PyYAML, psutil — see
+# share/trick/trickops/requirements.txt) this script's caller does not
+# install. Callers that actually want sims_full must request it explicitly
+# (e.g. `run_ctest.sh '^sims_full$'`) after installing those deps themselves.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
-LABELS="${1:-unit|sims}"
+LABELS="${1:-^(unit|sims)$}"
 BUILD_DIR="${TRICK_CMAKE_BUILD_DIR:-$REPO_ROOT/build}"
 NPROC="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
 
