@@ -18,7 +18,9 @@ target_include_directories(DPC PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/../..
     ${CMAKE_SOURCE_DIR}/include
-    ${LIBXML2_INCLUDE_DIR}
 )
+# PRIVATE: libxml2 headers are a compile-only need (static archive → no link
+# propagation); LibXml2::LibXml2 supplies the include dirs.
+target_link_libraries(DPC PRIVATE LibXml2::LibXml2)
 separate_arguments(_tr_dpc_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
 target_compile_options(DPC PRIVATE ${_tr_dpc_udunits_includes})
