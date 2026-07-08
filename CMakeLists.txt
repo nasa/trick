@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 3.20)
+# Range form: 3.20 is the supported floor (oldest distro CMake we target); the
+# upper bound opts every policy introduced through 4.3 into its NEW behavior
+# when built with a CMake that new, without raising the floor contributors need.
+cmake_minimum_required(VERSION 3.20...4.3)
 
 # Version lives in share/trick/trick_ver.txt — the single source of truth
 # also read by bin/trick-version at sim-build time (Makefile.common:28-30).
@@ -104,7 +107,13 @@ find_package(BISON REQUIRED)
 # GSL flags belong here, build-wide, not scoped to one file.
 add_library(trick_build_flags INTERFACE)
 target_compile_features(trick_build_flags INTERFACE cxx_std_17)
-target_compile_options(trick_build_flags INTERFACE -fpic)
+# Position-independent code via the CMake property rather than a literal -fpic,
+# so the compiler-appropriate flag is emitted. INTERFACE_POSITION_INDEPENDENT_CODE
+# propagates POSITION_INDEPENDENT_CODE=ON to every target that links
+# trick_build_flags (all the core archives + trick_pyip). Sims compiled by the
+# make flow use -fpic; -fPIC is a compatible superset, and archive membership
+# (the ar-t parity gate) is unaffected by the flag.
+set_target_properties(trick_build_flags PROPERTIES INTERFACE_POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(trick_build_flags INTERFACE
     TRICK_VER=${TRICK_MAJOR}
     TRICK_MINOR=${TRICK_MINOR}

@@ -25,11 +25,12 @@ set(GXPLOT_SRC
 )
 
 add_executable(trick-gxplot ${GXPLOT_SRC})
+# X11/LibXml2 include dirs come from the X11::X11 / LibXml2::LibXml2 imported
+# targets linked below (their INTERFACE_INCLUDE_DIRECTORIES), so they are not
+# repeated here.
 target_include_directories(trick-gxplot PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../..
     ${CMAKE_SOURCE_DIR}/include
-    ${X11_X11_INCLUDE_PATH}
-    ${LIBXML2_INCLUDE_DIR}
 )
 separate_arguments(_tr_gxplot_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
 target_compile_options(trick-gxplot PRIVATE ${_tr_gxplot_udunits_includes})
@@ -56,8 +57,8 @@ endif()
 list(APPEND _tr_gxplot_libs
     dl
     ${_tr_gxplot_udunits_ldflags}
-    ${X11_Xt_LIB} ${X11_X11_LIB}
-    ${LIBXML2_LIBRARIES}
+    X11::Xt X11::X11
+    LibXml2::LibXml2
 )
 if(APPLE)
     list(APPEND _tr_gxplot_libs -lc++abi)
