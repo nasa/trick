@@ -1,6 +1,6 @@
 # Implements the ICG_CLANGLIBS selection algorithm from
 # autoconf/configure.ac:222-256 exactly, then sanity-checks the result with a
-# try_compile against CMakeTestFiles/TestICGLinkedLibs.cpp.
+# try_compile against TestICGLinkedLibs.cpp.
 #
 # Requires LLVM_LIB_DIR and CLANG_VERSION (from FindLLVMClang.cmake).
 # Exports: ICG_CLANGLIBS
@@ -80,7 +80,7 @@ separate_arguments(_tr_icg_link_libs_list NATIVE_COMMAND "-L${LLVM_LIB_DIR} ${_t
 
 try_compile(TR_ICG_CLANG_HEADERS_COMPILE
     ${CMAKE_BINARY_DIR}/CMakeFiles/TrickClangLibsCheck
-    ${CMAKE_CURRENT_SOURCE_DIR}/CMakeTestFiles/TestICGLinkedLibs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/TestICGLinkedLibs.cpp
     CMAKE_FLAGS
         "-DINCLUDE_DIRECTORIES=${LLVM_INCLUDE_DIR}"
     COMPILE_DEFINITIONS
