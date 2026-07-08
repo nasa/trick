@@ -65,18 +65,39 @@ endif()
 if(TRICK_FORCE_32BIT)
     list(APPEND _tr_icg_flags -m32)
 endif()
-if(GSL_HOME AND NOT GSL_HOME STREQUAL "/usr/local")
-    list(APPEND _tr_icg_flags -I${GSL_HOME}/include)
+# GSL: Makefile.common:147-159 puts -D_HAVE_GSL on TRICK_SYSTEM_CXXFLAGS
+# whenever GSL_HOME is set (the make ICG pass inherits it), and only adds the
+# -I when GSL_HOME is neither /usr nor /usr/local (both already on the
+# compiler's default include path).
+if(GSL_HOME)
+    list(APPEND _tr_icg_flags -D_HAVE_GSL)
+    if(NOT GSL_HOME STREQUAL "/usr" AND NOT GSL_HOME STREQUAL "/usr/local")
+        list(APPEND _tr_icg_flags -I${GSL_HOME}/include)
+    endif()
 endif()
-if(TRICK_CIVETWEB_HOME)
-    list(APPEND _tr_icg_flags -I${TRICK_CIVETWEB_HOME}/include -DUSE_CIVETWEB)
+# Gate on USE_CIVETWEB/CIVETWEB_HOME (what TrickPrograms.cmake resolved
+# detection to), not the raw TRICK_CIVETWEB_HOME cache option: civetweb.h at
+# /usr auto-detects to USE_CIVETWEB=1 with TRICK_CIVETWEB_HOME unset, and the
+# make build's ICG pass gets -DUSE_CIVETWEB via TRICK_SYSTEM_CXXFLAGS in that
+# case too (Makefile.common:162-167) — files_to_ICG.hh has an
+# #ifdef USE_CIVETWEB block, so a mismatch silently drops the civetweb
+# io_*.cpp from libtrick.a.
+if(USE_CIVETWEB)
+    list(APPEND _tr_icg_flags -I${CIVETWEB_HOME}/include -DUSE_CIVETWEB)
 endif()
 
 file(MAKE_DIRECTORY ${TRICK_IO_SRC_DIR})
 
+# Makefile.common:167 also adds CIVETWEB_HOME to TRICK_SYSTEM_ICG_EXCLUDE
+# (exported at :72), keeping ICG out of civetweb's own headers.
+set(_tr_icg_env TRICK_HOME=${CMAKE_SOURCE_DIR} TRICK_EXCLUDE=:${UDUNITS_EXCLUDE})
+if(USE_CIVETWEB)
+    list(APPEND _tr_icg_env TRICK_SYSTEM_ICG_EXCLUDE=${CIVETWEB_HOME})
+endif()
+
 add_custom_command(
     OUTPUT ${TRICK_IO_SRC_LIST_FILE}
-    COMMAND ${CMAKE_COMMAND} -E env TRICK_HOME=${CMAKE_SOURCE_DIR} TRICK_EXCLUDE=:${UDUNITS_EXCLUDE}
+    COMMAND ${CMAKE_COMMAND} -E env ${_tr_icg_env}
         $<TARGET_FILE:trick-ICG> -force -sim_services -m ${_tr_icg_flags}
         -o ${TRICK_IO_SRC_DIR}
         ${CMAKE_SOURCE_DIR}/include/trick/files_to_ICG.hh

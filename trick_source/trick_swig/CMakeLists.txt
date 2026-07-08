@@ -29,7 +29,11 @@ if(TRICK_USE_ER7_UTILS)
         list(APPEND _tr_swig_defs -DUSE_ER7_UTILS_CHECKPOINTHELPER)
     endif()
 endif()
-if(TRICK_CIVETWEB_HOME)
+# Gate on USE_CIVETWEB (detection result), not the raw TRICK_CIVETWEB_HOME
+# cache option — trick_swig/Makefile:57 gates SWIG_DEFS on
+# `ifeq ($(USE_CIVETWEB), 1)`, which is also 1 when civetweb.h auto-detects
+# at /usr with no --with-civetweb/TRICK_CIVETWEB_HOME given.
+if(USE_CIVETWEB)
     list(APPEND _tr_swig_defs -DUSE_CIVETWEB)
 endif()
 

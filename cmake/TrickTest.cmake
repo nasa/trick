@@ -10,8 +10,13 @@
 #                 command-line override wins and redirects config_user.mk, the
 #                 archives (TRICK_LIB_DIR), headers, and trick-ICG to the stage.
 #
-#   LABEL sims  — the universal acceptance test: trick-CP builds and runs a real sim
-#                 against the stage (test/build_config/run_sim_flow.sh).
+#   LABEL sims  — the universal acceptance test: trick-CP builds and runs real sims
+#                 against the stage. The sole test carrying this label is `sims` — the
+#                 full ~52-sim test_sims.yml suite via trickops.py, the same one
+#                 `make sim_test` runs. It replaced the earlier two-sim smoke subset;
+#                 there is no lighter-weight sims test anymore. It requires the
+#                 trickops Python deps (share/trick/trickops/requirements.txt) to be
+#                 installed by the caller.
 #
 # A CTest fixture stages the install first (cmake --install into ${TRICK_STAGE_DIR}),
 # so `ctest` works after a plain `cmake --build`. The build itself must be complete
@@ -98,7 +103,10 @@ endif()
 #    the source tree — test output, not a product-build write (D3 is about the
 #    product build, same class of exception already noted for the C++ gtest
 #    suites' own **/test artifacts).
-if(TRICK_USE_JAVA)
+# MVN_EXECUTABLE is empty under TRICK_OFFLINE (offline jars are prebuilt
+# copies; maven isn't required or detected), so gate on it too rather than
+# registering a test with an empty command.
+if(TRICK_USE_JAVA AND MVN_EXECUTABLE)
     add_test(NAME ut_java
         COMMAND ${MVN_EXECUTABLE} test -Dcmake=false -Dmaven.wagon.http.retryHandler.count=15
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/trick_source/java
@@ -109,49 +117,30 @@ if(TRICK_USE_JAVA)
     )
 endif()
 
-# ── Sim-flow acceptance tests (LABEL sims): trick-CP builds + runs real sims from
-#    the stage. One data-recording/checkpoint sim and one STL sim, matching the
-#    plan's Phase 3 step 5 ("SIM_cannon_analytic plus one data-recording/STL sim" —
-#    cannon_analytic isn't in this checkout; the demo/STL sims exercise the same
-#    trick-CP -> ICG -> SWIG -> compile -> run path).
-set(_tr_sim_flow_script ${CMAKE_SOURCE_DIR}/test/build_config/run_sim_flow.sh)
-function(trick_add_sim_flow_test name sim_dir)
-    if(NOT EXISTS ${CMAKE_SOURCE_DIR}/${sim_dir}/S_define)
-        return()
-    endif()
-    add_test(NAME ${name}
-        COMMAND ${_tr_sim_flow_script} ${TRICK_STAGE_DIR} ${CMAKE_SOURCE_DIR}/${sim_dir}
-    )
-    set_tests_properties(${name} PROPERTIES
-        LABELS sims
-        FIXTURES_REQUIRED trick_stage
-        TIMEOUT 1800
-    )
-endfunction()
-
-trick_add_sim_flow_test(sim_demo_sdefine test/SIM_demo_sdefine)
-trick_add_sim_flow_test(sim_stls        test/SIM_stls)
-
-# ── Full sim suite (LABEL sims_full): the same trickops.py/test_sims.yml suite
+# ── Full sim suite (LABEL sims): the same trickops.py/test_sims.yml suite
 #    `make sim_test` runs (test_overrides.mk), covering all ~52 sims in
-#    test_sims.yml — the two lightweight sim_demo_sdefine/sim_stls tests above are
-#    a fast subset/smoke-check of the same trick-CP path, not a substitute for
-#    this. trickops.py's --trick_dir (added alongside this CTest wiring) points
+#    test_sims.yml. This is now the *only* sims-acceptance test — it replaced the
+#    earlier two-sim smoke subset (sim_demo_sdefine/sim_stls via
+#    test/build_config/run_sim_flow.sh), which exercised the identical trick-CP ->
+#    ICG -> SWIG -> compile -> run path as a strict subset of what this suite
+#    already covers. run_sim_flow.sh itself is left in place for ad hoc manual
+#    single-sim verification (Part E rule 4); it's just no longer wired into CTest.
+#    trickops.py's --trick_dir (added alongside this CTest wiring) points
 #    build_cmd at <stage>/bin/trick-CP, which self-derives TRICK_HOME from its own
 #    location (bin/trick-CP:13, dirname($trick_bin)) — no TRICK_HOME env needed.
 #    --trick_top_level stays the source tree, since the test/SIM_* sim
 #    directories test_sims.yml references only exist there, not in the stage.
 if(EXISTS ${CMAKE_SOURCE_DIR}/test_sims.yml)
     find_package(Python3 COMPONENTS Interpreter)
-    add_test(NAME sims_full
+    add_test(NAME sims
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/trickops.py
             --trick_top_level ${CMAKE_SOURCE_DIR}
             --trick_dir ${TRICK_STAGE_DIR}
             --config_file test_sims.yml
             --quiet
     )
-    set_tests_properties(sims_full PROPERTIES
-        LABELS sims_full
+    set_tests_properties(sims PROPERTIES
+        LABELS sims
         FIXTURES_REQUIRED trick_stage
         TIMEOUT 3600
     )
