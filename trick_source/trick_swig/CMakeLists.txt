@@ -72,6 +72,21 @@ target_link_libraries( trick_pyip PUBLIC trick_build_flags )
 target_include_directories( trick_pyip PRIVATE ${Python3_INCLUDE_DIRS} )
 set_target_properties( trick_pyip PROPERTIES ARCHIVE_OUTPUT_NAME trick_pyip)
 
+# HDF5: -DHDF5 must reach the wrapper *compile*, not just SWIG. sim_services.i
+# guards `#include "trick/DRHDF5.hh"` behind `#ifdef HDF5` — SWIG runs with
+# -DHDF5 (via _tr_swig_defs above) so it emits code referencing Trick::DRHDF5,
+# but if the generated wrapper is then compiled without -DHDF5 that same
+# #ifdef skips the include and the class is undeclared ("no type named
+# 'DRHDF5'"). Mirrors trick_swig/Makefile:4-5,38-42 (TRICK_CXXFLAGS += -DHDF5,
+# plus -I$(HDF5)/include when HDF5 != /usr, since -DHDF5 then also activates
+# DRHDF5.hh's own `#include "hdf5.h"`).
+if(HDF5_HOME)
+    target_compile_definitions( trick_pyip PRIVATE HDF5 )
+    if(NOT HDF5_HOME STREQUAL "/usr")
+        target_include_directories( trick_pyip PRIVATE ${HDF5_HOME}/include )
+    endif()
+endif()
+
 # Makefile: trick_swig/Makefile:28-34 — SWIG-generated code triggers warnings
 # the rest of the build treats as errors elsewhere; suppress the same set.
 set(_tr_swig_wrap_opts -Wno-redundant-decls -Wno-shadow -Wno-unused-parameter -Wno-missing-field-initializers)
