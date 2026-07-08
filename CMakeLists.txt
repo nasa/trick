@@ -45,10 +45,14 @@ set(LLVM_HOME "" CACHE PATH "LLVM root directory (empty = auto-detect)")
 set(UDUNITS_HOME "" CACHE PATH "UDUnits2 root directory (empty = auto-detect)")
 set(PYTHON_VERSION "" CACHE STRING "Suffix for python search, e.g. 3 looks for python3")
 
+# -m32 propagates through the trick_build_flags INTERFACE target below, NOT
+# directory-wide: Makefile.common:119-122 only puts -m32 on TRICK_ICGFLAGS/
+# TRICK_SYSTEM_CXXFLAGS/TRICK_SYSTEM_LDFLAGS (flags for sim/library code),
+# never on the trick-ICG tool's own compile — a 32-bit ICG can't link the
+# 64-bit LLVM archives — and data_products' own -m32 gate
+# (TRICK_DP_FORCE_32BIT) is dead upstream, so it never builds 32-bit either.
 if(TRICK_FORCE_32BIT)
     set(TRICK_FORCE_32BIT_MK 1)
-    add_compile_options(-m32)
-    add_link_options(-m32)
 else()
     set(TRICK_FORCE_32BIT_MK 0)
 endif()
