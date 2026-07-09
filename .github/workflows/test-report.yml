@@ -1,5 +1,13 @@
 name: Test Report
 
+# Tie each run's title back to the CI run that triggered it, so the Actions list
+# shows e.g. "Test Report · CI #98 (branch) · <commit/PR title>" instead of a
+# context-free "Test Report #63".
+run-name: >-
+  Test Report · CI #${{ github.event.workflow_run.run_number }}
+  (${{ github.event.workflow_run.head_branch }}) ·
+  ${{ github.event.workflow_run.display_title }}
+
 on:
   workflow_run:
     workflows: [CI]
@@ -19,11 +27,12 @@ jobs:
       - name: Publish Test Report
         uses: dorny/test-reporter@v3
         with:
-          # Matches all Trick_* artifacts uploaded by the CI workflow.
-          artifact: /Trick_(.*)/
-          name: Test Results ($1)
+          # Matches all "Test - *" artifacts uploaded by the CI workflow.
+          artifact: /Test - (.*)/
+          name: $1
           path: "*.xml"
           reporter: java-junit
           fail-on-error: false
           fail-on-empty: false
           max-annotations: 50
+          use-actions-summary: false
