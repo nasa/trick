@@ -88,6 +88,14 @@ void * Trick::VariableServerSessionThread::thread_body() {
             // Pause here if we are in a restart condition
             test_pause();
 
+            // If the variable server has been disabled (possibly at runtime), stop
+            // servicing this client. No commands are read or executed and the session
+            // disconnects. Broadcasting continues independently from the listen thread.
+            if (!_vs->get_enabled())
+            {
+                break;
+            }
+
             // Look for a message from the client
             // Parse and execute if one is availible
             int read_status = _session->handle_message();

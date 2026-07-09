@@ -1,25 +1,25 @@
-<p align=center>
-<picture>
+<p align="center">
   <a href="https://nasa.github.io/trick">
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.github.com/nasa/Trick/master/TrickLogo_darkmode.png">
-  <img alt="Trick logo" src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" height=150px>
-</picture>
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nasa/Trick/master/TrickLogo_darkmode.png">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/nasa/Trick/master/TrickLogo.png">
+      <img alt="Trick logo" src="https://raw.githubusercontent.com/nasa/Trick/master/TrickLogo.png" height="150">
+    </picture>
+  </a>
 </p>
 
-<p align=center>
-<a href="https://github.com/nasa/trick/actions?query=workflow%3ALinux">
-<img src="https://github.com/nasa/trick/actions/workflows/test_linux.yml/badge.svg?branch=master" alt="Linux" height=30px>
-</a>
-<a href="https://github.com/nasa/trick/actions?query=workflow%3AmacOS">
-<img src="https://github.com/nasa/trick/actions/workflows/test_macos.yml/badge.svg?branch=master" alt="macOS" height=30px>
-</a>
-<a href="https://github.com/nasa/trick/actions?query=workflow%3A32-bit">
-<img src="https://github.com/nasa/trick/actions/workflows/test_32_oracle.yml/badge.svg?branch=master" alt="32-bit" height=30px>
-</a>
+<p align="center">
+  <a href="https://github.com/nasa/trick/actions/workflows/ci.yml"><img
+    src="https://github.com/nasa/trick/actions/workflows/ci.yml/badge.svg?branch=master"
+    alt="CI (macOS and Linux)" height="30"
+  /></a>
+  <a href="https://github.com/nasa/trick/actions?query=workflow%3A32-bit"><img
+    src="https://github.com/nasa/trick/actions/workflows/test_32_oracle.yml/badge.svg?branch=master"
+    alt="32-bit" height="30"
+  /></a>
 </p>
 
-
-<p align=justify>
+<p align="justify">
 The Trick Simulation Environment, developed at the NASA Johnson Space Center, is a powerful simulation development framework that enables users to build applications for all phases of space vehicle development. Trick expedites the creation of simulations for early vehicle design, performance evaluation, flight software development, flight vehicle dynamic load analysis, and virtual/hardware in the loop training. Trick's purpose is to provide a common set of simulation capabilities that allow users to concentrate on their domain specific models, rather than simulation-specific functions like job ordering, input file processing, or data recording.
 </p>
 

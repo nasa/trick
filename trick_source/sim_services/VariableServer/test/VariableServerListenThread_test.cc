@@ -2,23 +2,23 @@
 PURPOSE:                     ( Tests for the VariableServerListenThread class )
 *******************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-#include "trick/CommandLineArguments.hh"
 #include "trick/VariableServer.hh"
 
-#include "trick/message_type.h"
-
+#include "trick/CommandLineArguments.hh"
 #include "trick/Mock/MockExecutive.hh"
 #include "trick/Mock/MockMessagePublisher.hh"
-
+#include "trick/Mock/MockMulticastGroup.hh"
 #include "trick/Mock/MockTCPClientListener.hh"
 #include "trick/Mock/MockTCPConnection.hh"
-#include "trick/Mock/MockMulticastGroup.hh"
-
 #include "trick/VariableServerListenThread.hh"
+#include "trick/VariableServerSessionThread.hh"
+#include "trick/message_type.h"
 
+#include <sstream>
+#include <unistd.h>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 using ::testing::Return;
 using ::testing::_;
@@ -335,6 +335,47 @@ TEST_F(VariableServerListenThread_test, accept_connection) {
     // ASSERT
 }
 
+TEST_F(VariableServerListenThread_test, reject_connection_when_disabled)
+{
+    // ARRANGE
+    setup_normal_listener_expectations(listener);
+
+    // The variable server is disabled (the master switch is off). A pending connection
+    // must be accepted and immediately closed so it cannot hang and does not starve
+    // broadcasting; no session thread is created. The same path is taken when the
+    // variable server is enabled but not allowing connections.
+    varserver.set_enabled(0);
+
+    // Expect no calls to mcast (broadcast disabled for this test)
+    EXPECT_CALL(*mcast, initialize()).Times(0);
+    EXPECT_CALL(*mcast, broadcast(_)).Times(0);
+
+    EXPECT_CALL(*listener, setBlockMode(true)).Times(1);
+
+    EXPECT_CALL(*listener, checkForNewConnections()).WillOnce(Return(true)).WillRepeatedly(Return(false));
+
+    // The rejected connection is owned and deleted by the listen thread, so it must be
+    // heap allocated. gmock verifies these expectations when the thread deletes it.
+    auto* connection = new MockTCPConnection;
+    EXPECT_CALL(*connection, start()).WillOnce(Return(0));
+    EXPECT_CALL(*connection, disconnect()).WillOnce(Return(0));
+
+    EXPECT_CALL(*listener, setUpNewConnection()).WillOnce(Return(connection));
+
+    Trick::VariableServerListenThread listen_thread(listener);
+    listen_thread.set_broadcast(false);
+    listen_thread.set_multicast_group(mcast);
+
+    // ACT
+    listen_thread.create_thread();
+
+    sleep(3);
+
+    listen_thread.cancel_thread();
+    listen_thread.join_thread();
+
+    // ASSERT (expectations verified when the listen thread deletes the connection)
+}
 
 TEST_F(VariableServerListenThread_test, connection_fails) {
     // ARRANGE
@@ -393,7 +434,7 @@ TEST_F(VariableServerListenThread_test, restart_fails) {
         .WillOnce(Return(-1));
 
     EXPECT_CALL(*listener, disconnect());
-    
+
     EXPECT_CALL(message_publisher, publish(MSG_ERROR, _));
     EXPECT_CALL(message_publisher, publish(MSG_INFO, _));
 
