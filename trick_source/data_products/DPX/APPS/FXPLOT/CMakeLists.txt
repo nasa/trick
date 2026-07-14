@@ -48,7 +48,7 @@ set(_tr_fxplot_libs
     LibXml2::LibXml2
 )
 if(HDF5_HOME)
-    list(APPEND _tr_fxplot_libs -L${HDF5_HOME}/lib -lhdf5_hl -lhdf5 -lsz)
+    list(APPEND _tr_fxplot_libs trick::hdf5)
 endif()
 list(APPEND _tr_fxplot_libs
     dl

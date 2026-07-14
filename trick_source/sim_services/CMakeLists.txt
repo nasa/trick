@@ -256,6 +256,9 @@ add_library( sim_services_objs OBJECT
 target_link_libraries( sim_services_objs PUBLIC trick_build_flags )
 
 # HDF5 support in DataRecord/DRHDF5.cpp (Makefile: DataRecord/Makefile:6-9).
+# Deliberately per-source rather than target_link_libraries(... trick::hdf5):
+# source properties can't consume a target's usage requirements, and this
+# object's -I scoping must match the Makefile's file-local override exactly.
 if(HDF5_HOME)
     set_property(SOURCE DataRecord/DRHDF5.cpp APPEND PROPERTY COMPILE_DEFINITIONS HDF5)
     if(NOT HDF5_HOME STREQUAL "/usr")

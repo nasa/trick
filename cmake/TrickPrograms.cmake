@@ -171,6 +171,22 @@ else()
     set(HDF5_HOME "")
 endif()
 
+# trick::hdf5: derived from HDF5_HOME (not find_package(HDF5), which can
+# resolve a different install than the ladder above — e.g. via HDF5_ROOT or
+# pkg-config — and silently diverge from the HDF5_HOME baked into
+# config_user.mk for sims). Mirrors the make build's literal link line
+# (-L$(HDF5_HOME)/lib -lhdf5_hl -lhdf5 -lsz); -lsz has no FindHDF5 equivalent.
+# No -DHDF5 here: that define is deliberately per-file/per-target scoped to
+# match the Makefiles (see sim_services/CMakeLists.txt, data_products/Log).
+if(HDF5_HOME)
+    add_library(trick::hdf5 INTERFACE IMPORTED)
+    target_link_directories(trick::hdf5 INTERFACE ${HDF5_HOME}/lib)
+    target_link_libraries(trick::hdf5 INTERFACE hdf5_hl hdf5 sz)
+    if(NOT HDF5_HOME STREQUAL "/usr")
+        target_include_directories(trick::hdf5 INTERFACE ${HDF5_HOME}/include)
+    endif()
+endif()
+
 # ── GSL (autoconf/m4/tr_gsl_home.m4) ────────────────────────────────────────
 if(GSL_HOME)
     if(NOT EXISTS "${GSL_HOME}/include/gsl")

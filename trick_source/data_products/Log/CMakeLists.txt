@@ -28,6 +28,11 @@ target_include_directories(dp_log PRIVATE
 target_link_libraries(dp_log PRIVATE Trick::udunits2)
 set_target_properties(dp_log PROPERTIES ARCHIVE_OUTPUT_NAME log)
 
+# Deliberately per-source rather than target_link_libraries(... trick::hdf5):
+# source properties can't consume a target's usage requirements, and this
+# scoping must match the Makefile's file-local override exactly (link-time
+# HDF5 libs come from trick::hdf5 on the FXPLOT/GXPLOT executables that link
+# dp_log).
 if(HDF5_HOME)
     set_source_files_properties(TrickHDF5.cpp DataStreamFactory.cpp PROPERTIES
         COMPILE_OPTIONS "-I${HDF5_HOME}/include;-DHDF5"

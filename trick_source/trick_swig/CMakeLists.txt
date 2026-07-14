@@ -82,9 +82,7 @@ set_target_properties( trick_pyip PROPERTIES ARCHIVE_OUTPUT_NAME trick_pyip)
 # DRHDF5.hh's own `#include "hdf5.h"`).
 if(HDF5_HOME)
     target_compile_definitions( trick_pyip PRIVATE HDF5 )
-    if(NOT HDF5_HOME STREQUAL "/usr")
-        target_include_directories( trick_pyip PRIVATE ${HDF5_HOME}/include )
-    endif()
+    target_link_libraries( trick_pyip PRIVATE trick::hdf5 )
 endif()
 
 # Makefile: trick_swig/Makefile:28-34 — SWIG-generated code triggers warnings
