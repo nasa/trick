@@ -131,7 +131,6 @@ endif()
 #    --trick_top_level stays the source tree, since the test/SIM_* sim
 #    directories test_sims.yml references only exist there, not in the stage.
 if(EXISTS ${CMAKE_SOURCE_DIR}/test_sims.yml)
-    find_package(Python3 COMPONENTS Interpreter)
     add_test(NAME sims
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/trickops.py
             --trick_top_level ${CMAKE_SOURCE_DIR}
