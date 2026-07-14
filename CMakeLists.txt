@@ -93,8 +93,6 @@ configure_file(
 # Phase 2 — core native build: ICG, io_src, archives, SWIG
 # ──────────────────────────────────────────────────────────────────────────
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Embed)
-find_package(FLEX REQUIRED)
-find_package(BISON REQUIRED)
 
 # Flags shared by every Trick-core compile target, mirroring
 # TRICK_SYSTEM_CXXFLAGS/TRICK_CXXFLAGS (Makefile.common:98-197). HDF5's
@@ -180,7 +178,6 @@ add_library(trick STATIC
     ${TRICK_IO_SOURCES}
 )
 target_link_libraries(trick PUBLIC trick_build_flags)
-set_target_properties(trick PROPERTIES ARCHIVE_OUTPUT_NAME trick)
 add_dependencies(trick trick_io_src_gen)
 
 # ──────────────────────────────────────────────────────────────────────────
