@@ -25,8 +25,7 @@ target_include_directories(dp_log PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_SOURCE_DIR}/include
 )
-separate_arguments(_tr_dp_log_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
-target_compile_options(dp_log PRIVATE ${_tr_dp_log_udunits_includes})
+target_link_libraries(dp_log PRIVATE Trick::udunits2)
 set_target_properties(dp_log PROPERTIES ARCHIVE_OUTPUT_NAME log)
 
 if(HDF5_HOME)

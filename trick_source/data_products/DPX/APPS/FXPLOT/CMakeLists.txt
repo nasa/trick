@@ -33,8 +33,6 @@ target_include_directories(trick-fxplot PRIVATE
 if(MOTIF_HOME)
     target_include_directories(trick-fxplot PRIVATE ${MOTIF_HOME}/include)
 endif()
-separate_arguments(_tr_fxplot_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
-target_compile_options(trick-fxplot PRIVATE ${_tr_fxplot_udunits_includes})
 
 # Link order matters (GNU ld resolves left-to-right in one pass, so a library
 # must follow whatever consumes its symbols). Mirrors the makefile's final link
@@ -42,7 +40,6 @@ target_compile_options(trick-fxplot PRIVATE ${_tr_fxplot_udunits_includes})
 # TRICK_UNIT_LIBS LIBXML HDF5_LIB -ldl UDUNITS_LDFLAGS) then XLIBS (Motif -lXm
 # -lXt -lX11) then LIBRTDEF (-lrt on Linux). See ../GXPLOT/CMakeLists.txt for
 # the same reasoning and the macOS-vs-Linux linker-strictness note.
-separate_arguments(_tr_fxplot_udunits_ldflags NATIVE_COMMAND "${UDUNITS_LDFLAGS}")
 set(_tr_fxplot_libs
     DPC
     DPM
@@ -55,7 +52,7 @@ if(HDF5_HOME)
 endif()
 list(APPEND _tr_fxplot_libs
     dl
-    ${_tr_fxplot_udunits_ldflags}
+    Trick::udunits2
 )
 # Motif (-lXm) has no imported target; link it from MOTIF_HOME like the makefile.
 if(MOTIF_HOME AND NOT MOTIF_HOME STREQUAL "/usr")
@@ -72,5 +69,9 @@ else()
     list(APPEND _tr_fxplot_libs rt)
 endif()
 target_link_libraries(trick-fxplot PRIVATE ${_tr_fxplot_libs})
+# UDUNITS_HOME may be a non-system prefix; keep the build-time rpath to
+# libudunits2 in the installed binary (CMake drops build rpath at install by
+# default) instead of the makefile's literal -Wl,-rpath.
+set_target_properties(trick-fxplot PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS trick-fxplot RUNTIME DESTINATION bin)
