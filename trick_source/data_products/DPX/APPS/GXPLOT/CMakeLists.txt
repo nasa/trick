@@ -49,7 +49,7 @@ set(_tr_gxplot_libs
     dp_log dp_var dp_eqparse dp_units
 )
 if(HDF5_HOME)
-    list(APPEND _tr_gxplot_libs -L${HDF5_HOME}/lib -lhdf5_hl -lhdf5 -lsz)
+    list(APPEND _tr_gxplot_libs trick::hdf5)
 endif()
 list(APPEND _tr_gxplot_libs
     dl
