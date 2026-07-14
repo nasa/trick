@@ -3,7 +3,10 @@
 # try_compile against TestICGLinkedLibs.cpp.
 #
 # Requires LLVM_LIB_DIR and CLANG_VERSION (from FindLLVMClang.cmake).
-# Exports: ICG_CLANGLIBS
+# Exports: ICG_CLANGLIBS, TR_LLVM_LIBS, TR_LLVM_SYSTEM_LIBS, TR_LLVM_LDFLAGS
+# (llvm-config --libs/--system-libs/--ldflags, the latter pre-filtered per
+# platform — see below). trick_source/codegen/Interface_Code_Gen/CMakeLists.txt
+# links trick-ICG from these instead of re-running llvm-config itself.
 
 if(NOT DEFINED LLVM_LIB_DIR)
     message(FATAL_ERROR "TrickClangLibs.cmake requires LLVM_LIB_DIR (include FindLLVMClang first)")
@@ -46,21 +49,27 @@ endif()
 string(REGEX MATCH "^[0-9]+" _tr_llvm_version_major "${LLVM_VERSION_STRING}")
 
 execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --libs
-    OUTPUT_VARIABLE _tr_llvm_libs OUTPUT_STRIP_TRAILING_WHITESPACE)
+    OUTPUT_VARIABLE TR_LLVM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --system-libs
-    OUTPUT_VARIABLE _tr_llvm_system_libs OUTPUT_STRIP_TRAILING_WHITESPACE)
+    OUTPUT_VARIABLE _tr_llvm_system_libs_raw OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --ldflags
-    OUTPUT_VARIABLE _tr_llvm_ldflags OUTPUT_STRIP_TRAILING_WHITESPACE)
+    OUTPUT_VARIABLE TR_LLVM_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(_tr_icg_link_libs "${ICG_CLANGLIBS} ${_tr_llvm_libs}")
+# TR_LLVM_SYSTEM_LIBS: --system-libs filtered per platform, computed once
+# here and reused by both this file's sanity try_compile below and
+# Interface_Code_Gen/CMakeLists.txt's trick-ICG link.
+set(TR_LLVM_SYSTEM_LIBS "")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if(LLVM_VERSION_STRING VERSION_GREATER_EQUAL "3.5")
         # Fedora adds -ledit as a system lib, but it isn't installed or required.
-        string(REPLACE "-ledit" "" _tr_llvm_system_libs_filtered "${_tr_llvm_system_libs}")
-        set(_tr_icg_link_libs "${_tr_icg_link_libs} ${_tr_llvm_system_libs_filtered}")
+        string(REPLACE "-ledit" "" TR_LLVM_SYSTEM_LIBS "${_tr_llvm_system_libs_raw}")
     endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(_tr_icg_link_libs "${_tr_icg_link_libs} ${_tr_llvm_system_libs}")
+    set(TR_LLVM_SYSTEM_LIBS "${_tr_llvm_system_libs_raw}")
+endif()
+
+set(_tr_icg_link_libs "${ICG_CLANGLIBS} ${TR_LLVM_LIBS} ${TR_LLVM_SYSTEM_LIBS}")
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     if(_tr_llvm_version_major GREATER_EQUAL 16)
         set(_tr_icg_link_libs "${_tr_icg_link_libs} -lc++abi -lclang-cpp")
     else()
@@ -76,7 +85,7 @@ else()
     set(_tr_icg_cxx_std 11)
 endif()
 
-separate_arguments(_tr_icg_link_libs_list NATIVE_COMMAND "-L${LLVM_LIB_DIR} ${_tr_llvm_ldflags} ${_tr_icg_link_libs}")
+separate_arguments(_tr_icg_link_libs_list NATIVE_COMMAND "-L${LLVM_LIB_DIR} ${TR_LLVM_LDFLAGS} ${_tr_icg_link_libs}")
 
 try_compile(TR_ICG_CLANG_HEADERS_COMPILE
     ${CMAKE_BINARY_DIR}/CMakeFiles/TrickClangLibsCheck
