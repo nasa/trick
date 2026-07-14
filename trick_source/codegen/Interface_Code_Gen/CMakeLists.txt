@@ -44,8 +44,6 @@ if(CMAKE_MATCH_1)
 endif()
 
 target_include_directories(trick-ICG PRIVATE ${LLVM_INCLUDE_DIR})
-separate_arguments(_tr_icg_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
-target_compile_options(trick-ICG PRIVATE ${_tr_icg_udunits_includes})
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_compile_definitions(trick-ICG PRIVATE TRICK_GCC_VERSION="${GCC_VERSION}")
@@ -73,8 +71,7 @@ execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --ldflags
 separate_arguments(_tr_icg_llvm_libs_list NATIVE_COMMAND "${_tr_icg_llvm_libs}")
 separate_arguments(_tr_icg_llvm_ldflags_list NATIVE_COMMAND "${_tr_icg_llvm_ldflags}")
 
-separate_arguments(_tr_icg_udunits_ldflags_list NATIVE_COMMAND "${UDUNITS_LDFLAGS}")
-target_link_libraries(trick-ICG PRIVATE ${_tr_icg_clanglibs_list} ${_tr_icg_llvm_ldflags_list} ${_tr_icg_llvm_libs_list} ${_tr_icg_udunits_ldflags_list})
+target_link_libraries(trick-ICG PRIVATE ${_tr_icg_clanglibs_list} ${_tr_icg_llvm_ldflags_list} ${_tr_icg_llvm_libs_list} Trick::udunits2)
 target_link_directories(trick-ICG PRIVATE ${LLVM_LIB_DIR})
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -102,3 +99,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         VERBATIM
     )
 endif()
+
+# UDUNITS_HOME may be a non-system prefix; keep the build-time rpath to
+# libudunits2 in the installed binary (CMake drops build rpath at install by
+# default) instead of the makefile's literal -Wl,-rpath.
+set_target_properties(trick-ICG PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)

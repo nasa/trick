@@ -121,10 +121,7 @@ target_include_directories(trick_build_flags INTERFACE
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/include/trick/compat
 )
-if(UDUNITS_INCLUDES)
-    separate_arguments(_tr_udunits_includes_list NATIVE_COMMAND "${UDUNITS_INCLUDES}")
-    target_compile_options(trick_build_flags INTERFACE ${_tr_udunits_includes_list})
-endif()
+target_link_libraries(trick_build_flags INTERFACE Trick::udunits2)
 if(TRICK_USE_ER7_UTILS)
     target_compile_definitions(trick_build_flags INTERFACE USE_ER7_UTILS_INTEGRATORS)
     if(EXISTS ${CMAKE_SOURCE_DIR}/trick_source/er7_utils/CheckpointHelper)

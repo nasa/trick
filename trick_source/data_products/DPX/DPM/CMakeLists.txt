@@ -29,6 +29,4 @@ target_include_directories(DPM PRIVATE
 # PRIVATE: libxml2 headers are a compile-only need of DPM's own sources; a
 # static archive propagates no link, so this just supplies the include dirs
 # (via LibXml2::LibXml2's INTERFACE_INCLUDE_DIRECTORIES).
-target_link_libraries(DPM PRIVATE LibXml2::LibXml2)
-separate_arguments(_tr_dpm_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
-target_compile_options(DPM PRIVATE ${_tr_dpm_udunits_includes})
+target_link_libraries(DPM PRIVATE LibXml2::LibXml2 Trick::udunits2)

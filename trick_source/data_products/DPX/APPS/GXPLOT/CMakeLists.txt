@@ -32,8 +32,6 @@ target_include_directories(trick-gxplot PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../..
     ${CMAKE_SOURCE_DIR}/include
 )
-separate_arguments(_tr_gxplot_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
-target_compile_options(trick-gxplot PRIVATE ${_tr_gxplot_udunits_includes})
 
 # Link order matters here: GNU ld (default on Linux) resolves symbols in a
 # single left-to-right pass, so a library must appear *after* whatever
@@ -45,7 +43,6 @@ target_compile_options(trick-gxplot PRIVATE ${_tr_gxplot_udunits_includes})
 # actually need it, and silently linked fine on macOS (ld64's linker is far
 # more forgiving of ordering) while failing with "undefined reference to
 # `ut_parse'" etc. on Linux.
-separate_arguments(_tr_gxplot_udunits_ldflags NATIVE_COMMAND "${UDUNITS_LDFLAGS}")
 set(_tr_gxplot_libs
     DPC
     DPM
@@ -56,7 +53,7 @@ if(HDF5_HOME)
 endif()
 list(APPEND _tr_gxplot_libs
     dl
-    ${_tr_gxplot_udunits_ldflags}
+    Trick::udunits2
     X11::Xt X11::X11
     LibXml2::LibXml2
 )
@@ -67,5 +64,9 @@ else()
 endif()
 list(APPEND _tr_gxplot_libs DPC dpv_utils)
 target_link_libraries(trick-gxplot PRIVATE ${_tr_gxplot_libs})
+# UDUNITS_HOME may be a non-system prefix; keep the build-time rpath to
+# libudunits2 in the installed binary (CMake drops build rpath at install by
+# default) instead of the makefile's literal -Wl,-rpath.
+set_target_properties(trick-gxplot PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS trick-gxplot RUNTIME DESTINATION bin)

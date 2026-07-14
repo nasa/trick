@@ -8,6 +8,5 @@ add_library(dp_units STATIC
     units_conv.c
 )
 target_include_directories(dp_units PRIVATE ${CMAKE_SOURCE_DIR}/include)
-separate_arguments(_tr_dp_units_udunits_includes NATIVE_COMMAND "${UDUNITS_INCLUDES}")
-target_compile_options(dp_units PRIVATE ${_tr_dp_units_udunits_includes})
+target_link_libraries(dp_units PRIVATE Trick::udunits2)
 set_target_properties(dp_units PROPERTIES ARCHIVE_OUTPUT_NAME trick_units)
