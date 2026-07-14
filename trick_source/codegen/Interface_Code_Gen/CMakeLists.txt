@@ -61,29 +61,21 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/main.cpp PROPERTIES
     COMPILE_DEFINITIONS "TRICK_VERSION=\"${TRICK_MAJOR}.${TRICK_MINOR}.${TRICK_TINY}\""
 )
 
+# TR_LLVM_LIBS/TR_LLVM_SYSTEM_LIBS/TR_LLVM_LDFLAGS come from
+# cmake/TrickClangLibs.cmake (included at the top level before this
+# subdirectory), which already ran `llvm-config --libs/--system-libs/--ldflags`
+# and filtered --system-libs per platform (e.g. stripping Fedora's spurious
+# -ledit on Linux) for its own sanity try_compile — reuse them here instead of
+# invoking llvm-config and re-deriving the same filter a second time.
 separate_arguments(_tr_icg_clanglibs_list NATIVE_COMMAND "${ICG_CLANGLIBS}")
-execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --libs
-    OUTPUT_VARIABLE _tr_icg_llvm_libs OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --system-libs
-    OUTPUT_VARIABLE _tr_icg_llvm_system_libs OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --ldflags
-    OUTPUT_VARIABLE _tr_icg_llvm_ldflags OUTPUT_STRIP_TRAILING_WHITESPACE)
-separate_arguments(_tr_icg_llvm_libs_list NATIVE_COMMAND "${_tr_icg_llvm_libs}")
-separate_arguments(_tr_icg_llvm_ldflags_list NATIVE_COMMAND "${_tr_icg_llvm_ldflags}")
+separate_arguments(_tr_icg_llvm_libs_list NATIVE_COMMAND "${TR_LLVM_LIBS}")
+separate_arguments(_tr_icg_llvm_ldflags_list NATIVE_COMMAND "${TR_LLVM_LDFLAGS}")
+separate_arguments(_tr_icg_llvm_system_libs_list NATIVE_COMMAND "${TR_LLVM_SYSTEM_LIBS}")
 
-target_link_libraries(trick-ICG PRIVATE ${_tr_icg_clanglibs_list} ${_tr_icg_llvm_ldflags_list} ${_tr_icg_llvm_libs_list} Trick::udunits2)
+target_link_libraries(trick-ICG PRIVATE ${_tr_icg_clanglibs_list} ${_tr_icg_llvm_ldflags_list} ${_tr_icg_llvm_libs_list} ${_tr_icg_llvm_system_libs_list} Trick::udunits2)
 target_link_directories(trick-ICG PRIVATE ${LLVM_LIB_DIR})
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    if(NOT LLVM_VERSION_STRING VERSION_LESS "3.5")
-        # Fedora adds -ledit as a system lib, but it isn't installed, or required.
-        string(REPLACE "-ledit" "" _tr_icg_llvm_system_libs "${_tr_icg_llvm_system_libs}")
-        separate_arguments(_tr_icg_llvm_system_libs_list NATIVE_COMMAND "${_tr_icg_llvm_system_libs}")
-        target_link_libraries(trick-ICG PRIVATE ${_tr_icg_llvm_system_libs_list})
-    endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    separate_arguments(_tr_icg_llvm_system_libs_list NATIVE_COMMAND "${_tr_icg_llvm_system_libs}")
-    target_link_libraries(trick-ICG PRIVATE ${_tr_icg_llvm_system_libs_list})
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     if(_tr_llvm_version_major GREATER_EQUAL 16)
         target_link_libraries(trick-ICG PRIVATE -lc++abi -lclang-cpp)
     else()
