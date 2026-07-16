@@ -166,6 +166,10 @@ public class MtvApp extends TrickApplication {
                 popup.setSize(400, 100);
                 popup.setVisible(true);
 
+                // NOTE: The variable order parsed below is produced by Trick::MTV::send_event_data()
+                // (MTV.cpp) and is verified by test/SIM_mtv (SendEventDataComments in
+                // test_client.cpp). If the layout changes in any of these places, the
+                // others must change with it.
                 vscom.put("trick.mtv_send_event_data();"); // get all event data from Trick
                 numvars = Integer.parseInt(vscom.get());
                 results = vscom.get(numvars).split("\t");
@@ -253,6 +257,13 @@ public class MtvApp extends TrickApplication {
                 map = new int[mtv_count]; // this will map the gui event table index to the mtv_events data
 
                 // -------------------------- get cyclical event data ---------------------------
+                // NOTE: The variable paths built below MUST stay in step with the SIM_mtv test
+                // (mtvapp_event_vars() in test/SIM_mtv/models/test_client/test_client.cpp),
+                // which replicates this exact subscription set so CI catches paths the
+                // variable server cannot resolve. Issue #2139 (events with index >= 1
+                // failing to load) slipped through because the test hand-wrote correct
+                // paths while this code emitted broken ones. If you add, remove, or
+                // rename a var_add below, update the test to match.
                 mtv_var_count = 0;
                 vscom.put("trick.var_cycle(" + var_cycle + ")");
                 // tell var server to get sim time and mtv_udpate_ticker cyclically
@@ -269,34 +280,39 @@ public class MtvApp extends TrickApplication {
                     }
                     // tell var server to get status info for each event that we will read cyclically
                     map[mtv_count] = ii;
-                    event_vars = "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].active\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].fired_time\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].fired_count\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].ran_time\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].ran_count\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].manual\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].manual_fired\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].hold\"); ";
-                    event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].added\"); ";
+                    event_vars = String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].active\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].fired_time\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].fired_count\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].ran_time\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].ran_count\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].manual\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].manual_fired\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].hold\"); ", ii);
+                    event_vars += String.format("trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].added\"); ", ii);
                     mtv_var_count += 9;
                     for (int jj = 0; jj < mtv_events.get(ii).cond_count; jj++) {
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj
-                                + "].enabled\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj
-                                + "].fired_time\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj
-                                + "].fired_count\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].condition_list[" + jj
-                                + "].hold\"); ";
+                        event_vars += String.format(
+                                "trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].condition_list[%d][0].enabled\"); ",
+                                ii, jj);
+                        event_vars += String.format(
+                                "trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].condition_list[%d][0].fired_time\"); ",
+                                ii, jj);
+                        event_vars += String.format(
+                                "trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].condition_list[%d][0].fired_count\"); ",
+                                ii, jj);
+                        event_vars += String.format(
+                                "trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].condition_list[%d][0].hold\"); ", ii, jj);
                         mtv_var_count += 4;
                     }
                     for (int jj = 0; jj < mtv_events.get(ii).act_count; jj++) {
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].action_list[" + jj
-                                + "].enabled\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].action_list[" + jj
-                                + "].ran_time\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" + ii + "][0].action_list[" + jj
-                                + "].ran_count\"); ";
+                        event_vars += String.format(
+                                "trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].action_list[%d][0].enabled\"); ", ii, jj);
+                        event_vars += String.format(
+                                "trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].action_list[%d][0].ran_time\"); ",
+                                ii, jj);
+                        event_vars += String.format(
+                                "trick.var_add(\"trick_ip.mtv.mtv_list[%d][0].action_list[%d][0].ran_count\"); ",
+                                ii, jj);
                         mtv_var_count += 3;
                     }
                     // System.out.println(event_vars);
