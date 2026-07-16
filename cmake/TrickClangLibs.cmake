@@ -100,5 +100,28 @@ try_compile(TR_ICG_CLANG_HEADERS_COMPILE
     OUTPUT_VARIABLE TR_ICG_CLANG_HEADERS_COMPILE_OUTPUT
 )
 if(NOT TR_ICG_CLANG_HEADERS_COMPILE)
-    message(FATAL_ERROR "ICG_CLANGLIBS (\"${ICG_CLANGLIBS}\") failed a sanity link against ${LLVM_LIB_DIR}:\n${TR_ICG_CLANG_HEADERS_COMPILE_OUTPUT}")
+    message(FATAL_ERROR
+"trick-ICG cannot be linked against the LLVM/Clang libraries in
+  ${LLVM_LIB_DIR}
+using
+  ${CMAKE_CXX_COMPILER} (${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}).
+
+The usual cause is a C++ standard-library (ABI) mismatch: the LLVM/Clang
+archives are built against one standard library (libc++ or libstdc++) and the
+selected C++ compiler defaults to the other, so the std::string / std::* symbols
+the archives reference cannot be resolved. The compiler and LLVM must agree on
+the standard library.
+  * macOS: Homebrew/system LLVM is built against libc++. Build with a libc++
+    Clang -- the default 'c++'/Apple Clang, or Homebrew clang. GNU gcc/g++ uses
+    libstdc++ and has no working libc++ mode, so it cannot link these archives;
+    unset CC/CXX or set them to clang/clang++.
+  * Linux: distro LLVM is built against libstdc++; gcc and the system clang both
+    default to libstdc++, so either works. Avoid clang -stdlib=libc++ unless your
+    LLVM was also built that way.
+Alternatively, point -DLLVM_HOME at an LLVM built with the same standard library
+as your compiler.
+
+ICG_CLANGLIBS was: \"${ICG_CLANGLIBS}\"
+Sanity-link output:
+${TR_ICG_CLANG_HEADERS_COMPILE_OUTPUT}")
 endif()
