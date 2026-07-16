@@ -748,7 +748,6 @@ class WorkflowCommon:
         # status output is enabled. Otherwise, it will be called
         # directly. See below.
         def execute(stdscr=None):
-
             # stdscr is passed via curses.wrapper
             if stdscr:
                 # Turn off the cursor. Not all terminals may support
