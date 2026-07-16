@@ -19,12 +19,10 @@ PHASES = (-1, 0, 1, 2, 3)
 
 # SIM_test_varserv's err1/err2 runs are expected to exit with SIGUSR1. The exit
 # code differs Mac vs Linux, so it can't be hardcoded in the yaml; tag them here.
-VARSERV_SIGUSR1_RUNS = frozenset(
-    {
-        "Run test/SIM_test_varserv RUN_test/err1_test.py",
-        "Run test/SIM_test_varserv RUN_test/err2_test.py",
-    }
-)
+VARSERV_SIGUSR1_RUNS = frozenset({
+    "Run test/SIM_test_varserv RUN_test/err1_test.py",
+    "Run test/SIM_test_varserv RUN_test/err2_test.py",
+})
 
 # Jobs skipped on macOS (SIM_trickified_shared does not build/run there).
 DARWIN_SKIP_BUILDS = frozenset({"Build test/SIM_trickified_shared"})
