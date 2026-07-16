@@ -220,7 +220,7 @@ int Trick::IPPythonEvent::condition_job(int num, std::string jobname, std::strin
     } else {
         if (! job->job_class_name.compare("malfunction")) {
             // enable it if it's a malf job because they are not in any queue
-            job->disabled = false;
+            job->enable();
         }
         condition(num, jobname, comment, NULL, job );
     }
@@ -374,7 +374,7 @@ int Trick::IPPythonEvent::action_job(int num, std::string jobname, std::string c
     } else {
         if (! job->job_class_name.compare("malfunction")) {
             // enable it if it's a malf job because they are not in any queue
-            job->disabled = false;
+            job->enable();
         }
         action(num, jobname, comment, job, 3 );
     }
@@ -574,9 +574,12 @@ bool Trick::IPPythonEvent::process_user_event( long long curr_time ) {
                 } else if (condition_list[ii]->job != NULL) {
                 // if it's a job, get its return value
                     bool save_disabled_state = condition_list[ii]->job->disabled;
-                    condition_list[ii]->job->disabled = false;
+                    condition_list[ii]->job->enable();
                     return_val = condition_list[ii]->job->call();
-                    condition_list[ii]->job->disabled = save_disabled_state;
+                    if(save_disabled_state)
+                    {
+                        condition_list[ii]->job->disable();
+                    }
                 } else {
                 // otherwise use python to evaluate string
                     std::string full_in_string ;
@@ -637,16 +640,18 @@ bool Trick::IPPythonEvent::process_user_event( long long curr_time ) {
                     case 0 : // python, should not get here
                         break;
                     case 1 : // On
-                        action_list[ii]->job->disabled = false;
+                        action_list[ii]->job->enable();
                         break;
                     case 2 : // Off
-                        action_list[ii]->job->disabled = true;
+                        action_list[ii]->job->disable();
                         break;
                     case 3 : // Call
                         bool save_disabled_state = action_list[ii]->job->disabled;
-                        action_list[ii]->job->disabled = false;
+                        action_list[ii]->job->enable();
                         action_list[ii]->job->call();
-                        action_list[ii]->job->disabled = save_disabled_state;
+                        if(save_disabled_state) {
+                            action_list[ii]->job->disable();
+                        }
                         break;
                 }
             } else {
