@@ -8,12 +8,10 @@ Requires: python3 and requirements.txt containing:
   psutil         # For child process acquisition
 """
 
-import abc
 import copy
 import hashlib
 import inspect
 import os
-import pprint
 import re
 import socket
 import subprocess
@@ -33,7 +31,6 @@ sys.path.append(
         )
     )
 )
-import pdb
 
 from trick import variable_server
 
@@ -1744,7 +1741,7 @@ class SingleRun(Job):
                                 break
                         if outerbreak:
                             break
-                except Exception as e:
+                except Exception:
                     sim_pid = self._process.pid
                 # Now connect to the sim_pid
                 try:
@@ -1760,7 +1757,7 @@ class SingleRun(Job):
                 # If a SingleRun job terminates before the thread can connect to the
                 # variable server, Trick's variable_server module throws an IOError
                 # with the message: The remote endpoint has closed the connection
-                except IOError as e:
+                except IOError:
                     pass
 
         if self._use_var_server:

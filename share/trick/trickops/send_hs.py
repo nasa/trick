@@ -1,5 +1,5 @@
-import re, os
-import pdb
+import os
+import re
 
 # This global is the result of hours of frustration and debugging. This is only used by doctest
 # but appears to be the only solution to the problem of __file__ not being an absolute path in
