@@ -199,7 +199,7 @@ def unixify_string(string):
     return re.sub("['/]", '_', re.sub('[()!?,]', '', string)).replace(' ', '_')
 
 # CLASSES
-class Job(object):
+class Job:
     """
     Manages a given command intended to be run as a subprocess and provides methods
     for getting status information. More specific types of Jobs should inherit from
@@ -452,26 +452,26 @@ class FileSizeJob(Job):
             The expected number size in bytes of the log_file when the
             build is complete. Used to estimate progress.
         """
-        super(FileSizeJob, self).__init__(name, command, log_file)
+        super().__init__(name, command, log_file)
         self.size = size
 
     def get_status_string_line_count(self):
-        return super(FileSizeJob, self).get_status_string_line_count() + 1
+        return super().get_status_string_line_count() + 1
 
     def _not_started_string(self):
-        return super(FileSizeJob, self)._not_started_string() + '\n'
+        return super()._not_started_string() + '\n'
 
     def _running_string(self):
         progress = os.path.getsize(self._log_file.name) / float(self.size)
-        return (super(FileSizeJob, self)._running_string() + '\n' +
+        return (super()._running_string() + '\n' +
           create_progress_bar(progress, '{0:.1f}%'.format(100 * progress)))
 
     def _success_string(self):
-        return (super(FileSizeJob, self)._success_string() + '\n' +
+        return (super()._success_string() + '\n' +
           self._success_progress_bar)
 
     def _failed_string(self):
-        return (super(FileSizeJob, self)._failed_string() + '\n' +
+        return (super()._failed_string() + '\n' +
           self._failed_progress_bar)
 
 

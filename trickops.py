@@ -1,22 +1,50 @@
 import argparse
 import os
+import signal
 import sys
+from pathlib import Path
 
-thisdir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(os.path.join(thisdir, "share/trick/trickops"))
+sys.path.append(str(Path(__file__).resolve().parent / "share" / "trick" / "trickops"))
 
-from TrickWorkflow import TrickWorkflow  # noqa: E402 (needs the sys.path.append above)
-from WorkflowCommon import Job  # noqa: E402
+from TrickWorkflow import TrickWorkflow
+from WorkflowCommon import Job
 
-max_retries = 5
+THIS_DIR = Path(__file__).resolve().parent
+
+# Runs ordered by phase: some test sims depend on artifacts from an earlier
+# phase (SIM_stls / SIM_checkpoint_data_recording read checkpoints written by a
+# prior run; SIM_test_varserver has runs that cannot be concurrent;
+# SIM_mc_generation generates runs and then executes them).
+PHASES = (-1, 0, 1, 2, 3)
+
+# SIM_test_varserv's err1/err2 runs are expected to exit with SIGUSR1. The exit
+# code differs Mac vs Linux, so it can't be hardcoded in the yaml; tag them here.
+VARSERV_SIGUSR1_RUNS = frozenset(
+    {
+        "Run test/SIM_test_varserv RUN_test/err1_test.py",
+        "Run test/SIM_test_varserv RUN_test/err2_test.py",
+    }
+)
+
+# Jobs skipped on macOS (SIM_trickified_shared does not build/run there).
+DARWIN_SKIP_BUILDS = frozenset({"Build test/SIM_trickified_shared"})
+DARWIN_SKIP_RUNS = frozenset({"Run test/SIM_trickified_shared RUN_test/unit_test.py"})
 
 
 class SimTestWorkflow(TrickWorkflow):
-    def __init__(self, quiet, trick_top_level, cpus, config_file, trick_dir=None):
+    def __init__(
+        self,
+        quiet: bool,
+        trick_top_level: str | Path,
+        cpus: int,
+        config_file: str,
+        trick_dir: str | Path | None = None,
+    ) -> None:
         self.cpus = cpus
+        project_root = Path(trick_top_level)
+
         # Create the trick_test directory if it doesn't already exist
-        if not os.path.exists(trick_top_level + "/trick_test"):
-            os.makedirs(trick_top_level + "/trick_test")
+        (project_root / "trick_test").mkdir(exist_ok=True)
 
         # trick_dir defaults to trick_top_level (historical behavior: sims and
         # the installed Trick used by bin/trick-CP live in the same in-source
@@ -25,68 +53,52 @@ class SimTestWorkflow(TrickWorkflow):
         # installed product (bin/trick-CP, libexec/, share/) may be a staged
         # out-of-source CMake install instead.
         if trick_dir is None:
-            trick_dir = trick_top_level
+            trick_dir = project_root
 
         # Base Class initialize, this creates internal management structures
-        TrickWorkflow.__init__(
-            self,
-            project_top_level=(trick_top_level),
-            log_dir=(trick_top_level + "/trickops_logs/"),
-            trick_dir=trick_dir,
-            config_file=(trick_top_level + "/" + config_file),
+        super().__init__(
+            project_top_level=str(project_root),
+            log_dir=str(project_root / "trickops_logs"),
+            trick_dir=str(trick_dir),
+            config_file=str(project_root / config_file),
             cpus=self.cpus,
             quiet=quiet,
         )
 
-    def run(self):
-        build_jobs = self.get_jobs(kind="build")
+    def _skip_darwin(self, jobs: list, skip_names: frozenset) -> list:
+        """Return jobs with the macOS-excluded ones filtered out (announcing each)."""
+        if self.platform != "darwin":
+            return jobs
+        kept = []
+        for job in jobs:
+            if job.name in skip_names:
+                print(f"REMOVING JOB: {job.name}")
+            else:
+                kept.append(job)
+        return kept
 
-        # This is awful but I can't think of another way around it
-        # SIM_test_varserver has 2 tests that should return the code for SIGUSR1, the number is different on Mac vs Linux
-        # so it can't be hardcoded in the input yml file. Maybe this is a case having a label on a run would be cleaner?
-        import signal
-
-        run_names = [
-            "Run test/SIM_test_varserv RUN_test/err1_test.py",
-            "Run test/SIM_test_varserv RUN_test/err2_test.py",
-        ]
-        for job in [job for job in self.get_jobs(kind="run") if job.name in run_names]:
-            job._expected_exit_status = signal.SIGUSR1.value
-
-        # Several test sims have runs that require ordering via phases:
-        #  - SIM_stls dumps a checkpoint that is then read in and checked by a subsequent run
-        #  - SIM_checkpoint_data_recording dumps checkpoints that are read by subsequent runs
-        #  - SIM_test_varserver has 3 runs that cannot be concurrent
-        #  - SIM_mc_generation generates runs and then runs them
-        phases = [-1, 0, 1, 2, 3]
-
+    def run(self) -> int:
+        build_jobs = self._skip_darwin(self.get_jobs(kind="build"), DARWIN_SKIP_BUILDS)
         analysis_jobs = self.get_jobs(kind="analyze")
-        if self.platform == "darwin":
-            for job in build_jobs:
-                if job.name == "Build test/SIM_trickified_shared":
-                    print("REMOVING JOB: " + job.name)
-                    build_jobs.remove(job)
+
+        for job in self.get_jobs(kind="run"):
+            if job.name in VARSERV_SIGUSR1_RUNS:
+                job._expected_exit_status = signal.SIGUSR1.value
+
         builds_status = self.execute_jobs(
             build_jobs, max_concurrent=self.cpus, header="Executing all sim builds."
         )
 
-        jobs = build_jobs
-
+        jobs = list(build_jobs)
         run_status = 0
-        for phase in phases:
-            run_jobs = self.get_jobs(kind="run", phase=phase)
-            if self.platform == "darwin":
-                for job in run_jobs:
-                    if (
-                        job.name
-                        == "Run test/SIM_trickified_shared RUN_test/unit_test.py"
-                    ):
-                        print("REMOVING JOB: " + job.name)
-                        run_jobs.remove(job)
+        for phase in PHASES:
+            run_jobs = self._skip_darwin(
+                self.get_jobs(kind="run", phase=phase), DARWIN_SKIP_RUNS
+            )
             this_status = self.execute_jobs(
                 run_jobs,
                 max_concurrent=self.cpus,
-                header="Executing phase " + str(phase) + " runs.",
+                header=f"Executing phase {phase} runs.",
                 job_timeout=1000,
             )
             run_status = run_status or this_status
@@ -102,26 +114,17 @@ class SimTestWorkflow(TrickWorkflow):
 
         # Dump failing logs
         for job in jobs:
-            if (
-                job.get_status() == Job.Status.FAILED
-                or job.get_status() == Job.Status.TIMEOUT
-            ):
-                print("*" * 120)
-                if job.get_status() == Job.Status.FAILED:
-                    header = "Failing job: " + job.name
-                else:
-                    header = "Timed out job: " + job.name
-
-                numspaces = int((120 - 20 - len(header)) / 2 - 2)
-                print(
-                    "*" * 10,
-                    " " * numspaces,
-                    header,
-                    " " * numspaces,
-                    "*" * 10,
+            status = job.get_status()
+            if status in (Job.Status.FAILED, Job.Status.TIMEOUT):
+                header = (
+                    f"Failing job: {job.name}"
+                    if status == Job.Status.FAILED
+                    else f"Timed out job: {job.name}"
                 )
                 print("*" * 120)
-                print(open(job.log_file, "r").read())
+                print(f" {header} ".center(120, "*"))
+                print("*" * 120)
+                print(Path(job.log_file).read_text())
                 print("*" * 120, "\n\n\n")
 
         return (
@@ -133,7 +136,7 @@ class SimTestWorkflow(TrickWorkflow):
         )
 
 
-if __name__ == "__main__":
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build, run, and compare all test sims for Trick",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -143,7 +146,7 @@ if __name__ == "__main__":
         type=str,
         help="Path to the project tree containing the sim "
         "directories referenced by --config_file",
-        default=thisdir,
+        default=str(THIS_DIR),
     )
     parser.add_argument(
         "--trick_dir",
@@ -161,7 +164,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cpus",
         type=int,
-        default=(os.cpu_count() if os.cpu_count() is not None else 8),
+        default=os.cpu_count() or 8,
         help="Number of cpus to use for testing. For builds this number is used for MAKEFLAGS *and* number of "
         "concurrent builds (cpus^2). For sim runs this controls the maximum number of simultaneous runs.",
     )
@@ -171,15 +174,20 @@ if __name__ == "__main__":
         help="Run configuration file to use, relative to trick_top_level",
         default="test_sims.yml",
     )
+    return parser.parse_args()
 
-    myargs = parser.parse_args()
-    should_be_quiet = myargs.quiet or os.getenv("CI") is not None
-    sys.exit(
-        SimTestWorkflow(
-            quiet=should_be_quiet,
-            trick_top_level=myargs.trick_top_level,
-            trick_dir=myargs.trick_dir,
-            cpus=myargs.cpus,
-            config_file=myargs.config_file,
-        ).run()
-    )
+
+def main() -> int:
+    args = parse_args()
+    quiet = args.quiet or os.getenv("CI") is not None
+    return SimTestWorkflow(
+        quiet=quiet,
+        trick_top_level=args.trick_top_level,
+        trick_dir=args.trick_dir,
+        cpus=args.cpus,
+        config_file=args.config_file,
+    ).run()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

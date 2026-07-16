@@ -142,7 +142,7 @@ class TrickWorkflow(WorkflowCommon):
         RuntimeError
            If more than one range string found
         """
-        pattern = "\[\d+-\d+\]"
+        pattern = r"\[\d+-\d+\]"
         if (len(re.findall(pattern, string))) > 1:
           msg = ("ERROR: [min-max] pattern found more than once in %s. Only one instance is"
             " supported." % (string))
@@ -1434,7 +1434,7 @@ class SingleRun(Job):
         Start this Simulation job. Attempts a connection to the sim variable server
         in another thread after calling the base class Job() start() method
         """
-        super(SingleRun, self).start()
+        super().start()
         self._connected = False
 
         # Finding a sim via PID can take several seconds.
@@ -1490,13 +1490,13 @@ class SingleRun(Job):
             thread.start()
 
     def get_status_string_line_count(self):
-        return super(SingleRun, self).get_status_string_line_count() + 1
+        return super().get_status_string_line_count() + 1
 
     def _not_started_string(self):
-        return super(SingleRun, self)._not_started_string() + '\n'
+        return super()._not_started_string() + '\n'
 
     def _running_string(self):
-        elapsed_time = super(SingleRun, self)._running_string()
+        elapsed_time = super()._running_string()
 
         if self._connected:
             return (elapsed_time + self._connected_string() + '\n' +
@@ -1506,13 +1506,13 @@ class SingleRun(Job):
           create_progress_bar(0, 'Connecting'))
 
     def _success_string(self):
-        text = super(SingleRun, self)._success_string()
+        text = super()._success_string()
         if self._connected:
             text += self._connected_string()
         return text + '\n' + self._success_progress_bar
 
     def _failed_string(self):
-        text = super(SingleRun, self)._failed_string()
+        text = super()._failed_string()
         if self._connected:
             text += self._connected_string()
         return text + '\n' + self._failed_progress_bar
@@ -1522,7 +1522,7 @@ class SingleRun(Job):
             self._variable_server.close()
         except:
             pass
-        super(SingleRun, self).die()
+        super().die()
 
     def __del__(self):
         try:

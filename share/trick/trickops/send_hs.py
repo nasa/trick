@@ -12,7 +12,7 @@ import pdb
 # I do not like adding globals to "production code" just to facilitate a testing mechanism, but
 # I don't know of any cleaner way way to do this.  -Jordan 12/2024
 this_trick = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../..'))
-class send_hs(object):
+class send_hs:
     """
     Utility class for parsing simulation diagnostic data at the end of a
     Trick-generated send_hs output file.
@@ -145,8 +145,8 @@ class send_hs(object):
         float  or None
             Value of name if found, else: None
         """
-        name = name.replace('(', '\(').replace(')', '\)')
-        m = re.match(name+': +([-]?[0-9]*\.?[0-9]+)', text.strip())
+        name = name.replace('(', r'\(').replace(')', r'\)')
+        m = re.match(name + r': +([-]?[0-9]*\.?[0-9]+)', text.strip())
         if m:
             return(float(m.group(1)))
         else:
