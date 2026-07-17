@@ -1,21 +1,24 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 
-thisdir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(os.path.join(thisdir,"share/trick/trickops"))
+sys.path.append(str(Path(__file__).resolve().parent / "share" / "trick" / "trickops"))
 
-from TrickWorkflow import *
+from TrickWorkflow import TrickWorkflow
 from WorkflowCommon import Job
+
+thisdir = Path(__file__).resolve().parent
 
 max_retries = 5
 
 class SimTestWorkflow(TrickWorkflow):
     def __init__(self, quiet, trick_top_level, cpus, config_file, trick_dir=None):
         self.cpus = cpus
+        trick_top_level = Path(trick_top_level)
+
         # Create the trick_test directory if it doesn't already exist
-        if not os.path.exists(trick_top_level + "/trick_test"):
-          os.makedirs(trick_top_level + "/trick_test")
+        (trick_top_level / "trick_test").mkdir(exist_ok=True)
 
         # trick_dir defaults to trick_top_level (historical behavior: sims and
         # the installed Trick used by bin/trick-CP live in the same in-source
@@ -25,14 +28,16 @@ class SimTestWorkflow(TrickWorkflow):
         # out-of-source CMake install instead.
         if trick_dir is None:
             trick_dir = trick_top_level
+        else:
+            trick_dir = Path(trick_dir)
 
         # Base Class initialize, this creates internal management structures
         TrickWorkflow.__init__(
             self,
-            project_top_level=(trick_top_level),
-            log_dir=(trick_top_level + "/trickops_logs/"),
-            trick_dir=trick_dir,
-            config_file=(trick_top_level + "/" + config_file),
+            project_top_level=str(trick_top_level),
+            log_dir=str(trick_top_level / "trickops_logs"),
+            trick_dir=str(trick_dir),
+            config_file=str(trick_top_level / config_file),
             cpus=self.cpus,
             quiet=quiet,
         )
@@ -55,7 +60,7 @@ class SimTestWorkflow(TrickWorkflow):
       phases = [-1, 0, 1, 2, 3]
 
       analysis_jobs   = self.get_jobs(kind='analyze')
-      if platform == "darwin":
+      if self.platform == "darwin":
         for job in build_jobs:
           if job.name == "Build test/SIM_trickified_shared" :
             print("REMOVING JOB: " + job.name)
@@ -67,7 +72,7 @@ class SimTestWorkflow(TrickWorkflow):
       run_status = 0
       for phase in phases:
         run_jobs = self.get_jobs(kind='run', phase=phase)
-        if platform == "darwin":
+        if self.platform == "darwin":
           for job in run_jobs:
             if job.name == "Run test/SIM_trickified_shared RUN_test/unit_test.py" :
               print("REMOVING JOB: " + job.name)
@@ -94,7 +99,7 @@ class SimTestWorkflow(TrickWorkflow):
           numspaces = int((120 - 20 - len(header))/2 -2)
           print("*"*10, " "*numspaces, header, " "*numspaces, "*"*10,)
           print ("*"*120)
-          print(open(job.log_file, "r").read())
+          print(Path(job.log_file).read_text())
           print ("*"*120, "\n\n\n")
 
       return (builds_status or run_status or len(self.config_errors) > 0 or comparison_result or analysis_status)
@@ -107,7 +112,7 @@ if __name__ == "__main__":
         type=str,
         help="Path to the project tree containing the sim "
         "directories referenced by --config_file",
-        default=thisdir,
+        default=str(thisdir),
     )
     parser.add_argument(
         "--trick_dir",
