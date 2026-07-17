@@ -5,36 +5,21 @@ from and customized on a per-project basis. Use execute_jobs() to manage
 subprocesses to get progress bars and curses display logic for free!
 """
 
-import collections
-import curses
-import datetime
-import logging
-import multiprocessing
-import os
-import platform
-import re
-import signal
-import socket
-import subprocess
-import sys
-import textwrap
-import time
-from pathlib import Path
-
+import argparse
+import curses, textwrap
+import pdb, sys, datetime, time, socket, stat
+import subprocess, signal, logging
+import os, re, collections
+import multiprocessing, platform
+from contextlib import contextmanager
 from ColorStr import ColorStr
+from pathlib import Path
 
 # Create a global color printer
 printer = ColorStr()
 
-
 # UTILITY FUNCTIONS
-def run_subprocess(
-    command,
-    m_shell=False,
-    m_cwd=None,
-    m_stdout=subprocess.PIPE,
-    m_stderr=subprocess.PIPE,
-):
+def run_subprocess(command, m_shell=False, m_cwd=None, m_stdout=subprocess.PIPE, m_stderr=subprocess.PIPE):
     """
     Utility method for running a subprocess and returning stdout, stderr, and return code
 
@@ -63,17 +48,14 @@ def run_subprocess(
         Collection of process's final exit code, stdout, and stderr
     """
     result = collections.namedtuple("Process", ["code", "stdout", "stderr"])
-    p = subprocess.Popen(
-        command, shell=m_shell, cwd=m_cwd, stdout=m_stdout, stderr=m_stderr
-    )
+    p = subprocess.Popen(command, shell=m_shell, cwd=m_cwd, stdout=m_stdout, stderr=m_stderr)
     result.stdout, result.stderr = p.communicate()
-    if result.stdout != None:
-        result.stdout = result.stdout.decode(errors="ignore")
-    if result.stderr != None:
-        result.stderr = result.stderr.decode(errors="ignore")
+    if (result.stdout != None):
+        result.stdout = result.stdout.decode(errors='ignore')
+    if (result.stderr != None):
+        result.stderr = result.stderr.decode(errors='ignore')
     result.code = p.returncode
     return result
-
 
 def validate_output_file(filename):
     """
@@ -98,10 +80,9 @@ def validate_output_file(filename):
     filename = os.path.abspath(filename)
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     Path(filename).touch(exist_ok=True)
-    return filename
+    return (filename)
 
-
-def tprint(line, color="ENDC", verbosity="INFO"):
+def tprint(line, color='ENDC', verbosity='INFO'):
     """
     Utility method for writing text to both the log and stdout, with optional
     color for stdout
@@ -114,18 +95,17 @@ def tprint(line, color="ENDC", verbosity="INFO"):
         Color/style of text. Options are listed in Colorstr() class.
     """
     colorLine = printer.colorstr(line, color)
-    sys.stdout.write(colorLine + "\n")
-    if verbosity == "INFO":
+    sys.stdout.write(colorLine+"\n")
+    if verbosity == 'INFO':
         logging.info(line)
-    elif verbosity == "DEBUG":
+    elif verbosity == 'DEBUG':
         logging.debug(line)
-    elif verbosity == "ERROR":
+    elif verbosity == 'ERROR':
         logging.error(line)
-    elif verbosity == "WARNING":
+    elif verbosity == 'WARNING':
         logging.warning(line)
     else:
         pass
-
 
 def create_progress_bar(fraction, text):
     """
@@ -147,13 +127,12 @@ def create_progress_bar(fraction, text):
     str
         A text-based progress bar string of length 80
     """
-    text = " " + text + " "
+    text = ' ' + text + ' '
     length = len(text)
-    bar = list("[{0:<78}]".format("=" * min(78, int(round(fraction * 78)))))
+    bar = list('[{0:<78}]'.format('=' * min(78, int(round(fraction * 78)))))
     index = int((len(bar) - length) / 2)
     bar[index : index + length] = text
-    return "".join(bar)
-
+    return ''.join(bar)
 
 def sanitize_cpus(num_cpus, num_tasks, fallback_cpus):
     """
@@ -182,24 +161,23 @@ def sanitize_cpus(num_cpus, num_tasks, fallback_cpus):
         - a description of the boundary violated (may be None)
     """
     if num_cpus < 1:
-        return (1, "minimum allowable value")
+        return (1, 'minimum allowable value')
     else:
         try:
             maximum = multiprocessing.cpu_count()
-            source = "number of logical CPUs"
+            source = 'number of logical CPUs'
         except:
             maximum = 16
-            source = "maximum allowed value"
+            source = 'maximum allowed value'
 
         if num_tasks < maximum:
             maximum = num_tasks
-            source = "number of runs"
+            source = 'number of runs'
 
         if num_cpus > maximum:
             return (maximum, source)
 
     return (num_cpus, None)
-
 
 def unixify_string(string):
     """
@@ -218,22 +196,20 @@ def unixify_string(string):
     str
         the sanitized string
     """
-    return re.sub("['/]", "_", re.sub("[()!?,]", "", string)).replace(" ", "_")
-
+    return re.sub("['/]", '_', re.sub('[()!?,]', '', string)).replace(' ', '_')
 
 # CLASSES
-class Job:
+class Job(object):
     """
     Manages a given command intended to be run as a subprocess and provides methods
     for getting status information. More specific types of Jobs should inherit from
     this base clasee.
     """
+    enums = ['NOT_STARTED', 'RUNNING', 'SUCCESS', 'FAILED', 'TIMEOUT']
+    Status = collections.namedtuple('Status', enums)(*(range(len(enums))))
 
-    enums = ["NOT_STARTED", "RUNNING", "SUCCESS", "FAILED", "TIMEOUT"]
-    Status = collections.namedtuple("Status", enums)(*(range(len(enums))))
-
-    _success_progress_bar = create_progress_bar(1, "Success")
-    _failed_progress_bar = create_progress_bar(1, "Failed")
+    _success_progress_bar = create_progress_bar(1, 'Success')
+    _failed_progress_bar = create_progress_bar(1, 'Failed')
 
     def _translate_status(self):
         """
@@ -241,20 +217,12 @@ class Job:
         codes if FAIL.
         """
         text, color = {
-            Job.Status.NOT_STARTED: ("NOT RUN", "DARK_YELLOW"),
-            Job.Status.SUCCESS: ("OK", "DARK_GREEN"),
-            Job.Status.FAILED: (
-                "FAIL:"
-                + str(self._expected_exit_status)
-                + "/"
-                + str(self._exit_status),
-                "DARK_RED",
-            ),
-            Job.Status.TIMEOUT: (
-                "TIMEOUT after " + str(self._timeout) + " seconds",
-                "YELLOW",
-            ),
-        }[self.get_status()]
+            Job.Status.NOT_STARTED: ('NOT RUN', 'DARK_YELLOW'),
+            Job.Status.SUCCESS: ('OK', 'DARK_GREEN'),
+            Job.Status.FAILED: ('FAIL:' + str(self._expected_exit_status) + '/' +
+             str(self._exit_status), 'DARK_RED'),
+            Job.Status.TIMEOUT: ('TIMEOUT after ' + str(self._timeout) + ' seconds', 'YELLOW') 
+            }[self.get_status()]
         return printer.colorstr(text, color)
 
     def __init__(self, name, command, log_file, expected_exit_status=0):
@@ -287,18 +255,13 @@ class Job:
         """
         # Guard against multiple starts
         if self.get_status != self.Status.RUNNING:
-            logging.debug("Executing command: " + self._command)
-            self._start_time = time.time()
-            self._log_file = open(self.log_file, "w")
-            self._process = subprocess.Popen(
-                self._command,
-                stdout=self._log_file,
-                stderr=self._log_file,
-                stdin=open(os.devnull, "r"),
-                shell=True,
-                preexec_fn=os.setsid,
-                close_fds=True,
-            )
+          logging.debug('Executing command: ' + self._command)
+          self._start_time = time.time()
+          self._log_file = open(self.log_file, 'w')
+          self._process = subprocess.Popen(
+            self._command, stdout=self._log_file, stderr=self._log_file,
+            stdin=open(os.devnull, 'r'), shell=True, preexec_fn=os.setsid,
+            close_fds=True)
 
     def get_status(self):
         """
@@ -331,11 +294,7 @@ class Job:
         if self._stop_time is None:
             self._stop_time = time.time()
 
-        return (
-            self.Status.SUCCESS
-            if self._exit_status is self._expected_exit_status
-            else self.Status.FAILED
-        )
+        return self.Status.SUCCESS if self._exit_status is self._expected_exit_status else self.Status.FAILED
 
     def get_expected_exit_status(self):
         return self._expected_exit_status
@@ -381,7 +340,7 @@ class Job:
         str
             A string to be displayed when in the NOT_STARTED state.
         """
-        return "Not started yet"
+        return 'Not started yet'
 
     def _running_string(self):
         """
@@ -392,7 +351,8 @@ class Job:
         str
             A string to be displayed when in the RUNNING state.
         """
-        return "Elapsed Time: {0:7.1f} sec".format(time.time() - self._start_time)
+        return 'Elapsed Time: {0:7.1f} sec'.format(
+          time.time() - self._start_time)
 
     def _success_string(self):
         """
@@ -437,9 +397,11 @@ class Job:
         str
             A string to be displayed when this Job is done.
         """
-        return "Total Time:   {0:7.1f} sec".format(self._stop_time - self._start_time)
+        return 'Total Time:   {0:7.1f} sec'.format(
+          self._stop_time - self._start_time)
 
-    def report(self, indent="", width=100):
+
+    def report( self, indent='', width=100):
         """
         Return a colored report string for this job.
 
@@ -448,26 +410,16 @@ class Job:
         str
             A olored report string
         """
-        if self.get_status() == Job.Status.NOT_STARTED:
-            prepend = printer.colorstr("NOT RUN     ", "DARK_YELLOW")
-        elif self.get_expected_exit_status() == self.get_exit_status():
-            prepend = printer.colorstr("OK          ", "DARK_GREEN")
+        if self.get_status() ==  Job.Status.NOT_STARTED:
+           prepend = printer.colorstr('NOT RUN     ', 'DARK_YELLOW')
+        elif self.get_expected_exit_status() ==  self.get_exit_status():
+           prepend = printer.colorstr('OK          ', 'DARK_GREEN')
         else:
-            prepend = printer.colorstr(
-                "FAIL:%-10s "
-                % (
-                    str(self.get_exit_status())
-                    + "/"
-                    + str(self.get_expected_exit_status())
-                ),
-                "DARK_RED",
-            )
-        reportStr = (
-            indent
-            + prepend
-            + ("  %-s" % (textwrap.shorten(self.name, width=width - 10)))
-        )
+           prepend = printer.colorstr('FAIL:%-10s ' %
+               (str(self.get_exit_status())+'/'+str(self.get_expected_exit_status())) , 'DARK_RED')
+        reportStr = indent + prepend + ("  %-s" % ( textwrap.shorten(self.name, width=width-10)))
         return reportStr
+
 
     def die(self):
         """
@@ -480,12 +432,10 @@ class Job:
         except:
             pass
 
-
 class FileSizeJob(Job):
     """
     A build job is a subclass of Job() which estimates its progress via file size.
     """
-
     def __init__(self, name, command, log_file, size):
         """
         Initialize this instance.
@@ -502,28 +452,27 @@ class FileSizeJob(Job):
             The expected number size in bytes of the log_file when the
             build is complete. Used to estimate progress.
         """
-        super().__init__(name, command, log_file)
+        super(FileSizeJob, self).__init__(name, command, log_file)
         self.size = size
 
     def get_status_string_line_count(self):
-        return super().get_status_string_line_count() + 1
+        return super(FileSizeJob, self).get_status_string_line_count() + 1
 
     def _not_started_string(self):
-        return super()._not_started_string() + "\n"
+        return super(FileSizeJob, self)._not_started_string() + '\n'
 
     def _running_string(self):
         progress = os.path.getsize(self._log_file.name) / float(self.size)
-        return (
-            super()._running_string()
-            + "\n"
-            + create_progress_bar(progress, "{0:.1f}%".format(100 * progress))
-        )
+        return (super(FileSizeJob, self)._running_string() + '\n' +
+          create_progress_bar(progress, '{0:.1f}%'.format(100 * progress)))
 
     def _success_string(self):
-        return super()._success_string() + "\n" + self._success_progress_bar
+        return (super(FileSizeJob, self)._success_string() + '\n' +
+          self._success_progress_bar)
 
     def _failed_string(self):
-        return super()._failed_string() + "\n" + self._failed_progress_bar
+        return (super(FileSizeJob, self)._failed_string() + '\n' +
+          self._failed_progress_bar)
 
 
 class WorkflowCommon:
@@ -535,15 +484,7 @@ class WorkflowCommon:
       * Provide log directory where output for jobs can be written
       * Get installed packages, host, and other OS information
     """
-
-    def __init__(
-        self,
-        project_top_level,
-        log_dir="/tmp/",
-        log_level=logging.DEBUG,
-        env="",
-        quiet=False,
-    ):
+    def __init__( self, project_top_level, log_dir='/tmp/', log_level=logging.DEBUG, env='', quiet=False ):
         """
         Initialize this instance.
 
@@ -566,14 +507,8 @@ class WorkflowCommon:
         self.project_top_level = project_top_level
         self.log_dir = log_dir  # Where all logged output will go
         # self.log is where all logging for python script layer goes
-        self.log = validate_output_file(
-            os.path.join(
-                self.log_dir,
-                "log."
-                + unixify_string(str(datetime.datetime.now()).replace(":", "-"))
-                + ".txt",
-            )
-        )
+        self.log = validate_output_file( os.path.join(self.log_dir,'log.' +
+          unixify_string(str(datetime.datetime.now()).replace(':','-')) + '.txt'))
         self.env = env  # Project environment literal string, e.g. "source bashrc"
         self.creation_time = time.time()  # When this instance was created
         self.host_name = socket.gethostname()
@@ -585,7 +520,7 @@ class WorkflowCommon:
         else:
             self.quiet = True
         logging.basicConfig(filename=self.log, level=log_level)
-        os.chdir(self.project_top_level)  # Automatically chdir to top of project
+        os.chdir(self.project_top_level) # Automatically chdir to top of project
 
     def _cleanup(self):
         """
@@ -611,28 +546,20 @@ class WorkflowCommon:
             A list of installed packages, or None if they cannot be determined
         """
         self.this_os = self.get_operating_system()
-        if self.this_os == "debian":
+        if self.this_os == 'debian':
             list_cmd = "dpkg-query -W -f='${binary:Package}\n'"
-        elif self.this_os == "redhat":
+        elif self.this_os == 'redhat':
             list_cmd = "rpm -qa "
         else:
             return None
 
-        result = run_subprocess(
-            command=list_cmd,
-            m_shell=True,
-            m_stdout=subprocess.PIPE,
-            m_stderr=subprocess.PIPE,
-        )
+        result = run_subprocess(command=list_cmd, m_shell=True,
+                                m_stdout=subprocess.PIPE, m_stderr=subprocess.PIPE)
         if result.code != 0:
             if verbose:
-                tprint(
-                    "ERROR: Trouble finding platform packages, error:\n"
-                    + result.stderr,
-                    "DARK_RED",
-                )
+                tprint("ERROR: Trouble finding platform packages, error:\n" + result.stderr, 'DARK_RED')
             return None
-        return result.stdout.strip().split("\n")
+        return(result.stdout.strip().split("\n"))
 
     def get_operating_system(self):
         """
@@ -644,34 +571,26 @@ class WorkflowCommon:
             Returns one of these strings: debian, redhat, windows, darwin, unknown
         """
         # Windows is easy
-        if platform.system().lower() == "windows":
-            return "windows"
+        if platform.system().lower() == 'windows':
+            return 'windows'
         # Darwin (Mac OSX) is easy
-        if platform.system().lower() == "darwin":
-            return "darwin"
+        if platform.system().lower() == 'darwin':
+            return 'darwin'
         # Linux is hard
         # NOTE: sys.platform will not distinguish between flavors of linux and platform.linux_distribution()
         #   doesn't exist on all linux distributions! Also we can't rely on 'import distro' because it's
         #   only pip-installable at the moment. -Jordan 2/2021
         # Determine platform the old fashioned way, by seeing what package manager exists
-        rpm_exist = not run_subprocess(
-            command="which rpm",
-            m_shell=True,
-            m_stdout=subprocess.PIPE,
-            m_stderr=subprocess.PIPE,
-        ).code
-        apt_exist = not run_subprocess(
-            command="which apt",
-            m_shell=True,
-            m_stdout=subprocess.PIPE,
-            m_stderr=subprocess.PIPE,
-        ).code
+        rpm_exist = not run_subprocess(command='which rpm', m_shell=True,
+            m_stdout=subprocess.PIPE, m_stderr=subprocess.PIPE).code
+        apt_exist = not run_subprocess(command='which apt', m_shell=True,
+            m_stdout=subprocess.PIPE, m_stderr=subprocess.PIPE).code
         if rpm_exist:
-            return "redhat"
+            return 'redhat'
         elif apt_exist:
-            return "debian"
+            return 'debian'
         else:
-            return "unknown"
+            return 'unknown'
 
     def execute_jobs(self, jobs, max_concurrent=None, header=None, job_timeout=None):
         """
@@ -692,16 +611,14 @@ class WorkflowCommon:
             True if any job failed or was not run.
             False if all jobs completed successfully.
         """
-        if not os.environ.get("TERM") and not self.quiet:
+        if not os.environ.get('TERM') and not self.quiet:
             tprint(
-                "The TERM environment variable must be set when\n"
-                "TrickWorkflow.quiet is False. This is usually set by one\n"
-                "of the shell's configuration files (.profile, .cshrc, etc).\n"
-                "However, if this was executed via a non-interactive,\n"
-                "non-login shell (for instance: ssh <machine> '<command>'), it\n"
-                "may not be automatically set.",
-                "DARK_RED",
-            )
+              'The TERM environment variable must be set when\n'
+              'TrickWorkflow.quiet is False. This is usually set by one\n'
+              "of the shell's configuration files (.profile, .cshrc, etc).\n"
+              'However, if this was executed via a non-interactive,\n'
+              "non-login shell (for instance: ssh <machine> '<command>'), it\n"
+              'may not be automatically set.', 'DARK_RED')
             return True
 
         num_jobs = len(jobs)
@@ -709,16 +626,14 @@ class WorkflowCommon:
             max_concurrent = num_jobs
 
         if header:
-            header += "\n"
+            header += '\n'
         else:
-            header = ""
+            header = ''
 
         header += (
-            "Executing {0} total jobs, running up to {1} simultaneously.\n".format(
-                num_jobs, max_concurrent
-            )
-            + "Press CTRL+C to terminate early.\n"
-        )
+          'Executing {0} total jobs, running up to {1} simultaneously.\n'
+          .format(num_jobs, max_concurrent) +
+          'Press CTRL+C to terminate early.\n')
 
         logging.info(header)
 
@@ -727,6 +642,7 @@ class WorkflowCommon:
         # status output is enabled. Otherwise, it will be called
         # directly. See below.
         def execute(stdscr=None):
+
             # stdscr is passed via curses.wrapper
             if stdscr:
                 # Turn off the cursor. Not all terminals may support
@@ -762,7 +678,7 @@ class WorkflowCommon:
                 # extra lines, so pick a realy big width that isn't
                 # likely to cause wrapping. We also need a final
                 # additional line for the cursor to end on.
-                header_pad = curses.newpad(header.count("\n") + 1, 1000)
+                header_pad = curses.newpad(header.count('\n') + 1, 1000)
                 header_pad.addstr(header)
 
                 # Create a pad for the status.
@@ -772,11 +688,9 @@ class WorkflowCommon:
                 # + a blank line after each status string
                 # + a final line for the cursor to end on
                 status_pad = curses.newpad(
-                    sum(job.get_status_string_line_count() for job in jobs)
-                    + 2 * len(jobs)
-                    + 1,
-                    1000,
-                )
+                  sum(job.get_status_string_line_count() for job in jobs) +
+                    2 * len(jobs) + 1,
+                  1000)
 
                 # The top visible status pad line.
                 # Used for scrolling.
@@ -784,28 +698,24 @@ class WorkflowCommon:
                 header_height = header_pad.getmaxyx()[0]
                 status_height = status_pad.getmaxyx()[0]
 
-            while any(
-                job.get_status() in [job.Status.NOT_STARTED, job.Status.RUNNING]
-                for job in jobs
-            ):
+            while any(job.get_status() in
+              [job.Status.NOT_STARTED, job.Status.RUNNING]
+              for job in jobs):
+
                 # Start waiting jobs if cpus are available
-                waitingJobs = [
-                    job for job in jobs if job.get_status() is job.Status.NOT_STARTED
-                ]
+                waitingJobs = [job for job in jobs
+                  if job.get_status() is job.Status.NOT_STARTED]
 
                 if waitingJobs:
-                    available_cpus = max_concurrent - sum(
-                        1 for job in jobs if job.get_status() is job.Status.RUNNING
-                    )
+                    available_cpus = max_concurrent - sum(1 for job in jobs
+                      if job.get_status() is job.Status.RUNNING)
 
                     for i in range(min(len(waitingJobs), available_cpus)):
                         waitingJobs[i].start()
 
                 if job_timeout is not None:
                     # Check if any jobs have timed out
-                    runningJobs = [
-                        job for job in jobs if job.get_status() is job.Status.RUNNING
-                    ]
+                    runningJobs = [job for job in jobs if job.get_status() is job.Status.RUNNING]
                     for runningJob in runningJobs:
                         if time.time() - runningJob._start_time > job_timeout:
                             runningJob._timeout = job_timeout
@@ -817,12 +727,9 @@ class WorkflowCommon:
                     status_pad.erase()
                     for i, job in enumerate(jobs):
                         # print the name
-                        status_pad.addstr(
-                            "Job {0:{width}d}/{1}: ".format(
-                                i + 1, num_jobs, width=len(str(num_jobs))
-                            )
-                        )
-                        status_pad.addstr(job.name + "\n", curses.A_BOLD)
+                        status_pad.addstr('Job {0:{width}d}/{1}: '.format(
+                          i + 1, num_jobs, width=len(str(num_jobs))))
+                        status_pad.addstr(job.name + '\n', curses.A_BOLD)
 
                         # print the status string
                         if use_colors:
@@ -834,9 +741,11 @@ class WorkflowCommon:
                                 color = curses.color_pair(2)
                             else:
                                 color = curses.color_pair(0)
-                            status_pad.addstr(job.get_status_string() + "\n\n", color)
+                            status_pad.addstr(
+                              job.get_status_string() + '\n\n', color)
                         else:
-                            status_pad.addstr(job.get_status_string() + "\n\n")
+                            status_pad.addstr(
+                              job.get_status_string() + '\n\n')
 
                     # handle scrolling
                     while True:
@@ -852,12 +761,9 @@ class WorkflowCommon:
                     # prevent scrolling beyond the bounds of status_pad
                     screen_height, screen_width = stdscr.getmaxyx()
                     top_line = max(
-                        0,
-                        min(
-                            top_line,
-                            status_height - 2 - (screen_height - header_height),
-                        ),
-                    )
+                      0,
+                      min(top_line,
+                          status_height - 2 - (screen_height - header_height)))
 
                     # Resizing the terminal can cause the actual
                     # screen width or height to become smaller than
@@ -871,16 +777,10 @@ class WorkflowCommon:
                     # have and ignore errors.
                     try:
                         header_pad.noutrefresh(
-                            0, 0, 0, 0, screen_height - 1, screen_width - 1
-                        )
+                          0, 0, 0, 0, screen_height - 1, screen_width - 1)
                         status_pad.noutrefresh(
-                            top_line,
-                            0,
-                            header_height,
-                            0,
-                            screen_height - 1,
-                            screen_width - 1,
-                        )
+                          top_line, 0, header_height, 0,
+                          screen_height - 1, screen_width - 1)
                     except curses.error:
                         pass
                     curses.doupdate()
@@ -904,43 +804,36 @@ class WorkflowCommon:
                 execute()
 
         except BaseException as exception:
-            logging.exception("")
+            logging.exception('')
             tprint(
-                "An exception occurred. See the log for details.\n\n"
-                "    " + repr(exception) + "\n\n"
-                "Terminating all jobs. Please wait for cleanup to finish. "
-                "CTRL+C may leave orphaned processes.",
-                "DARK_RED",
-                "ERROR",
-            )
+              'An exception occurred. See the log for details.\n\n'
+              '    ' + repr(exception) + "\n\n"
+              'Terminating all jobs. Please wait for cleanup to finish. '
+              'CTRL+C may leave orphaned processes.', 'DARK_RED',
+              'ERROR')
 
             # kill all the jobs
             for job in jobs:
                 job.die()
-            tprint("All jobs terminated.\n", "DARK_RED")
+            tprint('All jobs terminated.\n', 'DARK_RED')
 
         # print summary
-        summary = "Job Summary\n"
+        summary = 'Job Summary\n'
         for i, job in enumerate(jobs):
-            summary += "Job {0:{width}d}/{1}: {2}\n{3}\n".format(
-                i + 1,
-                num_jobs,
-                job.name,
-                job.get_status_string(),
-                width=len(str(num_jobs)),
-            )
+            summary += 'Job {0:{width}d}/{1}: {2}\n{3}\n'.format(
+              i + 1, num_jobs, job.name, job.get_status_string(),
+              width=len(str(num_jobs)))
 
         logging.info(summary)
 
         for job in jobs:
             text, color = {
-                job.Status.NOT_STARTED: ("was not run", "GREY40"),
-                job.Status.SUCCESS: ("succeeded", "DARK_GREEN"),
-                job.Status.FAILED: ("failed", "DARK_RED"),
-                job.Status.TIMEOUT: ("timed out", "YELLOW"),
-            }[job.get_status()]
+                job.Status.NOT_STARTED: ('was not run', 'GREY40'),
+                job.Status.SUCCESS: ('succeeded', 'DARK_GREEN'),
+                job.Status.FAILED: ('failed', 'DARK_RED'),
+                job.Status.TIMEOUT: ('timed out', 'YELLOW') }[job.get_status()]
 
-            text = job.name + " " + text
+            text = job.name + ' ' + text
 
             # Print the summary status even if self.quiet is True
             tprint(text, color)
