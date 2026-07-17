@@ -1,4 +1,5 @@
 # Build artifacts
+*.o
 object_*
 io_src
 swig
@@ -13,8 +14,24 @@ lib_Darwin_*
 *.gcno
 coverage.info
 gmon.out
-compile_commands.json
 Makefile_jsc_dirs
+.extracted
+__.SYMDEF
+
+# CMake
+build*/
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+CMakeUserPresets.json
 
 # Autoconf / configure
 config.status*
@@ -50,7 +67,6 @@ share/trick/makefiles/config_user.mk
 # Editor / OS
 *~
 *.swp
-*.dox
 .DS_Store
 .vscode/
 .cache/

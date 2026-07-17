@@ -14,8 +14,22 @@ TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
 
 # so it seems like there's some weirdness linking in the bitfield objects since they are C
-MM_OBJECTS = $(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_bitfield.o \
-				$(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_unsigned_bitfield.o
+#
+# Extracted from libtrick_mm.a rather than read from MemoryManager's
+# source-tree object_$(TRICK_HOST_CPU)/ dir: that path only exists after an
+# in-source `make` build of Trick itself, but this test's own TRICK_HOME can
+# also be an out-of-source CMake install (cmake/TrickTest.cmake overrides
+# TRICK_HOME to the staged prefix, which only ships the archive, not
+# per-object build artifacts). Extracting from the archive works under both
+# build systems, and tolerates their differing object basenames
+# (extract_bitfield.o vs extract_bitfield.c.o).
+MM_OBJDIR = mm_bitfield_objs
+MM_OBJECTS = $(MM_OBJDIR)/.extracted
+
+$(MM_OBJDIR)/.extracted: ${TRICK_LIB_DIR}/libtrick_mm.a
+	mkdir -p $(MM_OBJDIR)
+	cd $(MM_OBJDIR) && ar x $(abspath $<) $$(ar t $(abspath $<) | grep -E '^extract_(unsigned_)?bitfield')
+	touch $@
 
 #TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick_mm -ltrick_units -ltrick -ltrick_mm
 TRICK_LIB_NAMES = trick_mm trick_units trick trick_pyip trick_connection_handlers trick_comm
@@ -44,13 +58,13 @@ test: $(TESTS)
 
 clean :
 	rm -f $(TESTS) *.o *.gcno *.gcda
-	rm -rf a pre_existing_output_dir/a ../a
+	rm -rf a pre_existing_output_dir/a ../a $(MM_OBJDIR)
 
 create_path_test.o : create_path_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
 create_path_test : create_path_test.o $(MM_OBJECTS)
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ create_path_test.o $(MM_OBJDIR)/*.o -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 CommandLineArguments_test.o : CommandLineArguments_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<

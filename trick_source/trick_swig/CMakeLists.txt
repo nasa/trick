@@ -1,0 +1,102 @@
+# libtrick_pyip.a: SWIG-generated Trick/Python interface code, ported from
+# this directory's Makefile (the authority — see A3/A4).
+#
+# SWIG_EXECUTABLE/SWIG_VERSION come from cmake/TrickPrograms.cmake's own
+# find_program(NAMES swig) — do NOT find_package(SWIG) here, it re-runs
+# FindSWIG.cmake's own executable search and can override SWIG_EXECUTABLE
+# with a version-suffixed binary (e.g. swig4.0), mismatching config_user.mk's
+# SWIG value (see CMAKE_MIGRATION_PLAN.md Phase 1/2 CI parity fixes).
+if(NOT SWIG_EXECUTABLE)
+    message(FATAL_ERROR "SWIG_EXECUTABLE not set — include(TrickPrograms) first")
+endif()
+
+# D3: CMake writes nothing into the source tree — .py wrappers land in the
+# build tree; Phase 3's `stage` install target is what assembles a runnable
+# TRICK_HOME (including share/trick/swig/*.py) for sim-flow validation.
+set(TRICK_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/share/trick/swig)
+file(MAKE_DIRECTORY ${TRICK_SWIG_OUTDIR})
+
+set(_tr_swig_defs "")
+if(HDF5_HOME)
+    list(APPEND _tr_swig_defs -DHDF5)
+endif()
+if(GSL_HOME)
+    list(APPEND _tr_swig_defs -D_HAVE_GSL)
+endif()
+if(TRICK_USE_ER7_UTILS)
+    list(APPEND _tr_swig_defs -DUSE_ER7_UTILS_INTEGRATORS)
+    if(EXISTS ${CMAKE_SOURCE_DIR}/trick_source/er7_utils/CheckpointHelper)
+        list(APPEND _tr_swig_defs -DUSE_ER7_UTILS_CHECKPOINTHELPER)
+    endif()
+endif()
+# Gate on USE_CIVETWEB (detection result), not the raw TRICK_CIVETWEB_HOME
+# cache option — trick_swig/Makefile:57 gates SWIG_DEFS on
+# `ifeq ($(USE_CIVETWEB), 1)`, which is also 1 when civetweb.h auto-detects
+# at /usr with no --with-civetweb/TRICK_CIVETWEB_HOME given.
+if(USE_CIVETWEB)
+    list(APPEND _tr_swig_defs -DUSE_CIVETWEB)
+endif()
+
+function(trick_add_swig_wrap name)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${name}_wrap.cpp
+        COMMAND ${SWIG_EXECUTABLE} ${_tr_swig_defs}
+            -I${CMAKE_SOURCE_DIR}/trick_source -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}
+            -c++ -python -includeall -ignoremissing -w201,362,389,451
+            -o ${CMAKE_CURRENT_BINARY_DIR}/${name}_wrap.cpp
+            -outdir ${TRICK_SWIG_OUTDIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/${name}.i
+        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/${name}.i
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/extra_functions.i ${CMAKE_CURRENT_SOURCE_DIR}/units_attach.i
+        COMMENT "SWIG ${name}.i"
+        VERBATIM
+    )
+endfunction()
+
+trick_add_swig_wrap(sim_services)
+trick_add_swig_wrap(swig_double)
+trick_add_swig_wrap(swig_int)
+trick_add_swig_wrap(swig_ref)
+
+add_library( trick_pyip STATIC
+    ${CMAKE_CURRENT_BINARY_DIR}/sim_services_wrap.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/swig_double_wrap.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/swig_int_wrap.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/swig_ref_wrap.cpp
+    PrimitiveAttributesMap.cpp
+    swig_convert_units.cpp
+    swig_global_vars.cpp
+    $<TARGET_OBJECTS:input_processor_objs>
+)
+target_link_libraries( trick_pyip PUBLIC trick_build_flags )
+target_include_directories( trick_pyip PRIVATE ${Python3_INCLUDE_DIRS} )
+set_target_properties( trick_pyip PROPERTIES ARCHIVE_OUTPUT_NAME trick_pyip)
+
+# HDF5: -DHDF5 must reach the wrapper *compile*, not just SWIG. sim_services.i
+# guards `#include "trick/DRHDF5.hh"` behind `#ifdef HDF5` — SWIG runs with
+# -DHDF5 (via _tr_swig_defs above) so it emits code referencing Trick::DRHDF5,
+# but if the generated wrapper is then compiled without -DHDF5 that same
+# #ifdef skips the include and the class is undeclared ("no type named
+# 'DRHDF5'"). Mirrors trick_swig/Makefile:4-5,38-42 (TRICK_CXXFLAGS += -DHDF5,
+# plus -I$(HDF5)/include when HDF5 != /usr, since -DHDF5 then also activates
+# DRHDF5.hh's own `#include "hdf5.h"`).
+if(HDF5_HOME)
+    target_compile_definitions( trick_pyip PRIVATE HDF5 )
+    target_link_libraries( trick_pyip PRIVATE trick::hdf5 )
+endif()
+
+# Makefile: trick_swig/Makefile:28-34 — SWIG-generated code triggers warnings
+# the rest of the build treats as errors elsewhere; suppress the same set.
+set(_tr_swig_wrap_opts -Wno-redundant-decls -Wno-shadow -Wno-unused-parameter -Wno-missing-field-initializers)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    list(APPEND _tr_swig_wrap_opts -Wno-self-assign -Wno-sometimes-uninitialized)
+else()
+    list(APPEND _tr_swig_wrap_opts -Wno-cast-function-type -Wno-ignored-qualifiers -Wno-delete-non-virtual-dtor)
+endif()
+set_source_files_properties(
+    ${CMAKE_CURRENT_BINARY_DIR}/sim_services_wrap.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/swig_double_wrap.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/swig_int_wrap.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/swig_ref_wrap.cpp
+    PROPERTIES COMPILE_OPTIONS "${_tr_swig_wrap_opts}"
+)

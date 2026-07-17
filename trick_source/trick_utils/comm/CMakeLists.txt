@@ -1,31 +1,33 @@
-
 set( TRICKCOMM_SRC
-  src/tc_accept
-  src/tc_blockio
-  src/tc_broadcast_conninfo
-  src/tc_clock_init
-  src/tc_clock_time
-  src/tc_connect
-  src/tc_dev_copy
-  src/tc_disconnect
-  src/tc_error
-  src/tc_init
-  src/tc_init_mcast_client
-  src/tc_init_mcast_server
-  src/tc_init_udp_client
-  src/tc_init_udp_server
-  src/tc_isValid
-  src/tc_listen
-  src/tc_multiconnect
-  src/tc_pending
-  src/tc_read
-  src/tc_read_byteswap
-  src/tc_set_blockio
-  src/tc_write
-  src/tc_write_byteswap
-  src/trick_bswap_buffer
-  src/trick_byteswap
-  src/trick_error_hndlr
+  src/tc_accept.c
+  src/tc_blockio.c
+  src/tc_broadcast_conninfo.c
+  src/tc_clock_init.c
+  src/tc_clock_time.c
+  src/tc_connect.c
+  src/tc_dev_copy.c
+  src/tc_disconnect.c
+  src/tc_error.c
+  src/tc_init.c
+  src/tc_init_mcast_client.c
+  src/tc_init_mcast_server.c
+  src/tc_init_udp_client.c
+  src/tc_init_udp_server.c
+  src/tc_isValid.c
+  src/tc_listen.c
+  src/tc_multiconnect.c
+  src/tc_pending.c
+  src/tc_read.c
+  src/tc_read_byteswap.c
+  src/tc_set_blockio.c
+  src/tc_write.c
+  src/tc_write_byteswap.c
+  src/trick_bswap_buffer.c
+  src/trick_bswap_single_parameter.c
+  src/trick_byteswap.c
+  src/trick_error_hndlr.c
 )
 
 add_library( trick_comm STATIC ${TRICKCOMM_SRC})
+target_link_libraries( trick_comm PUBLIC trick_build_flags )
+set_target_properties( trick_comm PROPERTIES ARCHIVE_OUTPUT_NAME trick_comm)

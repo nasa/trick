@@ -1,4 +1,3 @@
-*.o
 .icg_no_found
 Bitfield_tests
 MM_alloc_deps
