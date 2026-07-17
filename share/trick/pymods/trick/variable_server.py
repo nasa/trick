@@ -5,13 +5,13 @@ https://github.com/nasa/trick/wiki/Python-Variable-Server-Client for
 a tutorial and examples.
 """
 
-from collections import namedtuple
 import os
 import re
 import socket
 import struct
 import threading
 import time
+from collections import namedtuple
 
 # In Python 2, basestring is the parent for both str (ASCII) and unicode.
 # In Python 3, str and unicode were unified into str, and basestring is gone.
@@ -26,11 +26,14 @@ try:
 except ImportError:
     pass
 
+
 class VariableServerError(Exception):
-    '''
+    """
     Variable Server communication I/O error.
-    '''
+    """
+
     pass
+
 
 class UnitsConversionError(VariableServerError):
     """
@@ -43,12 +46,14 @@ class UnitsConversionError(VariableServerError):
     units : str
         The units to which the variable could not be converted.
     """
+
     def __init__(self, name, units):
         super(UnitsConversionError, self).__init__(
-          '[{0}] cannot be converted to [{1}]'.format(name, units)
+            "[{0}] cannot be converted to [{1}]".format(name, units)
         )
         self.name = name
         self.units = units
+
 
 class UnexpectedMessageError(VariableServerError):
     """
@@ -61,13 +66,16 @@ class UnexpectedMessageError(VariableServerError):
     actual_id : int
         The actual message indicator.
     """
+
     def __init__(self, expected_id, actual_id):
         super(UnexpectedMessageError, self).__init__(
-          'Unexpected message received. Expected ID = {0}. Actual ID = {1}'
-          .format(expected_id, actual_id)
+            "Unexpected message received. Expected ID = {0}. Actual ID = {1}".format(
+                expected_id, actual_id
+            )
         )
         self.expected_id = expected_id
         self.actual_id = actual_id
+
 
 class ValueCountError(VariableServerError):
     """
@@ -81,13 +89,16 @@ class ValueCountError(VariableServerError):
     actual : int
         The actual count.
     """
+
     def __init__(self, expected, actual):
         super(ValueCountError, self).__init__(
-          'Number of values received ({0}) does not match expected ({1})'
-          .format(actual, expected)
+            "Number of values received ({0}) does not match expected ({1})".format(
+                actual, expected
+            )
         )
         self.expected = expected
         self.actual = actual
+
 
 def _create_enum(name, field_names, ordinal_values=True):
     """
@@ -106,10 +117,11 @@ def _create_enum(name, field_names, ordinal_values=True):
         fields. This creates a string-based enum.
     """
     return namedtuple(name, field_names)(
-      *(range(len(field_names)) if ordinal_values else field_names)
+        *(range(len(field_names)) if ordinal_values else field_names)
     )
 
-class Message(namedtuple('Message', ['indicator', 'data'])):
+
+class Message(namedtuple("Message", ["indicator", "data"])):
     """
     A message from the variable server.
 
@@ -120,9 +132,13 @@ class Message(namedtuple('Message', ['indicator', 'data'])):
     data : str
         The rest of the message.
     """
+
     # Values must match VS_MESSAGE_TYPE in variable_server_message_types.h:
     #   VS_VAR_LIST = 0, VS_VAR_EXISTS = 1, VS_GET_STL_SIZE = 6
-    Indicator = namedtuple('Indicator', ['VAR_SEND', 'VAR_EXISTS', 'VAR_GET_STL_SIZE'])(0, 1, 6)
+    Indicator = namedtuple("Indicator", ["VAR_SEND", "VAR_EXISTS", "VAR_GET_STL_SIZE"])(
+        0, 1, 6
+    )
+
 
 class Variable(object):
     """
@@ -163,26 +179,28 @@ class Variable(object):
 
     @property
     def value(self):
-        '''
+        """
         Get the converted value.
-        '''
+        """
         return self._type(self._value)
 
     @value.setter
     def value(self, value):
-        '''
+        """
         Set the value.
-        '''
+        """
         self._value = value
 
     def __str__(self):
         return self.name
 
     def __repr__(self):
-        return '{0} = {1}{2}'.format(
-          self.name,
-          self.value,
-          ' {0}'.format(self.units) if self.units is not None else '')
+        return "{0} = {1}{2}".format(
+            self.name,
+            self.value,
+            " {0}".format(self.units) if self.units is not None else "",
+        )
+
 
 class VariableServer(object):
     """
@@ -193,8 +211,8 @@ class VariableServer(object):
     allocated during initialization.
     """
 
-    Channel = _create_enum('Channel', ['ASYNC', 'SYNC', 'BOTH'], False)
-    CopyMode = _create_enum('CopyMode', ['ASYNC', 'SCHEDULED', 'TOP_OF_FRAME'])
+    Channel = _create_enum("Channel", ["ASYNC", "SYNC", "BOTH"], False)
+    CopyMode = _create_enum("CopyMode", ["ASYNC", "SCHEDULED", "TOP_OF_FRAME"])
 
     def __init__(self, hostname, port):
         """
@@ -224,9 +242,9 @@ class VariableServer(object):
 
         # Define a local function to be used by the sampling thread.
         def update_variables():
-            '''
+            """
             Continuously update variables.
-            '''
+            """
             while True:
                 try:
                     values = self._read_values(False)
@@ -262,10 +280,8 @@ class VariableServer(object):
                     # Besides, it would be corrected with the next
                     # message.
                     if len(values) <= len(self._variables):
-                        for variable, value in zip(
-                          self._variables, values):
-                            variable.value, variable.units = \
-                              _parse_value(value)
+                        for variable, value in zip(self._variables, values):
+                            variable.value, variable.units = _parse_value(value)
 
                         for function, args in self._callbacks.items():
                             function(*args[0], **args[1])
@@ -277,7 +293,8 @@ class VariableServer(object):
         # so make this tread a deamon in case the user fails to call
         # close when finished with this instance.
         self._thread = threading.Thread(
-          target=update_variables, name='Asynchronous Variable Sampler')
+            target=update_variables, name="Asynchronous Variable Sampler"
+        )
         self._thread.daemon = True
         self._thread.start()
 
@@ -424,10 +441,12 @@ class VariableServer(object):
             The units.
         """
         self.send(
-          'trick.var_set("{0}", {1}{2})'.format(
-            name,
-            '"{0}"'.format(value) if isinstance(value, basestring) else value,
-            ', "{0}"'.format(units) if units is not None else ''))
+            'trick.var_set("{0}", {1}{2})'.format(
+                name,
+                '"{0}"'.format(value) if isinstance(value, basestring) else value,
+                ', "{0}"'.format(units) if units is not None else "",
+            )
+        )
 
     def get_values(self, *variables):
         """
@@ -498,9 +517,10 @@ class VariableServer(object):
         # add all the variables and poll their values
         for variable in variables:
             self._var_add(
-              variable.name,
-              variable.units if variable.units is not None else 'xx',
-              self.Channel.SYNC)
+                variable.name,
+                variable.units if variable.units is not None else "xx",
+                self.Channel.SYNC,
+            )
         self._var_send()
         self._var_clear(self.Channel.SYNC)
 
@@ -559,8 +579,9 @@ class VariableServer(object):
         """
 
         # remove existing variables
-        variables = [variable for variable in variables
-                     if variable not in self._variables]
+        variables = [
+            variable for variable in variables if variable not in self._variables
+        ]
 
         # check for type_ and units conversion errors
         self.get_values(*variables)
@@ -575,8 +596,8 @@ class VariableServer(object):
             #   variables as values
             self._variables.append(variable)
             self._var_add(
-              variable.name,
-              variable.units if variable.units is not None else 'xx')
+                variable.name, variable.units if variable.units is not None else "xx"
+            )
 
     def remove_variables(self, *variables):
         """
@@ -625,8 +646,9 @@ class VariableServer(object):
         units : str
             The units to which to convert the sampled value.
         """
-        self.send('trick.var_units("{0}", "{1}")'.format(name, units),
-                  self.Channel.ASYNC)
+        self.send(
+            'trick.var_units("{0}", "{1}")'.format(name, units), self.Channel.ASYNC
+        )
 
     def set_period(self, period):
         """
@@ -638,8 +660,7 @@ class VariableServer(object):
             The inverse of the rate (in Hz) at which you want to sample
             variable values.
         """
-        self.send('trick.var_cycle({0})'.format(float(period)),
-                  self.Channel.ASYNC)
+        self.send("trick.var_cycle({0})".format(float(period)), self.Channel.ASYNC)
 
     def register_callback(self, function, args=None, kwargs=None):
         """
@@ -712,7 +733,6 @@ class VariableServer(object):
         """
         self._error_callbacks.pop(function, None)
 
-
     def pause(self, pause=True, channel=Channel.ASYNC):
         """
         Pause or unpause sampling.
@@ -726,8 +746,7 @@ class VariableServer(object):
             The channel to affect. You should almost certainly leave
             this as the default.
         """
-        self.send('trick.var_{0}pause()'.format('' if pause else 'un'),
-                  channel)
+        self.send("trick.var_{0}pause()".format("" if pause else "un"), channel)
 
     def set_debug(self, level, channel=Channel.BOTH):
         """
@@ -743,7 +762,7 @@ class VariableServer(object):
         channel : Channel
             The channel to affect.
         """
-        self.send('trick.var_debug({0})'.format(int(level)), channel)
+        self.send("trick.var_debug({0})".format(int(level)), channel)
 
     def set_tag(self, tag):
         """
@@ -757,8 +776,8 @@ class VariableServer(object):
         """
         for channel in [self.Channel.SYNC, self.Channel.ASYNC]:
             self.send(
-              'trick.var_set_client_tag("{0}_{1}")'.format(tag, channel),
-              channel)
+                'trick.var_set_client_tag("{0}_{1}")'.format(tag, channel), channel
+            )
 
     def set_copy_mode(self, mode=CopyMode.ASYNC, channel=Channel.BOTH):
         """
@@ -785,7 +804,7 @@ class VariableServer(object):
         channel : Channel
             The channel to affect.
         """
-        self.send('trick.var_set_copy_mode({0})'.format(int(mode)), channel)
+        self.send("trick.var_set_copy_mode({0})".format(int(mode)), channel)
 
     def send_on_copy(self, enable=True):
         """
@@ -801,8 +820,9 @@ class VariableServer(object):
             False to send values asynchronously on an independent
             thread.
         """
-        self.send('trick.var_set_write_mode({0})'.format(bool(enable)),
-                  self.Channel.ASYNC)
+        self.send(
+            "trick.var_set_write_mode({0})".format(bool(enable)), self.Channel.ASYNC
+        )
 
     def validate_addresses(self, validate=True, channel=Channel.BOTH):
         """
@@ -822,8 +842,7 @@ class VariableServer(object):
         channel : Channel
             The channel to affect.
         """
-        self.send('trick.var_validate_address({0})'.format(bool(validate)),
-                  channel)
+        self.send("trick.var_validate_address({0})".format(bool(validate)), channel)
 
     def variable_exists(self, name):
         """
@@ -851,7 +870,7 @@ class VariableServer(object):
         self.send('trick.var_exists("{0}")'.format(name))
         message = self.readline()
         _assert_message_type(message, Message.Indicator.VAR_EXISTS)
-        return message.data == '1'
+        return message.data == "1"
 
     def freeze(self, freeze=True):
         """
@@ -863,8 +882,7 @@ class VariableServer(object):
             True to freeze the sim.
             False to unfreeze it.
         """
-        self.send('trick.exec_{0}()'
-                  .format('freeze' if bool(freeze) else 'run'))
+        self.send("trick.exec_{0}()".format("freeze" if bool(freeze) else "run"))
 
     def checkpoint(self, filename):
         """
@@ -900,8 +918,7 @@ class VariableServer(object):
             True so synchronize sim execution with the real-time clock.
             False to run as quickly as possible.
         """
-        self.send('trick.real_time_{0}able()'
-                  .format('en' if bool(enable) else 'dis'))
+        self.send("trick.real_time_{0}able()".format("en" if bool(enable) else "dis"))
 
     def send(self, command, channel=Channel.SYNC):
         """
@@ -925,13 +942,12 @@ class VariableServer(object):
             The channel on which to send. You should almost certainly
             leave this as the default.
         """
-        command = '{0}\n'.format(command)
+        command = "{0}\n".format(command)
 
         for channel in {
-          self.Channel.SYNC: [self._synchronous_socket],
-          self.Channel.ASYNC: [self._asynchronous_socket],
-          self.Channel.BOTH: [self._synchronous_socket,
-                              self._asynchronous_socket]
+            self.Channel.SYNC: [self._synchronous_socket],
+            self.Channel.ASYNC: [self._asynchronous_socket],
+            self.Channel.BOTH: [self._synchronous_socket, self._asynchronous_socket],
         }[channel]:
             channel.sendall(command.encode())
 
@@ -958,13 +974,15 @@ class VariableServer(object):
         IOError
             If the remote endpoint has closed the connection.
         """
-        file_interface = (self._synchronous_file_interface
-                          if synchronous_channel
-                          else self._asynchronous_file_interface)
+        file_interface = (
+            self._synchronous_file_interface
+            if synchronous_channel
+            else self._asynchronous_file_interface
+        )
         line = file_interface.readline()
         if not line:
             raise IOError("The remote endpoint has closed the connection")
-        line = line.rstrip(os.linesep).split('\t', 1)
+        line = line.rstrip(os.linesep).split("\t", 1)
         return Message(int(line[0]), line[1])
 
     def _var_add(self, name, units=None, channel=Channel.ASYNC):
@@ -981,9 +999,11 @@ class VariableServer(object):
             The channel to affect.
         """
         self.send(
-          'trick.var_add("{0}"{1})'
-          .format(name, ', "{0}"'.format(units) if units is not None else ''),
-          channel)
+            'trick.var_add("{0}"{1})'.format(
+                name, ', "{0}"'.format(units) if units is not None else ""
+            ),
+            channel,
+        )
 
     def _var_remove(self, name):
         """
@@ -996,8 +1016,7 @@ class VariableServer(object):
         channel : Channel
             The channel to affect.
         """
-        self.send('trick.var_remove("{0}")'.format(name),
-                  self.Channel.ASYNC)
+        self.send('trick.var_remove("{0}")'.format(name), self.Channel.ASYNC)
 
     def _var_send(self, channel=Channel.SYNC):
         """
@@ -1008,7 +1027,7 @@ class VariableServer(object):
         channel : Channel
             The channel to affect.
         """
-        self.send('trick.var_send()', channel)
+        self.send("trick.var_send()", channel)
 
     def _read_values(self, synchronous_channel=True):
         """
@@ -1034,7 +1053,7 @@ class VariableServer(object):
         """
         message = self.readline(synchronous_channel)
         _assert_message_type(message, Message.Indicator.VAR_SEND)
-        return message.data.split('\t')
+        return message.data.split("\t")
 
     def _read_stl_size(self):
         """
@@ -1057,7 +1076,7 @@ class VariableServer(object):
         """
         message = self.readline()
         _assert_message_type(message, Message.Indicator.VAR_GET_STL_SIZE)
-        values = message.data.split('\t')
+        values = message.data.split("\t")
         _assert_value_count(1, len(values))
         return int(values[0])
 
@@ -1070,7 +1089,7 @@ class VariableServer(object):
         channel : Channel
             The channel to affect.
         """
-        self.send('trick.var_clear()', channel)
+        self.send("trick.var_clear()", channel)
 
     def close(self):
         """
@@ -1092,11 +1111,21 @@ class VariableServer(object):
         self._thread.join()
 
     def __str__(self):
-        return 'VariableServer' + str(self._synchronous_socket.getpeername())
+        return "VariableServer" + str(self._synchronous_socket.getpeername())
 
-def find_simulation(host=None, port=None, user=None, pid=None,
-                   version=None, sim_directory=None, s_main=None,
-                   input_file=None, tag=None, timeout=None):
+
+def find_simulation(
+    host=None,
+    port=None,
+    user=None,
+    pid=None,
+    version=None,
+    sim_directory=None,
+    s_main=None,
+    input_file=None,
+    tag=None,
+    timeout=None,
+):
     """
     Listen for simulations on the multicast channel over which all sims broadcast
     their existence. Connect to the one that matches the provided arguments that
@@ -1146,18 +1175,19 @@ def find_simulation(host=None, port=None, user=None, pid=None,
     clock = time.time()
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind(('', 9265))
+    sock.bind(("", 9265))
     sock.setsockopt(
-      socket.IPPROTO_IP,
-      socket.IP_ADD_MEMBERSHIP,
-      struct.pack('=4sl', socket.inet_aton('224.3.14.15'), socket.INADDR_ANY))
+        socket.IPPROTO_IP,
+        socket.IP_ADD_MEMBERSHIP,
+        struct.pack("=4sl", socket.inet_aton("224.3.14.15"), socket.INADDR_ANY),
+    )
     file_interface = sock.makefile()
 
     def candidate_matches(candidate):
         for parameter, candidate_parameter in zip(
-          [host, port, user, pid, sim_directory,
-           s_main, input_file, version, tag],
-          candidate) :
+            [host, port, user, pid, sim_directory, s_main, input_file, version, tag],
+            candidate,
+        ):
             if parameter is not None and str(parameter) != candidate_parameter:
                 return False
         return True
@@ -1165,7 +1195,7 @@ def find_simulation(host=None, port=None, user=None, pid=None,
     # the socket will clean itself up when it's garbage-collected
     while True:
         if timeout is not None:
-            timeout -= (time.time() - clock)
+            timeout -= time.time() - clock
             if timeout < 0:
                 raise socket.timeout
             clock = time.time()
@@ -1180,13 +1210,14 @@ def find_simulation(host=None, port=None, user=None, pid=None,
         # 6: RUN_*
         # 7: version
         # 8: tag
-        candidate = file_interface.readline().split('\t')[:9]
+        candidate = file_interface.readline().split("\t")[:9]
 
-        if not str(sim_directory).startswith('/'):
+        if not str(sim_directory).startswith("/"):
             candidate[4] = os.path.basename(candidate[4])
 
         if candidate_matches(candidate):
             return VariableServer(candidate[0], candidate[1])
+
 
 def _parse_value(text):
     """
@@ -1206,8 +1237,9 @@ def _parse_value(text):
     """
     match = re.match(r"(?P<value>.*)(?: {(?P<units>.*)})", text)
     if match:
-        return match.group('value'), match.group('units')
+        return match.group("value"), match.group("units")
     return text, None
+
 
 def _assert_message_type(message, indicator):
     """
@@ -1229,6 +1261,7 @@ def _assert_message_type(message, indicator):
     if message.indicator != indicator:
         raise UnexpectedMessageError(indicator, message.indicator)
 
+
 def _assert_units_conversion(name, expected_units, actual_units):
     """
     Raise an error if the actual units do not match the expected units.
@@ -1247,8 +1280,9 @@ def _assert_units_conversion(name, expected_units, actual_units):
     UnitsConversionError
         If the actual units do not match the expected units.
     """
-    if expected_units != actual_units and expected_units != 'xx':
+    if expected_units != actual_units and expected_units != "xx":
         raise UnitsConversionError(name, expected_units)
+
 
 def _assert_value_count(expected, actual):
     """
@@ -1269,6 +1303,8 @@ def _assert_value_count(expected, actual):
     if expected != actual:
         raise ValueCountError(expected, actual)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod()
