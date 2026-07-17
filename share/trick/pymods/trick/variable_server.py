@@ -120,7 +120,9 @@ class Message(namedtuple('Message', ['indicator', 'data'])):
     data : str
         The rest of the message.
     """
-    Indicator = _create_enum('Indicator', ['VAR_SEND', 'VAR_EXISTS'])
+    # Values must match VS_MESSAGE_TYPE in variable_server_message_types.h:
+    #   VS_VAR_LIST = 0, VS_VAR_EXISTS = 1, VS_GET_STL_SIZE = 6
+    Indicator = namedtuple('Indicator', ['VAR_SEND', 'VAR_EXISTS', 'VAR_GET_STL_SIZE'])(0, 1, 6)
 
 class Variable(object):
     """
@@ -369,6 +371,41 @@ class VariableServer(object):
         _assert_units_conversion(name, units, actual_units)
 
         return type_(value)
+
+    def get_stl_size(self, name):
+        """
+        Get the size of the STL container with the given name. This only
+        works for STL containers for which the variable server provides
+        size information via the var_get_stl_size function. Supported
+        container types are currently std::vector, std::deque, and std::array.
+        This function can be used for getting the size of a container
+        before using get_value or get_values to get the values of its
+        elements or checking the boundary of the container.
+
+        Parameters
+        ----------
+        name : str
+            The fully-qualified name of the STL container variable.
+
+        Returns
+        -------
+        int
+            The size of the container.
+
+        Raises
+        ------
+        IOError
+            If the remote endpoint has closed the connection.
+        UnexpectedMessageError
+            If the next message is not a VAR_GET_STL_SIZE message.
+        ValueCountError
+            If more than one value is received.
+        Additional errors may be raised by int.
+        """
+
+        # request the size and read the response
+        self.send('trick.var_get_stl_size("{0}")'.format(name))
+        return self._read_stl_size()
 
     def set_value(self, name, value, units=None):
         """
@@ -998,6 +1035,31 @@ class VariableServer(object):
         message = self.readline(synchronous_channel)
         _assert_message_type(message, Message.Indicator.VAR_SEND)
         return message.data.split('\t')
+
+    def _read_stl_size(self):
+        """
+        Read the size of an STL container.
+
+        Returns
+        -------
+        int
+            The size of the container.
+
+        Raises
+        ------
+        IOError
+            If the remote endpoint has closed the connection.
+        UnexpectedMessageError
+            If the next message is not a VAR_GET_STL_SIZE message.
+        ValueCountError
+            If more than one value is received.
+        Additional errors may be raised by int.
+        """
+        message = self.readline()
+        _assert_message_type(message, Message.Indicator.VAR_GET_STL_SIZE)
+        values = message.data.split('\t')
+        _assert_value_count(1, len(values))
+        return int(values[0])
 
     def _var_clear(self, channel=Channel.ASYNC):
         """

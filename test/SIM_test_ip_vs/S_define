@@ -1,0 +1,16 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "VSIPTest.hh"
+
+class theSimObject : public Trick::SimObject {
+
+    public:
+        VSIPTest vsip_test ;
+
+        theSimObject() : vsip_test() {
+            ("initialization") vsip_test.addData();
+        }
+
+} ;
+
+theSimObject the_object ;
