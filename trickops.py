@@ -3,6 +3,7 @@ import os
 import signal
 import sys
 from pathlib import Path
+from typing import Optional, Union
 
 sys.path.append(str(Path(__file__).resolve().parent / "share" / "trick" / "trickops"))
 
@@ -33,10 +34,10 @@ class SimTestWorkflow(TrickWorkflow):
     def __init__(
         self,
         quiet: bool,
-        trick_top_level: str | Path,
+        trick_top_level: Union[str, Path],
         cpus: int,
         config_file: str,
-        trick_dir: str | Path | None = None,
+        trick_dir: Optional[Union[str, Path]] = None,
     ) -> None:
         self.cpus = cpus
         project_root = Path(trick_top_level)
