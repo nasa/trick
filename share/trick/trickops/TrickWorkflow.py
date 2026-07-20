@@ -142,7 +142,7 @@ class TrickWorkflow(WorkflowCommon):
         RuntimeError
            If more than one range string found
         """
-        pattern = "\[\d+-\d+\]"
+        pattern = r"\[\d+-\d+\]"
         if (len(re.findall(pattern, string))) > 1:
           msg = ("ERROR: [min-max] pattern found more than once in %s. Only one instance is"
             " supported." % (string))
@@ -1577,4 +1577,3 @@ class SingleRun(Job):
           - self._start_time)
         return 'Average Speed: {0:4.1f} X'.format(
           self._tics.value / self._tics_per_sec.value / elapsed_time)
-
