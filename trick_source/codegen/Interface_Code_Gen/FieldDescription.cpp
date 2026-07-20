@@ -706,16 +706,22 @@ std::string FieldDescription::mapTypeNameToTrickEnum(const std::string& type_nam
     //     as either "std::basic_string<char, ...>" (pre-C++11 ABI) or
     //     "std::__cxx11::basic_string<char, ...>" (C++11 ABI).
     // Hence the two extra prefix checks below for std::string.
-    if (type_name == "char *" || type_name == "char*" ||
-        type_name == "std::string" || type_name == "string" ||
-        starts_with(type_name, "std::basic_string<char") ||
-        starts_with(type_name, "std::__cxx11::basic_string<char")) {
+    if (type_name == "char *" || type_name == "char*" || type_name == "std::string" || type_name == "string"
+        || starts_with(type_name, "std::basic_string<char")
+        || starts_with(type_name, "std::__cxx11::basic_string<char"))
+    {
         return "TRICK_STRING";
-    } else if (type_name == "wchar_t *" || type_name == "wchar_t*") {
+    }
+    else if (type_name == "wchar_t *" || type_name == "wchar_t*")
+    {
         return "TRICK_WSTRING";
-    } else if (type_name == "void *" || type_name == "void*") {
+    }
+    else if (type_name == "void *" || type_name == "void*")
+    {
         return "TRICK_VOID_PTR";
-    } else if (type_name == "FILE *" || type_name == "FILE*") {
+    }
+    else if (type_name == "FILE *" || type_name == "FILE*")
+    {
         return "TRICK_FILE_PTR";
     }
 
