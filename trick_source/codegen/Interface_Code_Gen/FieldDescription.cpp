@@ -629,6 +629,22 @@ std::string FieldDescription::getSTLElementTypeEnumString() {
 }
 
 /**
+ * Checks if the given string starts with the specified prefix.
+ *
+ * @param s The string to check
+ * @param prefix The prefix to look for
+ * @return True if the string starts with the prefix, false otherwise
+ */
+inline bool starts_with(const std::string& s, const char* prefix)
+{
+#if __cplusplus >= 202002L
+    return s.starts_with(prefix);
+#else
+    return s.rfind(prefix, 0) == 0;
+#endif
+}
+
+/**
  * Maps a type name to its corresponding TRICK_TYPE enum string.
  * Handles built-in types, STL containers, and user-defined types using pattern matching.
  *
@@ -682,8 +698,18 @@ std::string FieldDescription::mapTypeNameToTrickEnum(const std::string& type_nam
     }
 
     // Handle pointer types
+    // Clang's AST preserves std::string in std::vector<std::string> inconsistently
+    // depending on the standard library implementation.
+    // For element type of std::vector<std::string>:
+    //   - Mac (libc++): tends to preserve std::string as is.
+    //   - Linux (libstdc++): tends to desugar to the full template name instead,
+    //     as either "std::basic_string<char, ...>" (pre-C++11 ABI) or
+    //     "std::__cxx11::basic_string<char, ...>" (C++11 ABI).
+    // Hence the two extra prefix checks below for std::string.
     if (type_name == "char *" || type_name == "char*" ||
-        type_name == "std::string" || type_name == "string") {
+        type_name == "std::string" || type_name == "string" ||
+        starts_with(type_name, "std::basic_string<char") ||
+        starts_with(type_name, "std::__cxx11::basic_string<char")) {
         return "TRICK_STRING";
     } else if (type_name == "wchar_t *" || type_name == "wchar_t*") {
         return "TRICK_WSTRING";

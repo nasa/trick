@@ -42,7 +42,7 @@ int VSIPTest::addData()
     dpp = (double**)TMM_declare_var_s("double*[5]");
     for (int i = 0; i < 5; i++)
     {
-        dpp[i] = (double*)TMM_declare_var_s("double");
+        dpp[i] = (double*)TMM_declare_var_s("double[5]");
         for (int j = 0; j < 5; j++)
         {
             dpp[i][j] = i * 10.0 + j;

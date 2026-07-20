@@ -672,7 +672,6 @@ def main():
     trick.exec_set_job_onoff("the_object.vsip_test.addData", 1, True)
 
     trick.var_allow_connections()
-    trick.var_resolve_hostname()
     trick.var_server_set_port(VS_PORT)
 
     trick.exec_set_freeze_frame(0.10)
