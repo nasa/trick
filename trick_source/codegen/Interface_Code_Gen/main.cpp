@@ -207,7 +207,11 @@ int main(int argc, char * argv[]) {
 #else
     ci.createDiagnostics();
 #endif
+#if (LIBCLANG_MAJOR >= 23)
+    ci.getDiagnosticOpts().setShowColors(clang::ShowColorsKind::On);
+#else
     ci.getDiagnosticOpts().ShowColors = 1 ;
+#endif
     ci.getDiagnostics().setIgnoreAllWarnings(true) ;
     set_lang_opts(ci);
 
@@ -282,11 +286,17 @@ int main(int argc, char * argv[]) {
     hsd.addSearchDirs(include_dirs, isystem_dirs);
 
     // Add a preprocessor callback to search for TRICK_ICG
+#if (LIBCLANG_MAJOR >= 23)
+    const auto BOU_FALSE_VAL = llvm::cl::boolOrDefault::BOU_FALSE;
+#else
+    const auto BOU_FALSE_VAL = llvm::cl::BOU_FALSE;
+#endif
+
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 6))
-    std::unique_ptr<FindTrickICG> ftg(new FindTrickICG(ci, hsd, print_trick_icg != llvm::cl::BOU_FALSE )) ;
+    auto ftg = std::make_unique<FindTrickICG>(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
     pp.addPPCallbacks(std::move(ftg)) ;
 #else
-    FindTrickICG * ftg = new FindTrickICG(ci, hsd, print_trick_icg != llvm::cl::BOU_FALSE ) ;
+    FindTrickICG* ftg = new FindTrickICG(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
     pp.addPPCallbacks(ftg) ;
 #endif
 
