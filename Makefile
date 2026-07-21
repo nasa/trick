@@ -100,6 +100,7 @@ UTILS_DIRS := \
 	${TRICK_HOME}/trick_source/trick_utils/connection_handlers \
 	${TRICK_HOME}/trick_source/trick_utils/shm \
 	${TRICK_HOME}/trick_source/trick_utils/math \
+	${TRICK_HOME}/trick_source/trick_utils/optimization \
 	${TRICK_HOME}/trick_source/trick_utils/units \
 	${TRICK_HOME}/trick_source/trick_utils/unicode \
 	${TRICK_HOME}/trick_source/trick_utils/var_binary_parser
@@ -110,6 +111,7 @@ UTILS_OBJS := $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(UTILS_DIRS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/comm/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/connection_handlers/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/math/%, $(UTILS_OBJS))
+UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/optimization/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/units/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/var_binary_parser/%, $(UTILS_OBJS))
 
@@ -300,16 +302,22 @@ test: unit_test sim_test
 
 test32: sim_test32
 
+JAVA_TEST_DIR = ${TRICK_HOME}/trick_source/java
+
 .PHONY: $(UNIT_TEST_DIRS)
 $(UNIT_TEST_DIRS):
 	@ $(MAKE) -C $@ test
 
-unit_test: $(UNIT_TEST_DIRS) $(DPX_UNIT_TEST_DIR)
+unit_test: $(UNIT_TEST_DIRS) $(DPX_UNIT_TEST_DIR) $(JAVA_TEST_DIR)
 
 # DPX test excluded from releases because of size
 .PHONY: $(DPX_UNIT_TEST_DIR)
 $(DPX_UNIT_TEST_DIR):
 	@ if [ -d ${DPX_UNIT_TEST_DIR} ]; then $(MAKE) -C $@ test; fi
+
+.PHONY: $(JAVA_TEST_DIR)
+$(JAVA_TEST_DIR):
+	@ $(MAKE) -C $@ test
 
 
 sim_test:
@@ -333,8 +341,8 @@ extra-coverage-builds:
 	@ $(MAKE) test -C trick_source/trick_utils/SAIntegrator
 
 code-coverage: test extra-coverage-builds
-	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info
-	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info
+	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info --ignore-errors mismatch
+	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info --ignore-errors unused
 	rm coverage_large.info
 	lcov --list coverage.info
 
@@ -470,6 +478,7 @@ uninstall:
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_connection_handlers.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_math.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_mm.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_optimization.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_pyip.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_units.a
 	rm -rf ${PREFIX}/libexec/trick

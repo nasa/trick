@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "docs/**"
+      - "Formula/**"
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "Formula/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+# ──────────────────────────────────────────────────────────────────────────────
+# This file is the single source of truth for "what must pass on a PR." Each job
+# delegates to a reusable workflow (the `_*.yml` files), which owns the actual
+# steps and matrices. Gating (needs / if) stays here in the orchestrator.
+# ──────────────────────────────────────────────────────────────────────────────
+
+jobs:
+  # Stage 1: Style checks
+  style:
+    uses: ./.github/workflows/_style.yml
+
+  # Stage 2: Build & test
+  test-linux:
+    needs: [style]
+    uses: ./.github/workflows/_test-linux.yml
+
+  test-macos:
+    needs: [style]
+    uses: ./.github/workflows/_test-macos.yml
+
+  trickops:
+    needs: [style]
+    uses: ./.github/workflows/_trickops.yml
+
+  code-coverage:
+    needs: [style]
+    uses: ./.github/workflows/_code-coverage.yml

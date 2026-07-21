@@ -3,7 +3,7 @@
 set( SS_SRC
   CheckPointAgent/CheckPointAgent
   CheckPointAgent/ChkPtParseContext
-  CheckPointAgent/ClassicCheckPointerAgent
+  CheckPointAgent/ClassicCheckPointAgent
   CheckPointAgent/PythonPrint
   CheckPointRestart/CheckPointRestart
   CheckPointRestart/CheckPointRestart_c_intf
@@ -244,4 +244,3 @@ target_include_directories( sim_services_objs PUBLIC ${UDUNITS2_INCLUDES} )
 
 add_subdirectory(MemoryManager)
 add_subdirectory(InputProcessor)
-

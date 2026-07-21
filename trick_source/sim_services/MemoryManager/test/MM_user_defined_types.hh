@@ -50,6 +50,12 @@ typedef enum {
     GREEN = 3
 } RGB ;
 
+enum BYTE_FRUIT : unsigned char {
+    BYTE_APPLE = 1,
+    BYTE_BANANA = 2,
+    BYTE_CHERRY = 3
+};
+
 typedef struct {
   double x;
   double y;

@@ -12,7 +12,7 @@ Trick requires various free third party utilities in order to function. All the 
 |         Utility | Version |       Description       |                          Usage                           | Notes                                                                                                                                                                                                   |
 | --------------: | :-----: | :---------------------: | :------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [gcc] and `g++` |  4.8+   |     C/C++ Compiler      |          Compiles Trick and Trick simulations.           |                                                                                                                                                                                                         |
-|  [clang]/[llvm] |  <=18   |     C/C++ Compiler      |        Utilized by the interface code generator.         | Trick Versions <= 19.3 should use LLVM <= 9. Please open an issue if you encounter a problem related to newer versions of LLVM.                                                                         |
+|  [clang]/[llvm] |  <=22   |     C/C++ Compiler      |        Utilized by the interface code generator.         | Trick Versions <= 19.3 should use LLVM <= 9. Trick Versions < 25.0 should use LLVM < 20. Please open an issue if you encounter a problem related to newer versions of LLVM.                                                                         |
 |        [python] |   3.x   |  Programming Language   |        Lets the user interact with a simulation.         | Trick has been tested up to python 3.13.2 as of 04/2025.                                                                                                                                                |
 |          [perl] |  5.6+   |  Programming Language   |  Allows executable scripts in the bin directory to run.  |                                                                                                                                                                                                         |
 |          [java] |   11+   |  Programming Language   |                Necessary for Trick GUIs.                 |                                                                                                                                                                                                         |
@@ -157,7 +157,7 @@ dnf update
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
 ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 \
-udunits2-devel which zlib-devel gtest-devel libX11-devel libXt-devel  \
+udunits2-devel which zlib-devel libX11-devel libXt-devel \
 python3-devel diffutils
 ```
 
@@ -194,7 +194,7 @@ Trick requires development packages from the base repositories.
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
 ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 udunits2-devel \
-which zlib-devel gtest-devel perl-Text-Balanced python-devel diffutils zip
+which zlib-devel perl-Text-Balanced python-devel diffutils zip
 ```
 
 Trick makes use of several optional packages if they are present on the system. These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing. These are available from the EPEL repository
@@ -221,12 +221,18 @@ apt-get update
 apt-get install -y bison clang flex git llvm make maven swig cmake \
 curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
 python3-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
-libgtest-dev default-jdk zip
+default-jdk zip
 
 # On some versions of Ubuntu (18.04 as of 04/2021), there may be multiple installations of python.
 # Our new python3-dev will be linked to python3 and python3-config in your bin.
 # To help trick find this instead of python2.7, we set an environment variable in our shell before calling configure:
 export PYTHON_VERSION=3
+```
+
+Trick makes use of several optional packages if they are present on the system. These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.
+
+```bash
+apt-get install -y libgtest-dev hdf5-tools libhdf5-dev libgsl-dev
 ```
 
 Note: If you need to use a specific JDK version, such as `openjdk-11-jdk`, you can replace `default-jdk` with `openjdk-11-jdk` under install packages as shown above. However, you need to check where the `java` and `javac` commands are located. For instance, Ubuntu 24 typically sets up JRE (21) headless by default, so the `java` (version 21 headless) command might be located in `/usr/bin`. When you install `openjdk-11-jdk`, both `java` (version 11) and `javac` (version 11) might be placed in `/usr/lib/jvm/java-11-openjdk-amd64/bin`, with only `javac` potentially also in `/usr/bin`. Consequently, running a Java GUI with the default PATH might use JRE 21 headless instead of JRE 11, even though you’re using JDK 11 for compiling, which may not be the desired configuration. Placing `/usr/lib/jvm/java-11-openjdk-amd64/bin` before `/usr/bin` in your PATH ensures that only JDK 11 is used.
@@ -291,7 +297,7 @@ e.g.
 
 ```bash
 # For Apple Silicon Macs, you may need to configure as following if Trick configure can't find packages:
-./configure --with-llvm=/opt/homebrew/opt/llvm --with-udunits=/opt/homebrew --with-hdf5==/opt/homebrew
+./configure --with-llvm=/opt/homebrew/opt/llvm --with-udunits=/opt/homebrew --with-hdf5=/opt/homebrew
 ```
 
 OPTIONAL: To install gtest for Trick unit testing:

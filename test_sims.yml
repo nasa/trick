@@ -1,8 +1,6 @@
 # Compile only sims
 SIM_alloc_test:
   path: test/SIM_alloc_test
-SIM_alloc_test:
-  path: test/SIM_alloc_test
 SIM_build_dir:
   path: test/SIM_build_dir
   build_args: "-b Trick_Build_Dir"
@@ -262,9 +260,9 @@ SIM_test_dr:
     RUN_test/unit_test.py:
       returns: 0
       compare:
-      - test/SIM_test_dr/RUN_test/log_DR_bitfieldsASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
-      - test/SIM_test_dr/RUN_test/log_DR_typesASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_typesASCII_Master.csv
-      - test/SIM_test_dr/RUN_test/log_DR_bitfieldsBINARY.trk vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsBINARY.trk
+        - test/SIM_test_dr/RUN_test/log_DR_bitfieldsASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
+        - test/SIM_test_dr/RUN_test/log_DR_typesASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_typesASCII_Master.csv
+        - test/SIM_test_dr/RUN_test/log_DR_bitfieldsBINARY.trk vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsBINARY.trk
 
 # All the dump.py runs dump a checkpoint
 # All the unit_test.py runs load that checkpoint and then compare against expected logs
@@ -281,6 +279,9 @@ SIM_checkpoint_data_recording:
     RUN_test[7-9]/dump.py:
       phase: -1
       returns: 0
+    RUN_test11/dump.py:
+      phase: -1
+      returns: 0
 
     # Note we could use the [1-5] notation here if RUN_test2 didn't stand out as not matching the pattern -Jordan 1/2023
     RUN_test1/unit_test.py:
@@ -289,7 +290,7 @@ SIM_checkpoint_data_recording:
         - test/SIM_checkpoint_data_recording/RUN_test1/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test1/log_foo.csv
     RUN_test2/unit_test.py:
       returns: 0
-      analyze: './test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh'
+      analyze: "./test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh"
     RUN_test3/unit_test.py:
       returns: 0
       compare:
@@ -318,6 +319,20 @@ SIM_checkpoint_data_recording:
       returns: 0
       compare:
         - test/SIM_checkpoint_data_recording/RUN_test9/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test9/log_foo2.csv
+    RUN_test11_redirect/unit_test.py:
+      returns: 0
+      compare:
+        - test/SIM_checkpoint_data_recording/RUN_test11/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11/log_foo.csv
+        - test/SIM_checkpoint_data_recording/RUN_test11_redirect/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11_redirect/log_foo.csv
+
+SIM_mtv:
+  path: test/SIM_mtv
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/input.py:
+      phase: 1
+      returns: 0
 
 SIM_events:
   path: test/SIM_events
@@ -333,8 +348,6 @@ SIM_events:
     RUN_test/unit_test_error3.py:
       returns: 255
 
-
-
 SIM_test_output_dir:
   path: test/SIM_test_output_dir
   build_args: "-t"
@@ -342,8 +355,7 @@ SIM_test_output_dir:
   runs:
     RUN_test/unit_test.py -OO sim_output --read-only-sim:
       returns: 0
-      analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource test/SIM_test_output_dir/S_sie.resource'
-      analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource test/SIM_test_output_dir/sim_output/RUN_test/S_sie.resource'
+      analyze: "python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource test/SIM_test_output_dir/S_sie.resource && python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource test/SIM_test_output_dir/sim_output/RUN_test/S_sie.resource"
 
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
 

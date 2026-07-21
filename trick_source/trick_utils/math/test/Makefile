@@ -17,12 +17,14 @@ TRICK_EXEC_LINK_LIBS += -lm
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
-TESTS = UnitTestEulerQuat
+TESTS = UnitTestEulerQuat \
+		UnitTestLDLtFactorization
 
 all : test
 
 test: $(TESTS)
 	./UnitTestEulerQuat --gtest_output=xml:${TRICK_HOME}/trick_test/UnitTestEulerQuat.xml
+	./UnitTestLDLtFactorization --gtest_output=xml:${TRICK_HOME}/trick_test/UnitTestLDLtFactorization.xml
 
 clean :
 	rm -f $(TESTS)
@@ -33,4 +35,11 @@ UnitTestEulerQuat.o : UnitTestEulerQuat.cpp
 
 UnitTestEulerQuat : UnitTestEulerQuat.o
 	@echo 'Building UnitTestEulerQuat'
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+UnitTestLDLtFactorization.o : UnitTestLDLtFactorization.cpp
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+
+UnitTestLDLtFactorization : UnitTestLDLtFactorization.o
+	@echo 'Building UnitTestLDLtFactorization'
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

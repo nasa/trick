@@ -1,10 +1,10 @@
 /**************************TRICK HEADER***********************
-PURPOSE: ( S_define )
-LIBRARY DEPENDENCIES:
-(
-     (dr/src/DR.cpp)
-     (dr/src/DR_default_data.cpp)
-)
+ * PURPOSE: ( S_define )
+ * LIBRARY DEPENDENCIES:
+ * (
+ *     (dr/src/DR.cpp)
+ *     (dr/src/DR_default_data.cpp)
+ * )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"

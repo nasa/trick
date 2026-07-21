@@ -68,6 +68,11 @@ NAM   [_a-zA-Z][_a-zA-Z0-9:]*
    return( TYPE ) ;
 }
 
+"std::wstring" {
+   yylval->ival = TRICK_WSTRING ;
+   return( TYPE ) ;
+}
+
 "wchar" {
    yylval->ival = TRICK_WCHAR ;
    return( TYPE ) ;

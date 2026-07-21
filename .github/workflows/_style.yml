@@ -1,0 +1,205 @@
+# Reusable workflow: style / format checks.
+# Called by ci.yml. Do not add push/pull_request triggers here.
+name: Style Checks
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  style:
+    name: Style Check
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang-format cpanminus pipx maven
+          sudo cpanm --notest Perl::Tidy
+          pipx install ruff
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Check clang-format on changed C/C++ lines
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            git fetch origin master
+            BASE=$(git merge-base origin/master HEAD)
+          fi
+
+          DIFF=$(git clang-format --diff "$BASE" --extensions c,h,cpp,hpp,cc,hh) || true
+
+          if echo "$DIFF" | grep -q '^diff'; then
+            echo "$DIFF"
+            echo ""
+            echo "::error::Changed lines are not correctly formatted."
+            echo "::error::To fix, run: git clang-format ${{ github.base_ref || 'master' }}"
+            exit 1
+          fi
+          echo "All changed C/C++ lines are correctly formatted."
+
+      - name: Check perltidy on changed Perl files
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            git fetch origin master
+            BASE=$(git merge-base origin/master HEAD)
+          fi
+
+          # Collect changed Perl files: by extension and by shebang
+          PERL_FILES=()
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              *.pl|*.pm|*.t) PERL_FILES+=("$f") ;;
+              *) if head -1 "$f" 2>/dev/null | grep -q '^#!.*perl'; then
+                   PERL_FILES+=("$f")
+                 fi ;;
+            esac
+          done < <(git diff --diff-filter=ACMR --name-only "$BASE")
+
+          if [ ${#PERL_FILES[@]} -eq 0 ]; then
+            echo "No changed Perl files to check."
+            exit 0
+          fi
+
+          FAILED=0
+          for f in "${PERL_FILES[@]}"; do
+            if ! perltidy -st -se -nb "$f" | diff -u "$f" -; then
+              echo "::error file=$f::$f is not perltidy-compliant."
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -ne 0 ]; then
+            echo ""
+            echo "::error::To fix, run: perltidy -b <file>"
+            exit 1
+          fi
+          echo "All changed Perl files are correctly formatted."
+
+      - name: Check ruff formatting on changed Python files
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            git fetch origin master
+            BASE=$(git merge-base origin/master HEAD)
+          fi
+
+          # Collect changed Python files: by extension and by shebang
+          PYTHON_FILES=()
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              *.py) PYTHON_FILES+=("$f") ;;
+              *) if head -1 "$f" 2>/dev/null | grep -q '^#!.*python'; then
+                   PYTHON_FILES+=("$f")
+                 fi ;;
+            esac
+          done < <(git diff --diff-filter=ACMR --name-only "$BASE")
+
+          if [ ${#PYTHON_FILES[@]} -eq 0 ]; then
+            echo "No changed Python files to check."
+            exit 0
+          fi
+
+          FAILED=0
+          for f in "${PYTHON_FILES[@]}"; do
+            if ! ruff format --preview --check --diff "$f"; then
+              echo "::error file=$f::$f is not ruff-formatted."
+              FAILED=1
+            fi
+            if ! ruff check --preview --select I --diff "$f"; then
+              echo "::error file=$f::$f has unsorted imports."
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -ne 0 ]; then
+            echo ""
+            echo "::error::Changed Python files have formatting or import issues."
+            echo "::error::To fix, run: ruff check --preview --select I --fix <file> && ruff format --preview <file>"
+            exit 1
+          fi
+          echo "All changed Python files are correctly formatted."
+
+      - name: Check spotless on changed Java files
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            git fetch origin master
+            BASE=$(git merge-base origin/master HEAD)
+          fi
+
+          JAVA_FILES=$(git diff --diff-filter=ACMR --name-only "$BASE" | grep '\.java$' || true)
+
+          if [ -z "$JAVA_FILES" ]; then
+            echo "No changed Java files to check."
+            exit 0
+          fi
+
+          echo "Changed Java files:"
+          echo "$JAVA_FILES"
+
+          if ! mvn -f trick_source/java/pom.xml --batch-mode -q spotless:check; then
+            echo ""
+            echo "::error::Changed Java files are not correctly formatted."
+            echo "::error::To fix, run: mvn -f trick_source/java/pom.xml spotless:apply"
+            exit 1
+          fi
+          echo "All changed Java files are correctly formatted."
+
+      # TODO: Once the codebase is fully formatted, switch to whole-file checking:
+      #
+      # - name: Check formatting of changed files
+      #   id: clang_format
+      #   continue-on-error: true
+      #   run: |
+      #     set -euo pipefail
+      #
+      #     if [ "${{ github.event_name }}" = "pull_request" ]; then
+      #       BASE=${{ github.event.pull_request.base.sha }}
+      #     else
+      #       git fetch origin master
+      #       BASE=$(git merge-base origin/master HEAD)
+      #     fi
+      #
+      #     FAILED=0
+      #     while IFS= read -r f; do
+      #       [ -z "$f" ] && continue
+      #       if ! clang-format -n --Werror --style=file "$f"; then
+      #         echo "::error file=$f::$f is not correctly formatted."
+      #         FAILED=1
+      #       fi
+      #     done < <(git diff --diff-filter=ACMR --name-only "$BASE" -- \
+      #       '*.[hc]pp' '*.cc' '*.[ch]' '*.hh')
+      #
+      #     if [ $FAILED -ne 0 ]; then
+      #       echo ""
+      #       echo "::error::To fix, run: clang-format -i --style=file <file>"
+      #       exit 1
+      #     fi
+      #     echo "All changed C/C++ files are correctly formatted."

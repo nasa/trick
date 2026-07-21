@@ -3,8 +3,20 @@
 #ifndef Classes_HH
 #define Classes_HH
 
+class FooA {
+    static int POTATO;
+};
+
+inline int FooA::POTATO = 1;
+
 template <class T>
-class Foo {};
+class Foo
+{
+    static int POTATO;
+};
+
+template <class T>
+int Foo<T>::POTATO = 2;
 
 namespace peer {
     template <class T>

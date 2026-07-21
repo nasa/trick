@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directories:
+      - "/share/trick/pymods/trick"
+      - "/share/trick/trickops"
+    schedule:
+      interval: "quarterly"
+    groups:
+      pip-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "npm"
+    directory: "/trick_source/web/dashboard"
+    schedule:
+      interval: "quarterly"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use FindBin qw($RealBin);
-use lib "$RealBin/pm" ;
+use lib "$RealBin/pm";
 
 use swig_make ;
 
