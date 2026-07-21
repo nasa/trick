@@ -36,8 +36,8 @@ PROGRAMMERS:
 #include <iostream>
 
 // Model include files.
-#include "BallState.hh"
 #include "BallForce.hh"
+#include "BallState.hh"
 #include "TemplateTest.hh"
 
 /** @class Ball
@@ -76,7 +76,6 @@ class Ball {
    double test_double;
 
    TemplateTest<double, 100> dtt;
-
 };
 
 #ifdef SWIG

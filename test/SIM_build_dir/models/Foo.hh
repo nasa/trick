@@ -2,14 +2,10 @@
 
 #include <iostream>
 
-class Foo {
-
+class Foo
+{
     public:
+        int i;
 
-    int i;
-
-    void foo() {
-        std::cout << i++ << '\n';
-    }
-
+        void foo() { std::cout << i++ << '\n'; }
 };
