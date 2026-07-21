@@ -1,7 +1,10 @@
-#include <iostream>
-#include <stdio.h>
-#include <signal.h>
+#include <csignal>
+#include <cstdio>
 #include <cstring>
+#include <iostream>
+#include <pthread.h>
+#include <string>
+#include <unistd.h>
 
 #if __linux__
 #include <sys/syscall.h>
@@ -315,6 +318,27 @@ int Trick::ThreadBase::cancel_thread() {
     return(0) ;
 }
 
+int Trick::ThreadBase::request_shutdown()
+{
+    pthread_mutex_lock(&shutdown_mutex);
+    should_shutdown = true;
+    pthread_mutex_unlock(&shutdown_mutex);
+    return (0);
+}
+
+int Trick::ThreadBase::abandon_thread()
+{
+    if (pthread_id != 0)
+    {
+        pthread_detach(pthread_id);
+        // Clearing the id is what makes this safe: cancel_thread() and join_thread() are
+        // both guarded by (pthread_id != 0), so nothing later in the shutdown sequence --
+        // including SysThread::ensureAllShutdown() -- can block on this thread.
+        pthread_id = 0;
+    }
+    return (0);
+}
+
 int Trick::ThreadBase::join_thread() {
     if ( pthread_id != 0 ) {
         if ((errno = pthread_join(pthread_id, NULL)) != 0) {
@@ -351,7 +375,7 @@ void Trick::ThreadBase::thread_shutdown(void (*exit_handler) (void *), void * ex
         exit_handler(exit_arg);
     }
 
-    pthread_exit(0); 
+    pthread_exit(0);
 }
 
 void * Trick::ThreadBase::thread_helper( void * context ) {
@@ -403,5 +427,3 @@ void Trick::ThreadBase::dump( std::ostream & oss ) {
     oss << std::endl ;
 #endif
 }
-
-

@@ -131,6 +131,29 @@ namespace Trick {
             virtual int cancel_thread() ;
 
             /**
+             * Cooperatively asks the thread to shut down by setting should_shutdown.
+             * Unlike cancel_thread() this sends no pthread_cancel(), so the thread is
+             * never destroyed part-way through work that must be unwound -- most
+             * importantly while it holds the Python GIL, which would leave the GIL
+             * orphaned and hang shutdown. The thread notices the flag at its next
+             * test_shutdown() and exits on its own.
+             * @return always 0
+             */
+            virtual int request_shutdown();
+
+            /**
+             * Gives up on a thread that did not stop when asked, detaching it and
+             * forgetting its id so that later cancel_thread() and join_thread() calls
+             * become no-ops and cannot block.
+             *
+             * Only appropriate during shutdown, where the process is about to exit and
+             * the OS will reclaim the thread. Leaking a thread is preferable to blocking
+             * shutdown forever on one that cannot be stopped.
+             * @return always 0
+             */
+            virtual int abandon_thread();
+
+            /**
              * Joins thread.
              * @return always 0
              */
@@ -195,4 +218,3 @@ namespace Trick {
 }
 
 #endif
-

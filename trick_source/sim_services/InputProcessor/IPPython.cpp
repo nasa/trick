@@ -7,21 +7,25 @@
    PROGRAMMERS: ( Alex Lin NASA 2009 )
 */
 
-#include <Python.h>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <string>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-
 #include "trick/IPPython.hh"
+
+#include "trick/InputProcessor.hh"
 #include "trick/MemoryManager.hh"
-#include "trick/exec_proto.hh"
 #include "trick/exec_proto.h"
+#include "trick/io_alloc.h"
 #include "trick/message_proto.h"
+#include "trick/message_type.h"
+
+#include <Python.h>
+#include <atomic>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <pthread.h>
+#include <sstream>
+#include <string>
+#include <unistd.h>
 
 Trick::IPPython * the_pip ;
 
@@ -34,6 +38,62 @@ Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() , units_co
 
 // Need to save the state of the main thread to allow child threads to run PyRun variants.
 static PyThreadState *_save = NULL;
+
+// Number of threads currently inside parse()/parse_condition(), i.e. threads that hold
+// the Python GIL or are waiting to acquire it. See GILGuard and shutdown() below.
+static std::atomic<int> active_parse_count(0);
+
+namespace
+{
+    /**
+     * Holds the Python GIL for a scope, with three guarantees that the bare
+     * PyGILState_Ensure()/PyGILState_Release() pair does not provide.
+     *
+     * 1. Thread cancellation is disabled for as long as the GIL is held. Without this a
+     *    pthread_cancel() (ThreadBase::cancel_thread(), used during shutdown) can destroy the
+     *    thread between Ensure and Release, leaving the GIL owned by a thread that no longer
+     *    exists. Nobody can ever reacquire it after that. A cancel requested while
+     *    cancellation is disabled simply stays pending and is delivered once the GIL has been
+     *    released, which is exactly the behaviour we want.
+     *
+     * 2. The GIL is released even if an exception unwinds out of the scope. Trick's
+     *    exec_terminate() throws Trick::ExecutiveException from inside PyRun_SimpleString
+     *    (VariableServerSessionThread_loop.cpp catches it), and the previous straight-line
+     *    code skipped PyGILState_Release() on that path, leaking the GIL.
+     *
+     * 3. active_parse_count tracks how many threads are in the interpreter, so that
+     *    IPPython::shutdown() can tell whether reacquiring the GIL is safe or would block
+     *    forever.
+     */
+    class GILGuard
+    {
+        public:
+            GILGuard()
+            {
+                pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old_cancel_state);
+                // Incremented before Ensure() so that a thread blocked *waiting* for the GIL
+                // is counted too. Erring towards "someone is in the interpreter" is the safe
+                // direction: the worst case is that we skip Py_Finalize() unnecessarily.
+                ++active_parse_count;
+                gstate = PyGILState_Ensure();
+            }
+
+            ~GILGuard()
+            {
+                PyGILState_Release(gstate);
+                --active_parse_count;
+                pthread_setcancelstate(old_cancel_state, NULL);
+            }
+
+            GILGuard(const GILGuard&)            = delete;
+            GILGuard& operator=(const GILGuard&) = delete;
+
+        private:
+            PyGILState_STATE gstate;
+            int old_cancel_state;
+    };
+
+}
 
 /**
 @details
@@ -66,9 +126,8 @@ void Trick::IPPython::get_TMM_named_variables() {
             ss << "trick.castAs" << user_type_name << "(int(" << alloc_info->start << "))" << std::endl ;
             ss << "except AttributeError:" << std::endl ;
             ss << "    pass" << std::endl ;
-            PyGILState_STATE gstate = PyGILState_Ensure();
-            PyRun_SimpleString(ss.str().c_str()) ;
-            PyGILState_Release(gstate);
+            GILGuard gil_guard;
+            PyRun_SimpleString(ss.str().c_str());
         }
     }
 }
@@ -104,7 +163,7 @@ int Trick::IPPython::init() {
     Py_Initialize();
 #endif
 
-    // The following PyRun_ calls do not require the PyGILState guards because no threads are launched 
+    // The following PyRun_ calls do not require the PyGILState guards because no threads are launched
     /* Import simulation specific routines into interpreter. */
     PyRun_SimpleString(
      "import sys\n"
@@ -175,9 +234,9 @@ int Trick::IPPython::parse(std::string in_string) {
 
     int ret ;
     in_string += "\n" ;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    ret = PyRun_SimpleString(in_string.c_str()) ;
-    PyGILState_Release(gstate);
+
+    GILGuard gil_guard;
+    ret = PyRun_SimpleString(in_string.c_str());
 
     return ret ;
 
@@ -200,9 +259,11 @@ int Trick::IPPython::parse_condition(std::string in_string, int & cond_return_va
 
     in_string =  std::string("trick_ip.ip.return_val = ") + in_string + "\n" ;
     // Running the simple string will set return_val.
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    int py_ret = PyRun_SimpleString(in_string.c_str()) ;
-    PyGILState_Release(gstate);
+    int py_ret;
+    {
+        GILGuard gil_guard;
+        py_ret = PyRun_SimpleString(in_string.c_str());
+    }
     cond_return_val = return_val ;
 
     return py_ret ;
@@ -219,6 +280,28 @@ int Trick::IPPython::restart() {
 int Trick::IPPython::shutdown() {
 
     if ( Py_IsInitialized() ) {
+        // If any thread is still inside parse()/parse_condition() then it owns the GIL,
+        // or is queued for it, and may never give it back -- the usual cause is a
+        // variable server command that blocks inside a model call, since SWIG does not
+        // release the GIL around wrapped calls. Reacquiring the GIL below would then
+        // block forever.
+        //
+        // Skipping Py_Finalize() in that case is safe. The process is about to exit, so
+        // the OS reclaims the interpreter's memory regardless; all we give up is Python's
+        // orderly teardown (atexit handlers, __del__ methods). That is a far better
+        // outcome than wedging the sim, and it lets Executive::shutdown() carry on and
+        // report the real return code instead of the run appearing to hang.
+        int in_interpreter = active_parse_count;
+        if (in_interpreter > 0)
+        {
+            message_publish(
+                MSG_WARNING,
+                "Trick::IPPython::shutdown() skipping Py_Finalize(): %d thread(s) still executing in the Python "
+                "interpreter and holding the GIL. The Python interpreter will not be finalized.\n",
+                in_interpreter);
+            return (0);
+        }
+
         // Obtain the GIL so that we can shut down properly
         // Check if the thread state is actually saved before trying to restore it
         // Python thread state is NULL when using JIT Input
