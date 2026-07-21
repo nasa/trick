@@ -3,20 +3,20 @@
 use FindBin qw($RealBin);
 use lib "$RealBin/pm";
 
-use swig_make ;
+use swig_make;
 
-use strict ;
+use strict;
 
-read_files_to_process() ;
+read_files_to_process();
 
-write_makefile_swig_deps() ;
+write_makefile_swig_deps();
 
-get_trick_headers() ;
+get_trick_headers();
 
 # Remove SWIG: (NO) files, but not before they're written to the dependency file.
 # If SWIG: (NO) is removed, Makefile_swig needs to be regenerated.
-purge_swig_no_files() ;
+purge_swig_no_files();
 
-write_makefile_swig() ;
+write_makefile_swig();
 
-write_lib_files() ;
+write_lib_files();

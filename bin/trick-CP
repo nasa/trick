@@ -9,7 +9,7 @@
 #   Main sim makefile under TRICK_BUILD_DIR (if empty, cwd)
 #
 # PURPOSE:
-#   Start of the sim build process. Constructs the sims primary makefile and kicks it off. 
+#   Start of the sim build process. Constructs the sims primary makefile and kicks it off.
 #   Also does command line parsing and attempts to run rebuild_trickify if available.
 #
 ##########
@@ -17,97 +17,102 @@
 # It is so hard getting the absolute path of the current script in bash
 # so I converted CP back to perl. :)
 
-use File::Basename ;
-use File::Spec ;
-use File::Path qw(make_path) ;
-use Cwd ;
+use File::Basename;
+use File::Spec;
+use File::Path qw(make_path);
+use Cwd;
 use Cwd 'abs_path';
-use Pod::Usage ;
-use Pod::Text ;
+use Pod::Usage;
+use Pod::Text;
 
-$my_cwd = getcwd();
-$trick_bin = dirname(abs_path($0)) ;
-$trick_home = dirname($trick_bin) ;
+$my_cwd     = getcwd();
+$trick_bin  = dirname( abs_path($0) );
+$trick_home = dirname($trick_bin);
 ### Set TRICK_VERBOSE_BUILD if VERBOSE is defined (synonyms) ###
-if(defined $ENV{'VERBOSE'}) {
+if ( defined $ENV{'VERBOSE'} ) {
     $ENV{'TRICK_VERBOSE_BUILD'} = 1;
 }
 
 #### Handle arguments ####
-$numArgs = $#ARGV + 1;
+$numArgs         = $#ARGV + 1;
 $makefileAddArgs = ' ';
-$sdefine_dir = ".";
-$sdefine = "S_define";
+$sdefine_dir     = ".";
+$sdefine         = "S_define";
 $trick_build_dir = "./";
-for $argnum (0 .. $#ARGV) {
+for $argnum ( 0 .. $#ARGV ) {
     $arg = $ARGV[$argnum];
-    if ($arg =~ /(\w+)=(\w+)/ ) {
+    if ( $arg =~ /(\w+)=(\w+)/ ) {
         $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
-    } elsif ($arg eq "-C" || $arg eq "--directory" ) {
-        $sdefine_dir = abs_path($ARGV[$argnum + 1]);
+    }
+    elsif ( $arg eq "-C" || $arg eq "--directory" ) {
+        $sdefine_dir     = abs_path( $ARGV[ $argnum + 1 ] );
         $makefileAddArgs = $makefileAddArgs . " -C $sdefine_dir ";
-        $sdefine = $sdefine_dir . "/${sdefine}";
-        $makefile = $sdefine_dir . "/${makefile}";
-        shift
-    } elsif ($arg =~ /-d/ ) {
+        $sdefine         = $sdefine_dir . "/${sdefine}";
+        $makefile        = $sdefine_dir . "/${makefile}";
+        shift;
+    }
+    elsif ( $arg =~ /-d/ ) {
         $makefileAddArgs = $makefileAddArgs . " debug ";
-    } elsif ($arg =~ /-t/ ) {
+    }
+    elsif ( $arg =~ /-t/ ) {
         $makefileAddArgs = $makefileAddArgs . " test ";
-    } elsif($arg=~ /-h/ ) {
-        pod2usage(-sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99) ;
-    } elsif($arg=~ /-b/ ) {
-        $trick_build_dir = File::Spec->catdir($ARGV[$argnum+1], '') . "/" ;
-    }else {
-        $ENV{TRICK_CPFLAGS} .= " $arg" ;
+    }
+    elsif ( $arg =~ /-h/ ) {
+        pod2usage( -sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99 );
+    }
+    elsif ( $arg =~ /-b/ ) {
+        $trick_build_dir = File::Spec->catdir( $ARGV[ $argnum + 1 ], '' ) . "/";
+    }
+    else {
+        $ENV{TRICK_CPFLAGS} .= " $arg";
     }
 }
 $makefile = "${trick_build_dir}makefile";
 
 # Ensure build dir exists
-unless(-d $trick_build_dir)
-{
+unless ( -d $trick_build_dir ) {
     make_path($trick_build_dir) or die "Could not create build dir: $trick_build_dir, $!\n";
 }
 
 if ( -f $sdefine ) {
     if ( not -w $trick_build_dir ) {
-        print $sdefine_dir , " is not writable\n" ;
-        print "trick-CP aborted\n" ;
-        exit 1 ;
+        print $sdefine_dir, " is not writable\n";
+        print "trick-CP aborted\n";
+        exit 1;
     }
-} else {
-    print "S_define does not exist\n" ;
-    exit 1 ;
+}
+else {
+    print "S_define does not exist\n";
+    exit 1;
 }
 
 #If build dir starts with cwd dot remove it.
 #We have to default to the cwd dot, otherwise -w fails.
-$trick_build_dir =~ s/^\.\/// ;
+$trick_build_dir =~ s/^\.\///;
 
-unlink "$trick_build_dir/Makefile_sim", $makefile ;
-$makefile_text = do { local $/; <main::DATA> } ;
-$makefile_text =~ s/SUB_TRICK_HOME/$trick_home/ ;
-$makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
-$ENV{'TRICK_SIM_DIR'} = "$my_cwd/" ;
-$ENV{'TRICK_BUILD_DIR'} = $trick_build_dir ;
+unlink "$trick_build_dir/Makefile_sim", $makefile;
+$makefile_text = do { local $/; <main::DATA> };
+$makefile_text =~ s/SUB_TRICK_HOME/$trick_home/;
+$makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/;
+$ENV{'TRICK_SIM_DIR'}   = "$my_cwd/";
+$ENV{'TRICK_BUILD_DIR'} = $trick_build_dir;
 
-open MAKEFILE, ">$makefile" ;
-print MAKEFILE $makefile_text ;
-close MAKEFILE ;
+open MAKEFILE, ">$makefile";
+print MAKEFILE $makefile_text;
+close MAKEFILE;
 
 #Rebuild trickified libraries
-if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk")
-{
-    my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1` ;
-    if($cmd_ret ne "") 
-    {
-        print "$cmd_ret" ;
+if ( not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk" ) {
+    my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1`;
+    if ( $cmd_ret ne "" ) {
+        print "$cmd_ret";
     }
-} 
+}
 
-system("make -f ${trick_build_dir}makefile " . $makefileAddArgs) ;
+system( "make -f ${trick_build_dir}makefile " . $makefileAddArgs );
+
 # Dump the build dir readme
-system("cp $trick_home/share/doc/trick/data/build_dir_readme ${trick_build_dir}build/README") ;
+system("cp $trick_home/share/doc/trick/data/build_dir_readme ${trick_build_dir}build/README");
 exit $? >> 8;
 
 # trick-CP help message

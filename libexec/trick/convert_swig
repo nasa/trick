@@ -18,7 +18,6 @@ use get_paths;
 use verbose_build;
 use parse_s_define 'index_comments';
 
-
 ##
 ## ================================================================================
 ## Program: convert_swig
@@ -140,10 +139,10 @@ if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
 }
 
 if ( scalar @ARGV == 0 ) {
-    my ($s_library_swig) = "$ENV{TRICK_BUILD_DIR}build/S_library_swig" ;
-    open FILE_LIST, $s_library_swig or die "Could not open $s_library_swig" ;
-    while ( <FILE_LIST> ) {
-        chomp ;
+    my ($s_library_swig) = "$ENV{TRICK_BUILD_DIR}build/S_library_swig";
+    open FILE_LIST, $s_library_swig or die "Could not open $s_library_swig";
+    while (<FILE_LIST>) {
+        chomp;
 
         my ($f) = $_;
         my ( $swig_dir, $base_file, $swig_file );
@@ -151,9 +150,9 @@ if ( scalar @ARGV == 0 ) {
         $base_file = basename($f);
         $base_file =~ s/\.[^\.]+$//;
 
-        $swig_dir = dirname($f) ;
-        $swig_dir = "$ENV{TRICK_BUILD_DIR}build/$swig_dir" ;
-        $swig_file = "$swig_dir/${base_file}_py.i" ;
+        $swig_dir  = dirname($f);
+        $swig_dir  = "$ENV{TRICK_BUILD_DIR}build/$swig_dir";
+        $swig_file = "$swig_dir/${base_file}_py.i";
 
         #print "$swig_file\n" ;
         $out_of_date{$f} = 1;
@@ -178,7 +177,7 @@ if ( scalar keys %out_of_date == 0 ) {
 process_file();
 
 # If we are trickifying, post process the .i for fake dependencies
-if ($ENV{'AM_I_TRICKIFYING'}) {
+if ( $ENV{'AM_I_TRICKIFYING'} ) {
     correct_fake_deps();
 }
 
@@ -289,11 +288,12 @@ sub process_file() {
                         next outer;
                     }
                 }
-                $file_name = "$ENV{TRICK_BUILD_DIR}build" . $file_name ;
-                $file_name =~ s/\.[^\.]+?$/\_py.i/ ;
-                $contents .= "\%import \"$file_name\"\n" ;
-            } else {
-                $contents .= $_ ;
+                $file_name = "$ENV{TRICK_BUILD_DIR}build" . $file_name;
+                $file_name =~ s/\.[^\.]+?$/\_py.i/;
+                $contents .= "\%import \"$file_name\"\n";
+            }
+            else {
+                $contents .= $_;
             }
         }
 
@@ -305,8 +305,8 @@ sub process_file() {
 
         my $md5_sum = md5_hex($f);
 
-        my $out_file = "$ENV{TRICK_BUILD_DIR}build" . get_dot_i_name($f) ;
-        my ($out_dir) = dirname($out_file) ;
+        my $out_file = "$ENV{TRICK_BUILD_DIR}build" . get_dot_i_name($f);
+        my ($out_dir) = dirname($out_file);
 
         if ( !-e $out_dir ) {
             make_path($out_dir);
@@ -899,7 +899,6 @@ sub process_typedef_const_struct($$$$) {
 
 }
 
-
 ## ================================================================================
 ## correct_fake_deps
 ##
@@ -910,35 +909,36 @@ sub process_typedef_const_struct($$$$) {
 ##
 
 sub correct_fake_deps() {
-    my %fake_deps_map ;
+    my %fake_deps_map;
 
-    open FAKE_DEPS_MAP, "$ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map" ;
-    while ( <FAKE_DEPS_MAP> ) {
-        chomp ;
-        my @map = split ':', $_ ;
-        $fake_deps_map{ get_dot_i_name($map[0])} =  get_dot_i_name($map[1]) ;
+    open FAKE_DEPS_MAP, "$ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map"
+        or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map";
+    while (<FAKE_DEPS_MAP>) {
+        chomp;
+        my @map = split ':', $_;
+        $fake_deps_map{ get_dot_i_name( $map[0] ) } = get_dot_i_name( $map[1] );
     }
-    close FAKE_DEPS_MAP ;
+    close FAKE_DEPS_MAP;
 
     # Skip if no fake deps
-    if (keys %fake_deps_map == 0) { return }
+    if ( keys %fake_deps_map == 0 ) { return }
 
     foreach my $file ( keys %out_of_date ) {
-        my @file_contents = () ;
+        my @file_contents = ();
 
-        my $i_file = "$ENV{TRICK_BUILD_DIR}build" . get_dot_i_name($file) ;
-        open I_FILE, '<', $i_file ;
-        while ( <I_FILE> ) {
-            foreach my $fake (keys %fake_deps_map) {
+        my $i_file = "$ENV{TRICK_BUILD_DIR}build" . get_dot_i_name($file);
+        open I_FILE, '<', $i_file;
+        while (<I_FILE>) {
+            foreach my $fake ( keys %fake_deps_map ) {
                 $_ =~ s/$fake/$fake_deps_map{$fake}/g;
             }
-            push @file_contents, $_ ;
+            push @file_contents, $_;
         }
-        close I_FILE ;
+        close I_FILE;
 
-        open I_FILE, '>', $i_file ;
-        foreach my $line (@file_contents) {print I_FILE $line}
-        close I_FILE ;
+        open I_FILE, '>', $i_file;
+        foreach my $line (@file_contents) { print I_FILE $line }
+        close I_FILE;
     }
 }
 
@@ -951,12 +951,12 @@ sub correct_fake_deps() {
 ##
 
 sub get_dot_i_name($) {
-    my ($path) = @_ ;
+    my ($path) = @_;
 
-    my ($i_dir) = dirname($path) ;
-    my $i_file = basename($path) ;
-    $i_file =~ s/(\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/_py\.i/ ;
-    $i_file = "$i_dir/${i_file}" ;
+    my ($i_dir) = dirname($path);
+    my $i_file = basename($path);
+    $i_file =~ s/(\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/_py\.i/;
+    $i_file = "$i_dir/${i_file}";
 }
 
 __END__

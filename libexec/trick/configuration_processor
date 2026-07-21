@@ -1,107 +1,108 @@
 #! /usr/bin/perl
 
-use File::Basename ;
-use Cwd ;
-use strict ;
-use Getopt::Long ;
-use Pod::Usage ;
-use Pod::Text ;
+use File::Basename;
+use Cwd;
+use strict;
+use Getopt::Long;
+use Pod::Usage;
+use Pod::Text;
 use Cwd 'abs_path';
 
 use FindBin qw($RealBin);
-use lib "$RealBin/pm" ;
+use lib "$RealBin/pm";
 
-use parse_s_define ;
-use gte ;
-use s_source ;
-use trick_print ;
-use trick_version ;
-use get_paths ;
-use verbose_build ;
+use parse_s_define;
+use gte;
+use s_source;
+use trick_print;
+use trick_version;
+use get_paths;
+use verbose_build;
 
-my %sim ;
-my $cwd = cwd();
-my $verbose_build = verbose_build() ;
-my @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
-my @ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
+my %sim;
+my $cwd                     = cwd();
+my $verbose_build           = verbose_build();
+my @ext_lib_paths           = get_paths("TRICK_EXT_LIB_DIRS");
+my @ext_lib_paths_overrides = get_paths("TRICK_EXT_LIB_DIRS_OVERRIDES");
 
 # override the print format for help message
-*Pod::Text::seq_i = sub { return "[04m" . $_[1] . "[00m" } ;
+*Pod::Text::seq_i = sub { return "[04m" . $_[1] . "[00m" };
 
 # set default verbose level
-$sim{args}{v} = 2 ;
-$sim{args}{o} = "$ENV{TRICK_BUILD_DIR}build/CP_out" ;
-$sim{args}{p} = 1 ;
+$sim{args}{v} = 2;
+$sim{args}{o} = "$ENV{TRICK_BUILD_DIR}build/CP_out";
+$sim{args}{p} = 1;
 
 #--------------------------------------------------------------
 # Process command line arguments
-Getopt::Long::Configure ("bundling");
-GetOptions ( "no-python|p" => sub { $sim{args}{p} = 0 } ,
-         "debug|g" => sub { $sim{args}{v} = 3 ; } ,
-         "help|h|?" => \$sim{args}{h} ,
-         "outfile|o=s" => \$sim{args}{o} ,
-         "t" => \$sim{args}{t} ,
-         "verbose|v=i" => \$sim{args}{v}
-       ) or pod2usage(1) ;
+Getopt::Long::Configure("bundling");
+GetOptions(
+    "no-python|p" => sub { $sim{args}{p} = 0 },
+    "debug|g"     => sub { $sim{args}{v} = 3; },
+    "help|h|?"    => \$sim{args}{h},
+    "outfile|o=s" => \$sim{args}{o},
+    "t"           => \$sim{args}{t},
+    "verbose|v=i" => \$sim{args}{v}
+) or pod2usage(1);
 
-pod2usage(1) if $sim{args}{h} ;
+pod2usage(1) if $sim{args}{h};
 
 # Get Trick version
-my ($version, $thread) = get_trick_version() ;
-$thread =~ s/\d+\.// ;
+my ( $version, $thread ) = get_trick_version();
+$thread =~ s/\d+\.//;
 
-local *OUTFILE ;
-open OUTFILE , ">$sim{args}{o}" or warn "CP cannot open $sim{args}{o} for writing\n" ;
-$sim{fh} = *OUTFILE ;
-print OUTFILE "Output for $0 version $version-$thread at " . localtime() . "\n\n" ;
-
+local *OUTFILE;
+open OUTFILE, ">$sim{args}{o}" or warn "CP cannot open $sim{args}{o} for writing\n";
+$sim{fh} = *OUTFILE;
+print OUTFILE "Output for $0 version $version-$thread at " . localtime() . "\n\n";
 
 # if no python is specified, turn off the python InputProcessor sim_object in S_define.
 if ( $sim{args}{p} == 0 ) {
-    $ENV{TRICK_SYSTEM_SFLAGS} .= " -DTRICK_NO_INPUTPROCESSOR" ;
+    $ENV{TRICK_SYSTEM_SFLAGS} .= " -DTRICK_NO_INPUTPROCESSOR";
 }
 
 #--------------------------------------------------------------
 # Parse the S_define file
 
-trick_print($sim{fh}, "Parsing    " , "title_blue" , $sim{args}{v}) ;
-trick_print($sim{fh}, "S_define" , "title_white" , $sim{args}{v}) ;
-trick_print($sim{fh}, "\n" , "title_white" , $sim{args}{v}) if ( $sim{args}{v} != 1 ) ;
+trick_print( $sim{fh}, "Parsing    ", "title_blue",  $sim{args}{v} );
+trick_print( $sim{fh}, "S_define",    "title_white", $sim{args}{v} );
+trick_print( $sim{fh}, "\n",          "title_white", $sim{args}{v} ) if ( $sim{args}{v} != 1 );
 
-parse_s_define(\%sim) ;
+parse_s_define( \%sim );
 
-trick_print( $sim{fh}, "Finished   " , "normal_blue" , $ sim{args}{v} ) ;
-trick_print( $sim{fh}, "S_define\n" , "normal_white" , $ sim{args}{v} ) ;
+trick_print( $sim{fh}, "Finished   ", "normal_blue",  $sim{args}{v} );
+trick_print( $sim{fh}, "S_define\n",  "normal_white", $sim{args}{v} );
 
 #--------------------------------------------------------------
 # Make S_source.c
 
-trick_print($sim{fh}, "Writing    ", "title_blue", $sim{args}{v});
-trick_print($sim{fh}, "S_source.c\n", "title_white", $sim{args}{v});
-s_source( \%sim ) ;
+trick_print( $sim{fh}, "Writing    ",  "title_blue",  $sim{args}{v} );
+trick_print( $sim{fh}, "S_source.c\n", "title_white", $sim{args}{v} );
+s_source( \%sim );
 
 #--------------------------------------------------------------
 # close
 
-chdir ($cwd) ;
-close OUTFILE ;
+chdir($cwd);
+close OUTFILE;
 
 #--------------------------------------------------------------
 # Write out the library dependencies found in the S_define file.
-open LIBDEP, ">$ENV{TRICK_BUILD_DIR}build/S_define.lib_deps" ;
-foreach my $file ( @{$sim{mis_entry_files}} ) {
+open LIBDEP, ">$ENV{TRICK_BUILD_DIR}build/S_define.lib_deps";
+foreach my $file ( @{ $sim{mis_entry_files} } ) {
     if ( $file ne "" ) {
-        $file = abs_path(dirname($file)) . "/" . basename($file) ;
+        $file = abs_path( dirname($file) ) . "/" . basename($file);
         if ( my $path = get_containing_path( $file, @ext_lib_paths ) ) {
             if ( get_containing_path( $file, @ext_lib_paths_overrides ) eq 0 ) {
-                print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$path[24m" . substr($file, length $path) . "\n" if $verbose_build ;
-                next ;
+                print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$path[24m" . substr( $file, length $path ) . "\n"
+                    if $verbose_build;
+                next;
             }
         }
-        print LIBDEP "$file\n" ;
+        print LIBDEP "$file\n";
     }
 }
-close LIBDEP ;
+close LIBDEP;
 
 ################################################################################
 # END MAIN
