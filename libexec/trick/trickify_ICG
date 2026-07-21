@@ -1,0 +1,316 @@
+#!/usr/bin/perl
+
+use FindBin qw($RealBin) ;
+use lib "$RealBin/pm" ;
+use trick_print ;
+
+use File::Path qw(make_path) ;
+use File::Basename;
+use File::Find;
+use File::Copy;
+
+use Cwd qw(getcwd);
+
+
+use strict ;
+
+=pod
+Perl Script:
+    run ICG once on each fake dep
+        store hashes of files contained in each fake deps io link list
+    run ICG on S_source.hh like normal
+    parse io_link_list for fake deps, replace with real deps
+    do a comparison of hashes, mostly for data. Print warnings.
+
+ICG outputs:
+    io files
+    io link list and trickify link list
+    class_map.cpp
+    enum_map.cpp
+    ICG no found
+    ICG_processed
+    ICG_ext_lib
+    classes.resource
+    Makefile_io_src
+    Makefile_ICG
+=cut
+
+my $og_trick_build_dir = $ENV{'TRICK_BUILD_DIR'} ;
+my %fake_deps_map ;
+my %all_file_list ;
+my %all_io_file_list ;
+my %empty_file_list ;
+my %ext_lib_io_files_list ;
+my %icg_no_files_list ;
+
+sub run_ICG($)
+{
+    my($file) = @_ ;
+    print "ICGing:$file\n";
+    system("$ENV{TRICK_HOME}/bin/trick-ICG $ENV{TRICK_CXXFLAGS} $ENV{TRICK_SYSTEM_CXXFLAGS} $ENV{TRICK_ICGFLAGS} $file") ;
+}
+
+sub ICG_print($)
+{
+    my($path) = @_ ;
+    system("$ENV{TRICK_HOME}/bin/trick-ICG $ENV{TRICK_CXXFLAGS} $ENV{TRICK_SYSTEM_CXXFLAGS} $ENV{TRICK_ICGFLAGS} --printIO $path") ;
+}
+
+sub read_icg_artifacts()
+{
+    read_icg_processed() ;
+    read_ext_lib_io_files() ;
+    read_icg_no_found() ;
+}
+
+sub read_icg_processed()
+{
+    my $path = $ENV{'TRICK_BUILD_DIR'} ;
+    my @trickify_io_link_list ;
+
+    #ICG_processed is actually split into two parts. First are the "non-empty" files, which we actually generate io files for.
+    #Aferwards are the "empty" files, which are files that ICG decides not generate io for, but are still needed for builds.
+    #These separate lists are smushed together in ICG_processed, so we have to find where the first list ends.
+    #trickify_io_link_list only contains the "non-empty list", so we can get a count of how long the non-empty file list is.
+    open IO_LL, "${path}build/trickify_io_link_list" or die "Could not open ${path}build/trickify_io_link_list" ;
+    while ( <IO_LL> ) 
+    {
+        chomp ;
+        push @trickify_io_link_list, $_ ;
+    }
+    close IO_LL ;
+
+    my $count ;
+    open ICGP, "${path}build/ICG_processed" or die "Could not open ${path}build/ICG_processed" ;
+    while ( <ICGP> ) 
+    {
+        chomp ;
+        if ($count < @trickify_io_link_list)
+        {
+            $all_file_list{$_}++ ;
+        }
+        else
+        {
+            $empty_file_list{$_}++ ;
+        }
+        $count++ ;
+    }
+    close ICGP ;
+}
+
+sub read_ext_lib_io_files()
+{
+    my $path = $ENV{'TRICK_BUILD_DIR'} ;
+    open EXT_LIB, "${path}build/ICG_ext_lib" or die "Could not open ${path}build/ICG_ext_lib" ;
+    while ( <EXT_LIB> ) 
+    {
+        chomp ;
+        $ext_lib_io_files_list{$_}++ ;
+    }
+    close EXT_LIB ;
+}
+
+sub read_icg_no_found()
+{
+    my $path = $ENV{'TRICK_BUILD_DIR'} ;
+    open ICG_NO_FOUND, "${path}build/ICG_no_found" or die "Could not open ${path}build/ICG_no_found" ;
+    while ( <ICG_NO_FOUND> ) 
+    {
+        chomp ;
+        $icg_no_files_list{$_}++ ;
+    }
+    close ICG_NO_FOUND ;
+}
+
+sub file_to_io_cpp($)
+{
+    my ($file) = @_ ;
+
+    $file =~ /(.*)\.[^.]*$/ ;
+    my $ret = dirname($1) . "/io_" . basename($1) . ".cpp" ;
+}
+
+run_ICG("S_source.hh") ;
+
+# Only want to run this with trickify-25. This check is to prevent this script from executing using the old trickify.mk method.
+#TODO: Come up with a more elegant solution. Or drop this check when oldschool trickify.mk is no longer supported.
+if($ENV{'AM_I_TRICKIFYING'})
+{
+    open FAKE_DEPS_MAP, "$ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map" ;
+    while ( <FAKE_DEPS_MAP> ) 
+    {
+        my $line = $_ ;
+        chomp $line ;
+        my @map = split ':', $line ;
+        $fake_deps_map{$map[0]} = $map[1] ;
+    }
+
+    foreach my $fake (sort keys %fake_deps_map)
+    {
+        my $tmp = file_to_io_cpp($fake);
+        $tmp = "build$tmp";
+        printc('blue', "Unlinking ") ;
+        print "$tmp\n" ;
+        unlink("$tmp") or die "Could not delete file build$tmp: $!";
+    }
+
+    # If no fake deps, skip
+    if (scalar keys %fake_deps_map == 0)
+    {
+        $ENV{'TRICK_BUILD_DIR'} = $og_trick_build_dir ;
+        return 1 ;
+    }
+
+    # Grab the file list from the main ICG run
+    read_icg_artifacts() ;
+
+    my $itr = 0;
+    foreach my $fake (sort keys %fake_deps_map)
+    {
+        $ENV{'TRICK_BUILD_DIR'} = "${og_trick_build_dir}build/fake_dep_$itr/" ;
+        run_ICG($fake_deps_map{$fake}) ;
+        read_icg_artifacts() ;
+        $itr++ ;
+    }
+
+    # Prune fake deps from list
+    my @pruned_file_list = grep
+    {
+        my $file = $_ ;
+        my $isnt_fake = not (grep {$_ eq $file} (keys %fake_deps_map)) ;
+        if($isnt_fake) {
+            1
+        }
+        else {
+            print "REMOVING FAKE $file\n" ; 0
+        }
+    } (sort keys %all_file_list) ;
+
+    foreach my $fake (sort keys %fake_deps_map) {print "FAKE: $fake\n"}
+
+    #Now that the file list has been pruned, create the io file list
+    foreach (@pruned_file_list) 
+    {
+        $all_io_file_list{file_to_io_cpp($_)}++ ;
+    }
+
+########################
+    #Gather all the cpp files generated in our real dependency build dirs.
+    my %files_to_move ;
+    for my $i (0 .. $itr-1)
+    {
+        my $start_dir = "${og_trick_build_dir}build/fake_dep_$i/" ;
+        find ( sub {
+                if ($_ =~ /.cpp$/) {
+                    my $rel_path = File::Spec->abs2rel($File::Find::name, $start_dir) ;
+                    #remove the leading "build/" so that we have the path to the real file
+                    $rel_path =~ s/^build\/// ;
+
+                    #assign the missing piece of the build for each real dep
+                    # cwd + $files_to_move{ $file } + $file should give the full path to the io.cpp
+                    $files_to_move{ $rel_path } = "/build/fake_dep_$i/build/";
+                }
+            }, $start_dir
+        ) ;
+    }
+
+
+    #Prune the list of io.cpp files to copy.
+    #Observed certain instances of running ICP on individual files (real deps) generates fake deps as well
+    #Not certain why this happens, so we apply this filter just to be safe
+    foreach my $f (sort keys %files_to_move) {
+        #grab the third line from the io.cpp
+        #contains the base file name the io file was generated from
+        my $io_file = getcwd() . $files_to_move{$f} . $f ;            
+        open IO_FILE, "$io_file" or die "Could not open $io_file\n" ;
+        my $line_itr ;
+        my $base_file ;
+        while ( <IO_FILE> ) {
+            if( $line_itr == 2 ) {
+                chomp ;
+                $base_file = $_ ;
+                $base_file =~ s/^ \* // ;
+                last ;
+            }         
+            $line_itr++ ;
+        }
+        close IO_FILE ;
+
+        #Compare against the list of files we actually expect in the trickified lib
+        #Skip if not found
+        if( (grep { $_ eq $base_file } (@pruned_file_list)) == 0) { next }
+
+        #Move the file to the primary build directory
+        my $src = $io_file ;
+        my $dest = getcwd() . "/build/" . $f ;
+        if( ! -d dirname($dest) ) 
+        {
+            make_path(dirname($dest)) or die "Couldn't make dir ".dirname($dest).": $!";
+            print "MADE DIR: ", dirname($dest), "\n";
+        }
+
+        printc ('blue', 'Moving') ;
+        print " $src to\n\t $dest\n" ;
+        copy($src, $dest) ;
+        if( ! -e $dest ) 
+        {
+            die "Copying $src to $dest failed\n" ;
+        }
+    }
+#######################
+
+    my $path = "${og_trick_build_dir}build/trickify/" ;
+    eval { make_path($path) } ;
+    die "Could not create build dir $path\n Error: $@\n" if $@ ;
+
+    # Print all file list for ICG_print
+    my $file_list_path = "${path}ICG_all_file_list" ;
+    open FILE_LIST, ">$file_list_path" or die "Could not open $file_list_path: $!" ;
+    foreach (@pruned_file_list)
+    {
+        print FILE_LIST "$_\n" ;
+    }
+    close FILE_LIST ;
+
+    # Print all io file list for ICG_print
+    my $file_io_list_path = "${path}ICG_all_io_file_list" ;
+    open IO_FILE_LIST, ">$file_io_list_path" or die "Could not open $file_io_list_path: $!" ;
+    foreach (sort keys %all_io_file_list)
+    {
+        print IO_FILE_LIST "build$_\n" ;
+    }
+    close IO_FILE_LIST ;
+
+    # Print empty file list for ICG_print
+    my $empty_file_list_path = "${path}ICG_empty_file_list" ;
+    open EMPTY_FILE_LIST, ">$empty_file_list_path" or die "Could not open $empty_file_list_path: $!" ;
+    foreach (sort keys %empty_file_list)
+    {
+        print EMPTY_FILE_LIST "$_\n" ;
+    }
+    close EMPTY_FILE_LIST ;
+
+    # Print all ext file list for ICG_print
+    my $ext_file_list_path = "${path}ICG_ext_file_list" ;
+    open EXT_FILE_LIST, ">$ext_file_list_path" or die "Could not open $ext_file_list_path: $!" ;
+    foreach (sort keys %ext_lib_io_files_list)
+    {
+        print EXT_FILE_LIST "$_\n" ;
+    }
+    close EXT_FILE_LIST ;
+
+    # Print all no_found file list for ICG_print
+    my $no_found_file_list_path = "${path}ICG_no_found_file_list" ;
+    open NO_FILE_LIST, ">$no_found_file_list_path" or die "Could not open $no_found_file_list_path: $!" ;
+    foreach (sort keys %ext_lib_io_files_list)
+    {
+        print NO_FILE_LIST "$_\n" ;
+    }
+    close NO_FILE_LIST ;
+
+    $ENV{'TRICK_BUILD_DIR'} = $og_trick_build_dir ;
+    ICG_print($path) ;
+}
+
+# Restore build dir
+$ENV{'TRICK_BUILD_DIR'} = $og_trick_build_dir ;

@@ -181,7 +181,7 @@ $(IO_OBJECTS:.o=.d): %.d: ;
 
 $(SWIG_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) $(TRICK_SWIG_CFLAGS) $(TRICK_SYSTEM_SWIG_CFLAGS) -Wno-unused-parameter -Wno-shadow -c -o $@ $<)
+	@make -f $(MY_HOME)trickify_swig_rule.mk compile_swig ARG1=$@ ARG2=$< TRICK_CXXFLAGS='$(TRICK_CXXFLAGS)' TRICK_SYSTEM_CXXFLAGS='$(TRICK_SYSTEM_CXXFLAGS)' PYTHON_INCLUDES='$(PYTHON_INCLUDES)' TRICK_SWIG_CFLAGS='$(TRICK_SWIG_CFLAGS)' TRICK_SYSTEM_SWIG_CFLAGS='$(TRICK_SYSTEM_SWIG_CFLAGS)' PARENT_DIR='$(MY_HOME)'
 
 $(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | %.d .trick $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)
@@ -237,8 +237,8 @@ $(TRICKIFY_PYTHON_DIR): $(SWIG_OBJECTS:.o=.cpp) | $(dir $(TRICKIFY_PYTHON_DIR))
 
 
 $(BUILD_DIR)S_source.d: | $(BUILD_DIR)
-	$(call ECHO_AND_LOG,$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh)
 	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/trickify_get_swig_data)
+	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/trickify_ICG)
 	$(call ECHO_AND_LOG,$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICK_CXXFLAGS) S_source.hh)
 
 -include $(BUILD_DIR)S_source.d

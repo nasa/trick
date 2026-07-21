@@ -2,9 +2,18 @@ package trick_print ;
 
 use Exporter ();
 @ISA = qw(Exporter);
-@EXPORT = qw(trick_print trick_formatted_print);
+@EXPORT = qw(printc trick_print trick_formatted_print);
 
 use strict ;
+use Term::ANSIColor ;
+
+sub printc($$)
+{
+    my ($color, $text) = @_ ;
+    print color($color) ;
+    print $text ;
+    print color('reset') ;
+}
 
 my %message_type = ( 
                      "title_white"    , { "color" , 00 , "level" , 1 } ,

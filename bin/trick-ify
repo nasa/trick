@@ -25,15 +25,7 @@ use Getopt::Long ;
 use Cwd ;
 use lib "$my_path../libexec/trick/pm" ;
 use get_makefile_vars ;
-use Term::ANSIColor ;
-
-sub printc($$)
-{
-    my ($color, $text) = @_ ;
-    print color($color) ;
-    print $text ;
-    print color('reset') ;
-}
+use trick_print ;
 
 sub find_file_by_ext($$)
 {

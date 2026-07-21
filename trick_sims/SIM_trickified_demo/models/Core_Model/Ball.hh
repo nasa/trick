@@ -38,6 +38,7 @@ PROGRAMMERS:
 // Model include files.
 #include "BallState.hh"
 #include "BallForce.hh"
+#include "TemplateTest.hh"
 
 /** @class Ball
     @brief ball in C++
@@ -72,6 +73,9 @@ class Ball {
    BallState state; /**< -- Ball state object. */
    BallForce force; /**< -- Ball force object. */
 
+   double test_double;
+
+   TemplateTest<double, 100> dtt;
 
 };
 

@@ -12,6 +12,8 @@ use html ;
 use verbose_build ;
 use get_lib_deps ;
 use get_paths ;
+use get_hashtag_includes ;
+use trick_print ;
 use Digest::MD5 qw(md5_hex) ;
 
 @ISA = qw(Exporter);
@@ -29,6 +31,8 @@ my %python_module_dirs ;
 
 #trickify vars
 my %trickify_files_to_replace ;
+my %trickify_gcc_includes ; 
+my %trickify_fake_dep_paths ;
 
 sub read_files_to_process()
 {
@@ -360,6 +364,9 @@ sub trickify_map_fake_deps()
     }
     close SRC_DEPS ;
 
+    my @src_deps = keys %src_deps ;
+    my $hashtag_includes = get_hashtag_includes(\@src_deps) ;
+
     # Grab our includes, for validating the replacement path
     my @includes = get_include_paths() ;
 
@@ -375,7 +382,6 @@ sub trickify_map_fake_deps()
         # fake dependency, find the real one
         else 
         {
-            print "SKIPPING: $file\n";
             my (@src_dep, @file, @common, $tmp_src_dep, $tmp_file) ;
             my $found_match = 0 ;
             my %possible_replacements = ();
@@ -407,19 +413,71 @@ sub trickify_map_fake_deps()
                 } while ($tmp_src_dep eq $tmp_file and @src_dep and @file) ;
             }
 
-            if( (scalar (keys %possible_replacements)) == 1) 
+            if( (scalar (keys %possible_replacements)) == 1 ) 
             {
-                print "WE'VE GOT A MATCH: \n\t", keys %possible_replacements, " | $file\n" ;
                 my ($key) = (keys %possible_replacements) ; 
                 $trickify_files_to_replace{$file} = $key ;
-                push @new_file_list, $key ;              
+                push @new_file_list, $key ;  
+                #TODO: Investigate replacing the above absolute path with the following relative path. Need this for libraries to become portable.
+                #my ($replacement) = (values %possible_replacements) ; 
+                #$trickify_files_to_replace{$file} = $replacement ;
+                #push @new_file_list, $replacement ;  
             }
             else 
             {
-                print "You did something bad...\n" ;
+                #TODO: Need to investigate the potential scenario where a build include a fake dep and the real dep, and is it even possible? What happens? I suspect it might choke around here
+                #TODO: We need to resolve running into multiple files with matching names
+                printc('red',"You did something bad...\n") ;
+                my $count = (keys %possible_replacements) ;
+                print "$count possible replacements found for fake dependency:\n\t$file\n" ;
+                print "Possible replacements:\n" ;
+                print map {"\t$_\n"} (keys %possible_replacements) ; 
+                exit 0;
             }
         }  
     }
+
+    # TRICKIFY_FAKE_DEP_PATHS should hold the -I includes for the true dependencies.
+    # We generate these includes by taking the list of all #includes found in trickify dependencies, and comparing them to
+    # the full path of the true dependencies, to reverse engineer what -I's are needed for the true dependencies. We then
+    # slap these -I's in front of all other -I's, negating the -I voodoo that got us here in the first place.
+    # Currently, this is only required for SWIG gcc calls, as SWIG _py.cpp's incorporate the #includes from user code and will 
+    # try to utilize the fake dependency that got us here in the first place.
+
+    # NOTE: This implementation may be fragile in the scenario multiple #includes exists in the build referencing the same file, but with
+    # different subsets of the path (ie. #include models/includes/source.hh and #include includes/source.hh). Resolving this would
+    # likely require fully reimplementing gcc's logic for resolving paths (changing working dirs and checking relative paths, etc.),
+    # but frankly if you got to this point you don't deserve trickify and can resolve it yourself.
+    $ENV{TRICKIFY_FAKE_DEP_PATHS} = "" ;
+    foreach my $path (sort values %trickify_files_to_replace)
+    {
+        my @I_includes = () ;
+        foreach my $include (sort keys %$hashtag_includes)
+        {
+            if ($path =~ /^(.*)$include$/ )
+            {
+                if ( defined($1) )
+                {
+                    push @I_includes, $1 ;
+                }
+            }
+        }
+        #TODO: Do we need to verify there was only one valid include? Skipping a check for now.
+        foreach my $include (@I_includes)
+        {
+            $trickify_fake_dep_paths{$include} = 1;
+        }
+
+    }
+
+    foreach my $path (sort keys %trickify_fake_dep_paths)
+    {
+        $ENV{TRICKIFY_FAKE_DEP_PATHS} .= "-I $path " ;
+    }
+    make_path("$ENV{TRICK_BUILD_DIR}build/trickify/swig/") unless -d "$ENV{TRICK_BUILD_DIR}build/trickify/swig/" ;
+    open TRICKIFY_FAKE_DEP_PATHS, ">$ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_paths" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_paths" ;
+    print TRICKIFY_FAKE_DEP_PATHS $ENV{TRICKIFY_FAKE_DEP_PATHS} ;
+    close TRICKIFY_FAKE_DEP_PATHS ;
 }
 
 sub replace_files_to_process()
@@ -431,14 +489,13 @@ sub replace_files_to_process()
             $_ = $trickify_files_to_replace{$old_file} if $_ eq $old_file ; 
         }
     }
-
 }
 
 sub write_fake_deps_map()
 {
     make_path("$ENV{TRICK_BUILD_DIR}build/trickify/swig/") unless -d "$ENV{TRICK_BUILD_DIR}build/trickify/swig/" ;
 
-    open FAKEDEPSMAP, ">$ENV{TRICK_BUILD_DIR}build/trickify/fake_deps_map" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/fake_deps_map" ;
+    open FAKEDEPSMAP, ">$ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map" ;
     print FAKEDEPSMAP map { "$_:$trickify_files_to_replace{$_}\n" } (sort keys %trickify_files_to_replace) ;
     close FAKEDEPSMAP ;  
 }

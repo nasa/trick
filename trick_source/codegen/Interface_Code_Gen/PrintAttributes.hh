@@ -22,6 +22,8 @@ class HeaderSearchDirs ;
 class CommentSaver ;
 class PrintFileContentsBase ;
 
+extern std::string trick_build_dir;
+
 /**
 
   This class creates a PrintFileContentsBase class for each include file that we
@@ -44,13 +46,23 @@ class PrintAttributes {
 
         /** Prints all of the processed classes and enumerations */
         virtual void createMapFiles() ;
-        virtual void closeMapFiles() ;
+        virtual void closeMapFiles(bool print_mode = false) ;
 
         /** Create makefile for IO files */
         virtual void printIOMakefile() ;
 
+        /** Create makefile for IO files, specify lists. */
+        void printIOMakefile(
+        std::map< std::string , std::string >& all_io_files_ref,
+        std::set< std::string >& ext_lib_io_files_ref,
+        std::vector< std::string >& icg_no_files_ref,
+        std::map< std::string , std::string >* out_of_date_io_files_re=NULL );
+
         /** Prints list of files that contain ICG:(No) in the Trick header */
         virtual void printICGNoFiles() ;
+
+        /** Prints list of files that contain ICG:(No) in the Trick header, specify lists. */
+        void printICGNoFiles( std::vector< std::string >& icg_no_files_ref );
 
         /** Prints a class to the io_src file */
         virtual void printClass( ClassValues * in_class) ;
@@ -145,8 +157,6 @@ class PrintAttributes {
         std::map< std::string , std::set< std::string > > processed_classes ;
         /** map of processed enums sorted by file */
         std::map< std::string , std::set< std::string > > processed_enums ;
-        /** Local copy of the environment variable TRICK_BUILD_DIR */
-        std::string trick_build_dir ;
         /** Local copy of the environment variable AM_I_TRICKIFYING */
         bool trickifying  ;
         /** Local copy of the environment variable AM_I_TRICKIFYING_MK */
