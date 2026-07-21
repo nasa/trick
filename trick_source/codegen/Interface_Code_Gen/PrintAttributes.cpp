@@ -241,7 +241,7 @@ void PrintAttributes::printClass( ClassValues * cv ) {
     }
 
     if (!isHeaderExcluded(fileName, false)) {
-         printer->printClassMap(class_map_outfile, cv);
+         printer->printClassMap(class_map_outfile, cv, sim_services_flag);
     }
 }
 

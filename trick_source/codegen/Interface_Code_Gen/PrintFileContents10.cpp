@@ -514,11 +514,15 @@ void PrintFileContents10::printClassMapHeader( std::ostream & ostream , std::str
 "    Trick::AttributesMap * class_attribute_map = Trick::AttributesMap::attributes_map();\n\n" ;
 }
 
-void PrintFileContents10::printClassMap( std::ostream & ostream , ClassValues * cv ) {
+void PrintFileContents10::printClassMap( std::ostream & ostream , ClassValues * cv, bool sim_services_flag ) {
     std::string name = cv->getFullyQualifiedMangledTypeName("__");
     ostream << "    // " << cv->getFileName() << std::endl
             << "    extern ATTRIBUTES  attr" << name << "[] ;" << std::endl
-            << "    class_attribute_map->add_attr(\"" << cv->getFullyQualifiedMangledTypeName() << "\" , attr" << name << ") ;" << std::endl ;
+            << "    class_attribute_map->add_attr(\"" << cv->getFullyQualifiedMangledTypeName() << "\" , attr" << name << ") ;" << std::endl;
+    if ( ! sim_services_flag ) {
+        ostream << "    extern void init_attr" << name << "() ;" << std::endl
+                << "    init_attr" << name << "() ;" << std::endl;
+    }
 }
 
 void PrintFileContents10::printClassMapFooter( std::ostream & ostream ) {

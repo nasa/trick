@@ -35,7 +35,7 @@ class PrintFileContentsBase {
 
         // these routines provide default empty implementation
         virtual void printClassMapHeader(std::ostream & ostream, std::string function_name ) ;
-        virtual void printClassMap(std::ostream & ostream, ClassValues * cv) ;
+        virtual void printClassMap(std::ostream & ostream, ClassValues * cv, bool sim_services_flag) ;
         virtual void printClassMapFooter(std::ostream & ostream) ;
 
         virtual void printEnumMapHeader(std::ostream & ostream, std::string function_name ) ;
