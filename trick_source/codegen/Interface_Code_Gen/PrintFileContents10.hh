@@ -39,7 +39,7 @@ class PrintFileContents10 : public PrintFileContentsBase {
 
         /** Prints all classes for global map */
         virtual void printClassMapHeader(std::ostream & out, std::string function_name ) ;
-        virtual void printClassMap(std::ostream & outfile , ClassValues * cv) ;
+        virtual void printClassMap(std::ostream & outfile , ClassValues * cv, bool sim_services_flag) ;
         virtual void printClassMapFooter(std::ostream & out) ;
 
         /** Prints all enums for global map */

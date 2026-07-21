@@ -18,7 +18,7 @@ PrintFileContentsBase::PrintFileContentsBase() {}
 
 // provide empty default implementation of these routines.
 void PrintFileContentsBase::printClassMapHeader(std::ostream & ostream, std::string function_name ) {}
-void PrintFileContentsBase::printClassMap(std::ostream & ostream, ClassValues * cv) {}
+void PrintFileContentsBase::printClassMap(std::ostream & ostream, ClassValues * cv, bool sim_services_flag) {}
 void PrintFileContentsBase::printClassMapFooter(std::ostream & ostream) {}
 
 void PrintFileContentsBase::printEnumMapHeader(std::ostream & ostream, std::string function_name ) {}
