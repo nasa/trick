@@ -254,7 +254,7 @@ int main(int argc, char * argv[]) {
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
     llvm::Triple trip (to.Triple) ;
 #if (LIBCLANG_MAJOR >= 15)
-    //clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
+    clang::LangOptions::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
 #elif (LIBCLANG_MAJOR >= 12)
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
 #elif (LIBCLANG_MAJOR >= 10)
