@@ -1781,8 +1781,6 @@ def run_vs_ip_tests():
             "swpp[6][0][0].a:BAD_REF",
         )
 
-
-
         # ------------------------------------------------------- #
 
         test_suite = "STL boundary tests"
@@ -1863,7 +1861,9 @@ def run_vs_ip_tests():
             test_suite,
             "unsigned_short_vector[2]",
         )
-        print("Expected: the_object.vsip_test.unsigned_short_vector[3] could not be found.")
+        print(
+            "Expected: the_object.vsip_test.unsigned_short_vector[3] could not be found."
+        )
         TRICK_EXPECT_EQ(
             vs.get_value("the_object.vsip_test.unsigned_short_vector[3]", type_=str),
             "BAD_REF",
@@ -1919,7 +1919,9 @@ def run_vs_ip_tests():
             test_suite,
             "unsigned_int_vector[2]",
         )
-        print("Expected: the_object.vsip_test.unsigned_int_vector[3] could not be found.")
+        print(
+            "Expected: the_object.vsip_test.unsigned_int_vector[3] could not be found."
+        )
         TRICK_EXPECT_EQ(
             vs.get_value("the_object.vsip_test.unsigned_int_vector[3]", type_=str),
             "BAD_REF",
@@ -1975,7 +1977,9 @@ def run_vs_ip_tests():
             test_suite,
             "unsigned_long_vector[2]",
         )
-        print("Expected: the_object.vsip_test.unsigned_long_vector[3] could not be found.")
+        print(
+            "Expected: the_object.vsip_test.unsigned_long_vector[3] could not be found."
+        )
         TRICK_EXPECT_EQ(
             vs.get_value("the_object.vsip_test.unsigned_long_vector[3]", type_=str),
             "BAD_REF",
@@ -2014,26 +2018,36 @@ def run_vs_ip_tests():
         ### Test STL container: std::vector<unsigned long long>
         # --- std::vector<unsigned long long>: addData pushes 22, 23, 24 ---
         TRICK_EXPECT_EQ(
-            vs.get_value("the_object.vsip_test.unsigned_long_long_vector[0]", type_=int),
+            vs.get_value(
+                "the_object.vsip_test.unsigned_long_long_vector[0]", type_=int
+            ),
             22,
             test_suite,
             "unsigned_long_long_vector[0]",
         )
         TRICK_EXPECT_EQ(
-            vs.get_value("the_object.vsip_test.unsigned_long_long_vector[1]", type_=int),
+            vs.get_value(
+                "the_object.vsip_test.unsigned_long_long_vector[1]", type_=int
+            ),
             23,
             test_suite,
             "unsigned_long_long_vector[1]",
         )
         TRICK_EXPECT_EQ(
-            vs.get_value("the_object.vsip_test.unsigned_long_long_vector[2]", type_=int),
+            vs.get_value(
+                "the_object.vsip_test.unsigned_long_long_vector[2]", type_=int
+            ),
             24,
             test_suite,
             "unsigned_long_long_vector[2]",
         )
-        print("Expected: the_object.vsip_test.unsigned_long_long_vector[3] could not be found.")
+        print(
+            "Expected: the_object.vsip_test.unsigned_long_long_vector[3] could not be found."
+        )
         TRICK_EXPECT_EQ(
-            vs.get_value("the_object.vsip_test.unsigned_long_long_vector[3]", type_=str),
+            vs.get_value(
+                "the_object.vsip_test.unsigned_long_long_vector[3]", type_=str
+            ),
             "BAD_REF",
             test_suite,
             "unsigned_long_long_vector[3]:BAD_REF",
@@ -2168,7 +2182,6 @@ def run_vs_ip_tests():
             "string_vector[4]:BAD_REF",
         )
 
-
         ### Test STL container: std::deque<float>
         # --- std::deque<float>: addData pushes 98.7, 65.4, 32.1 ---
         TRICK_EXPECT_NEAR(
@@ -2227,7 +2240,6 @@ def run_vs_ip_tests():
             test_suite,
             "string_deque[3]:BAD_REF",
         )
-
 
         ### Test STL container: std::array<int,4>
         # --- std::array<int,4>: addData sets 10, 20, 30, 40 ---
@@ -2310,7 +2322,6 @@ def run_vs_ip_tests():
             test_suite,
             "string_array[5]:BAD_REF",
         )
-
 
         ### Test STL-element struct member: vec_user_simple is std::vector<UserClass>
         # size of vec_user_simple is 10 starting from 0
@@ -2408,7 +2419,6 @@ def run_vs_ip_tests():
             "vec_user_simple[10].a[2]:BAD_REF",
         )
 
-
         ### Test STL-element struct member: vec_user_defined is std::vector<SimpleWrapper>
         # vec_user_defined[i].a = 888, vec_user_defined[i].vec[j] = i+j  (10 elements each)
         TRICK_EXPECT_EQ(
@@ -2459,7 +2469,6 @@ def run_vs_ip_tests():
             "vec_user_defined[10].vec[11]:BAD_REF",
         )
 
-
         ### Test STL-element struct member: vec_user_defined_ptr is std::vector<SimpleWrapper*>
         # vec_user_defined_ptr[i]->a = 888, vec_user_defined_ptr[i]->vec[j] = i+j  (10 elements each)
         TRICK_EXPECT_EQ(
@@ -2475,7 +2484,9 @@ def run_vs_ip_tests():
             "vec_user_defined_ptr[1].a",
         )
         TRICK_EXPECT_EQ(
-            vs.get_value("the_object.vsip_test.vec_user_defined_ptr[2].vec[5]", type_=int),
+            vs.get_value(
+                "the_object.vsip_test.vec_user_defined_ptr[2].vec[5]", type_=int
+            ),
             (2 + 5),
             test_suite,
             "vec_user_defined_ptr[2].vec[5]",
@@ -2493,7 +2504,9 @@ def run_vs_ip_tests():
             "Expected: the_object.vsip_test.vec_user_defined_ptr[0].vec[10] could not be found."
         )
         TRICK_EXPECT_EQ(
-            vs.get_value("the_object.vsip_test.vec_user_defined_ptr[0].vec[10]", type_=str),
+            vs.get_value(
+                "the_object.vsip_test.vec_user_defined_ptr[0].vec[10]", type_=str
+            ),
             "BAD_REF",
             test_suite,
             "vec_user_defined_ptr[0].vec[10]:BAD_REF",
@@ -2509,7 +2522,6 @@ def run_vs_ip_tests():
             test_suite,
             "vec_user_defined_ptr[10].vec[11]:BAD_REF",
         )
-
 
         ### Test get_stl_size() for various STL containers
         # -- Check the size of the vector using get_stl_size() ---

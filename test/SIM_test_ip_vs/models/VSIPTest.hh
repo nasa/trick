@@ -35,7 +35,8 @@ class UserClass
         UserClass* d;
 };
 
-enum class Color {
+enum class Color
+{
     RED,
     GREEN,
     BLUE
@@ -48,7 +49,7 @@ class VSIPTest
         int addData();
 
         // Dynamic arrays for testing
-        Color* color_p; /* -- blah */
+        Color* color_p;     /* -- blah */
         Color* color_ap[4]; /* -- blah */
         Color** color_pp;   /* -- blah */
         Color*** color_ppp; /* -- blah */
