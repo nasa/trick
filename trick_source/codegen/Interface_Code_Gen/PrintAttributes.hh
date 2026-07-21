@@ -46,23 +46,21 @@ class PrintAttributes {
 
         /** Prints all of the processed classes and enumerations */
         virtual void createMapFiles() ;
-        virtual void closeMapFiles(bool print_mode = false) ;
+        virtual void closeMapFiles(bool print_mode = false);
 
         /** Create makefile for IO files */
         virtual void printIOMakefile() ;
 
         /** Create makefile for IO files, specify lists. */
-        void printIOMakefile(
-        std::map< std::string , std::string >& all_io_files_ref,
-        std::set< std::string >& ext_lib_io_files_ref,
-        std::vector< std::string >& icg_no_files_ref,
-        std::map< std::string , std::string >* out_of_date_io_files_re=NULL );
+        void printIOMakefile(std::map<std::string, std::string>& all_io_files_ref,
+                             std::set<std::string>& ext_lib_io_files_ref, std::vector<std::string>& icg_no_files_ref,
+                             std::map<std::string, std::string>* out_of_date_io_files_re = NULL);
 
         /** Prints list of files that contain ICG:(No) in the Trick header */
         virtual void printICGNoFiles() ;
 
         /** Prints list of files that contain ICG:(No) in the Trick header, specify lists. */
-        void printICGNoFiles( std::vector< std::string >& icg_no_files_ref );
+        void printICGNoFiles(std::vector<std::string>& icg_no_files_ref);
 
         /** Prints a class to the io_src file */
         virtual void printClass( ClassValues * in_class) ;
@@ -158,9 +156,9 @@ class PrintAttributes {
         /** map of processed enums sorted by file */
         std::map< std::string , std::set< std::string > > processed_enums ;
         /** Local copy of the environment variable AM_I_TRICKIFYING */
-        bool trickifying  ;
+        bool trickifying;
         /** Local copy of the environment variable AM_I_TRICKIFYING_MK */
-        bool trickifying_mk ;
+        bool trickifying_mk;
         /** Used for trickify only, will be empty otherwise. Copy of the base sims dependency list */
         std::vector<std::string> trickify_src_deps_map;
 } ;
