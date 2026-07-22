@@ -390,7 +390,7 @@ int Trick::DRHDF5::write_data(bool must_write) {
                 for (ii = 0; ii < rec_buffer.size(); ii++) {
                     //unsigned int writer_offset = writer_num % max_num ;
                     size_t item_size = Trick::ReferenceUtils::effective_trick_size(rec_buffer[ii]->ref);
-                    buf = rec_buffer[ii]->buffer + (writer_offset * item_size) ;
+                    buf              = rec_buffer[ii]->buffer + (writer_offset * item_size);
                     append_var_packet_table(rec_buffer[ii], buf, ds_records1, param_dataset_ids[ii]);
 
                     buf = rec_buffer[ii]->buffer ;
@@ -402,7 +402,7 @@ int Trick::DRHDF5::write_data(bool must_write) {
                 for (ii = 0; ii < rec_buffer.size(); ii++) {
                     //unsigned int writer_offset = writer_num % max_num ;
                     size_t item_size = Trick::ReferenceUtils::effective_trick_size(rec_buffer[ii]->ref);
-                    buf = rec_buffer[ii]->buffer + (writer_offset * item_size) ;
+                    buf              = rec_buffer[ii]->buffer + (writer_offset * item_size);
                     append_var_packet_table(rec_buffer[ii], buf, ds_records1, param_dataset_ids[ii]);
                }
             }
@@ -437,7 +437,7 @@ int Trick::DRHDF5::format_specific_write_data(unsigned int writer_offset __attri
          * So there is a seperate DataRecordBuffer per variable.
          * Point to the value to be recorded. */
         size_t item_size = Trick::ReferenceUtils::effective_trick_size(rec_buffer[ii]->ref);
-        buf = rec_buffer[ii]->buffer + (writer_offset * item_size) ;
+        buf              = rec_buffer[ii]->buffer + (writer_offset * item_size);
         append_var_packet_table(rec_buffer[ii], buf, 1, param_dataset_ids[ii]);
 
     }
