@@ -716,7 +716,8 @@ namespace Trick {
             bool hexfloat_checkpoint;                   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */
             bool hexfloat_decimal_comment_checkpoint;   /**< -- true = Add decimal representation comment for hexfloat values. false= no decimal representation comment. */
             bool expanded_arrays;                       /**< -- true = array element values are set in separate assignments. */
-            bool checkpoint_restore_success;            /**< -- true = If the checkpoint restore process is successful. false = otherwise. */
+            bool checkpoint_restore_success; /**< -- true = If the checkpoint restore process is successful. false =
+                                                otherwise. */
 
             ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
             VARIABLE_MAP    variable_map;    /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */
