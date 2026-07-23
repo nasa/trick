@@ -353,6 +353,9 @@ int Trick::ClassicCheckPointAgent::restore( std::istream* checkpoint_stream) {
         ss << "Checkpoint Agent ERROR: Checkpoint restore failed."
            << std::endl;
         message_publish(MSG_INFO, ss.str().c_str() );
+        mem_mgr->set_checkpoint_restore_state(false);
+    } else {
+        mem_mgr->set_checkpoint_restore_state(true);
     }
     delete context ;
     return (status);
