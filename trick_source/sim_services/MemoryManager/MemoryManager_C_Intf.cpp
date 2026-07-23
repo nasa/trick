@@ -415,6 +415,19 @@ extern "C" int TMM_init_from_checkpoint(const char* filename) {
     }
 }
 
+extern "C" int TMM_get_checkpoint_restore_state(void)
+{
+    if (trick_MM != NULL)
+    {
+        return (trick_MM->get_checkpoint_restore_state());
+    }
+    else
+    {
+        Trick::MemoryManager::emitError("TMM_checkpoint_restore_state() called before MemoryManager instantiation.\n");
+        return (1);
+    }
+}
+
 extern "C" int TMM_set_stl_restore (int on_off) {
     if (trick_MM != NULL) {
         return ( trick_MM->set_restore_stls_default( (bool) on_off ));

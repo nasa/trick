@@ -25,6 +25,8 @@ Trick::MemoryManager::MemoryManager()
     reduced_checkpoint  = 1;
     resetting_memory = false;
     expanded_arrays  = 0;
+    checkpoint_restore_success = true;
+
     // start counter at 100mil.  This (hopefully) ensures all alloc'ed ids are after external variables.
     alloc_info_map_counter = 100000000 ;
     // start counter at 0.  This forces extern vars to appear in front of actual allocations in checkpoint.

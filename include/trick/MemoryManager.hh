@@ -415,6 +415,18 @@ namespace Trick {
             int init_from_checkpoint( const char* filename, bool do_restore_stls = restore_stls_default);
 
             /**
+             * Sets the checkpoint restore state.
+             * @param state - true if a successful checkpoint restore has occurred, false otherwise.
+             */
+            void set_checkpoint_restore_state(bool state);
+
+            /**
+             * Gets the checkpoint restore state.
+             * @return true if a successful checkpoint restore has occurred, false otherwise.
+             */
+            int get_checkpoint_restore_state();
+
+            /**
              Deallocate the memory for all TRICK_LOCAL variables and then forget about them.
              Clear the memory for all TRICK_EXTERN variables.
              Does not attempt to deallocate external memory.
@@ -704,6 +716,8 @@ namespace Trick {
             bool hexfloat_checkpoint;                   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */
             bool hexfloat_decimal_comment_checkpoint;   /**< -- true = Add decimal representation comment for hexfloat values. false= no decimal representation comment. */
             bool expanded_arrays;                       /**< -- true = array element values are set in separate assignments. */
+            bool checkpoint_restore_success; /**< -- true = If the checkpoint restore process is successful. false =
+                                                otherwise. */
 
             ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
             VARIABLE_MAP    variable_map;    /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */

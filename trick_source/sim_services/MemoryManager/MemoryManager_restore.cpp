@@ -142,3 +142,7 @@ int Trick::MemoryManager::init_from_checkpoint( std::istream *is, bool restore_s
 
     return 0 ;
 }
+
+int Trick::MemoryManager::get_checkpoint_restore_state() { return checkpoint_restore_success; }
+
+void Trick::MemoryManager::set_checkpoint_restore_state(bool state) { checkpoint_restore_success = state; }
