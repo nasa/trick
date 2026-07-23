@@ -1,0 +1,1 @@
+TRICK_CXXFLAGS += -I$(CURDIR)/models
