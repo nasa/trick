@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
-use warnings;
 use strict;
+use warnings;
 
-#clear certain environment variables.
-#these vars cause conflicts when trick-ify is invoked from the sim makefile
+# clear certain environment variables.
+# these vars cause conflicts when trick-ify is invoked from the sim makefile
 $ENV{TRICK_EXT_LIB_DIRS} = "";
 
 #store the base env from the shell
@@ -18,14 +18,15 @@ BEGIN {
     $my_path =~ s/trick-ify//;
 }
 
-use File::Basename;
-use File::Find;
-use File::Path qw(make_path);
-use Getopt::Long;
-use Cwd;
+use Cwd            qw(chdir getcwd);
+use File::Basename qw(basename dirname);
+use File::Find     qw(find);
+use File::Path     qw(make_path);
+use Getopt::Long   qw(GetOptions);
+
 use lib "$my_path../libexec/trick/pm";
-use get_makefile_vars;
-use trick_print;
+use get_makefile_vars qw(dump_makefile_vars);
+use trick_print       qw(printc);
 
 sub find_file_by_ext($$) {
     my ( $dirs_ref, $ext ) = @_;

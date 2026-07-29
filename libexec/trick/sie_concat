@@ -1,10 +1,15 @@
 #!/usr/bin/perl
 package sie_concat;
 
-use File::Basename;
+use strict;
+use warnings;
+
+use File::Basename qw(dirname);
+
 use FindBin qw($RealBin);
 use lib "$RealBin/pm";
-use get_paths;
+
+use get_paths qw(get_paths);
 
 my @trick_python_paths = get_paths("TRICK_PYTHON_PATH");
 

@@ -1,33 +1,29 @@
 package get_hashtag_includes;
 
+use strict;
+use warnings;
+
 use FindBin qw($RealBin);
 use lib "$RealBin/";
 
-use File::Basename;
-use Cwd;
-use Cwd 'abs_path';
-use trick_print;
+use Exporter ();
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(get_hashtag_includes);
-
-use strict;
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(get_hashtag_includes);
 
 sub get_hashtag_includes($) {
     my ($file_list) = @_;
     my %includes;
 
     foreach my $file (@$file_list) {
-        open FILE, "$file" or die "Failed to open $file\n";
-        while (<FILE>) {
+        open( my $fh, '<', $file ) or die "Failed to open $file: $!\n";
+        while (<$fh>) {
             chomp;
-            if ( $_ =~ /^#\s*include\s*\"(.*)\"$/ || $_ =~ /^#\s*include\s*\<(.*)\>$/ ) {
-                if ( defined($1) ) {
-                    chomp $1;
-                    $includes{$1} = 1;
-                }
+            if ( $_ =~ /^\s*#\s*include\s*"([^"]*)"/ || $_ =~ /^\s*#\s*include\s*<([^>]*)>/ ) {
+                $includes{$1} = 1;
             }
         }
+        close($fh);
     }
     return \%includes;
 }

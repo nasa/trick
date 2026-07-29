@@ -1,23 +1,24 @@
 #! /usr/bin/perl
 
-use File::Basename;
-use Cwd;
 use strict;
-use Getopt::Long;
-use Pod::Usage;
-use Pod::Text;
-use Cwd 'abs_path';
+use warnings;
+
+use Cwd            qw(abs_path cwd);
+use File::Basename qw(basename dirname);
+use Getopt::Long   qw(GetOptions);
+use Pod::Text      ();
+use Pod::Usage     qw(pod2usage);
 
 use FindBin qw($RealBin);
 use lib "$RealBin/pm";
 
-use parse_s_define;
+use get_paths qw(get_containing_path get_paths);
 use gte;
-use s_source;
-use trick_print;
-use trick_version;
-use get_paths;
-use verbose_build;
+use parse_s_define qw(parse_s_define);
+use s_source       qw(s_source);
+use trick_print    qw(trick_print);
+use trick_version  qw(get_trick_version);
+use verbose_build  qw(verbose_build);
 
 my %sim;
 my $cwd                     = cwd();
@@ -116,7 +117,7 @@ CP - Trick Configuration Processor
 
 =head1 SYNOPSIS
 
-CP [-defghmprsz?] [--debug] [--help] [-o I<outfile>] [--outfile=I<outfile>] 
+CP [-defghmprsz?] [--debug] [--help] [-o I<outfile>] [--outfile=I<outfile>]
 [-v I<level>] [--verbose=I<level>] [--model_dirs]
 
 =head1 DESCRIPTION
@@ -124,7 +125,7 @@ CP [-defghmprsz?] [--debug] [--help] [-o I<outfile>] [--outfile=I<outfile>]
 See the Trick User's guide for B<CP>
 
 =head1 OPTIONS
-   
+
 =over 8
 
 =item B<-e>
@@ -166,4 +167,3 @@ Note: -DTRICK_VER=x.x is automatically used when parsing header files and the S_
 =back
 
 =cut
-

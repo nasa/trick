@@ -1,12 +1,15 @@
 package s_source;
 
-use Exporter ();
-@ISA    = qw(Exporter);
-@EXPORT = qw(s_source);
-
 use strict;
+use warnings;
+
+use Exporter ();
+
 use gte;
-use trick_version;
+use trick_version qw(get_trick_version);
+
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(s_source);
 
 sub s_source($) {
 

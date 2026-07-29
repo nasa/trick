@@ -1,18 +1,22 @@
 package get_lib_deps;
 
-use File::Basename;
-use Cwd 'abs_path';
-use File::Path qw(make_path);
-use Exporter   ();
-use gte;
-use get_paths;
-use verbose_build;
-use trick_version;
-use Digest::MD5 qw(md5_hex);
-@ISA    = qw(Exporter);
-@EXPORT = qw(get_lib_deps write_lib_deps get_s_source_deps trickify_map_fake_deps);
-
 use strict;
+use warnings;
+
+use Cwd            qw(abs_path);
+use Digest::MD5    qw(md5_hex);
+use File::Basename qw(basename dirname fileparse);
+use File::Path     qw(make_path);
+
+use Exporter ();
+
+use get_paths qw(get_containing_path get_defines get_include_paths get_paths);
+use gte;
+use trick_version qw(get_trick_version);
+use verbose_build qw(verbose_build);
+
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(get_lib_deps write_lib_deps get_s_source_deps trickify_map_fake_deps);
 
 my $verbose_build           = verbose_build();
 my @ext_lib_paths           = get_paths("TRICK_EXT_LIB_DIRS");

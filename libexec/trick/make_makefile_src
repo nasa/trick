@@ -1,15 +1,17 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
+use Cwd            qw(abs_path cwd);
+use File::Basename qw(dirname fileparse);
+
 use FindBin qw($RealBin);
 use lib "$RealBin/pm";
 
-use strict;
-use File::Basename;
-use Cwd;
-use Cwd 'abs_path';
-use trick_version;
-use get_lib_deps;
-use verbose_build;
+use get_lib_deps  qw(get_s_source_deps write_lib_deps);
+use trick_version qw(get_trick_version);
+use verbose_build qw(verbose_build);
 
 my %processed_files;
 my %non_lib_processed_files;

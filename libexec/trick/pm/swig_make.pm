@@ -1,26 +1,28 @@
 package swig_make;
 
+use strict;
+use warnings;
+
+use Cwd         qw(abs_path);
+use Digest::MD5 qw(md5_hex);
+use File::Path  qw(make_path);
+
 use FindBin qw($RealBin);
 use lib "$RealBin/";
 
-use File::Basename;
-use File::Path qw(make_path);
-use Cwd;
-use Cwd 'abs_path';
+use Exporter ();
+
+use get_hashtag_includes qw(get_hashtag_includes);
+use get_lib_deps         qw(get_s_source_deps);
+use get_paths            qw(get_include_paths);
 use gte;
 use html;
-use verbose_build;
-use get_lib_deps;
-use get_paths;
-use get_hashtag_includes;
-use trick_print;
-use Digest::MD5 qw(md5_hex);
+use trick_print   qw(printc);
+use verbose_build qw(verbose_build);
 
-@ISA = qw(Exporter);
-@EXPORT =
+our @ISA = qw(Exporter);
+our @EXPORT =
     qw(read_files_to_process write_makefile_swig_deps get_trick_headers purge_swig_no_files write_makefile_swig write_lib_files trickify_map_fake_deps replace_files_to_process write_fake_deps_map);
-
-use strict;
 
 my @files_to_process;
 my @ext_lib_files;

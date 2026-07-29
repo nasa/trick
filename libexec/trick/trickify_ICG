@@ -1,17 +1,18 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
+use Cwd            qw(getcwd);
+use File::Basename qw(basename dirname);
+use File::Copy     qw(copy);
+use File::Find     qw(find);
+use File::Path     qw(make_path);
+
 use FindBin qw($RealBin);
 use lib "$RealBin/pm";
-use trick_print;
 
-use File::Path qw(make_path);
-use File::Basename;
-use File::Find;
-use File::Copy;
-
-use Cwd qw(getcwd);
-
-use strict;
+use trick_print qw(printc);
 
 =pod
 Perl Script:

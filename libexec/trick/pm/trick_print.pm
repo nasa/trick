@@ -1,11 +1,14 @@
 package trick_print;
 
-use Exporter ();
-@ISA    = qw(Exporter);
-@EXPORT = qw(printc trick_print trick_formatted_print);
-
 use strict;
-use Term::ANSIColor;
+use warnings;
+
+use Term::ANSIColor qw(color);
+
+use Exporter ();
+
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(printc trick_print trick_formatted_print);
 
 sub printc($$) {
     my ( $color, $text ) = @_;

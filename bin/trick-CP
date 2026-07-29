@@ -17,30 +17,34 @@
 # It is so hard getting the absolute path of the current script in bash
 # so I converted CP back to perl. :)
 
-use File::Basename;
-use File::Spec;
-use File::Path qw(make_path);
-use Cwd;
-use Cwd 'abs_path';
-use Pod::Usage;
-use Pod::Text;
+use strict;
+use warnings;
 
-$my_cwd     = getcwd();
-$trick_bin  = dirname( abs_path($0) );
-$trick_home = dirname($trick_bin);
+use Cwd            qw(abs_path getcwd);
+use File::Basename qw(dirname);
+use File::Path     qw(make_path);
+use File::Spec     ();
+use Pod::Usage     qw(pod2usage);
+
+my $my_cwd     = getcwd();
+my $trick_bin  = dirname( abs_path($0) );
+my $trick_home = dirname($trick_bin);
 ### Set TRICK_VERBOSE_BUILD if VERBOSE is defined (synonyms) ###
 if ( defined $ENV{'VERBOSE'} ) {
     $ENV{'TRICK_VERBOSE_BUILD'} = 1;
 }
 
 #### Handle arguments ####
-$numArgs         = $#ARGV + 1;
-$makefileAddArgs = ' ';
-$sdefine_dir     = ".";
-$sdefine         = "S_define";
-$trick_build_dir = "./";
-for $argnum ( 0 .. $#ARGV ) {
-    $arg = $ARGV[$argnum];
+my $numArgs         = $#ARGV + 1;
+my $makefileAddArgs = ' ';
+my $sdefine_dir     = ".";
+my $sdefine         = "S_define";
+my $trick_build_dir = "./";
+my $makefile;
+my $makefile_text;
+
+for my $argnum ( 0 .. $#ARGV ) {
+    my $arg = $ARGV[$argnum];
     if ( $arg =~ /(\w+)=(\w+)/ ) {
         $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
     }
@@ -86,8 +90,8 @@ else {
     exit 1;
 }
 
-#If build dir starts with cwd dot remove it.
-#We have to default to the cwd dot, otherwise -w fails.
+# If build dir starts with cwd dot remove it.
+# We have to default to the cwd dot, otherwise -w fails.
 $trick_build_dir =~ s/^\.\///;
 
 unlink "$trick_build_dir/Makefile_sim", $makefile;
@@ -101,7 +105,7 @@ open MAKEFILE, ">$makefile";
 print MAKEFILE $makefile_text;
 close MAKEFILE;
 
-#Rebuild trickified libraries
+# Rebuild trickified libraries
 if ( not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk" ) {
     my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1`;
     if ( $cmd_ret ne "" ) {

@@ -1,12 +1,20 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
 use FindBin qw($RealBin);
 use lib "$RealBin/pm";
 
-use File::Path qw(make_path);
-use swig_make;
-
-use strict;
+use swig_make qw(
+    get_trick_headers
+    purge_swig_no_files
+    read_files_to_process
+    replace_files_to_process
+    trickify_map_fake_deps
+    write_fake_deps_map
+    write_lib_files
+);
 
 read_files_to_process();
 

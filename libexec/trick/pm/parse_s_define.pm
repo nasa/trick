@@ -1,24 +1,24 @@
 package parse_s_define;
 
-use Exporter ();
-@ISA    = qw(Exporter);
-@EXPORT = qw(parse_s_define handle_sim_object handle_integ_loop handle_collects
-    handle_user_code handle_user_header handle_user_inline index_comments);
-
-use Cwd;
-use File::Basename;
 use strict;
-use Cwd 'abs_path';
-use IPC::Open3;
+use warnings;
+
+use Cwd            qw(abs_path);
+use File::Basename qw(basename dirname);
+use Text::Balanced qw(extract_bracketed);
+
+use Exporter ();
 
 use edit;
-use find_module;
+use find_module qw(find_header_file);
+use get_paths   qw(get_include_paths);
 use gte;
-use trick_print;
-use trick_version;
-use Text::Balanced qw(extract_bracketed);
 use html;
-use get_paths;
+use trick_print qw(trick_formatted_print trick_print);
+
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(parse_s_define handle_sim_object handle_integ_loop handle_collects
+    handle_user_code handle_user_header handle_user_inline index_comments);
 
 BEGIN {
     if ( $ENV{'TRICK_PERL_DEBUG'} eq 1 ) {
