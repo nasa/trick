@@ -764,7 +764,7 @@ std::string Trick::ClassicCheckPointAgent::
             // attr.index[0].size = 0 (not static array)
             // attr.size = sizeof(char)
             // This prevents anonymous allocations from appearing in subsequent checkpoints
-            if ((attr != NULL) && (attr->type == TRICK_CHARACTER || attr->type == TRICK_UNSIGNED_CHARACTER) && ((curr_dim + 1) == attr->num_index)) {
+            if ((attr != NULL) && attr->type == TRICK_CHARACTER && ((curr_dim + 1) == attr->num_index)) {
                 std::stringstream ss;
                 write_quoted_str( ss, (const char*)pointer);
                 reference_string = ss.str();
