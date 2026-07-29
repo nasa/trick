@@ -6,7 +6,6 @@ use warnings;
 use Cwd            qw(abs_path cwd);
 use File::Basename qw(basename dirname);
 use Getopt::Long   qw(GetOptions);
-use Pod::Text      ();
 use Pod::Usage     qw(pod2usage);
 
 use FindBin qw($RealBin);
@@ -25,9 +24,6 @@ my $cwd                     = cwd();
 my $verbose_build           = verbose_build();
 my @ext_lib_paths           = get_paths("TRICK_EXT_LIB_DIRS");
 my @ext_lib_paths_overrides = get_paths("TRICK_EXT_LIB_DIRS_OVERRIDES");
-
-# override the print format for help message
-*Pod::Text::seq_i = sub { return "[04m" . $_[1] . "[00m" };
 
 # set default verbose level
 $sim{args}{v} = 2;

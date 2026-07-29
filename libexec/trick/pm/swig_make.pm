@@ -343,8 +343,8 @@ sub trickify_map_fake_deps() {
     open SRC_DEPS, "$ENV{TRICK_BUILD_DIR}tmp_build/build/trickify_deps"
         or die "Failed to open $ENV{TRICK_BUILD_DIR}tmp_build/build/trickify_deps\n";
     while (<SRC_DEPS>) {
-        my $key = s/\s*$//;
-        my $key = s/^\s*//;
+        s/^\s+//;
+        s/\s+$//;
         $src_deps{$_} = 1;
     }
     close SRC_DEPS;

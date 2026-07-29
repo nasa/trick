@@ -8,6 +8,9 @@ use Digest::MD5    qw(md5_hex);
 use File::Basename qw(basename dirname fileparse);
 use File::Path     qw(make_path);
 
+use FindBin qw($RealBin);
+use lib "$RealBin";
+
 use Exporter ();
 
 use get_paths qw(get_containing_path get_defines get_include_paths get_paths);

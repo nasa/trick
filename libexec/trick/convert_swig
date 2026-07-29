@@ -118,6 +118,11 @@ my %stl_names = qw(deque 1 set 1 multiset 1 unordered_map 1 multimap 1 hash_set 
     std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1);
 
+sub usage() {
+    print "$usage\n";
+    exit;
+}
+
 Getopt::Long::Configure("bundling");
 GetOptions(
     "stl|s"  => sub { $stls = 1 },
@@ -135,53 +140,6 @@ my @include_dirs       = get_include_paths();
 my @defines            = get_defines();
 my @exclude_paths      = get_paths("TRICK_EXCLUDE");
 my @swig_exclude_paths = get_paths("TRICK_SWIG_EXCLUDE");
-
-if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
-    push @defines, "-DTRICK_VER=$year";
-}
-
-if ( scalar @ARGV == 0 ) {
-    my ($s_library_swig) = "$ENV{TRICK_BUILD_DIR}build/S_library_swig";
-    open FILE_LIST, $s_library_swig or die "Could not open $s_library_swig";
-    while (<FILE_LIST>) {
-        chomp;
-
-        my ($f) = $_;
-        my ( $swig_dir, $base_file, $swig_file );
-
-        $base_file = basename($f);
-        $base_file =~ s/\.[^\.]+$//;
-
-        $swig_dir  = dirname($f);
-        $swig_dir  = "$ENV{TRICK_BUILD_DIR}build/$swig_dir";
-        $swig_file = "$swig_dir/${base_file}_py.i";
-
-        #print "$swig_file\n" ;
-        $out_of_date{$f} = 1;
-    }
-}
-else {
-    #print "HERE I AM @ARGV\n" ;
-    map { $out_of_date{$_} = 1 } @ARGV;
-}
-
-## The global hash %out_of_date represents a list of header files whose
-## corresponding .i files need to be regenerated.
-##
-
-if ( scalar keys %out_of_date == 0 ) {
-    exit;
-}
-
-## Finally, call process_file() to create SWIG interface files for each of the out_of_date headers.
-##
-
-process_file();
-
-# If we are trickifying, post process the .i for fake dependencies
-if ( $ENV{'AM_I_TRICKIFYING'} ) {
-    correct_fake_deps();
-}
 
 ##
 ## ================================================================================
@@ -228,8 +186,8 @@ sub process_file() {
 
         my @comment_sections = index_comments(@file_contents);
         for ( my $idx = @comment_sections - 2 ; $idx >= 0 ; $idx -= 2 ) {
-            my $comment_length = @comment_sections[ $idx + 1 ] - @comment_sections[$idx] + 1;
-            substr $raw_contents, @comment_sections[$idx], $comment_length, "";
+            my $comment_length = $comment_sections[ $idx + 1 ] - $comment_sections[$idx] + 1;
+            substr $raw_contents, $comment_sections[$idx], $comment_length, "";
         }
 
 ##      The init_attr functions cause problems when we try and wrap them with SWIG.
@@ -372,9 +330,94 @@ sub process_file() {
     }
 }
 
-sub usage() {
-    print "$usage\n";
+## ================================================================================
+## correct_fake_deps
+##
+## Synopsis
+##
+## Trickify function. Check for fake dependencies and replace them with
+## the true dependency.
+##
+
+sub correct_fake_deps() {
+    my %fake_deps_map;
+
+    open FAKE_DEPS_MAP, "$ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map"
+        or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map";
+    while (<FAKE_DEPS_MAP>) {
+        chomp;
+        my @map = split ':', $_;
+        $fake_deps_map{ get_dot_i_name( $map[0] ) } = get_dot_i_name( $map[1] );
+    }
+    close FAKE_DEPS_MAP;
+
+    # Skip if no fake deps
+    if ( keys %fake_deps_map == 0 ) { return }
+
+    foreach my $file ( keys %out_of_date ) {
+        my @file_contents = ();
+
+        my $i_file = "$ENV{TRICK_BUILD_DIR}build" . get_dot_i_name($file);
+        open I_FILE, '<', $i_file;
+        while (<I_FILE>) {
+            foreach my $fake ( keys %fake_deps_map ) {
+                $_ =~ s/$fake/$fake_deps_map{$fake}/g;
+            }
+            push @file_contents, $_;
+        }
+        close I_FILE;
+
+        open I_FILE, '>', $i_file;
+        foreach my $line (@file_contents) { print I_FILE $line }
+        close I_FILE;
+    }
+}
+
+if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
+    push @defines, "-DTRICK_VER=$year";
+}
+
+if ( scalar @ARGV == 0 ) {
+    my ($s_library_swig) = "$ENV{TRICK_BUILD_DIR}build/S_library_swig";
+    open FILE_LIST, $s_library_swig or die "Could not open $s_library_swig";
+    while (<FILE_LIST>) {
+        chomp;
+
+        my ($f) = $_;
+        my ( $swig_dir, $base_file, $swig_file );
+
+        $base_file = basename($f);
+        $base_file =~ s/\.[^\.]+$//;
+
+        $swig_dir  = dirname($f);
+        $swig_dir  = "$ENV{TRICK_BUILD_DIR}build/$swig_dir";
+        $swig_file = "$swig_dir/${base_file}_py.i";
+
+        #print "$swig_file\n" ;
+        $out_of_date{$f} = 1;
+    }
+}
+else {
+    #print "HERE I AM @ARGV\n" ;
+    map { $out_of_date{$_} = 1 } @ARGV;
+}
+
+## The global hash %out_of_date represents a list of header files whose
+## corresponding .i files need to be regenerated.
+##
+
+if ( scalar keys %out_of_date == 0 ) {
     exit;
+}
+
+## Finally, call process_file() to create SWIG interface files for each of the out_of_date headers.
+##
+
+process_file();
+
+# If we are trickifying, post process the .i for fake dependencies
+if ( $ENV{'AM_I_TRICKIFYING'} ) {
+    correct_fake_deps();
 }
 
 ## ================================================================================
@@ -899,49 +942,6 @@ sub process_typedef_const_struct($$$$) {
     ( $extracted, $$contents_ref ) = extract_bracketed( "{" . $$contents_ref, "{}" );
     $$contents_ref =~ s/^(\s*([\w,\s\*]+)?\s*;)//sx;
 
-}
-
-## ================================================================================
-## correct_fake_deps
-##
-## Synopsis
-##
-## Trickify function. Check for fake dependencies and replace them with
-## the true dependency.
-##
-
-sub correct_fake_deps() {
-    my %fake_deps_map;
-
-    open FAKE_DEPS_MAP, "$ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map"
-        or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify/swig/fake_deps_map";
-    while (<FAKE_DEPS_MAP>) {
-        chomp;
-        my @map = split ':', $_;
-        $fake_deps_map{ get_dot_i_name( $map[0] ) } = get_dot_i_name( $map[1] );
-    }
-    close FAKE_DEPS_MAP;
-
-    # Skip if no fake deps
-    if ( keys %fake_deps_map == 0 ) { return }
-
-    foreach my $file ( keys %out_of_date ) {
-        my @file_contents = ();
-
-        my $i_file = "$ENV{TRICK_BUILD_DIR}build" . get_dot_i_name($file);
-        open I_FILE, '<', $i_file;
-        while (<I_FILE>) {
-            foreach my $fake ( keys %fake_deps_map ) {
-                $_ =~ s/$fake/$fake_deps_map{$fake}/g;
-            }
-            push @file_contents, $_;
-        }
-        close I_FILE;
-
-        open I_FILE, '>', $i_file;
-        foreach my $line (@file_contents) { print I_FILE $line }
-        close I_FILE;
-    }
 }
 
 ## ================================================================================

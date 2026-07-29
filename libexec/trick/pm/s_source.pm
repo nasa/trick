@@ -3,6 +3,9 @@ package s_source;
 use strict;
 use warnings;
 
+use FindBin qw($RealBin);
+use lib "$RealBin";
+
 use Exporter ();
 
 use gte;

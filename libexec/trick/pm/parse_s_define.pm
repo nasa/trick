@@ -7,6 +7,9 @@ use Cwd            qw(abs_path);
 use File::Basename qw(basename dirname);
 use Text::Balanced qw(extract_bracketed);
 
+use FindBin qw($RealBin);
+use lib "$RealBin";
+
 use Exporter ();
 
 use edit;
@@ -21,7 +24,7 @@ our @EXPORT = qw(parse_s_define handle_sim_object handle_integ_loop handle_colle
     handle_user_code handle_user_header handle_user_inline index_comments);
 
 BEGIN {
-    if ( $ENV{'TRICK_PERL_DEBUG'} eq 1 ) {
+    if ( defined $ENV{'TRICK_PERL_DEBUG'} and $ENV{'TRICK_PERL_DEBUG'} eq 1 ) {
         require re;
         re->import('debug');
     }
@@ -349,7 +352,7 @@ sub index_comments (@) {
         ( "string", 0, "cpp_comment", 0, "c_comment", 0, "angle", 0, "pp_include", 0, "pp_error", 0, "idx", 0 );
 
     for ( $line_idx = 0 ; $line_idx < @text ; ++$line_idx ) {
-        $each_item   = @text[$line_idx];
+        $each_item   = $text[$line_idx];
         $item_length = length($each_item);
 
         #Check for specific pp directives that change comment parsing
@@ -473,8 +476,8 @@ sub parse_s_define ($) {
     }
 
     for ( my $idx = 0 ; $idx < @comment_sections ; $idx += 2 ) {
-        my $comment_length = @comment_sections[ $idx + 1 ] - @comment_sections[$idx] + 1;
-        push( @comments, ( substr $contents, @comment_sections[$idx], $comment_length ) );
+        my $comment_length = $comment_sections[ $idx + 1 ] - $comment_sections[$idx] + 1;
+        push( @comments, ( substr $contents, $comment_sections[$idx], $comment_length ) );
     }
 
     foreach my $i (@comments) {
@@ -517,8 +520,8 @@ sub parse_s_define ($) {
     }
     my $i = ( @comment_sections / 2 ) - 1;
     for ( my $idx = @comment_sections - 2 ; $idx >= 0 ; $idx -= 2 ) {
-        my $comment_length = @comment_sections[ $idx + 1 ] - @comment_sections[$idx] + 1;
-        substr $contents, @comment_sections[$idx], $comment_length, ( "ZZZYYYXXX" . $i-- . "ZZZYYYXXX" );
+        my $comment_length = $comment_sections[ $idx + 1 ] - $comment_sections[$idx] + 1;
+        substr $contents, $comment_sections[$idx], $comment_length, ( "ZZZYYYXXX" . $i-- . "ZZZYYYXXX" );
     }
 
     # substitue in environment variables in the S_define file.
@@ -526,7 +529,7 @@ sub parse_s_define ($) {
     $contents =~ s/\$[({]\s*([\w_]+)\s*[)}]/$ENV{$1}/eg;
 
     #strip trailing spaces
-    $contents =~ s/\s*$//;
+    $contents =~ s/\s+$//;
 
     #rip out define comments left by gcc 2.96
     $contents =~ s/\/\*.*?\*+\///sg;
