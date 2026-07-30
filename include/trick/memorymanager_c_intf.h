@@ -2,6 +2,7 @@
 #define MEMORYMANAGER_C_INTF_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "trick/parameter_types.h"
 #include "trick/attributes.h"
@@ -57,7 +58,7 @@ int   TMM_read_checkpoint( const char* filename);
 int   TMM_read_checkpoint_from_string( const char* str);
 int   TMM_init_from_checkpoint( const char* filename);
 
-int TMM_get_checkpoint_restore_state(void);
+bool TMM_get_checkpoint_restore_state(void);
 
 int   TMM_add_shared_library_symbols( const char* filename);
 

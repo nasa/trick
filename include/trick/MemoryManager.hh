@@ -424,7 +424,7 @@ namespace Trick {
              * Gets the checkpoint restore state.
              * @return true if a successful checkpoint restore has occurred, false otherwise.
              */
-            int get_checkpoint_restore_state();
+            bool get_checkpoint_restore_state();
 
             /**
              Deallocate the memory for all TRICK_LOCAL variables and then forget about them.

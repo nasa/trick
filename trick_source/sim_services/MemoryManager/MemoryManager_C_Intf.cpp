@@ -415,7 +415,7 @@ extern "C" int TMM_init_from_checkpoint(const char* filename) {
     }
 }
 
-extern "C" int TMM_get_checkpoint_restore_state(void)
+extern "C" bool TMM_get_checkpoint_restore_state(void)
 {
     if (trick_MM != NULL)
     {
@@ -423,8 +423,8 @@ extern "C" int TMM_get_checkpoint_restore_state(void)
     }
     else
     {
-        Trick::MemoryManager::emitError("TMM_checkpoint_restore_state() called before MemoryManager instantiation.\n");
-        return (1);
+        Trick::MemoryManager::emitError("TMM_get_checkpoint_restore_state() called before MemoryManager instantiation.\n");
+        return (false);
     }
 }
 
