@@ -423,7 +423,8 @@ extern "C" bool TMM_get_checkpoint_restore_state(void)
     }
     else
     {
-        Trick::MemoryManager::emitError("TMM_get_checkpoint_restore_state() called before MemoryManager instantiation.\n");
+        Trick::MemoryManager::emitError(
+            "TMM_get_checkpoint_restore_state() called before MemoryManager instantiation.\n");
         return (false);
     }
 }
