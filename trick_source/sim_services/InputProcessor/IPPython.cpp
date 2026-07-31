@@ -30,11 +30,7 @@
 Trick::IPPython * the_pip ;
 
 //Constructor
-Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() , units_conversion_msgs(true) {
-    the_pip = this ;
-    return ;
-}
-
+Trick::IPPython::IPPython() { the_pip = this; }
 
 // Need to save the state of the main thread to allow child threads to run PyRun variants.
 static PyThreadState *_save = NULL;
@@ -129,16 +125,6 @@ void Trick::IPPython::get_TMM_named_variables() {
             GILGuard gil_guard;
             PyRun_SimpleString(ss.str().c_str());
         }
-    }
-}
-
-bool Trick::IPPython::get_units_conversion_msgs() {
-    return units_conversion_msgs ;
-}
-
-void Trick::IPPython::shoot_the_units_conversion_messenger(bool onoff) {
-    if ( onoff ) {
-        message_publish(MSG_WARNING, "Units conversion messages can no longer be suppressed.\n") ;
     }
 }
 
@@ -313,20 +299,3 @@ int Trick::IPPython::shutdown() {
     }
     return(0) ;
 }
-
-//TODO: remove units conversion messenger routines in 2021
-void shoot_the_units_conversion_messenger() {
-    message_publish(MSG_WARNING, "shoot_the_units_conversion_messenger() is deprecated\n") ;
-    the_pip->shoot_the_units_conversion_messenger(true) ;
-}
-
-void revive_the_units_conversion_messenger() {
-    message_publish(MSG_WARNING, "revive_the_units_conversion_messenger() is deprecated\n") ;
-    the_pip->shoot_the_units_conversion_messenger(false) ;
-}
-
-int check_units_conversion_messenger_for_signs_of_life() {
-    message_publish(MSG_WARNING, "check_units_conversion_messenger_for_signs_of_life() is deprecated\n") ;
-    return the_pip->get_units_conversion_msgs() ;
-}
-//END TODO:
