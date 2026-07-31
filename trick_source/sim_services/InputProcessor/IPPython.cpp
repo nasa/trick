@@ -7,16 +7,16 @@
    PROGRAMMERS: ( Alex Lin NASA 2009 )
 */
 
+#include <Python.h>
+
 #include "trick/IPPython.hh"
 
-#include "trick/InputProcessor.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/exec_proto.h"
 #include "trick/io_alloc.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
-#include <Python.h>
 #include <atomic>
 #include <cstdio>
 #include <cstdlib>

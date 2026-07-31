@@ -14,6 +14,11 @@ BreakBeforeBraces: Allman
 ColumnLimit: 120
 IncludeBlocks: Regroup
 IncludeCategories:
+  # Python.h must precede every other header, including the file's own. CPython defines
+  # feature macros and redefines them if a system header got there first. A negative
+  # priority is what sorts it ahead of the main-header group, which clang-format pins at 0.
+  - Regex: '^("|<)Python\.h("|>)$'
+    Priority: -1
   - Regex: '^("|<)trick/'
     Priority: 2
   - Regex: '^("|<)(llvm|llvm-c|clang|clang-c)/'

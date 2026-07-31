@@ -71,14 +71,14 @@ namespace Trick {
              @brief Restore variables with memory manager names to python space.
              @return always 0
             */
-            int restart() ;
+            int restart();
     } ;
 
 }
 
 extern "C" {
 //SWIG generated routine.
-void init_swig_modules(void) ;
+void init_swig_modules(void);
 }
 
 #endif
