@@ -301,6 +301,11 @@ bool HeaderSearchDirs::isPathInICGExclude (const std::string& in_dir ) {
     return false ;
 }
 
+bool HeaderSearchDirs::isPathExcludedFromICG (const std::string& in_dir ) {
+
+    return isPathInExclude(in_dir) || isPathInICGExclude(in_dir) ;
+}
+
 bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;

@@ -3,6 +3,9 @@ exec(open("Modified_data/vehicleState.dr").read())
 
 trick.TMM_reduced_checkpoint(0)
 
+trick.var_allow_connections()
+trick.var_resolve_hostname()
+
 veh_integloop.getIntegrator(trick.Runge_Kutta_4, 8)
 
 #==========================================

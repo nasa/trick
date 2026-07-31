@@ -9,7 +9,14 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g ${TRICK_TEST_FLAGS}
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_mm -ltrick_units -ltrick_var_binary_parser -ltrick_connection_handlers -ltrick_comm
+TRICK_LIB_NAMES = trick trick_pyip trick_comm trick_math trick_mm trick_units trick_var_binary_parser trick_connection_handlers
+ifeq ($(TRICK_HOST_TYPE),Linux)
+    TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,--start-group $(addprefix -l,$(TRICK_LIB_NAMES)) -Wl,--end-group
+else ifeq ($(TRICK_HOST_TYPE),Darwin)
+    TRICK_LIBS = -L${TRICK_LIB_DIR} $(addprefix -l,$(TRICK_LIB_NAMES))
+else
+    $(error Unsupported platform: $(shell uname))
+endif
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 
 # All tests produced by this Makefile.  Remember to add new tests you
@@ -37,10 +44,10 @@ MonteCarlo_test.o : MonteCarlo_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $<
 
 MonteCarlo_test : MonteCarlo_test.o
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MonteCarlo_exceptions.o : MonteCarlo_exceptions.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $<
 
 MonteCarlo_exceptions : MonteCarlo_exceptions.o
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

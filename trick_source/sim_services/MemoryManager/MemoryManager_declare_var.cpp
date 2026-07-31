@@ -142,6 +142,18 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
             return ((void*)NULL);
         }
         language = Language_CPP;
+    } else if ((type == TRICK_WSTRING) && (n_stars == 0 ) ) {
+
+        std::wstring *s = (std::wstring*)calloc(n_elems, sizeof(std::wstring));
+        for (int ii=0 ; ii<n_elems ; ii++) {
+            new( &s[ii]) std::wstring();
+        }
+        address = s;
+
+        if (address == NULL) {
+            return ((void*)NULL);
+        }
+        language = Language_CPP;
     } else {
         if ( (address = calloc( (size_t)n_elems, (size_t)size ) ) == NULL) {
             emitError("Out of memory.") ;
@@ -369,6 +381,11 @@ void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name,
         /** @li Insert the <address, ALLOC_INFO> key-value pair into the alloc_info_map.*/
         pthread_mutex_lock(&mm_mutex);
         alloc_info_map[address] = new_alloc;
+        /** @li If this is a named allocation: then insert the <variable-name, ALLOC_INFO>
+            key-value pair into the variable map.*/
+        if (new_alloc->name) {
+            variable_map[new_alloc->name] = new_alloc;
+        }
         pthread_mutex_unlock(&mm_mutex);
     } else {
         emitError("Out of memory.") ;

@@ -95,7 +95,7 @@ clean_python:
 real_clean: clean
 
 # some depends
-swig_int_wrap.cpp: swig_int.cpp
-swig_double_wrap.cpp: swig_double.cpp
-swig_ref_wrap.cpp: swig_ref.cpp
+swig_${TRICK_HOST_CPU}/swig_int_wrap.cpp: swig_int.cpp
+swig_${TRICK_HOST_CPU}/swig_double_wrap.cpp: swig_double.cpp
+swig_${TRICK_HOST_CPU}/swig_ref_wrap.cpp: swig_ref.cpp
 

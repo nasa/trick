@@ -12,6 +12,8 @@
 
 #include "trick/VariableServerSessionThread.hh"
 
+extern Trick::VariableServer* the_vs;
+
 void exit_var_thread(void *in_vst) ;
 
 void * Trick::VariableServerSessionThread::thread_body() {
@@ -26,6 +28,21 @@ void * Trick::VariableServerSessionThread::thread_body() {
 
     // Accept client connection
     int status = _connection->start();
+
+    std::string new_ip = _connection->getClientHostname();
+    // check against allowlist
+    // skip this check if connection failed, don't want an erroneous error
+    if (!_vs->get_bypass_ip_check() && status != CONNECTION_FAIL)
+    {
+        bool valid_ip = _vs->check_ip(new_ip);
+
+        if (!valid_ip)
+        {
+            std::string err_msg = "ILLEGAL IP CONNECTION ATTEMPTED: " + new_ip + "\n";
+            message_publish(MSG_ERROR, err_msg.c_str());
+            status = CONNECTION_FAIL;
+        }
+    }
 
     if (status != 0) {
         _vs->delete_vst(pthread_self());
@@ -70,6 +87,14 @@ void * Trick::VariableServerSessionThread::thread_body() {
 
             // Pause here if we are in a restart condition
             test_pause();
+
+            // If the variable server has been disabled (possibly at runtime), stop
+            // servicing this client. No commands are read or executed and the session
+            // disconnects. Broadcasting continues independently from the listen thread.
+            if (!_vs->get_enabled())
+            {
+                break;
+            }
 
             // Look for a message from the client
             // Parse and execute if one is availible

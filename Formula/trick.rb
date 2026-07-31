@@ -1,18 +1,19 @@
 class Trick < Formula
   desc "Simulation development framework"
   homepage "https://github.com/nasa/trick"
-  url "https://github.com/nasa/trick/archive/refs/tags/25.0.2.tar.gz"
-  sha256 "0e51ee68d7239423a18b144dea9e0560125c523a0e2d8a914933ace1bba39dd3"
+  url "https://github.com/nasa/trick/archive/refs/tags/25.1.0.tar.gz"
+  sha256 "e4dcbc5e618e2805d9560ef5b7cacb1cd98a360fae5b69272ce72a7ba076dbb2"
   license "NASA-1.3"
+  revision 1
   head "https://github.com/nasa/trick.git", branch: "master"
 
   bottle do
-    root_url "https://github.com/nasa/trick/releases/download/25.0.2"
-    sha256 cellar: :any, arm64_tahoe:   "82ff7e557a22070f60b6dcbe51162dca0c1f21b1f17ca085b6ecd0c879e617d8"
-    sha256 cellar: :any, arm64_sequoia: "1de737ce38adfc7df972db2b8d6781d7ce3b55731559b2cc085e8b8b1c270d91"
+    root_url "https://github.com/nasa/trick/releases/download/25.1.0"
+    sha256 cellar: :any, arm64_tahoe:   "094dc0c7cd02288b3626910f79fbd402d4a18851315b8ae36ea4a6bfc1b97b5e"
+    sha256 cellar: :any, arm64_sequoia: "a1e4e084ffa19317040ba790c11eddb9809336c7e02a0bf600462fabf9aec109"
   end
 
-  LLVM_VERSION = "21".freeze
+  LLVM_VERSION = "22".freeze
 
   depends_on "pkgconf" => :build
   depends_on arch: :arm64
@@ -23,7 +24,7 @@ class Trick < Formula
   depends_on "libaec"
   depends_on "libx11"
   depends_on "libxt"
-  depends_on "llvm@21"
+  depends_on "llvm@22"
   depends_on :macos
   depends_on "maven"
   depends_on "openjdk"
@@ -67,8 +68,8 @@ class Trick < Formula
 
     inreplace pkgshare/"makefiles/config_user.mk" do |s|
       # Fix hardcoded shim compiler paths in installed config file
-      # s.gsub! "super/clang++", "clang++"
-      # s.gsub! "super/clang", "clang"
+      s.gsub! "super/clang++", "clang++"
+      s.gsub! "super/clang", "clang"
       s.gsub! "super/ld", "ld"
       s.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
       # Replace javac with homebrew openjdk javac path

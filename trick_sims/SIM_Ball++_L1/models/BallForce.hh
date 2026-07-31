@@ -24,6 +24,8 @@ PROGRAMMERS:
 #ifndef BALLFORCE_HH
 #define BALLFORCE_HH
 
+#include "BallForceTypedef.hh"
+
 /** @class BallForceInput
     @brief ball force input params
  */
@@ -34,6 +36,21 @@ class BallForceInput {
 
   BallForceInput() ;
 
+};
+
+/** @class B_ForceInput_
+    @brief ball force input params - with typedef class forward declaration for testing
+ */
+class B_ForceInput_ {
+ public:
+  double origin[2];           /**< trick_units(m)    Origin of force center */
+  double force;               /**< trick_units(N)    Force magnitude        */
+
+  B_ForceInput_() {
+      origin[0] = 0.0;
+      origin[1] = 0.0;
+      force = 0.0;
+  };
 };
 
 /** @class BallForceOutput

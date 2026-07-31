@@ -1,0 +1,147 @@
+# Reusable workflow: Linux build & test across distros.
+# Called by ci.yml. Do not add push/pull_request triggers here.
+name: Linux Build & Test
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test-linux:
+    name: ${{ matrix.cfg.os }} ${{ matrix.cfg.tag }}
+    runs-on: ubuntu-latest
+    container: docker://${{ matrix.cfg.image }}:${{ matrix.cfg.tag }}
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - { os: ubuntu, tag: 24.04, arch: debian, image: ubuntu }
+          - { os: ubuntu, tag: 26.04, arch: debian, image: ubuntu }
+          - { os: oracle, tag: 8, arch: rhel, image: oraclelinux }
+          - { os: rocky, tag: 8, arch: rhel, image: rockylinux/rockylinux }
+          - { os: rocky, tag: 9, arch: rhel, image: rockylinux/rockylinux }
+          - { os: rocky, tag: 10, arch: rhel, image: rockylinux/rockylinux }
+        include:
+          - cfg: {}
+            deps: >-
+              bison
+              clang
+              flex
+              git
+              llvm
+              make
+              maven
+              cmake
+              swig
+              zip
+              gdb
+            conf_pkg: echo package manager already configured
+            enable_repo: ""
+            install_cmd: install -y
+
+          #-------- Debian-based Dependencies ----------------
+          - cfg: { arch: debian }
+            pkg_mgr: apt-get
+            conf_pkg: apt-get update
+            arch_deps: >-
+              curl
+              g++
+              libx11-dev
+              libxml2-dev
+              libxt-dev
+              libmotif-common
+              libmotif-dev
+              zlib1g-dev
+              llvm-dev
+              libclang-dev
+              libudunits2-dev
+              libgtest-dev
+              libgmock-dev
+              default-jdk
+              python3-dev
+              python3-pip
+              python3-venv
+
+          #-------- RHEL-based Dependencies (all versions) ----------------
+          - cfg: { arch: rhel }
+            pkg_mgr: dnf
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+            arch_deps: >-
+              clang-devel
+              diffutils
+              gcc
+              gcc-c++
+              gtest-devel
+              gmock-devel
+              java-21-openjdk-devel
+              libxml2-devel
+              llvm-devel
+              llvm-static
+              ncurses-devel
+              openmotif
+              openmotif-devel
+              perl
+              perl-Digest-MD5
+              udunits2
+              udunits2-devel
+              which
+              zlib-devel
+              python3-devel
+
+          #-------- RHEL 8: gtest lives in powertools ----------------
+          - cfg: { arch: rhel, tag: 8 }
+            enable_repo: dnf config-manager --enable powertools
+
+          #-------- RHEL 9/10: gtest lives in crb ----------------
+          - cfg: { arch: rhel, tag: 9 }
+            enable_repo: dnf config-manager --enable crb
+
+          - cfg: { arch: rhel, tag: 10 }
+            enable_repo: dnf config-manager --enable crb
+
+          #-------- OL 8: gtest lives in codeready_builder ----------------
+          - cfg: { os: oracle, tag: 8 }
+            enable_repo: dnf config-manager --enable ol8_codeready_builder
+
+    steps:
+      - name: Set noninteractive mode
+        run: echo "DEBIAN_FRONTEND=noninteractive" >> "$GITHUB_ENV"
+        if: matrix.cfg.arch == 'debian'
+      - name: Update Package Manager
+        run: |
+          ${{ matrix.conf_pkg }}
+          ${{ matrix.enable_repo }}
+      - name: Install Dependencies
+        run: >
+          ${{ matrix.pkg_mgr }}
+          ${{ matrix.install_cmd }}
+          ${{ matrix.deps }}
+          ${{ matrix.arch_deps }}
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Configure Trick
+        run: |
+          echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+          ./configure
+      - name: Build Trick
+        run: make
+      - name: Test Trick
+        run: |
+          python3 -m venv share/trick/trickops/.venv
+          . share/trick/trickops/.venv/bin/activate
+          pip3 install -r share/trick/trickops/requirements.txt
+          make test
+      - name: Upload Tests
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: Test - Linux (${{ matrix.cfg.os }} ${{ matrix.cfg.tag }})
+          path: trick_test/*.xml
+          if-no-files-found: warn
+          retention-days: 1

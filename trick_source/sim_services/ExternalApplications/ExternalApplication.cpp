@@ -143,22 +143,17 @@ int Trick::ExternalApplication::get_y() {
 /** @par Detailed Design */
 void Trick::ExternalApplication::launch() {
     /** <ul><li> If the application is enabled: */
+    std::ostringstream oss;
     if (var_server_get_enabled()) {
         /** <ul><li> Execute the command and pass it any arguments. */
-        std::ostringstream oss;
-
-        int argc;
-        char **argv;
-
-        argc = command_line_args_get_argc() ;
-        argv = command_line_args_get_argv() ;
-
         oss << command << " " << arguments.str() << " " << create_arguments_string() ;
         oss << " &";
-
-        std::cout << oss.str() << std::endl;
-        system(oss.str().c_str());
+    } else {
+        /** <ul><li> Execute the command with a flag indicating the Variable Server is disabled. */
+        oss << command << " --varServerDisabled &";
     }
+    std::cout << oss.str() << std::endl;
+    system(oss.str().c_str());
 }
 
 std::string Trick::ExternalApplication::create_arguments_string() {

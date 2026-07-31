@@ -1,11 +1,7 @@
 package trick.dre;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
-
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -14,15 +10,13 @@ import org.jdesktop.swingx.JXPanel;
  *
  * @author Derek Bankieris
  */
-// Suppress warning about instatiating a generic type in Java 7.
-@SuppressWarnings("unchecked")
 public class DoubleComboBox extends JXPanel {
 
     /** the first combo box */
-    JComboBox minimumBox = new JComboBox();
+    JComboBox<Integer> minimumBox = new JComboBox<>();
 
     /** the second combo box */
-    JComboBox maximumBox = new JComboBox();
+    JComboBox<Integer> maximumBox = new JComboBox<>();
 
     /**
      * constructor
@@ -40,36 +34,28 @@ public class DoubleComboBox extends JXPanel {
         minimumBox.setSelectedIndex(0);
         maximumBox.setSelectedIndex(count - 1);
 
-        minimumBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                int min = (int)minimumBox.getSelectedItem();
-                for (int i = ((Integer)maximumBox.getItemAt(0)); i < min; ++i) {
-                    maximumBox.removeItemAt(0);
-                }
-                for (int i = ((Integer)maximumBox.getItemAt(0)); i > min; ) {
-                    maximumBox.insertItemAt(--i, 0);
-                }
+        minimumBox.addActionListener(e -> {
+            int min = (int) minimumBox.getSelectedItem();
+            for (int i = maximumBox.getItemAt(0); i < min; ++i) {
+                maximumBox.removeItemAt(0);
+            }
+            for (int i = maximumBox.getItemAt(0); i > min; ) {
+                maximumBox.insertItemAt(--i, 0);
             }
         });
 
-        maximumBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                int max = (int)maximumBox.getSelectedItem();
-                for (int i = ((Integer)minimumBox.getItemAt(minimumBox.getItemCount() - 1)); i > max; --i) {
-                    minimumBox.removeItemAt(minimumBox.getItemCount() - 1);
-                }
-                for (int i = ((Integer)minimumBox.getItemAt(minimumBox.getItemCount() - 1)); i < max; ) {
-                    minimumBox.addItem(++i);
-                }
+        maximumBox.addActionListener(e -> {
+            int max = (int) maximumBox.getSelectedItem();
+            for (int i = minimumBox.getItemAt(minimumBox.getItemCount() - 1); i > max; --i) {
+                minimumBox.removeItemAt(minimumBox.getItemCount() - 1);
+            }
+            for (int i = minimumBox.getItemAt(minimumBox.getItemCount() - 1); i < max; ) {
+                minimumBox.addItem(++i);
             }
         });
 
         add(minimumBox);
-        add(new JXLabel() {{
-            setText("-");
-        }});
+        add(new JXLabel("-"));
         add(maximumBox);
     }
 
@@ -84,5 +70,4 @@ public class DoubleComboBox extends JXPanel {
     public String toString() {
         return minimumBox.getSelectedItem() + "-" + maximumBox.getSelectedItem();
     }
-
 }

@@ -8,7 +8,6 @@ package trick.sniffer;
  * @author Derek Bankieris
  */
 public interface SimulationListener {
-
     /**
      * called when a new simulation is detected
      *
@@ -24,10 +23,16 @@ public interface SimulationListener {
     public void simulationRemoved(SimulationInformation simulationInformation);
 
     /**
+     * called when a known simulation broadcasts updated state (e.g. vsEnabled or execMode changed)
+     *
+     * @param simulationInformation the updated simulation
+     */
+    public default void simulationUpdated(SimulationInformation simulationInformation) {}
+
+    /**
      * called when the source experiences an unhandled exception
      *
      * @param exception the exception that occured
      */
     public void exceptionOccurred(Exception exception);
-
 }

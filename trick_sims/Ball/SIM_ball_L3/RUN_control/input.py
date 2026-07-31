@@ -1,6 +1,8 @@
 
 exec(open("Modified_data/data_record.dr").read())
 
+trick.var_allow_connections()
+trick.var_resolve_hostname()
 
 ball2.state.input.mass = trick.sim_services.attach_units("kg" , 10.0)
 ball2.state.input.speed = trick.sim_services.attach_units("m/s" , 3.5)

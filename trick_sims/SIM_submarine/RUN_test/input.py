@@ -1,5 +1,8 @@
 exec(open("./Modified_data/realtime.py").read())
 
+trick.var_allow_connections()
+trick.var_resolve_hostname()
+
 dyn.submarine.pos[0] =  0.0
 dyn.submarine.pos[1] = -0.5
 dyn.submarine.vel[0] =  0.0

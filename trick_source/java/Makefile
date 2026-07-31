@@ -11,6 +11,9 @@ all:
 javadoc:
 	${MVN} javadoc:javadoc
 
+test:
+	@${MVN} test -Dcmake=false
+
 clean:
 	rm -rf ${JAVA_BUILD_DIR}
 	@echo java build directory cleaned.

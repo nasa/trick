@@ -8,6 +8,9 @@ if trick.mc_get_slave_id() == 0:
 
 exec(open("Modified_data/amoeba.py").read())
 
+trick.var_allow_connections()
+trick.var_resolve_hostname()
+
 trick.mc_set_enabled(1)
 #trick.mc_set_dry_run(1)
 trick.mc_set_num_runs(70)

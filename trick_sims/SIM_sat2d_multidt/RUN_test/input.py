@@ -1,5 +1,8 @@
 exec(open("RUN_test/common.py").read())
 
+trick.var_allow_connections()
+trick.var_resolve_hostname()
+
 # Add 100, 200, 400 and 500 Hz integration rates
 dyn_integloop.add_rate(1.0/100)
 dyn_integloop.add_rate(1.0/200)

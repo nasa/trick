@@ -1,0 +1,40 @@
+---
+BasedOnStyle: WebKit
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments:
+  Enabled: true
+  AlignCompound: true
+  AlignFunctionDeclarations: true
+  AlignFunctionPointers: true
+AllowShortLambdasOnASingleLine: Inline
+AlignTrailingComments:
+  Kind: Always
+BreakBeforeBraces: Allman
+ColumnLimit: 120
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^("|<)trick/'
+    Priority: 2
+  - Regex: '^("|<)(llvm|llvm-c|clang|clang-c)/'
+    Priority: 3
+  - Regex: '^("|<)(gtest|gmock)/'
+    Priority: 5
+  - Regex: "^<.*>"
+    Priority: 4
+  - Regex: ".*"
+    Priority: 1
+IndentAccessModifiers: true
+InsertNewlineAtEOF: true
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
+NamespaceIndentation: All
+---
+Language: Java
+DisableFormat: true
+---
+Language: JavaScript
+DisableFormat: true
+...

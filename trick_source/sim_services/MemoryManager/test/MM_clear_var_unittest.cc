@@ -105,6 +105,15 @@ TEST_F(MM_clear_var, test_enum) {
     EXPECT_EQ(*a_p, 0);
 }
 
+TEST_F(MM_clear_var, test_char_sized_enum) {
+    BYTE_FRUIT* a_p = (BYTE_FRUIT*)memmgr->declare_var("BYTE_FRUIT a");
+    *a_p = BYTE_CHERRY;
+    EXPECT_EQ(*a_p, BYTE_CHERRY);
+
+    memmgr->clear_var((void*)a_p );
+    EXPECT_EQ(static_cast<unsigned char>(*a_p), 0);
+}
+
 TEST_F(MM_clear_var, test_long) {
     long* a_p = (long*)memmgr->declare_var("long a");
     *a_p = 87654321;

@@ -456,7 +456,9 @@ sub parse_s_define ($) {
         my @lib_list ;
         %header = extract_trick_header("S_define", $i, 0, 0);
         push @{$$sim_ref{default_data}} , $header{default_data} ;
-        $header{libdep} =~ s/\s+//sg ;
+        # S_define header text keeps comment stars after html.pm flattens newlines, so remove
+        # both whitespace and '*' before extracting the inner dependency items.
+        $header{libdep} =~ s/[\s\*]+//sg ;
         $header{libdep} =~ s/\(\(/\(/ ;
         $header{libdep} =~ s/\)\)/\)/ ;
         @lib_list = $header{libdep} =~  m/\((.+?)\)/sg ;

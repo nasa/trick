@@ -3,6 +3,9 @@ import trick
 
 def main():
 
+    trick.var_allow_connections()
+    trick.var_resolve_hostname()
+
     # Data recording HDF5 test
     drg0 = trick.DRAscii("Ball")
     for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :
@@ -49,6 +52,10 @@ def main():
     #trick_sie.class_attr_map.print_xml()
     #trick_sie.enum_attr_map.print_xml()
     #trick.exec_set_trap_sigfpe(True)
+
+    # Test accessing Trickified code that was placed in a different Python module.
+    test_ball_state = trick.ball_state.BallStateInput()
+    test_ball_state.mass = trick.attach_units('kg', 10.0)
 
 
 if __name__ == "__main__":

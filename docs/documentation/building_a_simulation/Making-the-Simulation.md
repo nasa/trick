@@ -101,6 +101,16 @@ TRICK_ICGFLAGS += -icg-std=c++11
 
 Valid options are c++11, c++14, c++17, or c++20. ICG will parse to c++17 by default, or the newest supported version if c++17 is not availible. 
 
+### Example Of How To Enable SWIG Type Resolution Debug Output
+
+Edit a file called "S_overrides.mk". Append to the TRICK_CXXFLAGS variable.
+
+```
+TRICK_CXXFLAGS += -DTRICK_SWIG_TYPEQUERY_DEBUG
+```
+
+When enabled, if `SWIG_TypeQuery` fails to resolve a C/C++ structured type during array element access (e.g. `sim_object.my_array[0]` returns a bare `SwigPyObject` instead of a typed proxy), Trick will print all registered SWIG type descriptors to stdout. This is useful for diagnosing type-resolution failures caused by SWIG module load order. Redirect stdout to a file to capture the output if needed for analysis.
+
 ## Cleaning Up
 
 There are several levels of clean.

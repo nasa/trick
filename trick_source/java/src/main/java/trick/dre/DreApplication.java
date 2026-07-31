@@ -1,17 +1,33 @@
-
-//========================================
-//	Package
-//========================================
+// ========================================
+// Package
+// ========================================
 package trick.dre;
 
-//========================================
-//	Imports
-//========================================
+// ========================================
+// Imports
+// ========================================
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.*;
+import javax.swing.tree.TreePath;
+import javax.xml.parsers.ParserConfigurationException;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
+import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXLabel;
+import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.JXTextField;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import trick.common.TrickApplication;
@@ -19,30 +35,6 @@ import trick.common.ui.UIUtils;
 import trick.common.ui.components.NumberTextField;
 import trick.common.ui.panels.ListPanel;
 import trick.sie.utils.*;
-import javax.swing.*;
-import javax.swing.tree.TreePath;
-import org.jdesktop.swingx.JXButton;
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXTextField;
-import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.StringTokenizer;
-import java.util.List;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import trick.common.utils.vs.Variable;
 
 /**
  * Dre - data recording editor application.
@@ -53,24 +45,23 @@ import trick.common.utils.vs.Variable;
  * @since Trick 17
  */
 public class DreApplication extends TrickApplication {
-    //========================================
-    //	Public data
-    //========================================
+    // ========================================
+    // Public data
+    // ========================================
 
-
-    //========================================
-    //	Protected data
-    //========================================
+    // ========================================
+    // Protected data
+    // ========================================
     protected static String sieResourcePath = null;
 
-    //========================================
-    //	Private Data
-    //========================================
+    // ========================================
+    // Private Data
+    // ========================================
     private String single_prec_only;
     private String frequency;
     private String format;
     private String buffering;
-    private Vector<String> variables = new Vector<String>();
+    private final List<String> variables = new ArrayList<>();
 
     /**
      * The menu check box for Single Precision.
@@ -140,20 +131,13 @@ public class DreApplication extends TrickApplication {
     private JRadioButtonMenuItem DRChanges_item;
     private JRadioButtonMenuItem DRStepChanges_item;
 
-    private boolean isSinglePrecision;
+    // ========================================
+    // Constructors
+    // ========================================
 
-    /**
-     * Vectors to contain the information on the variable
-     * being added to the recording list.
-     */
-
-    //========================================
-    //	Constructors
-    //========================================
-
-    //========================================
+    // ========================================
     //    Actions
-    //========================================
+    // ========================================
     @Action
     public void openDR() {
         File file = UIUtils.chooseOpenFile(null, null, "dr", getMainFrame());
@@ -164,13 +148,13 @@ public class DreApplication extends TrickApplication {
 
     @Action
     public void saveDR() {
-        if (nameField.getText().trim().compareTo("") == 0) {
-            JOptionPane.showMessageDialog(getMainFrame(), "A group name must be entered!",
-                    "Error", JOptionPane.ERROR_MESSAGE);
+        if (nameField.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    getMainFrame(), "A group name must be entered!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         } else if (nameField.getText().trim().contains(" ")) {
-            JOptionPane.showMessageDialog(getMainFrame(), "A group name can not have whitespace!",
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    getMainFrame(), "A group name can not have whitespace!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         File file = UIUtils.chooseSaveFile(null, null, "dr", getMainFrame());
@@ -221,7 +205,7 @@ public class DreApplication extends TrickApplication {
 
     @Action
     public void selectDRStepChanges() {
-        frequency = "DR_Step_Changes";
+        frequency = "DR_Changes_Step";
         DRAlways_item.setSelected(false);
         DRChanges_item.setSelected(false);
         DRStepChanges_item.setSelected(true);
@@ -229,12 +213,7 @@ public class DreApplication extends TrickApplication {
 
     @Action
     public void toggleSinglePrecision() {
-        isSinglePrecision = singlePrecisionCheckBox.getState();
-        if (isSinglePrecision) {
-            single_prec_only = "True";
-        } else {
-            single_prec_only = "False";
-        }
+        single_prec_only = singlePrecisionCheckBox.getState() ? "True" : "False";
     }
 
     @Action
@@ -271,9 +250,8 @@ public class DreApplication extends TrickApplication {
 
     @Action
     public void removeSelected() {
-        Object[] values = selectedVarList.getSelectedData();
-        for (int i = 0; i < values.length; i++) {
-            variables.remove(values[i]);
+        for (Object value : selectedVarList.getSelectedData()) {
+            variables.remove(value);
         }
         selectedVarList.removeSelectedData();
     }
@@ -291,15 +269,13 @@ public class DreApplication extends TrickApplication {
         }
     }
 
+    // ========================================
+    // Set/Get methods
+    // ========================================
 
-    //========================================
-    //	Set/Get methods
-    //========================================
-
-
-    //========================================
-    //	Methods
-    //========================================
+    // ========================================
+    // Methods
+    // ========================================
 
     /**
      * Main method for this application.
@@ -362,8 +338,6 @@ public class DreApplication extends TrickApplication {
         view.setToolBar(createToolBar());
         getMainFrame().setMinimumSize(getMainFrame().getPreferredSize());
         show(view);
-
-
     }
 
     /**
@@ -446,7 +420,7 @@ public class DreApplication extends TrickApplication {
         optionsMenu.add(DRHDF5_item);
         DRHDF5_item.setAction(getAction("selectDRHDF5"));
 
-        selectDRBinary(); // by default, DR_Binary      
+        selectDRBinary(); // by default, DR_Binary
         optionsMenu.addSeparator();
 
         optionsMenu.add(new JLabel("Freq"));
@@ -561,50 +535,7 @@ public class DreApplication extends TrickApplication {
 
     private void unlimitedSizeBoxInit() {
         unlimitedSizeBox = new JCheckBox("Unlimited File Size", false);
-        unlimitedSizeBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateUnlimited();
-            }
-        });
-    }
-
-    /**
-     * routine to read the Frequency from the opened file.
-     *
-     * @param string String the string read in from the opened file.
-     */
-    private void readFrequency(String string) {
-        if (string.contains("trick.DR_Always")) {
-            selectDRAlways();
-        } else if (string.contains("trick.DR_Changes")) {
-            selectDRChanges();
-        } else if (string.contains("trick.DR_Step_Changes")) {
-            selectDRStepChanges();
-        } else {
-            System.out.println("Frequency Type is not recognized, defaulting to DR_Always");
-            selectDRAlways();
-        }
-    }
-
-    /**
-     * routine to read the Buffering from the opened file.
-     *
-     * @param string String the string read in from the opened file.
-     */
-    private void readBuffering(String string) {
-        if (string.contains("trick.DR_Buffer")) {
-            selectDRBuffer();
-        } else if (string.contains("trick.DR_No_Buffer")) {
-            selectDRNoBuffer();
-        } else if (string.contains("trick.DR_Ring_Buffer")) {
-            selectDRRingBuffer();
-        } else if (string.contains("trick.DR_Thread_Buffer")) {
-            selectDRThreadBuffer();
-        } else {
-            System.out.println("Buffering Type is not recognized, defaulting to DR_Buffer");
-            selectDRBuffer();
-        }
+        unlimitedSizeBox.addActionListener(e -> updateUnlimited());
     }
 
     /**
@@ -631,10 +562,10 @@ public class DreApplication extends TrickApplication {
      * @param subs String the string read in from the opened file.
      */
     private void readFileSize(String subs) {
-        StringTokenizer st = new StringTokenizer(subs);
-        String quantity = st.nextToken("*").trim();
+        String[] parts = subs.split("\\*", 2);
+        String quantity = parts[0].trim();
         maxFileSizeField.setText(quantity);
-        if (maxFileSizeField.getText().equals("0")) {
+        if ("0".equals(quantity)) {
             unlimitedSizeBox.setSelected(true);
             updateUnlimited();
         } else {
@@ -642,9 +573,8 @@ public class DreApplication extends TrickApplication {
             maxFileSizeField.setEnabled(true);
             sizeUnitsBox.setEnabled(true);
         }
-        if (st.hasMoreElements()) {
-            String shift = st.nextToken("*").trim();
-            switch (shift) {
+        if (parts.length > 1) {
+            switch (parts[1].trim()) {
                 case "1024":
                     sizeUnitsBox.setSelectedItem("KiB");
                     break;
@@ -664,6 +594,7 @@ public class DreApplication extends TrickApplication {
      * helper method to update GUI after unlimited file size is checked.
      */
     private static String previousFileSize;
+
     private static int previousUnitIndex;
 
     private void updateUnlimited() {
@@ -683,6 +614,75 @@ public class DreApplication extends TrickApplication {
     }
 
     /**
+     * Parsed representation of a DR file.
+     * Used by {@link #parseDrContent} and {@link #buildDrContent}.
+     */
+    static class DrFileData {
+        String format = "DRBinary";
+        String name = "";
+        String frequency = "DR_Always";
+        String cycle = "0.1";
+        String singlePrecOnly = "False";
+        final List<String> variables = new ArrayList<>();
+        String buffering = "DR_Buffer";
+        String maxFileSizeRaw = "0";
+    }
+
+    /**
+     * Parses the text content of a DR file and returns the extracted configuration.
+     * Supports both the old (global DR_GROUP_ID / drg[DR_GROUP_ID]) format and the new
+     * (dr_group = trick.DRFormat("name")) format.
+     */
+    static DrFileData parseDrContent(String content) {
+        DrFileData data = new DrFileData();
+        Pattern newFormatDecl = Pattern.compile("(\\w+)\\s*=\\s*trick\\.(DRBinary|DRAscii|DRHDF5)\\(\"(.+)\"\\)");
+        String drGroupVarName = null;
+
+        for (String line : content.split("\n")) {
+            Matcher m = newFormatDecl.matcher(line);
+            if (m.find()) {
+                // New format declaration: "dr_group = trick.DRBinary("name")"
+                drGroupVarName = m.group(1);
+                data.format = m.group(2);
+                data.name = m.group(3);
+            } else if (line.contains("append")) {
+                // Old format declaration: "drg.append(trick.DRBinary("name"))"
+                String[] seg = line.split("\"");
+                if (seg.length > 1) data.name = seg[1];
+                if (line.contains("DRBinary")) data.format = "DRBinary";
+                else if (line.contains("DRAscii")) data.format = "DRAscii";
+                else if (line.contains("DRHDF5")) data.format = "DRHDF5";
+            } else if (line.contains("add_data_record_group")) {
+                if (line.contains("DR_No_Buffer")) data.buffering = "DR_No_Buffer";
+                else if (line.contains("DR_Ring_Buffer")) data.buffering = "DR_Ring_Buffer";
+                else if (line.contains("DR_Thread_Buffer")) data.buffering = "DR_Thread_Buffer";
+                else if (line.contains("DR_Buffer")) data.buffering = "DR_Buffer";
+            } else if ((drGroupVarName != null && line.trim().startsWith(drGroupVarName + "."))
+                    || line.contains("drg[DR_GROUP_ID]")) {
+                int indx = line.indexOf("(");
+                int len = line.length();
+                if (indx < 0) continue;
+                if (line.contains("set_freq")) {
+                    if (line.contains("DR_Always")) data.frequency = "DR_Always";
+                    else if (line.contains("DR_Changes_Step")) data.frequency = "DR_Changes_Step";
+                    else if (line.contains("DR_Changes")) data.frequency = "DR_Changes";
+                } else if (line.contains("set_cycle")) {
+                    data.cycle = line.substring(indx + 1, len - 1).trim();
+                } else if (line.contains("add_variable")) {
+                    data.variables.add(line.substring(indx + 2, len - 2));
+                } else if (line.contains("set_single_prec_only")) {
+                    data.singlePrecOnly = line.substring(indx + 1, len - 1).trim();
+                } else if (line.contains("set_max_file_size")) {
+                    int closeIdx = line.indexOf(")");
+                    if (closeIdx > indx)
+                        data.maxFileSizeRaw = line.substring(indx + 1, closeIdx).trim();
+                }
+            }
+        }
+        return data;
+    }
+
+    /**
      * routine to read the contents of the opened file
      *
      * @param file File the name of the file to open.
@@ -691,45 +691,87 @@ public class DreApplication extends TrickApplication {
         try {
             variables.clear();
             selectedVarList.removeAllData();
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            try {
-                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    if (line.contains("append")) {
-                        String[] segment = line.split("\"");
-                        readFormat(line);
-                        nameField.setText(segment[1]);
-                    } else if (line.contains("add_data_record_group")) {
-                        readBuffering(line);
-                    } else if (line.contains("drg[DR_GROUP_ID]")) {
-                        int indx = line.indexOf("(");
-                        int len = line.length();
-                        if (line.contains("set_freq")) {
-                            readFrequency(line);
-                        } else if (line.contains("enable")) {
-                            ;
-                        } else if (line.contains("set_cycle")) {
-                            cycleField.setText(line.substring(indx + 1, len - 1));
-                        } else if (line.contains("add_variable")) {
-                            selectedVarList.addData(line.substring(indx + 2, len - 2));
-                            variables.add(line.substring(indx + 2, len - 2));
-                        } else if (line.contains("set_single_prec_only")) {
-                            if (line.substring(indx + 1, len - 1).equals("True")) {
-                                singlePrecisionCheckBox.setState(true);
-                            } else {
-                                singlePrecisionCheckBox.setState(false);
-                            }
 
-                        } else if (line.contains("set_max_file_size")) {
-                            readFileSize(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
-                        }
-                    }
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+                    sb.append(line).append("\n");
                 }
-            } finally {
-                reader.close();
             }
+
+            DrFileData data = parseDrContent(sb.toString());
+
+            readFormat(data.format);
+            nameField.setText(data.name);
+
+            if ("DR_Always".equals(data.frequency)) selectDRAlways();
+            else if ("DR_Changes_Step".equals(data.frequency)) selectDRStepChanges();
+            else if ("DR_Changes".equals(data.frequency)) selectDRChanges();
+            else {
+                System.out.println("Frequency Type is not recognized, defaulting to DR_Always");
+                selectDRAlways();
+            }
+
+            cycleField.setText(data.cycle);
+            singlePrecisionCheckBox.setState("True".equals(data.singlePrecOnly));
+
+            for (String v : data.variables) {
+                selectedVarList.addData(v);
+                variables.add(v);
+            }
+
+            if ("DR_No_Buffer".equals(data.buffering)) selectDRNoBuffer();
+            else if ("DR_Ring_Buffer".equals(data.buffering)) selectDRRingBuffer();
+            else if ("DR_Thread_Buffer".equals(data.buffering)) selectDRThreadBuffer();
+            else selectDRBuffer();
+
+            readFileSize(data.maxFileSizeRaw);
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(getMainFrame(), e.toString(), "Error Reading File", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    getMainFrame(), e.toString(), "Error Reading File", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    /**
+     * Builds the text content of a DR file using the Trick 19 format.
+     * Package-private for testing.
+     *
+     * @param format           recording format class name (e.g. "DRBinary")
+     * @param name             group name
+     * @param frequency        frequency constant (e.g. "DR_Always")
+     * @param cycle            cycle time as a string (e.g. "0.1")
+     * @param singlePrecOnly   "True" or "False"
+     * @param variables        list of variable name strings
+     * @param maxFileSizeValue numeric part of the max-file-size (e.g. "1")
+     * @param sizeUnit         size unit string: "B", "KiB", "MiB", or "GiB"
+     * @param buffering        buffering constant (e.g. "DR_Buffer")
+     * @return the complete DR file text
+     */
+    static String buildDrContent(
+            String format,
+            String name,
+            String frequency,
+            String cycle,
+            String singlePrecOnly,
+            List<String> variables,
+            String maxFileSizeValue,
+            String sizeUnit,
+            String buffering) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("dr_group = trick.").append(format).append("(\"").append(name).append("\")\n");
+        sb.append("dr_group.set_freq(trick.").append(frequency).append(")\n");
+        sb.append("dr_group.set_cycle(").append(cycle).append(")\n");
+        sb.append("dr_group.set_single_prec_only(").append(singlePrecOnly).append(")\n");
+        for (String variable : variables) {
+            sb.append("dr_group.add_variable(\"").append(variable).append("\")\n");
+        }
+        sb.append("dr_group.set_max_file_size(").append(maxFileSizeValue).append(getMultiplier(sizeUnit));
+        sb.append("trick.add_data_record_group(dr_group, trick.")
+                .append(buffering)
+                .append(")\n");
+        sb.append("dr_group.thisown = 0\n");
+        return sb.toString();
     }
 
     /**
@@ -739,61 +781,43 @@ public class DreApplication extends TrickApplication {
      */
     private void saveFile(File file) {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            try {
-                writer.write("global DR_GROUP_ID\n");
-                writer.write("global drg\n");
-                writer.write("try:\n");
-                writer.write("    if DR_GROUP_ID >= 0:\n");
-                writer.write("        DR_GROUP_ID += 1\n");
-                writer.write("except NameError:\n");
-                writer.write("    DR_GROUP_ID = 0\n" +
-                        "    drg = []\n\n");
-                writer.write("drg.append(trick." + format + "(\"" + nameField.getText().trim() + "\"))\n");
-                writer.write("drg[DR_GROUP_ID].set_freq(trick." + frequency + ")\n");
-                writer.write("drg[DR_GROUP_ID].set_cycle(" + cycleField.getText() + ")\n");
-                writer.write("drg[DR_GROUP_ID].set_single_prec_only(" + single_prec_only + ")\n");
-
-                for (String variable : variables) {
-                    writer.write("drg[DR_GROUP_ID].add_variable(\"" + variable + "\")\n");
-                }
-                writer.write("drg[DR_GROUP_ID].set_max_file_size(" + maxFileSizeField.getText().trim() + getMultiplier((String) sizeUnitsBox.getSelectedItem()));
-                writer.write("trick.add_data_record_group(drg[DR_GROUP_ID], trick." + buffering + ")\n");
-                writer.write("drg[DR_GROUP_ID].enable()\n");
-            } finally {
-                writer.close();
+            String content = buildDrContent(
+                    format,
+                    nameField.getText().trim(),
+                    frequency,
+                    cycleField.getText(),
+                    single_prec_only,
+                    new ArrayList<>(variables),
+                    maxFileSizeField.getText().trim(),
+                    (String) sizeUnitsBox.getSelectedItem(),
+                    buffering);
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(content);
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(getMainFrame(), e.toString(),
-                    "Error Saving File", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(getMainFrame(), e.toString(), "Error Saving File", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-
     /**
-     * helper method to convert ComboBox index to a multiplier for filesize units
+     * Returns the file-size multiplier suffix (including closing paren and newline)
+     * for use in set_max_file_size lines.
      */
-    private String getMultiplier(String unit) {
-        String multiplier = null;
+    static String getMultiplier(String unit) {
         switch (unit) {
-            case "B":
-                multiplier = ")\n";
-                break;
             case "KiB":
-                multiplier = " * 1024) # multiply converts KiB to B --Dr. Dre\n";
-                break;
+                return " * 1024) # multiply converts KiB to B --Dr. Dre\n";
             case "MiB":
-                multiplier = " * 1048576) # multiply converts MiB to B --Dr. Dre\n";
-                break;
+                return " * 1048576) # multiply converts MiB to B --Dr. Dre\n";
             case "GiB":
-                multiplier = " * 1073741824) # multiply converts GiB to B --Dr. Dre\n";
-                break;
+                return " * 1073741824) # multiply converts GiB to B --Dr. Dre\n";
+            default:
+                return ")\n";
         }
-        return multiplier;
     }
 
     /**
-     * Add the given variable name to DreApplication::variables. 
+     * Add the given variable name to DreApplication::variables.
      */
     private void addVariable(String variable_name) {
         variables.add(variable_name);
@@ -801,7 +825,7 @@ public class DreApplication extends TrickApplication {
     }
 
     /**
-     * Add the given list of variable names to DreApplication::variables. 
+     * Add the given list of variable names to DreApplication::variables.
      */
     protected void addVariables(List<String> variable_names) {
         for (String name : variable_names) {
@@ -810,119 +834,123 @@ public class DreApplication extends TrickApplication {
     }
 
     /**
-     * Expand index ranges in an arrayed variable to a list of individual array elements. 
+     * Expand index ranges in an arrayed variable to a list of individual array elements.
      */
     protected List<String> getVariables(String variable_name) throws InvalidVariableNameException {
 
         validateVariable(variable_name);
-        /* Remove all white space in the variable_name string. */ 
+        /* Remove all white space in the variable_name string. */
         variable_name = variable_name.replaceAll("\\s", "");
         /* Split the variable_name into segments, delimited by periods. */
         String[] segments = variable_name.split("\\.");
-        /* The root of the variable name is the first segment minus
-           brackets, and anything in between them. */
+
+        // The root of the variable name is the first segment minus brackets, and anything in between them.
         String variable_name_root = segments[0].replaceFirst("\\[.*\\]", "");
 
-        /* Get the extents of each dimension in the first segment. */
-        ArrayList<String> dimensions = new ArrayList<String>();
+        //  Get the extents of each dimension in the first segment.
+        List<String> dimensions = new ArrayList<>();
         Matcher matcher = Pattern.compile("(?<=\\[).*?(?=\\])").matcher(segments[0]);
         while (matcher.find()) {
             dimensions.add(matcher.group());
-        }    
-        /* Look up the SieTemplate (the data structure that contains
-           the data-type information) that goes with the variable_name_root. */
+        }
+        // Look up the SieTemplate (the data structure that contains the data-type information)
+        // that goes with the variable_name_root.
         SieTemplate template = null;
         if (rootTemplates != null) {
             for (SieTemplate simObject : rootTemplates) {
                 if (simObject.parameter.equals(variable_name_root)) {
                     template = simObject;
                     break;
-                }    
-            }    
-        } 
-        /* In case this variable is, or contains an array, call
-           getVariables(template, segments, ...) to expand it into its elements. */
+                }
+            }
+        }
+        // In case this variable is, or contains an array,
+        // call getVariables(template, segments, ...) to expand it into its elements.
         return getVariables(template, segments, 0, dimensions, variable_name_root);
-     }
-    
+    }
+
     /**
-     * Expand index ranges in an arrayed variable to a list of individual array elements. 
+     * Expand index ranges in an arrayed variable to a list of individual array elements.
      */
-     List<String> getVariables(SieTemplate template,
-       String[] segments, int segment_index, ArrayList<String> dimensions, String name) {
+    List<String> getVariables(
+            SieTemplate template, String[] segments, int segment_index, List<String> dimensions, String name) {
 
-         ArrayList<String> variables = new ArrayList<String>();
+        List<String> variables = new ArrayList<>();
 
-         if (dimensions == null) { 
-             /* We haven't yet parsed the current segment for dimensions, so we need to. */
-             /* Get the name in the current segment, minus anything enclosed in square brackets. */
-             String trimmedName = segments[segment_index].replaceFirst("\\[.*\\]", "");
-             dimensions = new ArrayList<String>();
-             /* Create a Matcher for the dimension-extents enclosed in square brackets, in the current segment. */
-             Matcher matcher = Pattern.compile("(?<=\\[).*?(?=\\])").matcher(segments[segment_index]);
-             /* Find, and add each of the dimension-extents to the dimensions ArrayList. */
-             while (matcher.find()) {
-                 dimensions.add(matcher.group());
-             }
-             /* Get the SieTemplate (i.e., the data-type information) for the current segment. */
-             if (template != null) {
-                 for (SieTemplate child : template.children) {
-                     if (child.parameter.equals(trimmedName)) {
-                         template = child;
-                         break;
-                     }
-                 }
-             }
-             /* Recursive call . */  
-             variables.addAll(getVariables(template, segments, segment_index, dimensions, name + "." + trimmedName));
-         }
-         else if (!dimensions.isEmpty()) {
-             /* We've already checked for dimensions (above). */
-             /* Get/remove the first dimension-index string (there may be more than one).
-                A dimension-index string form is #, or #-# (a range). */
-             String value = dimensions.remove(0);
-             /* Check whether the dimensions represent a range. */
-             int location = value.indexOf('-');
+        if (dimensions == null) {
+            /* We haven't yet parsed the current segment for dimensions, so we need to. */
+            /* Get the name in the current segment, minus anything enclosed in square brackets. */
+            String trimmedName = segments[segment_index].replaceFirst("\\[.*\\]", "");
+            dimensions = new ArrayList<>();
+            /* Create a Matcher for the dimension-extents enclosed in square brackets, in the current segment. */
+            Matcher matcher = Pattern.compile("(?<=\\[).*?(?=\\])").matcher(segments[segment_index]);
+            /* Find, and add each of the dimension-extents to the dimensions ArrayList. */
+            while (matcher.find()) {
+                dimensions.add(matcher.group());
+            }
+            /* Get the SieTemplate (i.e., the data-type information) for the current segment. */
+            if (template != null) {
+                for (SieTemplate child : template.children) {
+                    if (child.parameter.equals(trimmedName)) {
+                        template = child;
+                        break;
+                    }
+                }
+            }
+            /* Recursive call . */
+            variables.addAll(getVariables(template, segments, segment_index, dimensions, name + "." + trimmedName));
+        } else if (!dimensions.isEmpty()) {
+            /* We've already checked for dimensions (above). */
+            /* Get/remove the first dimension-index string (there may be more than one).
+            A dimension-index string form is #, or #-# (a range). */
+            String value = dimensions.remove(0);
+            /* Check whether the dimensions represent a range. */
+            int location = value.indexOf('-');
 
-             if (location > -1) {
-                 /* The dimension string contains '-', and therefore represents a range of indices. */
+            if (location > -1) {
+                /* The dimension string contains '-', and therefore represents a range of indices. */
 
-                 /* Get the first (probably lower) index of the range. */
-                 int first = Integer.parseInt(value.substring(0, location));
-                 /* Get the second (probably upper) index of the range. */
-                 int last = Integer.parseInt(value.substring(location + 1));
-                 
-                 /* Create multiple, singly indexed variables for each of the array indices in the range. */
-                 boolean reverse = first > last;
-                 for (int i = first; reverse ? (i >= last) : (i <= last); i += reverse ? -1 : 1) {
-                     variables.addAll(
-                         /* In case this array variable element is itself an array, recursively call
+                /* Get the first (probably lower) index of the range. */
+                int first = Integer.parseInt(value.substring(0, location));
+                /* Get the second (probably upper) index of the range. */
+                int last = Integer.parseInt(value.substring(location + 1));
+
+                /* Create multiple, singly indexed variables for each of the array indices in the range. */
+                boolean reverse = first > last;
+                for (int i = first; reverse ? (i >= last) : (i <= last); i += reverse ? -1 : 1) {
+                    variables.addAll(
+                            /* In case this array variable element is itself an array, recursively call
                             getVariables() to expand it into its elements. */
-                         getVariables(template, segments, segment_index, (ArrayList<String>)dimensions.clone(), name + "[" + i + "]")
-                     );
-                 }
-             }
-             else { 
-                 /* The dimension string doesn't contain '-', and therefore represents a single array index. */
-                 variables.addAll(
-                     /* In case this array variable element is itself an array, recursively call
+                            getVariables(
+                                    template,
+                                    segments,
+                                    segment_index,
+                                    new ArrayList<>(dimensions),
+                                    name + "[" + i + "]"));
+                }
+            } else {
+                /* The dimension string doesn't contain '-', and therefore represents a single array index. */
+                variables.addAll(
+                        /* In case this array variable element is itself an array, recursively call
                         getVariables() to expand it into its elements.*/
-                     getVariables(template, segments, segment_index, dimensions, name + "[" + Integer.parseInt(value) + "]")
-                 );
-             }
-         }
-         else if (segment_index == segments.length - 1) {
-             /* The dimensions are empty, and segment-index points to the last segment,
-                so we are done expanding this variable, so just add it to the variables array. */
-              variables.add(name);
-         }
-         else { 
-             /* We've checked the current segment for dimensions, and they are empty.
-                This isn't the last segment, so move on to the next segment. */
-             variables.addAll(getVariables(template, segments, segment_index + 1, null, name));
-         }
-         return variables;
-     }
+                        getVariables(
+                                template,
+                                segments,
+                                segment_index,
+                                dimensions,
+                                name + "[" + Integer.parseInt(value) + "]"));
+            }
+        } else if (segment_index == segments.length - 1) {
+            /* The dimensions are empty, and segment-index points to the last segment,
+            so we are done expanding this variable, so just add it to the variables array. */
+            variables.add(name);
+        } else {
+            /* We've checked the current segment for dimensions, and they are empty.
+            This isn't the last segment, so move on to the next segment. */
+            variables.addAll(getVariables(template, segments, segment_index + 1, null, name));
+        }
+        return variables;
+    }
 
     /**
      * gets a message describing the syntax error
@@ -932,13 +960,13 @@ public class DreApplication extends TrickApplication {
      *
      * @return a description of the error
      */
-     String getMessage(String text, Matcher matcher) {
-         int start = matcher.end() - 6; 
-         int end = matcher.end() + 5; 
-         start = start < 0 ? 0 : start;
-         end = end > text.length() ? text.length() : end; 
-         return text.substring(start, end);
-     }
+    String getMessage(String text, Matcher matcher) {
+        int start = matcher.end() - 6;
+        int end = matcher.end() + 5;
+        start = start < 0 ? 0 : start;
+        end = end > text.length() ? text.length() : end;
+        return text.substring(start, end);
+    }
 
     /**
      * checks the validity of the variable name
@@ -946,47 +974,44 @@ public class DreApplication extends TrickApplication {
      * @param name the name in question
      * @throws InvalidVariableNameException InvalidVariableNameException
      */
-     protected void validateVariable(String name) throws InvalidVariableNameException {
-         name = name.replaceAll("\\s", "");
-         
-         if (name.isEmpty()) {
-             throw new InvalidVariableNameException("Variable names may not be empty.");
-         }
-             
-         Matcher matcher = Pattern.compile("^(?![a-zA-Z_])").matcher(name);
-         if (matcher.find()) {
-             throw new InvalidVariableNameException(
-               "Variable names must start with a letter\n(a-z, A-Z) or an underscore (_).\n\n" +
-               getMessage(name, matcher));
-         }
-         
-         String reducedText = name.replaceAll("\\[.*?\\]|\\.(?!$)", "");
-         matcher = Pattern.compile("\\W").matcher(reducedText); 
-         if (matcher.find()) {
-             throw new InvalidVariableNameException(
-               "Variable names may only include alphanumeric\n" +
-               "characters (a-z, A-Z, 0-9) and underscores (_).\n\n" +
-               getMessage(reducedText, matcher));
-         }
-             
-         matcher = Pattern.compile("(?<![\\w\\]])\\[|\\](?!(?:\\[|\\.|$))").matcher(name);
-         if (matcher.find()) {
-             throw new InvalidVariableNameException(
-               "Indices may only appear at the end of members.\n\n" +
-               getMessage(name, matcher));
-         }
-             
-         matcher = Pattern.compile("\\[(?!\\d+(?:-\\d+)?\\])").matcher(name);
-         if (matcher.find()) {
-             throw new InvalidVariableNameException(
-               "Indices may only be of the form [integer] or [integer-integer].\n\n" +
-               getMessage(name, matcher));
-         }
-     }
- 
-    //========================================
+    protected void validateVariable(String name) throws InvalidVariableNameException {
+        name = name.replaceAll("\\s", "");
+
+        if (name.isEmpty()) {
+            throw new InvalidVariableNameException("Variable names may not be empty.");
+        }
+
+        Matcher matcher = Pattern.compile("^(?![a-zA-Z_])").matcher(name);
+        if (matcher.find()) {
+            throw new InvalidVariableNameException(
+                    "Variable names must start with a letter\n(a-z, A-Z) or an underscore (_).\n\n"
+                            + getMessage(name, matcher));
+        }
+
+        String reducedText = name.replaceAll("\\[.*?\\]|\\.(?!$)", "");
+        matcher = Pattern.compile("\\W").matcher(reducedText);
+        if (matcher.find()) {
+            throw new InvalidVariableNameException("Variable names may only include alphanumeric\n"
+                    + "characters (a-z, A-Z, 0-9) and underscores (_).\n\n"
+                    + getMessage(reducedText, matcher));
+        }
+
+        matcher = Pattern.compile("(?<![\\w\\]])\\[|\\](?!(?:\\[|\\.|$))").matcher(name);
+        if (matcher.find()) {
+            throw new InvalidVariableNameException(
+                    "Indices may only appear at the end of members.\n\n" + getMessage(name, matcher));
+        }
+
+        matcher = Pattern.compile("\\[(?!\\d+(?:-\\d+)?\\])").matcher(name);
+        if (matcher.find()) {
+            throw new InvalidVariableNameException(
+                    "Indices may only be of the form [integer] or [integer-integer].\n\n" + getMessage(name, matcher));
+        }
+    }
+
+    // ========================================
     //    Inner classes
-    //========================================
+    // ========================================
 
     /**
      * allows the user to specify the indices of each variable to add
@@ -1001,25 +1026,22 @@ public class DreApplication extends TrickApplication {
 
         /** the ok action */
         final AbstractAction okAction = new AbstractAction("OK") {
-            {
-            putValue(SHORT_DESCRIPTION, "Add variables.");
-            putValue(MNEMONIC_KEY, KeyEvent.VK_O);
-            }
             public void actionPerformed(ActionEvent actionEvent) {
-
                 try {
-                    ArrayList<String> variables = new ArrayList<String>();
-
+                    ArrayList<String> variables = new ArrayList<>();
                     for (Component component : northPanel.getComponents()) {
-                        variables.addAll(((VariablePanel)component).constructVariables());
+                        if (component instanceof VariablePanel) {
+                            variables.addAll(((VariablePanel) component).constructVariables());
+                        }
                     }
-
                     addVariables(variables);
                     setVisible(false);
-                }
-                catch (InvalidVariableNameException invalidVariableNameException) {
-                    JOptionPane.showMessageDialog(getMainFrame(),
-                      invalidVariableNameException.toString(), "Invalid Variable Name", JOptionPane.ERROR_MESSAGE);
+                } catch (InvalidVariableNameException invalidVariableNameException) {
+                    JOptionPane.showMessageDialog(
+                            getMainFrame(),
+                            invalidVariableNameException.toString(),
+                            "Invalid Variable Name",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -1033,41 +1055,41 @@ public class DreApplication extends TrickApplication {
         public AddVariableDialog() {
             super(getMainFrame(), "Specify Indices", true);
 
+            okAction.putValue(AbstractAction.SHORT_DESCRIPTION, "Add variables.");
+            okAction.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_O);
+
             final AbstractAction cancelAction = new AbstractAction("Cancel") {
-                {
-                putValue(SHORT_DESCRIPTION, "Cancel variable addition.");
-                putValue(MNEMONIC_KEY, KeyEvent.VK_C);
-                }
                 public void actionPerformed(ActionEvent e) {
                     setVisible(false);
                 }
             };
+            cancelAction.putValue(AbstractAction.SHORT_DESCRIPTION, "Cancel variable addition.");
+            cancelAction.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_C);
 
-            setContentPane(new JXPanel(new BorderLayout()) {{
-                add(new JScrollPane() {{
-                    setViewportView(new JPanel(new BorderLayout()) {{
-                        add(northPanel, BorderLayout.NORTH);
-                    }});
-                }}, BorderLayout.CENTER);
+            JPanel viewport = new JPanel(new BorderLayout());
+            viewport.add(northPanel, BorderLayout.NORTH);
 
-                add(new JXPanel(new BorderLayout()) {{
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setViewportView(viewport);
 
-                    add(new JXPanel(new GridLayout(1, 4)) {{
-                        add(Box.createHorizontalGlue());
-                        add(okButton);
-                        add(new JXButton(cancelAction));
-                        add(Box.createHorizontalGlue());
-                    }}, BorderLayout.SOUTH);
+            JXPanel buttonPanel = new JXPanel(new GridLayout(1, 4));
+            buttonPanel.add(Box.createHorizontalGlue());
+            buttonPanel.add(okButton);
+            buttonPanel.add(new JXButton(cancelAction));
+            buttonPanel.add(Box.createHorizontalGlue());
 
-                }}, BorderLayout.SOUTH);
-            }});
+            JXPanel southPanel = new JXPanel(new BorderLayout());
+            southPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            JXPanel contentPane = new JXPanel(new BorderLayout());
+            contentPane.add(scrollPane, BorderLayout.CENTER);
+            contentPane.add(southPanel, BorderLayout.SOUTH);
+            setContentPane(contentPane);
 
             JRootPane rootPane = getRootPane();
-
-            rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-              KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "AddVariableDialog.cancel");
+            rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "AddVariableDialog.cancel");
             rootPane.getActionMap().put("AddVariableDialog.cancel", cancelAction);
-
             rootPane.setDefaultButton(okButton);
         }
 
@@ -1077,7 +1099,6 @@ public class DreApplication extends TrickApplication {
          * @param pendingVariables the variables awaiting addition
          */
         public void launch(List<String> pendingVariables) {
-
             for (String variable_name : pendingVariables) {
                 // If any variables are indexable, launch the dialog.
                 if (pattern.matcher(variable_name).find()) {
@@ -1112,7 +1133,7 @@ public class DreApplication extends TrickApplication {
             String[] segments;
 
             /** the index specifications */
-            ArrayList<JComponent> indices = new ArrayList<JComponent>();
+            ArrayList<JComponent> indices = new ArrayList<>();
 
             /**
              * constructor
@@ -1121,23 +1142,21 @@ public class DreApplication extends TrickApplication {
              */
             public VariablePanel(String variable_name) {
                 super(new GridBagLayout());
-                this.variable_name = variable_name; 
+                this.variable_name = variable_name;
                 matcher = pattern.matcher(variable_name);
-                add(new JXButton(new AbstractAction() {
-                    {
-                    putValue(NAME, "Remove");
-                    putValue(SHORT_DESCRIPTION, "Cancel addition of this variable.");
-                    }
+
+                AbstractAction removeAction = new AbstractAction("Remove") {
                     public void actionPerformed(ActionEvent event) {
                         northPanel.remove(VariablePanel.this);
                         if (northPanel.getComponentCount() == 0) {
                             AddVariableDialog.this.setVisible(false);
-                        }
-                        else {
+                        } else {
                             northPanel.revalidate();
                         }
                     }
-                }));
+                };
+                removeAction.putValue(AbstractAction.SHORT_DESCRIPTION, "Cancel addition of this variable.");
+                add(new JXButton(removeAction));
                 add(Box.createHorizontalStrut(5));
 
                 segments = pattern.split(variable_name);
@@ -1146,20 +1165,16 @@ public class DreApplication extends TrickApplication {
                     indices.add(arraySize == 0 ? new IndexTextField() : new DoubleComboBox(arraySize));
                 }
 
-                add(new JXLabel() {{
-                    setText(segments[0]);
-                }});
+                add(new JXLabel(segments[0]));
                 for (int i = 0; i < indices.size(); ) {
                     add(indices.get(i));
                     final String string = segments[++i];
-                    add(new JXLabel() {{
-                        setText(string);
-                    }});
+                    add(new JXLabel(string));
                 }
 
-                add(Box.createHorizontalGlue(), new GridBagConstraints() {{
-                    weightx = 1;
-                }});
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.weightx = 1;
+                add(Box.createHorizontalGlue(), gbc);
             }
 
             /**
@@ -1168,14 +1183,14 @@ public class DreApplication extends TrickApplication {
              * @return the variable's name
              */
             String constructName() {
-                String name = "";
+                StringBuilder name = new StringBuilder();
                 for (int i = 0; i < segments.length; ++i) {
-                    name += segments[i];
+                    name.append(segments[i]);
                     if (i < indices.size()) {
-                        name += indices.get(i);
+                        name.append(indices.get(i));
                     }
                 }
-                return name;
+                return name.toString();
             }
 
             /**
@@ -1183,11 +1198,9 @@ public class DreApplication extends TrickApplication {
              *
              * @param all variables represented by this panel
              */
-            public Collection<String> constructVariables()
-              throws InvalidVariableNameException {
+            public Collection<String> constructVariables() throws InvalidVariableNameException {
                 return getVariables(constructName()); /* getVariables#1 */
             }
-
         }
     }
 
@@ -1210,24 +1223,15 @@ public class DreApplication extends TrickApplication {
     }
 
     /**
-     * Private class to contain the name and the
-     * dimensions for each segment of variable added.
-     */
-    private class VariableName {
-        String name;
-        Vector<Integer> dimensions = new Vector<Integer>();
-    }
-
-    /**
      * Using an inner class to define MouseListener to help organize code better.
      * The goal of this class is to handle mouse calls and forward them
      * to the interested parties.
      */
     private class TreeMouseListener extends MouseAdapter {
 
-        //========================================
+        // ========================================
         //    MouseListener methods
-        //========================================
+        // ========================================
 
         /**
          * Invoked when the mouse button has been clicked (pressed
@@ -1251,11 +1255,7 @@ public class DreApplication extends TrickApplication {
 
                         JMenuItem firstItem = new JMenuItem(SieTreeModel.getPathName(clickedPath) + clickedNode);
                         if (varTree.getModel().isLeaf(clickedNode) && clickedNode.isTrickManaged()) {
-                            firstItem.addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    addVariable(e.getActionCommand());
-                                }
-                            });
+                            firstItem.addActionListener(e2 -> addVariable(e2.getActionCommand()));
                             treePopup.add(firstItem);
                         } else {
                             treePopup.add(new JLabel("    " + SieTreeModel.getPathName(clickedPath) + clickedNode));
@@ -1278,9 +1278,11 @@ public class DreApplication extends TrickApplication {
                             treePopup.show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
-                } else if (clickedNode != null && varTree.getModel().isLeaf(clickedNode) && clickedNode.isTrickManaged()) {
-                    ArrayList<String> pendingVariables = new ArrayList<String>();
-                    pendingVariables.add( SieTreeModel.getPathName(clickedPath) + clickedNode);
+                } else if (clickedNode != null
+                        && varTree.getModel().isLeaf(clickedNode)
+                        && clickedNode.isTrickManaged()) {
+                    ArrayList<String> pendingVariables = new ArrayList<>();
+                    pendingVariables.add(SieTreeModel.getPathName(clickedPath) + clickedNode);
                     addVariableDialog.launch(pendingVariables);
                 }
             }
@@ -1298,5 +1300,5 @@ public class DreApplication extends TrickApplication {
         public InvalidVariableNameException(String description) {
             super(description);
         }
-    } 
+    }
 }
