@@ -215,8 +215,8 @@ void* AllocInfo::resize( size_t newElementCount ) {
         memcpy( newMemoryObject, oldMemoryObject, minByteCount);
     }
 
-    delete oldType;
     oldType->deleteInstance( oldMemoryObject );
+    delete oldType;
     start = newMemoryObject;
     end = (char*)start + newType->getSize();
     ownDataType = newType;
