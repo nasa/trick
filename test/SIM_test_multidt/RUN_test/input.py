@@ -1,7 +1,6 @@
 
 # Data recording test
 drg0 = trick.IntegJobDRBinary("Ball", my_integ_loop.integ_sched)
-drg0.thisown = 0
 for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :
     for index in range(0,2) :
         var = "ball.output_" + param + "[" + str(index) + "]"
