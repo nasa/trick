@@ -37,6 +37,11 @@ class PrintFileContents10 : public PrintFileContentsBase {
         /** Prints all io_src code for incoming enum */
         virtual void printEnum(std::ostream & outfile , EnumValues * ev) ;
 
+        /** Prints all init_attr declarations */
+        virtual void printExternInitAttrHeader(std::ostream& out);
+        virtual void printExternInitAttr(std::ostream& outfile, ClassValues* cv);
+        virtual void printExternInitAttrFooter(std::ostream& out);
+
         /** Prints all classes for global map */
         virtual void printClassMapHeader(std::ostream & out, std::string function_name ) ;
         virtual void printClassMap(std::ostream& outfile, ClassValues* cv, bool sim_services_flag);

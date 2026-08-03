@@ -241,6 +241,7 @@ void PrintAttributes::printClass( ClassValues * cv ) {
     }
 
     if (!isHeaderExcluded(fileName, false)) {
+        printer->printExternInitAttr(extern_init_attr_outfile, cv);
         printer->printClassMap(class_map_outfile, cv, sim_services_flag);
     }
 }
@@ -362,6 +363,8 @@ void PrintAttributes::createMapFiles() {
     }
 
     // Write processed code to temporary files
+    extern_init_attr_outfile.open(std::string(map_dir + "/.extern_init_attr.h").c_str());
+    printer->printExternInitAttrHeader(extern_init_attr_outfile);
     class_map_outfile.open(std::string(map_dir + "/.class_map.cpp").c_str()) ;
     printer->printClassMapHeader(class_map_outfile, class_map_function_name ) ;
     enum_map_outfile.open(std::string(map_dir + "/.enum_map.cpp").c_str()) ;
@@ -369,6 +372,9 @@ void PrintAttributes::createMapFiles() {
 }
 
 void PrintAttributes::closeMapFiles() {
+    printer->printExternInitAttrFooter(extern_init_attr_outfile);
+    extern_init_attr_outfile.close();
+
     printer->printClassMapFooter(class_map_outfile) ;
     class_map_outfile.close() ;
 
@@ -377,11 +383,14 @@ void PrintAttributes::closeMapFiles() {
 
     // If we wrote any new io_src files, move the temporary class and enum map files to new location
     if ( out_of_date_io_files.size() > 0 ) {
+        std::rename(std::string(map_dir + "/.extern_init_attr.h").c_str(),
+                    std::string(map_dir + "/extern_init_attr.h").c_str());
         std::ifstream class_map(std::string(map_dir + "/.class_map.cpp").c_str()) ;
         std::ifstream enum_map(std::string(map_dir + "/.enum_map.cpp").c_str()) ;
         std::ofstream combined_map(std::string(map_dir + "/class_map.cpp").c_str()) ;
         combined_map << class_map.rdbuf() << enum_map.rdbuf() ;
     } else {
+        remove(std::string(map_dir + "/.extern_init_attr.h").c_str());
         remove( std::string(map_dir + "/.class_map.cpp").c_str() ) ;
         remove( std::string(map_dir + "/.enum_map.cpp").c_str() ) ;
     }

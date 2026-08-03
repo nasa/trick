@@ -17,6 +17,10 @@ extern llvm::cl::opt< bool > global_compat15 ;
 PrintFileContentsBase::PrintFileContentsBase() {}
 
 // provide empty default implementation of these routines.
+void PrintFileContentsBase::printExternInitAttrHeader(std::ostream& ostream) { }
+void PrintFileContentsBase::printExternInitAttr(std::ostream& ostream, ClassValues* cv) { }
+void PrintFileContentsBase::printExternInitAttrFooter(std::ostream& ostream) { }
+
 void PrintFileContentsBase::printClassMapHeader(std::ostream & ostream, std::string function_name ) {}
 void PrintFileContentsBase::printClassMap(std::ostream& ostream, ClassValues* cv, bool sim_services_flag) { }
 void PrintFileContentsBase::printClassMapFooter(std::ostream & ostream) {}

@@ -34,6 +34,10 @@ class PrintFileContentsBase {
         virtual void printEnum(std::ostream & ostream, EnumValues * ev) = 0 ;
 
         // these routines provide default empty implementation
+        virtual void printExternInitAttrHeader(std::ostream& ostream);
+        virtual void printExternInitAttr(std::ostream& ostream, ClassValues* cv);
+        virtual void printExternInitAttrFooter(std::ostream& ostream);
+
         virtual void printClassMapHeader(std::ostream & ostream, std::string function_name ) ;
         virtual void printClassMap(std::ostream& ostream, ClassValues* cv, bool sim_services_flag);
         virtual void printClassMapFooter(std::ostream & ostream) ;
