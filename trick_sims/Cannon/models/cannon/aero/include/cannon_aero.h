@@ -6,8 +6,8 @@ Tutorial Sections 8, and 9
 #ifndef CANNON_AERO_H
 #define CANNON_AERO_H
 
-#include "sim_services/Integrator/include/regula_falsi.h"
-#include "sim_services/include/Flag.h"
+#include "trick/Flag.h"
+#include "trick/regula_falsi.h"
 
 typedef enum {
         Hard_Coded_Coefficient_Lift,   /* You come up with Cl  */

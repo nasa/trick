@@ -16,7 +16,7 @@ PROGRAMMERS:
 #ifndef BALL_ALTITUDE_H
 #define BALL_ALTITUDE_H
 
-#include "sim_services/include/Flag.h"
+#include "trick/Flag.h"
 
 typedef struct { /* BALT_IN --------------------------------------------------*/
 

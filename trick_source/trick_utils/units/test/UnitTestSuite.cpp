@@ -1,8 +1,8 @@
+#include "trick/Unit.hh"
+
+#include <math.h>
 
 #include <gtest/gtest.h>
-#include "trick/Unit.hh"
-#include <math.h>
-//#include "trick_utils/reqs/include/RequirementScribe.hh"
 
 /*********************FIXME**********************************************************************************
  * 1. The behavior of the conversion between composite units containing
