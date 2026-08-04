@@ -19,12 +19,12 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-#include <math.h> /* FOR M_ABS() function */
-
-#include "sim_services/Executive/include/exec_proto.h" /* For exec_get_job_cycle() */
-#include "trick_utils/math/include/trick_math.h" /* For M_ABS */
-
 #include "../include/ball_control.h"
+
+#include "trick/exec_proto.h" /* For exec_get_job_cycle() */
+#include "trick/trick_math.h" /* For M_ABS */
+
+#include <math.h> /* FOR M_ABS() function */
 
 int ball_control(
                      /* RETURN: -- Always return zero */

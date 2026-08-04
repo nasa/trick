@@ -15,10 +15,10 @@ PROGRAMMERS:
          (Trick-CR-00004) (Gravity / Inertial Frame Models)))
 */
 
-#include <stdio.h>
-#include <float.h>
+#include "trick/vector_macros.h"
 
-#include "trick_utils/math/include/vector_macros.h"
+#include <float.h>
+#include <stdio.h>
 
 #ifndef _ABS
 #define _ABS(x) ((x) < 0 ? -(x) : (x))

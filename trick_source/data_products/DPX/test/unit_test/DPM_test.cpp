@@ -1,15 +1,15 @@
 #define protected public
 
+#include "DPM/DPM_product.hh"
+
 #include <ctype.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
 
 #include "gtest/gtest.h"
-//#include "trick_utils/reqs/include/RequirementScribe.hh"
-#include "DPM/DPM_product.hh"
 
 namespace Trick {
 

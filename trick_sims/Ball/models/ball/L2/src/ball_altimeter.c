@@ -17,10 +17,10 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-    /*=== Prototype for drandom_gaussian() ===*/
-#include "trick_utils/math/include/trick_math_proto.h"
-
+/*=== Prototype for drandom_gaussian() ===*/
 #include "../include/ball_altimeter.h"
+
+#include "trick/trick_math_proto.h"
 
 int ball_altimeter(
                 /* RETURN: -- Always return zero */

@@ -28,7 +28,7 @@ int Satellite::state_deriv() {
    return(0);
 }
 
-#include "sim_services/Integrator/include/integrator_c_intf.h"
+#include "trick/integrator_c_intf.h"
 
 int Satellite::state_integ() {
 
