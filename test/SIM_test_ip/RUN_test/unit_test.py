@@ -29,6 +29,11 @@ def main():
 
     test_suite = "double"
 
+    position_in = trick.attach_units("in", 6)
+    position_m = trick.attach_units("m", position_in)
+    TRICK_EXPECT_EQ( str(position_in) , "6 in", test_suite , "position_in" )
+    TRICK_EXPECT_EQ( str(position_m) , "0.1524 m" , test_suite , "position_m (converted from position_in)" )
+
     TRICK_EXPECT_EQ( str(test_so.obj.get_double()) , "4732992000", test_suite , "get generic double with precision" )
 
     test_so.obj.d = 2
@@ -36,6 +41,8 @@ def main():
     TRICK_EXPECT_NEAR( test_so.obj.get_d() , 2.0 , 0.000001 , test_suite , "get_d(), no units" )
     trick.trick_test_add_parent( test_suite , "no units" , "910635102")
 
+    # d is declared with units kg and units kg is preserved
+    # attach_units("lb", 2) converts 2 lb to 0.90718474 kg that gets assigned to d
     test_so.obj.d = trick.attach_units("lb" , 2)
     TRICK_EXPECT_NEAR( test_so.obj.d , 0.90718474 , 0.000001 , test_suite , "units convert" )
     TRICK_EXPECT_NEAR( test_so.obj.get_d() , 0.90718474, 0.000001 , test_suite , "get_d(), no units" )
