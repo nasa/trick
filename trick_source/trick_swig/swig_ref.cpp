@@ -1,18 +1,19 @@
-
-#include <iostream>
-#include <sstream>
-#include <algorithm>
 #include <Python.h>
-#include <stdlib.h>
 
-#include "trick/swig/swig_python_compat.hh"
 #include "trick/swig/swig_ref.hh"
+
+#include "trick/MemoryManager.hh"
+#include "trick/PythonPrint.hh"
+#include "trick/memorymanager_c_intf.h"
+#include "trick/swig/swig_convert_units.hh"
 #include "trick/swig/swig_double.hh"
 #include "trick/swig/swig_int.hh"
-#include "trick/swig/swig_convert_units.hh"
-#include "trick/MemoryManager.hh"
-#include "trick/memorymanager_c_intf.h"
-#include "trick/PythonPrint.hh"
+#include "trick/swig/swig_python_compat.hh"
+
+#include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <stdlib.h>
 
 #if PY_VERSION_HEX < 0x02050000
 #define Py_ssize_t int

@@ -6,10 +6,10 @@
 #ifndef SWIG_INT_TEMPLATES_HH
 #define SWIG_INT_TEMPLATES_HH
 
-#include "trick/swig/swig_python_compat.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/UdUnits.hh"
 #include "trick/attributes.h"
+#include "trick/swig/swig_python_compat.hh"
 
 #include <string>
 #include <type_traits>
@@ -788,10 +788,10 @@ template<typename T, typename baseT > static void * typemap_in_2d( PyObject *inp
 }
 
 // Fixed size 3D array input typemap
-template<typename T, typename baseT > static void * typemap_in_3d( PyObject *input , unsigned int out_dim0,
-                                                                    unsigned int out_dim1, unsigned int out_dim2,
-                                                                    const char * symname ) {
-
+template <typename T, typename baseT>
+static void* typemap_in_3d(PyObject* input, unsigned int out_dim0, unsigned int out_dim1, unsigned int out_dim2,
+                           const char* symname)
+{
     //INT[ANY][ANY][ANY] IN
 
     void * argp2 ;
