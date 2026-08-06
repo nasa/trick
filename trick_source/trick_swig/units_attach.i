@@ -7,6 +7,7 @@
 %inline %{
 #include <frameobject.h>
 #include <udunits2.h>
+#include "trick/swig/swig_python_compat.hh"
 #include "trick/swig/swig_double.hh"
 #include "trick/map_trick_units_to_udunits.hh"
 #include "trick/IPPython.hh"
