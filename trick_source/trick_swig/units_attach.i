@@ -78,10 +78,11 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
         result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(container), SWIG_TypeQuery("swig_double *") , SWIG_POINTER_OWN);
     } else if ( SWIG_IsOK(SWIG_ConvertPtr(in_object, &my_argp,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(my_argp) ;
-        if ( temp_m->units.compare("1") ) {
-            ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
+        swig_double converted = *temp_m ;
+        if ( converted.units.compare("1") ) {
+            ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), converted.units.c_str(), UT_ASCII) ;
             if ( !from ) {
-                std::string temp_str = std::string("could not covert from units "+temp_m->units);
+                std::string temp_str = std::string("could not covert from units "+converted.units);
                 PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
                 return NULL ;
             }
@@ -94,8 +95,8 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
 
             cv_converter * converter = ut_get_converter(from,to) ;
             if ( converter ) {
-                temp_m->value = cv_convert_double(converter, temp_m->value ) ;
-                temp_m->units = in_units ;
+                converted.value = cv_convert_double(converter, converted.value ) ;
+                converted.units = in_units ;
                 cv_free(converter) ;
             } else {
                 PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
@@ -104,15 +105,16 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
             ut_free(from) ;
             ut_free(to) ;
         } else {
-            temp_m->units = in_units ;
+            converted.units = in_units ;
         }
-        result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_double(*temp_m)), SWIG_TypeQuery("swig_double *") , SWIG_POINTER_OWN);
+        result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_double(converted)), SWIG_TypeQuery("swig_double *") , SWIG_POINTER_OWN);
     } else if ( SWIG_IsOK(SWIG_ConvertPtr(in_object, &my_argp,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(my_argp) ;
-        if ( temp_m->units.compare("1") ) {
-            ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
+        swig_int converted = *temp_m ;
+        if ( converted.units.compare("1") ) {
+            ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), converted.units.c_str(), UT_ASCII) ;
             if ( !from ) {
-                std::string temp_str = std::string("could not covert from units "+temp_m->units);
+                std::string temp_str = std::string("could not covert from units "+converted.units);
                 PyErr_SetString(PyExc_AttributeError,(temp_str.c_str())) ;
                 return NULL ;
             }
@@ -125,8 +127,8 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
 
             cv_converter * converter = ut_get_converter(from,to) ;
             if ( converter ) {
-                temp_m->value = (long long)cv_convert_double(converter, (double)temp_m->value ) ;
-                temp_m->units = in_units ;
+                converted.value = (long long)cv_convert_double(converter, (double)converted.value ) ;
+                converted.units = in_units ;
                 cv_free(converter) ;
             } else {
                 PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
@@ -135,9 +137,9 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
             ut_free(from) ;
             ut_free(to) ;
         } else {
-            temp_m->units = in_units ;
+            converted.units = in_units ;
         }
-        result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*temp_m)), SWIG_TypeQuery("swig_int *") , SWIG_POINTER_OWN);
+        result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(converted)), SWIG_TypeQuery("swig_int *") , SWIG_POINTER_OWN);
     } else if ( PyTuple_Check(in_object)) {
         unsigned int size = PyTuple_Size(in_object) ;
         result_obj = PyTuple_New(size) ;
