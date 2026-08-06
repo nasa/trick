@@ -60,6 +60,17 @@ namespace
      * 3. active_parse_count tracks how many threads are in the interpreter, so that
      *    IPPython::shutdown() can tell whether reacquiring the GIL is safe or would block
      *    forever.
+     *
+     * The GIL is held for the guard's whole lifetime, so put the guard in a nested scope if
+     * later code in the same function must run without it. To take the GIL twice in one
+     * function, use two separate blocks; reusing the variable name is fine. Dropping the GIL
+     * in between lets other threads change what you are reading, so only split when you
+     * actually want to yield.
+     *
+     * Nesting guards is also legal: PyGILState_Ensure() is reentrant, and a nested call
+     * returns PyGILState_LOCKED, so the inner Release() does not drop the GIL. That only
+     * holds because each guard keeps its own gstate; the handles must not be shared
+     * between calls.
      */
     class GILGuard
     {

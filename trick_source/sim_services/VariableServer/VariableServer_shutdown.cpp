@@ -13,7 +13,7 @@ namespace
     // How long to give session threads to finish their current command and exit before
     // giving up on them. Commands are normally sub-millisecond, so this only comes into
     // play when a client command is blocked inside a model call.
-    const unsigned int SESSION_SHUTDOWN_TIMEOUT_USEC = 5000000;
+    const unsigned int SESSION_SHUTDOWN_TIMEOUT_USEC = 5'000'000;
     const unsigned int SESSION_SHUTDOWN_POLL_USEC    = 1000;
 
 }
