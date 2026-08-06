@@ -1,4 +1,5 @@
 package trick.jobperf;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -16,7 +17,7 @@ public class TraceViewMenuBar extends JMenuBar implements ActionListener {
     private TraceViewInputToolBar inputToolBar;
 
     public TraceViewMenuBar(TraceViewCanvas tvc, TraceViewInputToolBar tb) {
-        traceView    = tvc;
+        traceView = tvc;
         inputToolBar = tb;
 
         // File menu
@@ -77,9 +78,15 @@ public class TraceViewMenuBar extends JMenuBar implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
-            case "increase-trace_width":  traceView.incrementTraceWidth(); break;
-            case "decrease-trace_width":  traceView.decrementTraceWidth(); break;
-            case "expand-selected-frame": traceView.displaySelectedFrame(); break;
+            case "increase-trace_width":
+                traceView.incrementTraceWidth();
+                break;
+            case "decrease-trace_width":
+                traceView.decrementTraceWidth();
+                break;
+            case "expand-selected-frame":
+                traceView.displaySelectedFrame();
+                break;
             case "show-job-stats":
                 traceView.jobStats.SortByID();
                 traceView.jobStats.displayJobStatsWindow();
@@ -92,8 +99,11 @@ public class TraceViewMenuBar extends JMenuBar implements ActionListener {
                 traceView.zoomReset();
                 inputToolBar.updateZoomButtons();
                 break;
-            case "exit": System.exit(0); break;
-            default: System.out.println("Unknown Action Command: " + e.getActionCommand());
+            case "exit":
+                System.exit(0);
+                break;
+            default:
+                System.out.println("Unknown Action Command: " + e.getActionCommand());
         }
     }
 }

@@ -1,4 +1,5 @@
 package trick.jobperf;
+
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
@@ -16,14 +17,12 @@ import javax.swing.*;
  */
 public class TraceViewWindow extends JFrame {
 
-    public TraceViewWindow(String filesDir,
-                           FrameRecord[] frameArray,
-                           JobStats jobStats,
-                           JobSpecificationMap jobSpecificationMap) {
+    public TraceViewWindow(
+            String filesDir, FrameRecord[] frameArray, JobStats jobStats, JobSpecificationMap jobSpecificationMap) {
 
         TraceViewOutputToolBar outputToolBar = new TraceViewOutputToolBar();
-        TraceViewCanvas traceViewCanvas = new TraceViewCanvas(
-                filesDir, frameArray, jobStats, outputToolBar, jobSpecificationMap);
+        TraceViewCanvas traceViewCanvas =
+                new TraceViewCanvas(filesDir, frameArray, jobStats, outputToolBar, jobSpecificationMap);
 
         // InputToolBar must exist before MenuBar so the menu bar can reference
         // it for zoom-button synchronisation.

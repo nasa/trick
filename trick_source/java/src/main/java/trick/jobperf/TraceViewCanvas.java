@@ -1,10 +1,10 @@
 package trick.jobperf;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -69,17 +69,21 @@ public class TraceViewCanvas extends JPanel {
         final double viewStart;
         final int rangeFirst;
         final int rangeLast;
+
         ViewState(double fs, double vs, int rf, int rl) {
-            frameSize  = fs;  viewStart  = vs;
-            rangeFirst = rf;  rangeLast  = rl;
+            frameSize = fs;
+            viewStart = vs;
+            rangeFirst = rf;
+            rangeLast = rl;
         }
     }
+
     private final Deque<ViewState> zoomStack = new ArrayDeque<>();
 
     // -----------------------------------------------------------------------
     // Rubber-band drag state
     // -----------------------------------------------------------------------
-    private boolean dragging  = false;
+    private boolean dragging = false;
     private int dragStartX, dragStartY;
     private int dragCurrentX, dragCurrentY;
 
@@ -88,27 +92,38 @@ public class TraceViewCanvas extends JPanel {
     // -----------------------------------------------------------------------
     public class FrameRange {
         public int first, last;
-        FrameRange(int first, int last) { this.first = first; this.last = last; }
-        public boolean contains(int n)  { return (first <= n) && (n <= last); }
-        public int size()               { return last - first + 1; }
+
+        FrameRange(int first, int last) {
+            this.first = first;
+            this.last = last;
+        }
+
+        public boolean contains(int n) {
+            return (first <= n) && (n <= last);
+        }
+
+        public int size() {
+            return last - first + 1;
+        }
     }
 
     // -----------------------------------------------------------------------
     // Constructor
     // -----------------------------------------------------------------------
-    public TraceViewCanvas(String filesDir,
-                           FrameRecord[] frameArray,
-                           JobStats jobStats,
-                           TraceViewOutputToolBar outputToolBar,
-                           JobSpecificationMap jobSpecificationMap) {
+    public TraceViewCanvas(
+            String filesDir,
+            FrameRecord[] frameArray,
+            JobStats jobStats,
+            TraceViewOutputToolBar outputToolBar,
+            JobSpecificationMap jobSpecificationMap) {
         traceWidth = DEFAULT_TRACE_WIDTH;
-        frameSize  = 1.0;
-        viewStart  = 0.0;
-        image      = null;
+        frameSize = 1.0;
+        viewStart = 0.0;
+        image = null;
         selectedFrameNumber = 0;
-        this.frameArray          = frameArray;
-        this.jobStats            = jobStats;
-        this.outputToolBar       = outputToolBar;
+        this.frameArray = frameArray;
+        this.jobStats = jobStats;
+        this.outputToolBar = outputToolBar;
         this.jobSpecificationMap = jobSpecificationMap;
 
         // Create the IDtoColorMap
@@ -138,9 +153,9 @@ public class TraceViewCanvas extends JPanel {
         }
 
         crossHairCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
-        defaultCursor   = new Cursor(Cursor.DEFAULT_CURSOR);
-        frameFont12     = new Font("Arial", Font.PLAIN, 12);
-        frameFont18     = new Font("Arial", Font.PLAIN, 18);
+        defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+        frameFont12 = new Font("Arial", Font.PLAIN, 12);
+        frameFont18 = new Font("Arial", Font.PLAIN, 18);
 
         totalDuration = 0.0;
         for (int n = 1; n < frameArray.length; n++) {
@@ -160,11 +175,25 @@ public class TraceViewCanvas extends JPanel {
     // -----------------------------------------------------------------------
     // Public accessors
     // -----------------------------------------------------------------------
-    public int     getFrameTotal()       { return frameArray.length; }
-    public int     getFirstRenderFrame() { return frameRenderRange.first; }
-    public int     getLastRenderFrame()  { return frameRenderRange.last; }
-    public double  getFrameSize()        { return frameSize; }
-    public boolean isZoomed()            { return !zoomStack.isEmpty(); }
+    public int getFrameTotal() {
+        return frameArray.length;
+    }
+
+    public int getFirstRenderFrame() {
+        return frameRenderRange.first;
+    }
+
+    public int getLastRenderFrame() {
+        return frameRenderRange.last;
+    }
+
+    public double getFrameSize() {
+        return frameSize;
+    }
+
+    public boolean isZoomed() {
+        return !zoomStack.isEmpty();
+    }
 
     // -----------------------------------------------------------------------
     // Zoom: push
@@ -190,16 +219,15 @@ public class TraceViewCanvas extends JPanel {
 
         // New frame row range
         int newFirst = (yMin - TOP_MARGIN) / traceWidth + frameRenderRange.first;
-        int newLast  = (yMax - TOP_MARGIN - 1) / traceWidth + frameRenderRange.first;
+        int newLast = (yMax - TOP_MARGIN - 1) / traceWidth + frameRenderRange.first;
         newFirst = Math.max(newFirst, frameRenderRange.first);
-        newLast  = Math.min(newLast,  frameRenderRange.last);
+        newLast = Math.min(newLast, frameRenderRange.last);
         if (newFirst > newLast) newLast = newFirst;
 
         // Push current state then apply new state
-        zoomStack.push(new ViewState(frameSize, viewStart,
-                                     frameRenderRange.first, frameRenderRange.last));
-        frameSize        = newFrameSize;
-        viewStart        = newViewStart;
+        zoomStack.push(new ViewState(frameSize, viewStart, frameRenderRange.first, frameRenderRange.last));
+        frameSize = newFrameSize;
+        viewStart = newViewStart;
         frameRenderRange = new FrameRange(newFirst, newLast);
 
         setPreferredSize(new Dimension(500, neededPanelHeight()));
@@ -212,8 +240,8 @@ public class TraceViewCanvas extends JPanel {
     public void zoomOut() {
         if (zoomStack.isEmpty()) return;
         ViewState vs = zoomStack.pop();
-        frameSize        = vs.frameSize;
-        viewStart        = vs.viewStart;
+        frameSize = vs.frameSize;
+        viewStart = vs.viewStart;
         frameRenderRange = new FrameRange(vs.rangeFirst, vs.rangeLast);
         setPreferredSize(new Dimension(500, neededPanelHeight()));
         repaint();
@@ -226,8 +254,8 @@ public class TraceViewCanvas extends JPanel {
         if (zoomStack.isEmpty()) return;
         ViewState vs = null;
         while (!zoomStack.isEmpty()) vs = zoomStack.pop();
-        frameSize        = vs.frameSize;
-        viewStart        = vs.viewStart;
+        frameSize = vs.frameSize;
+        viewStart = vs.viewStart;
         frameRenderRange = new FrameRange(vs.rangeFirst, vs.rangeLast);
         setPreferredSize(new Dimension(500, neededPanelHeight()));
         repaint();
@@ -240,9 +268,14 @@ public class TraceViewCanvas extends JPanel {
         if (frameArray.length > 50) {
             int maxIndex = frameArray.length - 1;
             int tFirst = frameRenderRange.first + advance;
-            int tLast  = frameRenderRange.last  + advance;
-            if (tLast > maxIndex)  { tLast = maxIndex; tFirst = maxIndex - 49; }
-            else if (tFirst < 0)   { tFirst = 0;       tLast  = 49; }
+            int tLast = frameRenderRange.last + advance;
+            if (tLast > maxIndex) {
+                tLast = maxIndex;
+                tFirst = maxIndex - 49;
+            } else if (tFirst < 0) {
+                tFirst = 0;
+                tLast = 49;
+            }
             frameRenderRange = new FrameRange(tFirst, tLast);
             setPreferredSize(new Dimension(500, neededPanelHeight()));
             repaint();
@@ -254,7 +287,9 @@ public class TraceViewCanvas extends JPanel {
             frameRenderRange = new FrameRange(first, frameRenderRange.last);
             setPreferredSize(new Dimension(500, neededPanelHeight()));
             repaint();
-        } else { throw new InvalidFrameBoundsExpection(""); }
+        } else {
+            throw new InvalidFrameBoundsExpection("");
+        }
     }
 
     public void setLastRenderFrame(int last) throws InvalidFrameBoundsExpection {
@@ -262,12 +297,29 @@ public class TraceViewCanvas extends JPanel {
             frameRenderRange = new FrameRange(frameRenderRange.first, last);
             setPreferredSize(new Dimension(500, neededPanelHeight()));
             repaint();
-        } else { throw new InvalidFrameBoundsExpection(""); }
+        } else {
+            throw new InvalidFrameBoundsExpection("");
+        }
     }
 
-    public void setFrameSize(double time)    { frameSize = time; repaint(); }
-    public void incrementTraceWidth() { if (traceWidth < MAX_TRACE_WIDTH) { traceWidth++; repaint(); } }
-    public void decrementTraceWidth() { if (traceWidth > MIN_TRACE_WIDTH) { traceWidth--; repaint(); } }
+    public void setFrameSize(double time) {
+        frameSize = time;
+        repaint();
+    }
+
+    public void incrementTraceWidth() {
+        if (traceWidth < MAX_TRACE_WIDTH) {
+            traceWidth++;
+            repaint();
+        }
+    }
+
+    public void decrementTraceWidth() {
+        if (traceWidth > MIN_TRACE_WIDTH) {
+            traceWidth--;
+            repaint();
+        }
+    }
 
     public void displaySelectedFrame() {
         new FrameViewWindow(this, frameArray[selectedFrameNumber], selectedFrameNumber);
@@ -278,13 +330,22 @@ public class TraceViewCanvas extends JPanel {
     // -----------------------------------------------------------------------
     private boolean traceRectContains(int x, int y) {
         return x >= LEFT_MARGIN
-            && x <= getWidth() - RIGHT_MARGIN
-            && y >= TOP_MARGIN
-            && y <= TOP_MARGIN + traceRectHeight();
+                && x <= getWidth() - RIGHT_MARGIN
+                && y >= TOP_MARGIN
+                && y <= TOP_MARGIN + traceRectHeight();
     }
-    private int traceRectHeight() { return traceWidth * frameRenderRange.size(); }
-    private int traceRectWidth()  { return getWidth() - LEFT_MARGIN - RIGHT_MARGIN; }
-    private int neededPanelHeight(){ return traceWidth * frameRenderRange.size() + TOP_MARGIN + BOTTOM_MARGIN; }
+
+    private int traceRectHeight() {
+        return traceWidth * frameRenderRange.size();
+    }
+
+    private int traceRectWidth() {
+        return getWidth() - LEFT_MARGIN - RIGHT_MARGIN;
+    }
+
+    private int neededPanelHeight() {
+        return traceWidth * frameRenderRange.size() + TOP_MARGIN + BOTTOM_MARGIN;
+    }
 
     // -----------------------------------------------------------------------
     // Mouse listener
@@ -294,11 +355,11 @@ public class TraceViewCanvas extends JPanel {
         @Override
         public void mousePressed(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) {
-                dragStartX   = e.getX();
-                dragStartY   = e.getY();
+                dragStartX = e.getX();
+                dragStartY = e.getY();
                 dragCurrentX = dragStartX;
                 dragCurrentY = dragStartY;
-                dragging     = true;
+                dragging = true;
             }
         }
 
@@ -323,8 +384,8 @@ public class TraceViewCanvas extends JPanel {
             if (!dragging) return;
             dragging = false;
 
-            int x  = e.getX();
-            int y  = e.getY();
+            int x = e.getX();
+            int y = e.getY();
             int dx = Math.abs(x - dragStartX);
             int dy = Math.abs(y - dragStartY);
 
@@ -336,7 +397,7 @@ public class TraceViewCanvas extends JPanel {
                 // ---- Single click: identify job under cursor ----
                 if (image == null) return;
                 Color color = new Color(image.getRGB(x, y));
-                String id   = idToColorMap.getKeyOfColor(color);
+                String id = idToColorMap.getKeyOfColor(color);
                 outputToolBar.setJobID(id);
                 JobSpecification jobSpec = jobSpecificationMap.getJobSpecification(id);
                 if (jobSpec != null) {
@@ -348,14 +409,11 @@ public class TraceViewCanvas extends JPanel {
                 }
                 if (id != null && traceRectContains(x, y)) {
                     double pixelsPerSecond = (double) traceRectWidth() / frameSize;
-                    double clickTime = frameArray[selectedFrameNumber].start
-                                     + viewStart
-                                     + (x - LEFT_MARGIN) / pixelsPerSecond;
+                    double clickTime =
+                            frameArray[selectedFrameNumber].start + viewStart + (x - LEFT_MARGIN) / pixelsPerSecond;
                     FrameRecord frame = frameArray[selectedFrameNumber];
                     for (JobExecutionEvent jobExec : frame.jobEvents) {
-                        if (id.equals(jobExec.id)
-                                && clickTime >= jobExec.start
-                                && clickTime <= jobExec.stop) {
+                        if (id.equals(jobExec.id) && clickTime >= jobExec.start && clickTime <= jobExec.stop) {
                             outputToolBar.setJobTimes(jobExec.start, jobExec.stop);
                         }
                     }
@@ -378,11 +436,11 @@ public class TraceViewCanvas extends JPanel {
     private void doDrawing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING,    RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        int    traceRectWidth   = traceRectWidth();
-        int    traceRectHeight  = traceRectHeight();
-        double pixelsPerSecond  = (double) traceRectWidth / frameSize;
+        int traceRectWidth = traceRectWidth();
+        int traceRectHeight = traceRectHeight();
+        double pixelsPerSecond = (double) traceRectWidth / frameSize;
 
         // Background
         g2d.setPaint(Color.WHITE);
@@ -407,20 +465,22 @@ public class TraceViewCanvas extends JPanel {
         String ORZ1 = "OVER-RUN", ORZ2 = "ZONE";
         int orzX = LEFT_MARGIN + traceRectWidth + (RIGHT_MARGIN - fm.stringWidth(ORZ1)) / 2;
         g2d.drawString(ORZ1, orzX, TOP_MARGIN + fm.getHeight());
-        g2d.drawString(ORZ2, LEFT_MARGIN + traceRectWidth + (RIGHT_MARGIN - fm.stringWidth(ORZ2)) / 2,
-                       TOP_MARGIN + 2 * fm.getHeight());
+        g2d.drawString(
+                ORZ2,
+                LEFT_MARGIN + traceRectWidth + (RIGHT_MARGIN - fm.stringWidth(ORZ2)) / 2,
+                TOP_MARGIN + 2 * fm.getHeight());
 
         // Zoom depth indicator
         int depth = zoomStack.size();
         if (depth > 0) {
             g2d.setFont(frameFont18);
             g2d.setColor(new Color(0, 130, 0));
-            g2d.drawString(String.format(
-                "ZOOM x%d  [frames %d\u2013%d | t+%.6f \u2013 %.6f s]   right-click to zoom out",
-                depth,
-                frameRenderRange.first, frameRenderRange.last,
-                viewStart, viewStart + frameSize),
-                LEFT_MARGIN, TOP_MARGIN - 28);
+            g2d.drawString(
+                    String.format(
+                            "ZOOM x%d  [frames %d\u2013%d | t+%.6f \u2013 %.6f s]   right-click to zoom out",
+                            depth, frameRenderRange.first, frameRenderRange.last, viewStart, viewStart + frameSize),
+                    LEFT_MARGIN,
+                    TOP_MARGIN - 28);
         }
 
         // Draw each frame row
@@ -431,10 +491,8 @@ public class TraceViewCanvas extends JPanel {
 
             // Frame label
             g2d.setPaint(n == selectedFrameNumber ? Color.RED : Color.BLACK);
-            if (n == selectedFrameNumber)
-                g2d.drawString("\u25c0", 80, rowY + traceWidth - 2);
-            g2d.drawString(String.format("%d  (%d)", n, frame.jobEvents.size()),
-                           20, rowY + traceWidth - 2);
+            if (n == selectedFrameNumber) g2d.drawString("\u25c0", 80, rowY + traceWidth - 2);
+            g2d.drawString(String.format("%d  (%d)", n, frame.jobEvents.size()), 20, rowY + traceWidth - 2);
 
             // Job bars
             for (int containment = 0; containment <= frame.maxContainment; containment++) {
@@ -443,8 +501,8 @@ public class TraceViewCanvas extends JPanel {
 
                     // Pixel position accounting for viewStart offset
                     double offsetStart = (jobExec.start - frame.start) - viewStart;
-                    int jobStartX = (int)(offsetStart * pixelsPerSecond) + LEFT_MARGIN;
-                    int jobWidth  = Math.max(1, (int)((jobExec.stop - jobExec.start) * pixelsPerSecond));
+                    int jobStartX = (int) (offsetStart * pixelsPerSecond) + LEFT_MARGIN;
+                    int jobWidth = Math.max(1, (int) ((jobExec.stop - jobExec.start) * pixelsPerSecond));
 
                     // Cull bars entirely outside the visible window
                     if (jobStartX + jobWidth < LEFT_MARGIN) continue;
