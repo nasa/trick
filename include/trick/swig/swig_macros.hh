@@ -1,6 +1,7 @@
 
 //These appear in some files but not in others.  define them if we have to.
 
+#include "trick/swig/swig_python_compat.hh"
 
 #ifdef SWIG
 #define __attribute__(x)

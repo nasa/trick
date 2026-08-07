@@ -46,16 +46,6 @@ namespace Trick {
             void get_TMM_named_variables() ;
 
             /**
-             @brief Get the status of the units conversion message flag
-            */
-            bool get_units_conversion_msgs() ;
-
-            /**
-             @brief Setting to see units conversions warnings
-            */
-            void shoot_the_units_conversion_messenger(bool onoff) ;
-
-            /**
              @brief Initialize and run the Python input processor on the user input file.
             */
             virtual int init() ;
@@ -81,27 +71,14 @@ namespace Trick {
              @brief Restore variables with memory manager names to python space.
              @return always 0
             */
-            int restart() ;
-
-        protected :
-            /** TODO: remove units_conversion_msgs in 2021 */
-            /** false = see units conversion messages, true = head in sand */
-            bool units_conversion_msgs ;
-
+            int restart();
     } ;
 
 }
 
 extern "C" {
 //SWIG generated routine.
-void init_swig_modules(void) ;
-
-/* Call this if you you refuse to fix your units problems and want to shoot the messenger instead */
-void shoot_the_units_conversion_messenger() ;
-void revive_the_units_conversion_messenger() ;
-
-int check_units_conversion_messenger_for_signs_of_life() ;
+void init_swig_modules(void);
 }
 
 #endif
-
