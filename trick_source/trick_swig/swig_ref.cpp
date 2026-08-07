@@ -1,17 +1,19 @@
-
-#include <iostream>
-#include <sstream>
-#include <algorithm>
 #include <Python.h>
-#include <stdlib.h>
 
 #include "trick/swig/swig_ref.hh"
+
+#include "trick/MemoryManager.hh"
+#include "trick/PythonPrint.hh"
+#include "trick/memorymanager_c_intf.h"
+#include "trick/swig/swig_convert_units.hh"
 #include "trick/swig/swig_double.hh"
 #include "trick/swig/swig_int.hh"
-#include "trick/swig/swig_convert_units.hh"
-#include "trick/MemoryManager.hh"
-#include "trick/memorymanager_c_intf.h"
-#include "trick/PythonPrint.hh"
+#include "trick/swig/swig_python_compat.hh"
+
+#include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <stdlib.h>
 
 #if PY_VERSION_HEX < 0x02050000
 #define Py_ssize_t int
@@ -614,7 +616,7 @@ int swig_ref::__setitem__( int ii, PyObject * obj1 ) {
             } else {
                 // Original 1D assignment code for fixed-size arrays
                 first_node = curr_node = ( V_TREE * )calloc( 1 , sizeof(V_TREE) ) ;
-                
+
                 for( jj = 0 ; jj < size ; jj++ ) {
                     PyObject *o = PyTuple_GetItem( obj1 , jj ) ;
                     newVTreeNode(&curr_node) ;
