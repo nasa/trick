@@ -7,6 +7,15 @@ import javax.swing.*;
 
 /**
  * Class TraceViewMenuBar represents the menu bar of the JobPerf application.
+ * It aggregates the following GUI components:
+ * JMenuBar [this]
+ *     isa JMenuBar
+ *     JMenu [fileMenu]
+ *         JMenuItem [fileMenuExit], Action: exits the application.
+ *     JMenu [viewMenu]
+ *         JMenu [traceSizeMenu]
+ *             JMenuItem [traceSizeIncrease], Action: increases the visible trace width.
+ *             JMenuItem [traceSizeDecrease], Action: decreases the visible trace width.
  *
  * View menu zoom items:
  *   Ctrl+Z       — Zoom Out (one level, same as right-click on canvas)

@@ -16,8 +16,15 @@ import java.nio.file.Paths;
   ├── uses FrameRecord
   ├── uses JobStats
   ├── uses JobSpecificationMap
-  ├── uses TraceViewWindow
+  ├── creates/uses TraceViewWindow
   └── uses JobSpecification (indirectly via JobSpecificationMap)
+
+TraceViewWindow
+  ├── extends JFrame
+  ├── uses TraceViewMenuBar
+  ├── uses TraceViewInputToolBar
+  ├── uses TraceViewOutputToolBar
+  └── uses TraceViewCanvas
 
 FrameRecord
   └── contains JobExecutionEvent

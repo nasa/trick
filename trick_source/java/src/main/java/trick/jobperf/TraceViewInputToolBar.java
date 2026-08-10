@@ -8,7 +8,27 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /**
- * Class TraceViewInputToolBar controls the TraceViewCanvas.
+ * Provides the input toolbar for the JobPerf timeline view.
+ * It displays the current estimated frame size for the input timeline data,
+ * lets the user change the frame size by pressing Enter in the text field,
+ * and provides controls for viewing frame details, resetting zoom, and
+ * shifting the visible frame range.
+ *
+ * TraceViewInputToolBar [this]
+ *     isa JToolBar
+ *     JLabel ("Frame Size (Avg):")
+ *     JTextField [frameSizeField]
+ *     JButton [frameDetailsButton]
+ *     JButton [zoomResetButton]
+ *     JLabel ("Frames : [..]")
+ *     JLabel ("Selected Range:")
+ *     JTextField [firstRenderFrameField]
+ *     JLabel ("...")
+ *     JTextField [lastRenderFrameField]
+ *     JButton [advanceRangeButton]
+ *     JButton [retreatRangeButton]
+ *
+ * The toolbar controls the TraceViewCanvas.
  *
  * Zoom controls:
  *   Zoom is now driven by rubber-band mouse drag on the canvas itself.

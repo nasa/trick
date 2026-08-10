@@ -6,14 +6,31 @@ import javax.swing.*;
 
 /**
  * Class TraceViewWindow represents the main window of the JobPerf application.
+ * It aggregates the following GUI components:
  *
- * Component hierarchy:
- *   TraceViewWindow (JFrame)
- *     TraceViewMenuBar          [north – menu bar]
- *     TraceViewInputToolBar     [north – tool bar]
- *     JScrollPane
- *       TraceViewCanvas         [centre – main drawing surface]
- *     TraceViewOutputToolBar    [south – status bar]
+ * TraceViewWindow [this]
+ *     isa JFrame
+ *     TraceViewMenuBar [north - menuBar]
+ *     TraceViewInputToolBar [north - toolbar]
+ *     JPanel [mainPanel]
+ *         JPanel [tracePanel]
+ *             JScrollPane [scrollPane]
+ *                 TraceViewCanvas [centre - traceViewCanvas]
+ *     TraceViewOutputToolBar [south - outputToolBar]
+ *
+ * TraceViewWindow
+ *   ├── extends JFrame
+ *   ├── uses TraceViewMenuBar
+ *   ├── uses TraceViewInputToolBar
+ *   ├── uses TraceViewOutputToolBar
+ *   ├── uses TraceViewCanvas
+ *   ├── contains JScrollPane
+ *   ├── contains JPanel (tracePanel)
+ *   ├── contains JPanel (mainPanel)
+ *   └── interacts with:
+ *       ├── FrameRecord[] (frameArray)
+ *       ├── JobStats
+ *       └── JobSpecificationMap
  */
 public class TraceViewWindow extends JFrame {
 
