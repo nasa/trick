@@ -8,16 +8,16 @@
 #ifndef STLCHECKPOINT_HH
 #define STLCHECKPOINT_HH
 
-#include <map>
-#include <vector>
-#include <list>
+#include <array>
 #include <deque>
-#include <set>
-#include <string>
-#include <stack>
+#include <list>
+#include <map>
 #include <queue>
+#include <set>
+#include <stack>
+#include <string>
 #include <utility>
-
+#include <vector>
 
 class SimpleWrapper {
     public:
@@ -60,6 +60,8 @@ class STLCheckpoint {
         std::multimap< std::string , int > string_key_multimap ;
         std::multimap< int , std::string > string_data_multimap ;
         std::multimap< std::string , std::string > string_multimap ;
+
+        std::array<int, 4> int_array;
 
         std::vector< double > double_vector ;
         std::vector< std::string > string_vector ;

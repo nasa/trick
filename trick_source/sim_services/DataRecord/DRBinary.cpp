@@ -6,17 +6,19 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
+#include "trick/DRBinary.hh"
+
+#include "trick/ReferenceUtils.hh"
+#include "trick/bitfield_proto.h"
+#include "trick/command_line_protos.h"
+#include "trick/memorymanager_c_intf.h"
+
+#include <fcntl.h>
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#include "trick/DRBinary.hh"
-#include "trick/command_line_protos.h"
-#include "trick/memorymanager_c_intf.h"
-#include "trick/bitfield_proto.h"
 
 /*
    Other classes inherit from DRBinary. In these cases, we don't want to register the memory as DRBinary,
@@ -110,10 +112,11 @@ int Trick::DRBinary::format_specific_init() {
             bytes += write( fd , rec_buffer[jj]->ref->attr->units , write_value ) ;
         }
 
-        write_value = rec_buffer[jj]->ref->attr->type ;
+        write_value  = (int)Trick::ReferenceUtils::effective_trick_type(rec_buffer[jj]->ref);
         bytes += write( fd , &write_value , sizeof(int)) ;
 
-        bytes += write( fd , &rec_buffer[jj]->ref->attr->size , sizeof(int)) ;
+        write_value  = (int)Trick::ReferenceUtils::effective_trick_size(rec_buffer[jj]->ref);
+        bytes       += write(fd, &write_value, sizeof(int));
     }
     total_bytes_written += bytes;
     return(0) ;
@@ -136,45 +139,47 @@ int Trick::DRBinary::format_specific_write_data(unsigned int writer_offset) {
 
     /* Write out all parameters */
     for (ii = 0; ii < rec_buffer.size() ; ii++) {
+        int item_size        = (int)Trick::ReferenceUtils::effective_trick_size(rec_buffer[ii]->ref);
+        TRICK_TYPE item_type = Trick::ReferenceUtils::effective_trick_type(rec_buffer[ii]->ref);
+        address              = rec_buffer[ii]->buffer + (writer_offset * item_size);
 
-        address = rec_buffer[ii]->buffer + ( writer_offset * rec_buffer[ii]->ref->attr->size ) ;
+        switch (item_type)
+        {
+        case TRICK_CHARACTER:
+        case TRICK_UNSIGNED_CHARACTER:
+        case TRICK_SHORT:
+        case TRICK_UNSIGNED_SHORT:
+        case TRICK_BOOLEAN:
+        case TRICK_ENUMERATED:
+        case TRICK_INTEGER:
+        case TRICK_UNSIGNED_INTEGER:
+        case TRICK_FLOAT:
+        case TRICK_LONG:
+        case TRICK_UNSIGNED_LONG:
+        case TRICK_LONG_LONG:
+        case TRICK_UNSIGNED_LONG_LONG:
+        case TRICK_STRUCTURED:
+        case TRICK_DOUBLE:
+            memcpy(writer_buff + len, address, (size_t)item_size);
+            break;
 
-        switch (rec_buffer[ii]->ref->attr->type) {
-            case TRICK_CHARACTER:
-            case TRICK_UNSIGNED_CHARACTER:
-            case TRICK_SHORT:
-            case TRICK_UNSIGNED_SHORT:
-            case TRICK_BOOLEAN:
-            case TRICK_ENUMERATED:
-            case TRICK_INTEGER:
-            case TRICK_UNSIGNED_INTEGER:
-            case TRICK_FLOAT:
-            case TRICK_LONG:
-            case TRICK_UNSIGNED_LONG:
-            case TRICK_LONG_LONG:
-            case TRICK_UNSIGNED_LONG_LONG:
-            case TRICK_STRUCTURED:
-            case TRICK_DOUBLE:
-                memcpy(writer_buff + len, address, (size_t)rec_buffer[ii]->ref->attr->size);
-                break;
+        case TRICK_BITFIELD:
+            sbf = GET_BITFIELD(address, rec_buffer[ii]->ref->attr->size, rec_buffer[ii]->ref->attr->index[0].start,
+                               rec_buffer[ii]->ref->attr->index[0].size);
+            memcpy(writer_buff + len, &sbf, (size_t)item_size);
+            break;
 
-            case TRICK_BITFIELD:
-                sbf = GET_BITFIELD(address, rec_buffer[ii]->ref->attr->size,
-                 rec_buffer[ii]->ref->attr->index[0].start, rec_buffer[ii]->ref->attr->index[0].size);
-                memcpy(writer_buff + len, &sbf, (size_t)rec_buffer[ii]->ref->attr->size);
-                break;
+        case TRICK_UNSIGNED_BITFIELD:
+            bf = GET_UNSIGNED_BITFIELD(address, rec_buffer[ii]->ref->attr->size,
+                                       rec_buffer[ii]->ref->attr->index[0].start,
+                                       rec_buffer[ii]->ref->attr->index[0].size);
+            memcpy(writer_buff + len, &bf, (size_t)item_size);
+            break;
 
-            case TRICK_UNSIGNED_BITFIELD:
-                bf = GET_UNSIGNED_BITFIELD(address, rec_buffer[ii]->ref->attr->size,
-                 rec_buffer[ii]->ref->attr->index[0].start, rec_buffer[ii]->ref->attr->index[0].size);
-                memcpy(writer_buff + len, &bf, (size_t)rec_buffer[ii]->ref->attr->size);
-                break;
-
-            default:
-                break;
+        default:
+            break;
         }
-        len += rec_buffer[ii]->ref->attr->size ;
-
+        len += item_size;
     }
 
     return write( fd , writer_buff , len) ;

@@ -13,12 +13,13 @@
 #endif
 
 #include "trick/DataRecordGroup.hh"
+#include "trick/ReferenceUtils.hh"
 #include "trick/command_line_protos.h"
 #include "trick/exec_proto.h"
-#include "trick/reference.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
+#include "trick/reference.h"
 
 /**
 @details
@@ -361,13 +362,29 @@ int Trick::DataRecordGroup::add_change_variable( std::string in_name ) {
 }
 
 bool Trick::DataRecordGroup::isSupportedType(REF2 * ref2, std::string& message) {
-    if (ref2->attr->type == TRICK_STRING || ref2->attr->type == TRICK_STL || ref2->attr->type == TRICK_STRUCTURED) {
-        message = "Cannot Data Record variable " + std::string(ref2->reference) + " of unsupported type " + std::to_string(ref2->attr->type);
+    // For STL-indexed paths the effective type is the element/member type, not TRICK_STL.
+    TRICK_TYPE eff_type = Trick::ReferenceUtils::effective_trick_type(ref2);
+
+    // Reject bare (unindexed) STL containers — user must index, e.g. vec[0]
+    if (ref2->attr->type == TRICK_STL && !Trick::ReferenceUtils::is_stl_ref(ref2))
+    {
+        message = "Cannot Data Record bare STL container " + std::string(ref2->reference)
+            + " (use indexed access, e.g. " + std::string(ref2->reference) + "[0])";
         return false;
     }
-    
-    // If this is an array and not a single value, don't record it
-    if (ref2->num_index != ref2->attr->num_index) {
+
+    if (eff_type == TRICK_STRING || eff_type == TRICK_WSTRING || eff_type == TRICK_STL || eff_type == TRICK_STRUCTURED
+        || eff_type == TRICK_NUMBER_OF_TYPES)
+    {
+        message = "Cannot Data Record variable " + std::string(ref2->reference) + " of unsupported type "
+            + std::to_string(eff_type);
+        return false;
+    }
+
+    // For STL-present paths skip the array dimension check — num_index/attr->num_index
+    // semantics do not apply when an STL container was indexed anywhere in the path.
+    if (!Trick::ReferenceUtils::is_stl_ref(ref2) && ref2->num_index != ref2->attr->num_index)
+    {
         message = "Cannot Data Record arrayed variable " + std::string(ref2->reference);
         return false;
     }
@@ -430,8 +447,9 @@ int Trick::DataRecordGroup::init(bool is_restart) {
         if ( drb->alias.compare("") ) {
             drb->ref->reference = strdup(drb->alias.c_str()) ;
         }
-        drb->last_value = (char *)calloc(1 , drb->ref->attr->size) ;
-        drb->buffer = (char *)calloc(max_num , drb->ref->attr->size) ;
+        size_t elem_size  = Trick::ReferenceUtils::effective_trick_size(drb->ref);
+        drb->last_value   = (char*)calloc(1, elem_size);
+        drb->buffer       = (char*)calloc(max_num, elem_size);
         drb->ref_searched = true ;
     }
 
@@ -666,9 +684,9 @@ int Trick::DataRecordGroup::write_header() {
     for (jj = 0; jj < rec_buffer.size() ; jj++) {
         /*! recording single data item */
         out_stream << "log_" << group_name << "\t"
-            << type_string(rec_buffer[jj]->ref->attr->type,
-                           rec_buffer[jj]->ref->attr->size) << "\t"
-            << std::setw(6) ;
+                   << type_string((int)Trick::ReferenceUtils::effective_trick_type(rec_buffer[jj]->ref),
+                                  (int)Trick::ReferenceUtils::effective_trick_size(rec_buffer[jj]->ref))
+                   << "\t" << std::setw(6);
 
         if ( rec_buffer[jj]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
             out_stream << "--" ;
@@ -731,7 +749,7 @@ int Trick::DataRecordGroup::data_record(double in_time) {
                 for (jj = 0; jj < rec_buffer.size() ; jj++) {
                     drb = rec_buffer[jj] ;
                     REF2 * ref = drb->ref ;
-                    int param_size = ref->attr->size ;
+                    int param_size = (int)Trick::ReferenceUtils::effective_trick_size(ref);
                     if ( buffer_offset == 0 ) {
                        drb->curr_buffer = drb->buffer ;
                     } else {
@@ -762,10 +780,11 @@ int Trick::DataRecordGroup::data_record(double in_time) {
             for (jj = 0; jj < rec_buffer.size() ; jj++) {
                 drb = rec_buffer[jj] ;
                 REF2 * ref = drb->ref ;
-                if ( ref->pointer_present == 1 ) {
+                if (ref->pointer_present == 1 && !Trick::ReferenceUtils::is_stl_ref(ref))
+                {
                     ref->address = follow_address_path(ref) ;
                 }
-                int param_size = ref->attr->size ;
+                int param_size = (int)Trick::ReferenceUtils::effective_trick_size(ref);
                 if ( buffer_offset == 0 ) {
                    drb->curr_buffer = drb->buffer ;
                 } else {
