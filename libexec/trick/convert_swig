@@ -139,7 +139,7 @@ if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
 }
 
 if ( scalar @ARGV == 0 ) {
-    my ($s_library_swig) = "build/S_library_swig";
+    my ($s_library_swig) = "$ENV{TRICK_BUILD_DIR}build/S_library_swig";
     open FILE_LIST, $s_library_swig or die "Could not open $s_library_swig";
     while (<FILE_LIST>) {
         chomp;
@@ -151,7 +151,7 @@ if ( scalar @ARGV == 0 ) {
         $base_file =~ s/\.[^\.]+$//;
 
         $swig_dir  = dirname($f);
-        $swig_dir  = "build/$swig_dir";
+        $swig_dir  = "$ENV{TRICK_BUILD_DIR}build/$swig_dir";
         $swig_file = "$swig_dir/${base_file}_py.i";
 
         #print "$swig_file\n" ;
@@ -195,7 +195,6 @@ process_file();
 sub process_file() {
 
 ##  Foreach out_of_date header file, generate a SWIG interface file.
-
     foreach my $f ( keys %out_of_date ) {
 
         my @class_names;
@@ -284,7 +283,7 @@ sub process_file() {
                         next outer;
                     }
                 }
-                $file_name = "build" . $file_name;
+                $file_name = "$ENV{TRICK_BUILD_DIR}build" . $file_name;
                 $file_name =~ s/\.[^\.]+?$/\_py.i/;
                 $contents .= "\%import \"$file_name\"\n";
             }
@@ -301,14 +300,8 @@ sub process_file() {
 
         my $md5_sum = md5_hex($f);
 
-        my ($out_dir) = dirname($f);
-        $out_dir = "build$out_dir";
-
-        my $out_file;
-        $out_file = basename($f);
-        $out_file =~ s/(\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/_py\.i/;
-
-        $out_file = "$out_dir/${out_file}";
+        my $out_file = "$ENV{TRICK_BUILD_DIR}build" . get_dot_i_name($f);
+        my ($out_dir) = dirname($out_file);
 
         if ( !-e $out_dir ) {
             make_path($out_dir);
@@ -370,7 +363,6 @@ sub process_file() {
 
         print "[34mWriting[0m    $out_file\n" if not verbose_build();
     }
-
 }
 
 sub usage() {
@@ -900,6 +892,23 @@ sub process_typedef_const_struct($$$$) {
     ( $extracted, $$contents_ref ) = extract_bracketed( "{" . $$contents_ref, "{}" );
     $$contents_ref =~ s/^(\s*([\w,\s\*]+)?\s*;)//sx;
 
+}
+
+## ================================================================================
+## get_dot_i_name
+##
+## Synopsis
+##
+## Takes the path to a header file. Returns the path formatted as a SWIG .i file.
+##
+
+sub get_dot_i_name($) {
+    my ($path) = @_;
+
+    my ($i_dir) = dirname($path);
+    my $i_file = basename($path);
+    $i_file =~ s/(\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/_py\.i/;
+    $i_file = "$i_dir/${i_file}";
 }
 
 __END__

@@ -36,8 +36,9 @@ PROGRAMMERS:
 #include <iostream>
 
 // Model include files.
-#include "BallState.hh"
 #include "BallForce.hh"
+#include "BallState.hh"
+#include "TemplateTest.hh"
 
 /** @class Ball
     @brief ball in C++
@@ -72,7 +73,9 @@ class Ball {
    BallState state; /**< -- Ball state object. */
    BallForce force; /**< -- Ball force object. */
 
+   double test_double;
 
+   TemplateTest<double, 100> dtt;
 };
 
 #ifdef SWIG

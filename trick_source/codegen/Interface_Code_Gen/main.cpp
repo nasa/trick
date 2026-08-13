@@ -146,6 +146,94 @@ const char * gcc_version = "";
     }
 #endif
 }
+
+void run_print_mode(std::string print_mode_file, PrintAttributes& pa)
+{
+    std::ifstream file_list(print_mode_file);
+    std::vector<std::string> files;
+
+    if (!file_list.fail())
+    {
+        std::string line;
+        while (std::getline(file_list, line))
+        {
+            files.push_back(line);
+        }
+    }
+
+    std::map<std::string, std::string> all_io_files;
+    std::set<std::string> empty_files;
+    std::set<std::string> ext_lib_io_files;
+    std::vector<std::string> icg_no_files;
+
+    std::ifstream all_files_list(trick_build_dir + "build/trickify/ICG_all_file_list");
+    std::ifstream all_io_files_list(trick_build_dir + "build/trickify/ICG_all_io_file_list");
+    std::ifstream empty_files_list(trick_build_dir + "build/trickify/ICG_empty_file_list");
+    std::ifstream ext_files_list(trick_build_dir + "build/trickify/ICG_ext_file_list");
+    std::ifstream no_found_list(trick_build_dir + "build/trickify/ICG_no_found_file_list");
+
+    // Populate io files
+    if (!all_files_list.fail() && !all_io_files_list.fail())
+    {
+        std::string line_first, line_second;
+        while (std::getline(all_files_list, line_first) && std::getline(all_io_files_list, line_second))
+        {
+            all_io_files[line_first] = line_second;
+        }
+    }
+    else
+    {
+        exit(1);
+    }
+
+    // Populate empty files
+    if (!empty_files_list.fail())
+    {
+        std::string line;
+        while (std::getline(empty_files_list, line))
+        {
+            empty_files.insert(line);
+        }
+    }
+    else
+    {
+        exit(1);
+    }
+
+    // Populate ext libs
+    if (!ext_files_list.fail())
+    {
+        std::string line;
+        while (std::getline(ext_files_list, line))
+        {
+            ext_lib_io_files.insert(line);
+        }
+    }
+    else
+    {
+        exit(1);
+    }
+
+    // Populate no-icg found list
+    if (!no_found_list.fail())
+    {
+        std::string line;
+        while (std::getline(no_found_list, line))
+        {
+            icg_no_files.push_back(line);
+        }
+    }
+    else
+    {
+        exit(1);
+    }
+
+    pa.printIOMakefile(all_io_files, ext_lib_io_files, icg_no_files);
+    pa.printICGNoFiles(icg_no_files);
+
+    return;
+}
+
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:
 
@@ -157,6 +245,13 @@ Most of the main program is pieced together from examples on the web. We are doi
 -# Parsing the input file.
 */
 int main(int argc, char * argv[]) {
+    const char* trick_build_dir_ptr = std::getenv("TRICK_BUILD_DIR");
+    if (!trick_build_dir_ptr)
+    {
+        trick_build_dir_ptr = "";
+    }
+    trick_build_dir = trick_build_dir_ptr;
+
     llvm::cl::SetVersionPrinter([]
 #if (LIBCLANG_MAJOR >= 6)
         (llvm::raw_ostream& stream) {stream
@@ -174,16 +269,33 @@ int main(int argc, char * argv[]) {
      * libclang-cpp.so.
      * TODO: Troubleshoot or contact LLVM for a fix.
      */
+    bool print_mode             = false;
+    std::string print_mode_file = "";
     std::vector<const char *> filtered_args;
     for ( unsigned int ii = 0;  ii < argc ; ii++ ) {
-        if( strncmp(argv[ii], "-W", 2) ) {
+        if (!strncmp(argv[ii], "--printIO", 9))
+        {
+            if (ii + 1 >= argc)
+            {
+                std::cout << "Must provide path for print mode." << std::endl;
+                return 1;
+            }
+            filtered_args.push_back(argv[ii]);
+            std::cout << "ICG Print IO Mode" << std::endl;
+            print_mode      = true;
+            print_mode_file = argv[ii + 1];
+            ii++;
+        }
+        else if (strncmp(argv[ii], "-W", 2))
+        {
             filtered_args.push_back(argv[ii]);
         }
     }
 
     llvm::cl::ParseCommandLineOptions(filtered_args.size(), filtered_args.data());
 
-    if (input_file_names.empty()) {
+    if (input_file_names.empty() && !print_mode)
+    {
         std::cerr << "No header file specified" << std::endl;
         return 1;
     }
@@ -314,6 +426,14 @@ int main(int argc, char * argv[]) {
     pp.addCommentHandler(&cs);
 
     PrintAttributes printAttributes(attr_version, hsd, cs, ci, force, sim_services_flag, output_dir);
+
+    if (print_mode)
+    {
+        run_print_mode(print_mode_file, printAttributes);
+        printAttributes.createMapFiles();
+        printAttributes.closeMapFiles(print_mode);
+        return 0;
+    }
 
     printAttributes.addIgnoreTypes() ;
     // Create new class and enum map files
