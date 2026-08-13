@@ -16,8 +16,10 @@ PROGRAMMERS:
 #include "trick/message_proto.h"
 #include "trick/bitfield_proto.h"
 
-Trick::DRHDF5::DRHDF5( std::string in_name, Trick::DR_Type dr_type ) : Trick::DataRecordGroup(in_name, dr_type) {
-    register_group_with_mm(this, "Trick::DRHDF5") ;
+Trick::DRHDF5::DRHDF5( std::string in_name, bool register_group, Trick::DR_Type dr_type ) : Trick::DataRecordGroup(in_name, dr_type) {
+    if ( register_group ) {
+        register_group_with_mm(this, "Trick::DRHDF5") ;
+    }
 }
 
 int Trick::DRHDF5::format_specific_header( std::fstream & out_stream ) {
