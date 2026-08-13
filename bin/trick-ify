@@ -531,6 +531,7 @@ if ( $s_overrides_dir ne "" ) {
         $s_overrides,
         $build_dir,
         \%SHELL_ENV,
+        $build_dir,
         (
             "TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR",   "TRICK_CFLAGS",
             "TRICK_CXXFLAGS",      "TRICK_SFLAGS",         "TRICK_SYSTEM_CXXFLAGS", "TRICK_SYSTEM_SWIG_CFLAGS",

@@ -10,7 +10,7 @@ use verbose_build;
 use trick_version;
 use Digest::MD5 qw(md5_hex);
 @ISA    = qw(Exporter);
-@EXPORT = qw(get_lib_deps write_lib_deps get_s_source_deps trickify_map_fake_deps);
+@EXPORT = qw(get_lib_deps write_lib_deps get_s_source_deps);
 
 use strict;
 
