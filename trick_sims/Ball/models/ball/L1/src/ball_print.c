@@ -9,14 +9,16 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-     /* GLOBAL DATA STRUCTURE DECLARATIONS */
-#include <stdio.h>
-#include "ball/L1/include/ball_state.h"
-#include "sim_services/Executive/include/exec_proto.h"
-#include "sim_services/Message/include/message_proto.h"
+/* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "ball/L1/include/ball_proto.h"
+#include "ball/L1/include/ball_state.h"
 
-     /* ENTRY POINT */
+#include "trick/exec_proto.h"
+#include "trick/message_proto.h"
+
+#include <stdio.h>
+
+/* ENTRY POINT */
 int ball_print( /* RETURN: -- Integration multi-step id */
   BSTATE *S )   /* INOUT:  -- Ball EOM state parameters */
 {
@@ -30,4 +32,3 @@ int ball_print( /* RETURN: -- Integration multi-step id */
 
     return( 0 ) ;
 }
-

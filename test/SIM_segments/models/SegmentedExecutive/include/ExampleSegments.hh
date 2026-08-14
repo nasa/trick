@@ -10,7 +10,8 @@ LIBRARY_DEPENDENCIES:
 #define EXAMPLESEGMENTS_HH
 
 #include "SegmentedExecutive/include/Segment.hh"
-#include "sim_services/Integrator/include/IntegLoopScheduler.hh"
+
+#include "trick/IntegLoopScheduler.hh"
 
 class SegmentA : public Trick::Segment {
     public:

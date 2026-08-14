@@ -773,7 +773,7 @@ text in bold indicates code which will be unchanged regardless of the parameters
 
 ```C++
 #include "dynamics/v2/dynamics.h"
-#include "sim_services/include/collect_macros.h"
+#include "trick/collect_macros.h"
 
 int derivative_job( DYN_ROT * R ) {
 
