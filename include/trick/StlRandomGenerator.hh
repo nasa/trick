@@ -35,19 +35,13 @@
 
 #include "trick/rand_generator.h"
 
-#if (defined(_HAVE_TR1_RANDOM) || defined(_HAVE_STL_RANDOM))
 #include <random>
 
-// The template types of the std::poisson_distribution differ between c++0x and c++11
-#if (defined(_HAVE_TR1_RANDOM) && !defined(STL_POISSON_TEMPLATE_TYPES))
-#define STL_POISSON_TEMPLATE_TYPES int, double
-#endif
-
-#if (defined(_HAVE_STL_RANDOM) && !defined(STL_POISSON_TEMPLATE_TYPES))
-#define STL_POISSON_TEMPLATE_TYPES int
-#endif
-
-#endif
+///@brief The concrete engine that StlRandomGenerator::TRICK_DEFAULT_ENGINE selects.
+///
+///@details This is the single source of truth for Trick's default engine. Change it
+///         here to re-point TRICK_DEFAULT_ENGINE; the factory follows automatically.
+using TrickDefaultEngine = std::mt19937;
 
 class StlRandomGeneratorFactory;
 
@@ -58,33 +52,16 @@ class StlRandomGenerator
 public:
 
     /**@brief A random number generation engine type enum.
-        Used for TR1 and C++11 random number generation facilities
+        Used for the C++ <random> number generation facilities
     */
-    ///@warning with GCC 4.4.7, -std=c++0x, MINSTD_RAND_ENGINE,MT19937_ENGINE
-    ///         'engines' return pseudo-random numbers outside the cannonical range of 0 <= x < 1.
-    ///
-    ///                 This causes an __INFINITE LOOP__ within the std::normal_distribution.
-    ///
-    ///
-    ///         For TR1 compilers with this problem, use RANLUX_BASE_01_ENGINE or RANLUX_64_BASE_01_ENGINE
-    ///         which return within the cannonical range.
-    ///
     ///@note when adding new engine types, coordinate values with MonteVarRandom.
     enum StlEngine {
-        TRICK_DEFAULT_ENGINE     = 1, /**< -- std::ranlux_base_01 for TR1, std::mt19937 for _HAVE_STD_RANDOM */
+        TRICK_DEFAULT_ENGINE     = 1, /**< -- whichever engine ::TrickDefaultEngine names */
 
-#ifdef _HAVE_TR1_RANDOM
-        RANLUX_BASE_01_ENGINE    = 2, /**< -- TR1 only std::ranlux_base_01 Engine, note: replaced for c++11 */
-        RANLUX_64_BASE_01_ENGINE = 3, /**< -- TR1 only std::ranlux64_base_01 Engine, note: replaced for c++11 */
-#endif
-
-#ifdef _HAVE_STL_RANDOM
-        // NOTE: MINSTD_RAND_ENGINE and MT19937_ENGINE return out of canonical range
-        // for (at least) GCC 4.4.7,so are not provided for _HAVE_TR1_RANDOM
         MINSTD_RAND_ENGINE       = 2, /**< -- std::minstd_rand Minimal Standard Linear Congruential Engine */
         MT19937_ENGINE           = 3, /**< -- std::mt19937 Mersenne Twister Engine */
 
-        MT19937_64_ENGINE        = 4, /**< -- std::mt19937_64  64 bit Mersenne Twister Engine. Not available TR1 */
+        MT19937_64_ENGINE        = 4, /**< -- std::mt19937_64  64 bit Mersenne Twister Engine */
 
         RANLUX_24_BASE_ENGINE    = 5, /**< -- std::ranlux24_base Engine */
         RANLUX_44_BASE_ENGINE    = 6, /**< -- std::ranlux48_base Engine */
@@ -93,7 +70,6 @@ public:
         RANLUX_44_ENGINE         = 8, /**< -- std::ranlux48 Engine */
 
         KNUTH_B_ENGINE           = 9 /**< -- std::knuth_b Engine */
-#endif
     };
 
     /** A random distribution. */
@@ -134,7 +110,6 @@ public:
     ///@brief reset parameters for the distribution
     ///@param a is min for FLAT, mean for GAUSSION and POISSON
     ///@param b is max for FLAT, sigma for GAUSSION and unused for POISSON
-    ///@note For TR1, set_param replaces the distribution via operator=
     virtual void set_param(double a, double b = 0.0) = 0;
 
     double get_param_a() const { return param_a; }
@@ -170,17 +145,8 @@ protected:
 
 
 
-#if (defined(_HAVE_TR1_RANDOM) || defined(_HAVE_STL_RANDOM))
-
 // include StlRandomGenerator subclass
 #include "trick/StlRandomGeneratorSub.hh"
-
-
-#else
-    // do nothing class may be needed if no <random> ??
-    // may not if the base class is always a pointer (nullpointer) if not instantiated.
-
-#endif // _HAVE_TR1_RANDOM or _HAVE_STL_RANDOM
 
 
 #endif // StlRandomGenerator_EXISTS
