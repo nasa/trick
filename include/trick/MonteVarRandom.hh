@@ -44,28 +44,19 @@ namespace Trick {
         public:
         ///@brief Random number generation engine type.
         ///
-        ///@details Used for TR1 and C++11 random number generation facilities
+        ///@details Used for the C++ <random> number generation facilities
         ///
         ///@note: Values for this type must match those of StlRandomGenerator::StlEngine
         ///
         enum StlEngine {
             NO_ENGINE                = 0, /**< -- This selection causes the Trick hand coded fallback algorithms to be used */
 
-            TRICK_DEFAULT_ENGINE     = 1, /**< -- std::ranlux_base_01 for TR1, std::mt19937 for _HAVE_STD_RANDOM */
-
-#ifdef _HAVE_TR1_RANDOM
-            RANLUX_BASE_01_ENGINE    = 2, /**< -- TR1 only std::ranlux_base_01 Engine, note: replaced for c++11 */
-            RANLUX_64_BASE_01_ENGINE = 3, /**< -- TR1 only std::ranlux64_base_01 Engine, note: replaced for c++11 */
-#endif
-
-#ifdef _HAVE_STL_RANDOM
-            // NOTE: MINSTD_RAND_ENGINE and MT19937_ENGINE return out of canonical range
-            // for (at least) GCC 4.4.7,so are not provided for _HAVE_TR1_RANDOM
+            TRICK_DEFAULT_ENGINE     = 1, /**< -- std::mt19937 Mersenne Twister Engine */
 
             MINSTD_RAND_ENGINE       = 2, /**< -- std::minstd_rand Minimal Standard Linear Congruential Engine */
             MT19937_ENGINE           = 3, /**< -- std::mt19937 Mersenne Twister Engine */
 
-            MT19937_64_ENGINE        = 4, /**< -- std::mt19937_64  64 bit Mersenne Twister Engine. Not available TR1 */
+            MT19937_64_ENGINE        = 4, /**< -- std::mt19937_64  64 bit Mersenne Twister Engine */
 
             RANLUX_24_BASE_ENGINE    = 5, /**< -- std::ranlux24_base Engine */
             RANLUX_44_BASE_ENGINE    = 6, /**< -- std::ranlux48_base Engine */
@@ -74,7 +65,6 @@ namespace Trick {
             RANLUX_44_ENGINE         = 8, /**< -- std::ranlux48 Engine */
 
             KNUTH_B_ENGINE           = 9  /**< -- std::knuth_b Engine */
-#endif
         };
 
         /** A random distribution. */

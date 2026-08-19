@@ -638,8 +638,6 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_nonGslSigmaRangeDefaulted_maxD
 
 #endif // not _HAVE_GSL
 
-#if (defined(_HAVE_TR1_RANDOM) || defined(_HAVE_STL_RANDOM))
-
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_distributionMatchesSpec) {
     //req.add_requirement("3932595803");
     std::string str ;
@@ -880,7 +878,5 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_setSeed_TakesEffect) {
 
     EXPECT_NEAR(first_value, second_value, 0.000001) ;
 }
-
-#endif // _HAVE_TR1_RANDOM or _HAVE_STL_RANDOM
 
 }
