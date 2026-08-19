@@ -11,31 +11,29 @@
    We also print a warning to the screen where the TRICK_ICG was found.
  */
 
-class FindTrickICG : public clang::PPCallbacks {
+class FindTrickICG final : public clang::PPCallbacks {
   public:
     FindTrickICG(clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd , bool in_print_msgs ) ;
 
     // called when the file changes for a variety of reasons.
-    virtual void FileChanged(clang::SourceLocation Loc, FileChangeReason Reason,
+    void FileChanged(clang::SourceLocation Loc, FileChangeReason Reason,
                            clang::SrcMgr::CharacteristicKind FileType,
-                           clang::FileID PrevFID = clang::FileID()) ;
+                           clang::FileID PrevFID = clang::FileID()) override;
 
 #if (LIBCLANG_MAJOR < 10) // TODO delete when RHEL 7 no longer supported
-  virtual void FileSkipped(const clang::FileEntry &SkippedFile,
-                           const clang::Token &FilenameTok,
-                           clang::SrcMgr::CharacteristicKind FileType) ;
+        void FileSkipped(const clang::FileEntry& SkippedFile, const clang::Token& FilenameTok,
+                         clang::SrcMgr::CharacteristicKind FileType) override;
 #else
-    // called when a header file is skipped because of a header guard optimization.
-    virtual void FileSkipped(const clang::FileEntryRef & SkippedFile,
-                        const clang::Token & FilenameTok,
-                        clang::SrcMgr::CharacteristicKind FileType) ;
+        // called when a header file is skipped because of a header guard optimization.
+        void FileSkipped(const clang::FileEntryRef& SkippedFile, const clang::Token& FilenameTok,
+                         clang::SrcMgr::CharacteristicKind FileType) override;
 #endif
 
     // callbacks called when the preprocessor directives of types are processed.
-    virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
-    virtual void ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
-    virtual void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
-    virtual void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
+    void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) override ;
+    void Elif(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue, clang::SourceLocation IfLoc) override ;
+    void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) override ;
+    void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) override ;
 
     // print a warning about using TRICK_ICG.
     void print_header() ;
@@ -51,7 +49,7 @@ class FindTrickICG : public clang::PPCallbacks {
     bool print_msgs ;
 
     // Have we printed the big warning about TRICK_ICG?
-    bool header_printed ;
+    bool header_printed = false ;
 
     // Using a vector as a stack to hold the stack of included headers we have entered.
     std::vector<std::string> included_files ;

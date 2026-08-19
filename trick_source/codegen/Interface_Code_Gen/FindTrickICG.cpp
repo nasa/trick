@@ -6,7 +6,7 @@
 #include "Utilities.hh"
 
 FindTrickICG::FindTrickICG(clang::CompilerInstance & in_ci, HeaderSearchDirs & in_hsd , bool in_print_msgs )
- : ci(in_ci) , hsd(in_hsd) , print_msgs(in_print_msgs) , header_printed(false) { }
+ : ci(in_ci) , hsd(in_hsd) , print_msgs(in_print_msgs) { }
 
 void FindTrickICG::FileChanged(clang::SourceLocation Loc, FileChangeReason Reason,
                          clang::SrcMgr::CharacteristicKind FileType,
@@ -96,7 +96,7 @@ void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRan
     }
 }
 
-void FindTrickICG::ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue)
+void FindTrickICG::Elif(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue, clang::SourceLocation IfLoc)
 {
     // Do the same processing for an #elif statement as an #if statement.
     If(Loc,ConditionRange,ConditionValue) ;
