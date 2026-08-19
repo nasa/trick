@@ -187,7 +187,7 @@ int main(int argc, char * argv[]) {
         std::cerr << "No header file specified" << std::endl;
         return 1;
     }
-    clang::CompilerInstance ci ;
+    clang::CompilerInstance ci;
 
 #if (LIBCLANG_MAJOR >= 22)
     ci.createDiagnostics();
@@ -247,9 +247,9 @@ int main(int argc, char * argv[]) {
 #elif (LIBCLANG_MAJOR >= 12)
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
 #elif (LIBCLANG_MAJOR >= 10)
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo) ;
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo);
 #else
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo) ;
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo);
 #endif
 
     // setting the language defaults clears some of the language opts, set them again.
@@ -275,7 +275,7 @@ int main(int argc, char * argv[]) {
 #endif
 
     auto ftg = std::make_unique<FindTrickICG>(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
-    pp.addPPCallbacks(std::move(ftg)) ;
+    pp.addPPCallbacks(std::move(ftg));
 
     pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
     // Add all of the #define from the command line to the default predefines
@@ -323,9 +323,11 @@ int main(int argc, char * argv[]) {
 #endif
     free(inputFilePath);
 #if (LIBCLANG_MAJOR < 18)
-    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
+    ci.getSourceManager().setMainFileID(
+        ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
-    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
+    ci.getSourceManager().setMainFileID(
+        ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #endif
     ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
     ci.getDiagnostics().setClient(icgDiagConsumer);

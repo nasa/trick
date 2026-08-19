@@ -14,8 +14,9 @@ CommentSaver::CommentSaver(clang::CompilerInstance & in_ci , HeaderSearchDirs & 
 bool CommentSaver::HandleComment(clang::Preprocessor &PP, clang::SourceRange Comment) {
 
     //Comment.getBegin().dump(sm) ;
-    if ( isInUserOrTrickCode( ci , Comment.getBegin() , hsd ) ) {
-        std::string file_name = ci.getSourceManager().getBufferName(Comment.getBegin()).str() ;
+    if (isInUserOrTrickCode(ci, Comment.getBegin(), hsd))
+    {
+        std::string file_name = ci.getSourceManager().getBufferName(Comment.getBegin()).str();
         char * resolved_path = almostRealPath( file_name.c_str() ) ;
         if ( resolved_path != NULL ) {
             unsigned int line_no = ci.getSourceManager().getSpellingLineNumber(Comment.getBegin()) ;

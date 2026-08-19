@@ -1,16 +1,5 @@
-
-#include <algorithm>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <string.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <math.h>
-
-#include <cxxabi.h>
-
 #include "trick/DataRecordGroup.hh"
+
 #include "trick/ReferenceUtils.hh"
 #include "trick/command_line_protos.h"
 #include "trick/exec_proto.h"
@@ -18,6 +7,16 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/reference.h"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <iomanip>
+#include <iostream>
+#include <math.h>
+#include <sstream>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
 
 /**
 @details
