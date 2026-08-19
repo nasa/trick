@@ -108,11 +108,7 @@ namespace Trick {
 
         void deriv2_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+        __attribute__((sentinel))
 #endif
         ;
         void initialize( int State_size, double Dt);

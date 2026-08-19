@@ -188,9 +188,6 @@ int main(int argc, char * argv[]) {
         return 1;
     }
     clang::CompilerInstance ci ;
-#if (LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR < 9)
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts() , clang::IK_CXX) ;
-#endif
 
 #if (LIBCLANG_MAJOR >= 22)
     ci.createDiagnostics();
@@ -228,7 +225,6 @@ int main(int argc, char * argv[]) {
     ppo.UsePredefines = true;
 
     // Set the default target architecture
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     clang::TargetOptions to;
     if ( m32 ) {
         to.Triple = llvm::Triple(llvm::sys::getDefaultTargetTriple()).get32BitArchVariant().str();
@@ -243,20 +239,8 @@ int main(int argc, char * argv[]) {
 #endif
     ci.setTarget(pti);
     ci.createPreprocessor(clang::TU_Complete);
-#else
-    clang::TargetOptions * to = new clang::TargetOptions() ;
-    if ( m32 ) {
-        to->Triple = llvm::Triple(llvm::sys::getDefaultTargetTriple()).get32BitArchVariant().str();
-    } else {
-        to->Triple = llvm::sys::getDefaultTargetTriple();
-    }
-    clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), to);
-    ci.setTarget(pti);
-    ci.createPreprocessor();
-#endif
 
     // Set all of the defaults to c++
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
     llvm::Triple trip (to.Triple) ;
 #if (LIBCLANG_MAJOR >= 15)
     clang::LangOptions::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes);
@@ -264,16 +248,13 @@ int main(int argc, char * argv[]) {
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
 #elif (LIBCLANG_MAJOR >= 10)
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo) ;
-#elif (LIBCLANG_MAJOR >= 5)
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo) ;
 #else
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::IK_CXX, trip, ppo) ;
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo) ;
 #endif
 
     // setting the language defaults clears some of the language opts, set them again.
     set_lang_opts(ci);
 
-#endif
     clang::Preprocessor& pp = ci.getPreprocessor();
 
 #if (LIBCLANG_MAJOR >= 10) && (LIBCLANG_MAJOR < 18)
@@ -293,19 +274,10 @@ int main(int argc, char * argv[]) {
     const auto BOU_FALSE_VAL = llvm::cl::BOU_FALSE;
 #endif
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 6))
     auto ftg = std::make_unique<FindTrickICG>(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
     pp.addPPCallbacks(std::move(ftg)) ;
-#else
-    FindTrickICG* ftg = new FindTrickICG(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
-    pp.addPPCallbacks(ftg) ;
-#endif
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 8))
     pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
-#else
-    pp.getBuiltinInfo().InitializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
-#endif
     // Add all of the #define from the command line to the default predefines
     hsd.addDefines(defines);
 
@@ -323,11 +295,7 @@ int main(int argc, char * argv[]) {
 
     // Tell the compiler to use our ICGASTconsumer
     ICGASTConsumer* astConsumer = new ICGASTConsumer(ci, hsd, cs, printAttributes);
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 6))
     ci.setASTConsumer(std::move(std::unique_ptr<clang::ASTConsumer>(astConsumer)));
-#else
-    ci.setASTConsumer(astConsumer);
-#endif
     ci.createASTContext();
     ci.createSema(clang::TU_Complete, NULL);
 
@@ -354,12 +322,10 @@ int main(int argc, char * argv[]) {
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
 #endif
     free(inputFilePath);
-#if ((LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18)) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+#if (LIBCLANG_MAJOR < 18)
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
-#elif (LIBCLANG_MAJOR >= 18)
-    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
-    ci.getSourceManager().createMainFileID(fileEntry);
+    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #endif
     ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
     ci.getDiagnostics().setClient(icgDiagConsumer);

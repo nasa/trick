@@ -3,9 +3,7 @@
 #include <algorithm>
 #include <dlfcn.h>
 
-#ifdef __GNUC__
 #include <cxxabi.h>
-#endif
 
 #include "trick/SimObject.hh"
 #include "trick/MemoryManager.hh"

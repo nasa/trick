@@ -67,11 +67,7 @@ void FindTrickICG::FileSkipped(const clang::FileEntryRef & SkippedFile, const cl
 }
 
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
 void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue)
-#else
-void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue)
-#endif
 {
     if ( ConditionRange.isValid() ) {
         // Get the full text of the if statement into a string
@@ -100,21 +96,13 @@ void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRan
     }
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
 void FindTrickICG::ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue)
-#else
-void FindTrickICG::ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue)
-#endif
 {
     // Do the same processing for an #elif statement as an #if statement.
     If(Loc,ConditionRange,ConditionValue) ;
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
 void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
-#else
-void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD)
-#endif
 {
     // Get the token name that is being tested.
     std::string name = MacroNameTok.getIdentifierInfo()->getName().str() ;
@@ -137,11 +125,7 @@ void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNam
 
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
 void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
-#else
-void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD)
-#endif
 {
     // Get the token name that is being tested.
     std::string name = MacroNameTok.getIdentifierInfo()->getName().str() ;
