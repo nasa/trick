@@ -8,9 +8,7 @@
 #include <iomanip>
 #include <math.h>
 
-#ifdef __GNUC__
 #include <cxxabi.h>
-#endif
 
 #include "trick/DataRecordGroup.hh"
 #include "trick/ReferenceUtils.hh"

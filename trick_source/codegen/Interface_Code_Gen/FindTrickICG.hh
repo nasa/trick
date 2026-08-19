@@ -20,32 +20,16 @@ class FindTrickICG : public clang::PPCallbacks {
                            clang::SrcMgr::CharacteristicKind FileType,
                            clang::FileID PrevFID = clang::FileID()) ;
 
-#if (LIBCLANG_MAJOR < 10) // TODO delete when RHEL 7 no longer supported
-  virtual void FileSkipped(const clang::FileEntry &SkippedFile,
-                           const clang::Token &FilenameTok,
-                           clang::SrcMgr::CharacteristicKind FileType) ;
-#else
     // called when a header file is skipped because of a header guard optimization.
     virtual void FileSkipped(const clang::FileEntryRef & SkippedFile,
                         const clang::Token & FilenameTok,
                         clang::SrcMgr::CharacteristicKind FileType) ;
-#endif
 
     // callbacks called when the preprocessor directives of types are processed.
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
     virtual void ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
-#else
-    virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue) ;
-    virtual void ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue) ;
-#endif
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
     virtual void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
     virtual void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
-#else
-    virtual void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD) ;
-    virtual void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD) ;
-#endif
 
     // print a warning about using TRICK_ICG.
     void print_header() ;

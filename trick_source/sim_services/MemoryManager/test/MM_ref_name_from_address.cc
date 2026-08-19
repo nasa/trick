@@ -55,7 +55,6 @@ TEST_F(MM_ref_name_from_address, test4) {
 
 }
 
-#if __GNUC__ > 4
 TEST_F(MM_ref_name_from_address, test5) {
   int i;
   double d;
@@ -113,7 +112,6 @@ TEST_F(MM_ref_name_from_address, test8) {
   EXPECT_EQ("&udt4_st.dbl", ref_name);
 
 }
-#endif
 
 TEST_F(MM_ref_name_from_address, test9) {
 

@@ -12,9 +12,7 @@
 #include <sstream>
 #include <type_traits>
 
-#ifdef __GNUC__
 #include <cxxabi.h>
-#endif
 
 #include "trick/checkpoint_sequence_stl.hh"
 #include "checkpoint_stl_protos.hh"

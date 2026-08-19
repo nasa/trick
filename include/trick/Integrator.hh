@@ -73,11 +73,7 @@ namespace Trick {
 #endif
         void state_in (double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+        __attribute__((sentinel))
 #endif
         ;
 #ifndef SWIGPYTHON
@@ -85,11 +81,7 @@ namespace Trick {
 #endif
         void deriv_in (double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+        __attribute__((sentinel))
 #endif
         ;
 #ifndef SWIGPYTHON
@@ -97,11 +89,7 @@ namespace Trick {
 #endif
         void state_out(double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+        __attribute__((sentinel))
 #endif
         ;
 
@@ -110,11 +98,7 @@ namespace Trick {
 #endif
         void deriv2_in (double* arg1, ...)
 #ifndef SWIGPYTHON
-        #ifdef __GNUC__
-          #if __GNUC__ >= 4
-          __attribute__((sentinel))
-          #endif
-        #endif
+        __attribute__((sentinel))
 #endif
         ;
 

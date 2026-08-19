@@ -13,9 +13,7 @@
 #include <functional>
 #include <string>
 #include <type_traits>
-#ifdef __GNUC__
 #include <cxxabi.h>
-#endif
 
 #include "checkpoint_is_stl_container.hh"
 #include "checkpoint_stl_protos.hh"

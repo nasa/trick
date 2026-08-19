@@ -145,7 +145,6 @@ ifeq ($(IS_CC_CLANG), 1)
    TRICK_SYSTEM_CXXFLAGS += -fcolor-diagnostics
 else
    GCC_MAJOR := $(shell $(TRICK_CC) -dumpversion | cut -f1 -d.)
-   GCC_MINOR := $(shell $(TRICK_CC) -dumpversion | cut -f2 -d.)
 endif
 
 ifneq ($(HDF5),)
