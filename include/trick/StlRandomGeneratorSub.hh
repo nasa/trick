@@ -36,9 +36,12 @@ public:
     param(__attribute__((unused)) const std::normal_distribution<double>& dist, double mean, double std_dev = 0.0)
     { return std::normal_distribution<double>::param_type(mean,std_dev); }
 
-    static std::poisson_distribution<int>::param_type
-    param(__attribute__((unused)) const std::poisson_distribution<int>& dist, double mean, __attribute__((unused)) double unused = 0.0)
-    { return std::poisson_distribution<int>::param_type(mean); }
+    static std::poisson_distribution<int>::param_type param(__attribute__((unused))
+                                                            const std::poisson_distribution<int>& dist,
+                                                            double mean, __attribute__((unused)) double unused = 0.0)
+    {
+        return std::poisson_distribution<int>::param_type(mean);
+    }
 
     ///@}
 private:
@@ -46,13 +49,12 @@ private:
     ~ParamWrapper();
 };
 
-
 ///@brief Return the appropriate union bit pattern for each distribution
 ///@note Implement one for each available distribution type.
 class StlReturnWrapper {
 public:
-
-    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::uniform_real_distribution<double>& dist, double ret_val)
+    static TRICK_GSL_RETURN_TYPE
+    return_value(__attribute__((unused)) const std::uniform_real_distribution<double>& dist, double ret_val)
     {
         TRICK_GSL_RETURN_TYPE output;
         output.d = ret_val;
@@ -66,13 +68,13 @@ public:
         return output;
     }
 
-    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::poisson_distribution<int>& dist, int ret_val)
+    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::poisson_distribution<int>& dist,
+                                              int ret_val)
     {
         TRICK_GSL_RETURN_TYPE output;
         output.ii = ret_val;
         return output;
     }
-
 };
 
 ///@brief Sub class for object that includes a <random> engine and a distribution
@@ -80,27 +82,22 @@ public:
 template <class Engine, class Distribution>
 class StlRandomGeneratorSub : public StlRandomGenerator
 {
-public:
+    public:
+        typedef typename Distribution::param_type ParamType;
 
-    typedef typename Distribution::param_type ParamType;
-
-    ///@note The input in_engine_type and in_dist_type must match the template parameters.
-    ///      This is intended to be assured by using StlRandomGeneratorFactory for construction.
-    ///
-    explicit StlRandomGeneratorSub(
-        double                              in_param_a = 0.0,
-        double                              in_param_b = 1.0,
-        unsigned long                       in_seed    = 12345,
-        StlRandomGenerator::StlDistribution in_dist_type   = FLAT,
-        StlRandomGenerator::StlEngine       in_engine_type = TRICK_DEFAULT_ENGINE
-    )
-    :   StlRandomGenerator(in_param_a, in_param_b, in_seed, in_dist_type, in_engine_type),
-        engine(in_seed)
-    {
-        // (Note: distribution member can't be input initialized in the initializer list
-        //        because various distributions have different signatures.
-        set_param(in_param_a, in_param_b);
-    }
+        ///@note The input in_engine_type and in_dist_type must match the template parameters.
+        ///      This is intended to be assured by using StlRandomGeneratorFactory for construction.
+        ///
+        explicit StlRandomGeneratorSub(double in_param_a = 0.0, double in_param_b = 1.0, unsigned long in_seed = 12345,
+                                       StlRandomGenerator::StlDistribution in_dist_type = FLAT,
+                                       StlRandomGenerator::StlEngine in_engine_type     = TRICK_DEFAULT_ENGINE)
+            : StlRandomGenerator(in_param_a, in_param_b, in_seed, in_dist_type, in_engine_type)
+            , engine(in_seed)
+        {
+            // (Note: distribution member can't be input initialized in the initializer list
+            //        because various distributions have different signatures.
+            set_param(in_param_a, in_param_b);
+        }
 
     virtual ~StlRandomGeneratorSub() { }
 
@@ -127,14 +124,13 @@ public:
         param_a = a;
         param_b = b;
 
-        distribution.param( ParamWrapper::param(distribution, a,b) );
+        distribution.param(ParamWrapper::param(distribution, a, b));
     }
 
 protected:
 
     Engine          engine;          /**< -- STL random number engine object */
-    Distribution    distribution;    /**< -- STL random number distribution object */
-
+    Distribution distribution;       /**< -- STL random number distribution object */
 };
 
 #endif

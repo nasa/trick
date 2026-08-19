@@ -1,12 +1,12 @@
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <dlfcn.h>
-
-#include <cxxabi.h>
+#include "trick/MemoryManager.hh"
 
 #include "trick/SimObject.hh"
-#include "trick/MemoryManager.hh"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <dlfcn.h>
+#include <iostream>
+#include <sstream>
 
 /**
  *

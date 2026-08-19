@@ -115,7 +115,7 @@ char * getResolvedPath(clang::CompilerInstance & ci , clang::SourceLocation sl) 
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
 #if (LIBCLANG_MAJOR < 18)
-        resolved_path = almostRealPath( fe->getName().str() ) ;
+            resolved_path = almostRealPath(fe->getName().str());
 #else
         const clang::CustomizableOptional<clang::FileEntryRef> cfer = ci.getSourceManager().getFileEntryRefForID(fid) ;
         if (cfer.has_value()) {

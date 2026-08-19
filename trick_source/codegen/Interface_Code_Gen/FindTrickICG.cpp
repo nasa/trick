@@ -5,8 +5,12 @@
 #include "FindTrickICG.hh"
 #include "Utilities.hh"
 
-FindTrickICG::FindTrickICG(clang::CompilerInstance & in_ci, HeaderSearchDirs & in_hsd , bool in_print_msgs )
- : ci(in_ci) , hsd(in_hsd) , print_msgs(in_print_msgs) { }
+FindTrickICG::FindTrickICG(clang::CompilerInstance& in_ci, HeaderSearchDirs& in_hsd, bool in_print_msgs)
+    : ci(in_ci)
+    , hsd(in_hsd)
+    , print_msgs(in_print_msgs)
+{
+}
 
 void FindTrickICG::FileChanged(clang::SourceLocation Loc, FileChangeReason Reason,
                          clang::SrcMgr::CharacteristicKind FileType,
@@ -40,7 +44,7 @@ void FindTrickICG::FileSkipped(const clang::FileEntryRef & SkippedFile, const cl
     /* Files that have header guards are only preprocessed once because of an optimization.
     We still need to add its include chain to compat15 if TRICK_ICG was found when it was
     originally preprocessed */
-    std::string file_name = SkippedFile.getName().str() ;
+    std::string file_name = SkippedFile.getName().str();
     std::string file_path;
     {
         char* path_cstr = almostRealPath(file_name.c_str());
@@ -59,8 +63,8 @@ void FindTrickICG::FileSkipped(const clang::FileEntryRef & SkippedFile, const cl
     }
 }
 
-
-void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue)
+void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange,
+                      clang::PPCallbacks::ConditionValueKind ConditionValue)
 {
     if ( ConditionRange.isValid() ) {
         // Get the full text of the if statement into a string
@@ -89,13 +93,14 @@ void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRan
     }
 }
 
-void FindTrickICG::Elif(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue, clang::SourceLocation IfLoc)
+void FindTrickICG::Elif(clang::SourceLocation Loc, clang::SourceRange ConditionRange,
+                        clang::PPCallbacks::ConditionValueKind ConditionValue, clang::SourceLocation IfLoc)
 {
     // Do the same processing for an #elif statement as an #if statement.
     If(Loc,ConditionRange,ConditionValue) ;
 }
 
-void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
+void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token& MacroNameTok, const clang::MacroDefinition& MD)
 {
     // Get the token name that is being tested.
     std::string name = MacroNameTok.getIdentifierInfo()->getName().str() ;
@@ -118,7 +123,7 @@ void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNam
 
 }
 
-void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
+void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token& MacroNameTok, const clang::MacroDefinition& MD)
 {
     // Get the token name that is being tested.
     std::string name = MacroNameTok.getIdentifierInfo()->getName().str() ;

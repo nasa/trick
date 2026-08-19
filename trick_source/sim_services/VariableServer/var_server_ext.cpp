@@ -305,7 +305,7 @@ int var_set_client_tag( std::string text ) {
 
 #if __linux__
         std::string short_str = std::string("VS_") + text.substr(0,12) ;
-        pthread_setname_np(pthread_self(), short_str.c_str()) ;
+        pthread_setname_np(pthread_self(), short_str.c_str());
 #endif
     }
     return(0) ;

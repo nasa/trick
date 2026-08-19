@@ -6,20 +6,21 @@
 #ifndef CHECKPOINT_PAIR_HH
 #define CHECKPOINT_PAIR_HH
 
-#include <utility>
-#include <sstream>
-#include <algorithm>
-#include <typeinfo>
-#include <functional>
-#include <string>
-#include <type_traits>
-#include <cxxabi.h>
-
+#include "checkpoint_fwd_declare.hh"
 #include "checkpoint_is_stl_container.hh"
 #include "checkpoint_stl_protos.hh"
-#include "checkpoint_fwd_declare.hh"
+
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <functional>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <typeinfo>
+#include <utility>
 
 // intrinsic first , intrinsic second
 template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&

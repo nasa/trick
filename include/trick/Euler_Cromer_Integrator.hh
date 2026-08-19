@@ -108,9 +108,9 @@ namespace Trick {
 
         void deriv2_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        __attribute__((sentinel))
+            __attribute__((sentinel))
 #endif
-        ;
+            ;
         void initialize( int State_size, double Dt);
         int integrate();
         Integrator_type get_Integrator_type() { return(Euler_Cromer); } ;

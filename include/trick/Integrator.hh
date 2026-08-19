@@ -71,36 +71,36 @@ namespace Trick {
 #ifndef SWIGPYTHON
         virtual void state_in(double* arg1, va_list argp);
 #endif
-        void state_in (double* arg1, ...)
+        void state_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        __attribute__((sentinel))
+            __attribute__((sentinel))
 #endif
-        ;
+            ;
 #ifndef SWIGPYTHON
         virtual void deriv_in(double* arg1, va_list argp);
 #endif
-        void deriv_in (double* arg1, ...)
+        void deriv_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        __attribute__((sentinel))
+            __attribute__((sentinel))
 #endif
-        ;
+            ;
 #ifndef SWIGPYTHON
         virtual void state_out(double* arg1, va_list argp);
 #endif
         void state_out(double* arg1, ...)
 #ifndef SWIGPYTHON
-        __attribute__((sentinel))
+            __attribute__((sentinel))
 #endif
-        ;
+            ;
 
 #ifndef SWIGPYTHON
         virtual void deriv2_in(double* arg1, va_list argp);
 #endif
-        void deriv2_in (double* arg1, ...)
+        void deriv2_in(double* arg1, ...)
 #ifndef SWIGPYTHON
-        __attribute__((sentinel))
+            __attribute__((sentinel))
 #endif
-        ;
+            ;
 
         int num_state;
 

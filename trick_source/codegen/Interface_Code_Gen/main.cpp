@@ -73,19 +73,16 @@ void set_lang_opts(clang::CompilerInstance & ci) {
     // Always use at least C++11
     ci.getLangOpts().CPlusPlus11 = true ;
 
-
     // Activate C++14 parsing
     ci.getLangOpts().CPlusPlus14 = true ;
     ci.getLangOpts().DoubleSquareBracketAttributes = true;
 
     // Activate C++17 parsing
 #ifdef TRICK_GCC_VERSION
-const char * gcc_version = TRICK_GCC_VERSION;
+    const char* gcc_version = TRICK_GCC_VERSION;
 #else
-const char * gcc_version = "";
+    const char* gcc_version = "";
 #endif
-
-
 
     ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 80500);
     ci.getLangOpts().CPlusPlus17 = true ;
@@ -99,9 +96,13 @@ const char * gcc_version = "";
             ci.getLangOpts().CPlusPlus17 = false ;
         } else if (standard_version == "c++17" ) {
             // Nothing to do here
-        } else if (standard_version == "c++20") {
-            ci.getLangOpts().CPlusPlus20 = true ;
-        } else {
+        }
+        else if (standard_version == "c++20")
+        {
+            ci.getLangOpts().CPlusPlus20 = true;
+        }
+        else
+        {
             std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
         }
     }
@@ -117,9 +118,8 @@ Most of the main program is pieced together from examples on the web. We are doi
 -# Parsing the input file.
 */
 int main(int argc, char * argv[]) {
-    llvm::cl::SetVersionPrinter([](llvm::raw_ostream& stream) {
-            stream << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << '\n';}
-    );
+    llvm::cl::SetVersionPrinter([](llvm::raw_ostream& stream)
+                                { stream << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << '\n'; });
 
     /**
      * Gather all of the command line arguments into lists of include directories, defines, and input files.
@@ -142,7 +142,7 @@ int main(int argc, char * argv[]) {
         std::cerr << "No header file specified" << std::endl;
         return 1;
     }
-    clang::CompilerInstance ci ;
+    clang::CompilerInstance ci;
 
 #if (LIBCLANG_MAJOR >= 22)
     ci.createDiagnostics();
@@ -200,7 +200,7 @@ int main(int argc, char * argv[]) {
 #if (LIBCLANG_MAJOR >= 15)
     clang::LangOptions::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes);
 #else
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes);
 #endif
 
     // setting the language defaults clears some of the language opts, set them again.
@@ -226,7 +226,7 @@ int main(int argc, char * argv[]) {
 #endif
 
     auto ftg = std::make_unique<FindTrickICG>(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
-    pp.addPPCallbacks(std::move(ftg)) ;
+    pp.addPPCallbacks(std::move(ftg));
 
     pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
     // Add all of the #define from the command line to the default predefines
@@ -272,9 +272,11 @@ int main(int argc, char * argv[]) {
 #endif
     free(inputFilePath);
 #if (LIBCLANG_MAJOR < 18)
-    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
+    ci.getSourceManager().setMainFileID(
+        ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
-    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
+    ci.getSourceManager().setMainFileID(
+        ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #endif
     ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
     ci.getDiagnostics().setClient(icgDiagConsumer);

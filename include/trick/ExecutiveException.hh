@@ -34,8 +34,8 @@ namespace Trick {
 
             /** This constructor assignes ret_code, file, and message to the incoming arguments */
             ExecutiveException( int in_ret , std::string in_file , int line , std::string in_message ) ;
-            virtual ~ExecutiveException() ;
-            virtual const char* what() const noexcept ;
+            virtual ~ExecutiveException();
+            virtual const char* what() const noexcept;
     } ;
 
 }

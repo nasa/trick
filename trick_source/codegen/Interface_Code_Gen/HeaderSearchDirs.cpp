@@ -233,7 +233,7 @@ bool HeaderSearchDirs::isPathInUserDir (const std::string& in_dir ) {
     for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; ++sdi )
 #endif
     {
-       std::string curr_dir = (*sdi).getName().str() ;
+        std::string curr_dir = (*sdi).getName().str();
         if ( ! in_dir.compare(0, curr_dir.size(), curr_dir)) {
             return false ;
         }
@@ -261,7 +261,7 @@ bool HeaderSearchDirs::isPathInUserOrTrickDir (const std::string& in_dir ) {
     for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; ++sdi )
 #endif
     {
-       std::string curr_dir = (*sdi).getName().str() ;
+        std::string curr_dir = (*sdi).getName().str();
         if ( ! in_dir.compare(0, curr_dir.size(), curr_dir)) {
             return false ;
         }

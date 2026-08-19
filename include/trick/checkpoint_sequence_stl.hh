@@ -6,23 +6,24 @@
 #ifndef CHECKPOINT_SEQUENCE_STL_HH
 #define CHECKPOINT_SEQUENCE_STL_HH
 
-#include <string>
-#include <array>
-#include <vector>
-#include <list>
-#include <deque>
-#include <set>
-#include <algorithm>
-#include <typeinfo>
-#include <sstream>
-#include <type_traits>
-#include <cxxabi.h>
-
+#include "checkpoint_fwd_declare.hh"
 #include "checkpoint_is_stl_container.hh"
 #include "checkpoint_stl_protos.hh"
-#include "checkpoint_fwd_declare.hh"
+
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+
+#include <algorithm>
+#include <array>
+#include <cxxabi.h>
+#include <deque>
+#include <list>
+#include <set>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <typeinfo>
+#include <vector>
 
 /* =================================================================================================*/
 
