@@ -8,21 +8,20 @@
 #ifndef CHECKPOINT_MAP_HH
 #define CHECKPOINT_MAP_HH
 
-#include <map>
-#include <string>
-#include <algorithm>
-#include <sstream>
-#include <typeinfo>
-#include <type_traits>
-#ifdef __GNUC__
-#include <cxxabi.h>
-#endif
-
+#include "checkpoint_fwd_declare.hh"
 #include "checkpoint_is_stl_container.hh"
 #include "checkpoint_stl_protos.hh"
-#include "checkpoint_fwd_declare.hh"
+
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <map>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <typeinfo>
 
 /* =================================================================================================*/
 

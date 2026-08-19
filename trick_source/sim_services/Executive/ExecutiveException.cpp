@@ -15,10 +15,6 @@ Trick::ExecutiveException::ExecutiveException(int in_ret , std::string in_file ,
 
 }
 
-Trick::ExecutiveException::~ExecutiveException() throw () {
-}
+Trick::ExecutiveException::~ExecutiveException() { }
 
-const char* Trick::ExecutiveException::what() const throw() {
-    return message.c_str() ;
-}
-
+const char* Trick::ExecutiveException::what() const noexcept { return message.c_str(); }

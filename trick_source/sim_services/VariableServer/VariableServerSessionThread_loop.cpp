@@ -130,26 +130,18 @@ void * Trick::VariableServerSessionThread::thread_body() {
         exec_signal_terminate();
 
 #ifdef __linux__
-#ifdef __GNUC__
-#if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
-    // for post gcc 4.1.2 or whatever glibc version is used in RHEL6 and above.
     } catch (abi::__forced_unwind&) {
         //pthread_exit and pthread_cancel will cause an abi::__forced_unwind to be thrown. Rethrow it.
         throw;
 #endif
-#endif
-#endif
     } catch (...) {
 #ifdef __linux__
-#ifdef __GNUC__
-#if (__GNUC__ == 4 && __GNUC_MINOR__ == 1) || __GNUC__ == 12
-        // for gcc 4.1.2 or whatever glib version in RHEL 5 that does not work with the abi::__forced_unwind
-        // Also seems to have a problem with gcc 12
+#if __GNUC__ == 12
+        // gcc 12 seems to have a problem with the abi::__forced_unwind catch above.
         throw;
 #else
         message_publish(MSG_ERROR, "\nVARIABLE SERVER caught unknown exception\n" ) ;
         exec_signal_terminate();
-#endif
 #endif
 #endif
     }

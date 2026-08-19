@@ -393,9 +393,7 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
     std::set<std::string> emptyFiles;
     for (auto fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; ++fi ) {
         const clang::FileEntry * fe = (*fi).first ;
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
-        std::string header_file_name = fe->getName() ;
-#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18) 
+#if (LIBCLANG_MAJOR < 18)
         std::string header_file_name = fe->getName().str() ;
 #else
         const clang::FileEntryRef fer = fi->first ;
