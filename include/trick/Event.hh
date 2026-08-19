@@ -204,16 +204,11 @@ class Event {
 
 
 #ifndef SWIG
-    // No need to inherit from binary_function for c++11 or later
-    #if __cplusplus >= 201103L
-        struct CompareEventPtrs {
-    #else
-        struct CompareEventPtrs : public std::binary_function<Trick::Event *, Trick::Event *, bool> {
-    #endif
-            bool operator()(const Trick::Event * lhs, const Trick::Event * rhs) const {
-                return lhs->get_next_tics() < rhs->get_next_tics();
-            }
-        };
+    struct CompareEventPtrs {
+        bool operator()(const Trick::Event * lhs, const Trick::Event * rhs) const {
+            return lhs->get_next_tics() < rhs->get_next_tics();
+        }
+    };
 #endif
 
 }
