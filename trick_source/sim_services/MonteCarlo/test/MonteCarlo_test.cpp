@@ -878,5 +878,4 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_setSeed_TakesEffect) {
 
     EXPECT_NEAR(first_value, second_value, 0.000001) ;
 }
-
 }

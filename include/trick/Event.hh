@@ -204,11 +204,13 @@ class Event {
 
 
 #ifndef SWIG
-    struct CompareEventPtrs {
-        bool operator()(const Trick::Event * lhs, const Trick::Event * rhs) const {
+struct CompareEventPtrs
+{
+        bool operator()(const Trick::Event* lhs, const Trick::Event* rhs) const
+        {
             return lhs->get_next_tics() < rhs->get_next_tics();
         }
-    };
+};
 #endif
 
 }
