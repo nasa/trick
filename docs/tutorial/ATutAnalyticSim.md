@@ -74,28 +74,28 @@ PURPOSE: (Represent the state and initial conditions of a cannonball)
 
 typedef struct {
 
-    double vel0[2] ;    /* *i m Init velocity of cannonball */
-    double pos0[2] ;    /* *i m Init position of cannonball */
-    double init_speed ; /* *i m/s Init barrel speed */
-    double init_angle ; /* *i rad Angle of cannon */
+    double vel0[2];    /* *i m Init velocity of cannonball */
+    double pos0[2];    /* *i m Init position of cannonball */
+    double init_speed; /* *i m/s Init barrel speed */
+    double init_angle; /* *i rad Angle of cannon */
 
-    double acc[2] ;     /* m/s2 xy-acceleration  */
-    double vel[2] ;     /* m/s xy-velocity */
-    double pos[2] ;     /* m xy-position */
+    double acc[2];     /* m/s2 xy-acceleration  */
+    double vel[2];     /* m/s xy-velocity */
+    double pos[2];     /* m xy-position */
 
-    double time;        /* s Model time */
+    double time;       /* s Model time */
 
-    int impact ;        /* -- Has impact occured? */
-    double impactTime;  /* s Time of Impact */
+    int impact;        /* -- Has impact occurred? */
+    double impactTime; /* s Time of Impact */
 
-} CANNON ;
+} CANNON;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    int cannon_default_data(CANNON*) ;
-    int cannon_init(CANNON*) ;
-    int cannon_shutdown(CANNON*) ;
+int cannon_default_data(CANNON*);
+int cannon_init(CANNON*);
+int cannon_shutdown(CANNON*);
 #ifdef __cplusplus
 }
 #endif
@@ -285,40 +285,42 @@ PURPOSE: (Set the initial data values)
 *************************************************************************/
 
 /* Model Include files */
-#include <math.h>
 #include "../include/cannon.h"
+#include <math.h>
 
 /* default data job */
-int cannon_default_data( CANNON* C ) {
+int cannon_default_data(CANNON* C)
+{
+    C->acc[0] = 0.0;            // m/s^2
+    C->acc[1] = -9.81;          // m/s^2
 
-    C->acc[0] = 0.0;
-    C->acc[1] = -9.81;
-    C->init_angle = M_PI/6 ;
-    C->init_speed  = 50.0 ;
-    C->pos0[0] = 0.0 ;
-    C->pos0[1] = 0.0 ;
+    C->init_angle = M_PI / 6.0; // rad
+    C->init_speed = 50.0;       // m/s
 
-    C->time = 0.0 ;
+    C->pos0[0] = 0.0;           // m
+    C->pos0[1] = 0.0;           // m
 
-    C->impact = 0 ;
-    C->impactTime = 0.0 ;
+    C->time = 0.0;              // s
 
-    return 0 ;
+    C->impact     = 0;          // no impact yet
+    C->impactTime = 0.0;        // s
+
+    return 0;
 }
 
 /* initialization job */
-int cannon_init( CANNON* C) {
-   
-    C->vel0[0] = C->init_speed*cos(C->init_angle);
-    C->vel0[1] = C->init_speed*sin(C->init_angle);
+int cannon_init(CANNON* C)
+{
+    C->vel0[0] = C->init_speed * cos(C->init_angle);
+    C->vel0[1] = C->init_speed * sin(C->init_angle);
 
-    C->vel[0] = C->vel0[0] ; 
-    C->vel[1] = C->vel0[1] ; 
+    C->pos[0] = C->pos0[0];
+    C->pos[1] = C->pos0[1];
 
-    C->impactTime = 0.0;
-    C->impact = 0.0;
+    C->vel[0] = C->vel0[0];
+    C->vel[1] = C->vel0[1];
 
-    return 0 ; 
+    return 0;
 }
 ```
 
@@ -360,7 +362,7 @@ PURPOSE: ( Cannon Analytic Model )
 #ifdef __cplusplus
 extern "C" {
 #endif
-int cannon_analytic(CANNON*) ;
+int cannon_analytic(CANNON*);
 #ifdef __cplusplus
 }
 #endif
@@ -381,36 +383,43 @@ Type in the contents of **Listing 4** and save.
 /*****************************************************************************
 PURPOSE:    ( Analytical Cannon )
 *****************************************************************************/
-#include <stdio.h>
-#include <math.h>
 #include "../include/cannon_analytic.h"
+#include <math.h>
+#include <stdio.h>
 
-int cannon_analytic( CANNON* C ) {
+int cannon_analytic(CANNON* C)
+{
+    const double time_step = 0.01; // must match this job's rate in the S_define
 
-    C->acc[0] =  0.00;
-    C->acc[1] = -9.81 ;
-    C->vel[0] = C->vel0[0] + C->acc[0] * C->time ;
-    C->vel[1] = C->vel0[1] + C->acc[1] * C->time ;
-    C->pos[0] = C->pos0[0] + (C->vel0[0] + (0.5) * C->acc[0] * C->time) * C->time ;
-    C->pos[1] = C->pos0[1] + (C->vel0[1] + (0.5) * C->acc[1] * C->time) * C->time ;
-    if (C->pos[1] < 0.0) {
-        C->impactTime = (- C->vel0[1] - sqrt( C->vel0[1] * C->vel0[1] - 2 * C->pos0[1]))/C->acc[1];
-        C->pos[0] = C->impactTime * C->vel0[0];
+    C->vel[0] = C->vel0[0] + C->acc[0] * C->time;
+    C->vel[1] = C->vel0[1] + C->acc[1] * C->time;
+
+    C->pos[0] = C->pos0[0] + (C->vel0[0] + 0.5 * C->acc[0] * C->time) * C->time;
+    C->pos[1] = C->pos0[1] + (C->vel0[1] + 0.5 * C->acc[1] * C->time) * C->time;
+
+    if (C->pos[1] < 0.0) { // check for impact
+        C->impactTime = (-C->vel0[1] - sqrt(C->vel0[1] * C->vel0[1] - 2.0 * C->acc[1] * C->pos0[1]))
+            / C->acc[1];
+
+        C->pos[0] = C->pos0[0] + (C->vel0[0] + 0.5 * C->acc[0] * C->impactTime) * C->impactTime;
         C->pos[1] = 0.0;
+
         C->vel[0] = 0.0;
         C->vel[1] = 0.0;
-        if ( !C->impact ) {
+
+        if (!C->impact) {
             C->impact = 1;
-            fprintf(stderr, "\n\nIMPACT: t = %.9f, pos[0] = %.9f\n\n", C->impactTime, C->pos[0] ) ;
+            fprintf(stderr, "\n\nIMPACT: t = %.9f, pos[0] = %.9f\n\n", C->impactTime, C->pos[0]);
         }
     }
+
     /*
-     * Increment time by the time delta associated with this job
-     * Note that the 0.01 matches the frequency of this job
-     * as specified in the S_define.
+     * Increment model time by the time delta associated with this job.
+     * time_step must match the frequency of this job as specified in the S_define.
      */
-    C->time += 0.01 ;
-    return 0 ;
+    C->time += time_step;
+
+    return 0;
 }
 ```
 
@@ -443,19 +452,22 @@ In our case we're just going to print the final cannon ball state.
 /************************************************************************
 PURPOSE: (Print the final cannon ball state.)
 *************************************************************************/
-#include <stdio.h>
 #include "../include/cannon.h"
 #include "trick/exec_proto.h"
+#include <stdio.h>
 
-int cannon_shutdown( CANNON* C) {
-    double t = exec_get_sim_time();
-    printf( "========================================\n");
-    printf( "      Cannon Ball State at Shutdown     \n");
-    printf( "t = %g\n", t);
-    printf( "pos = [%.9f, %.9f]\n", C->pos[0], C->pos[1]);
-    printf( "vel = [%.9f, %.9f]\n", C->vel[0], C->vel[1]);
-    printf( "========================================\n");
-    return 0 ;
+int cannon_shutdown(CANNON* C)
+{
+    const double t = exec_get_sim_time(); // s
+
+    printf("========================================\n");
+    printf("      Cannon Ball State at Shutdown     \n");
+    printf("t = %g\n", t);
+    printf("pos = [%.9f, %.9f]\n", C->pos[0], C->pos[1]);
+    printf("vel = [%.9f, %.9f]\n", C->vel[0], C->vel[1]);
+    printf("========================================\n");
+
+    return 0;
 }
 ```
 
@@ -493,18 +505,19 @@ LIBRARY DEPENDENCIES:
 
 class CannonSimObject : public Trick::SimObject {
 
-    public:
-        CANNON cannon;
+public:
+    CANNON cannon;
 
-        CannonSimObject() {
-            ("default_data") cannon_default_data( &cannon ) ;
-            ("initialization") cannon_init( &cannon ) ;
-            (0.01, "scheduled") cannon_analytic( &cannon ) ;
-            ("shutdown") cannon_shutdown( &cannon ) ;
-        }
-} ;
+    CannonSimObject()
+    {
+        ("default_data") cannon_default_data(&cannon);
+        ("initialization") cannon_init(&cannon);
+        (0.01, "scheduled") cannon_analytic(&cannon);
+        ("shutdown") cannon_shutdown(&cannon);
+    }
+};
 
-CannonSimObject dyn ;
+CannonSimObject dyn;
 ```
 
 The `S_define` file syntax is C++ with a couple of Trick specific constructs.
