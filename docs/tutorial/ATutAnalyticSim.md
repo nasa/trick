@@ -59,8 +59,9 @@ The CANNON data-type contains the cannonball's initial conditions,
 its acceleration, velocity, and position, the model time, whether the cannonball
 has impacted the ground, and the time of impact.
 
-The prototypes will declare two functions for initializing our CANNON data-type.
-We'll discuss these in the next section.
+The prototypes will declare two functions for initializing our CANNON data-type,
+plus a third that runs when the simulation ends. We'll discuss these in the
+next sections.
 
 <a id=listing_2_cannon_h></a>
 **Listing 2 - `cannon.h`**
@@ -556,12 +557,12 @@ prototypes in a header file (the preferred method).
 
 ### Data Lines
 
-`Class CannonSimObject : public Trick::SimObject`
+`class CannonSimObject : public Trick::SimObject`
 
 The sim object is defined as a C++ class and must be derived from the base class
 SimObject.
 
-* `Class CannonSimObject`
+* `class CannonSimObject`
 The name of the sim_object class is arbitrary.
 
 * `public Trick::SimObject`
@@ -573,7 +574,10 @@ class SimObject.
 * `CANNON` This is the name of the structure typedef that you created in the
 cannon.h header.
 
-* `cannon` This is an alias for the CANNON structure. It is mandatory.
+* `cannon` This is the name of the CANNON member. Like the class name, it is
+yours to choose, but choose it deliberately: together with the sim_object
+instance name it forms the path you will use to reach the member's variables
+from the input file and from Trick's tools, as in `dyn.cannon.pos`.
 
 * `CannonSimObject()` This is the constructor of the sim_object and it will
 contain the job declarations.
@@ -594,7 +598,7 @@ Jobs that are classified `initialization` will be called once before the main
 executive loop and will not be called again.
 
 * `cannon_init(`
-The name of the function we created in $HOME/trick_sims/models/cannon/src/cannon_init.c.
+The name of the function we created in $HOME/trick_sims/SIM_cannon_analytic/models/cannon/src/cannon_init.c.
 
 * `&cannon)`
 This is the actual value passed to cannon_init(). It is the address of the
@@ -658,10 +662,10 @@ In the files that we have created so far, the file paths in `#include` directive
 and in the `LIBRARY_DEPENDENCY` sections, are **relative** paths. These paths
 are relative to a **base-path**, that we still need to specify.
 
-For example, the `S_define` file listed above `#includes` the relative path:
+For example, the `S_define` file listed above `##includes` the relative path:
 `cannon/include/cannon_analytic.h`. We intend for this path to be relative to the
 `models` directory that we created in our `SIM_cannon_analytic` directory. The complete
-path to our cannon.h header file should be:
+path to our `cannon_analytic.h` header file should be:
 
 ```
 ${HOME}/trick_sims/SIM_cannon_analytic/models/cannon/include/cannon_analytic.h
@@ -704,9 +708,9 @@ export TRICK_CXXFLAGS="-g -Wall -Wextra -Wshadow"
 ```
 
 ##### For Your .cshrc File
-```bash
-TRICK_CFLAGS= -g -Wall -Wmissing-prototypes -Wextra -Wshadow
-TRICK_CXXFLAGS= -g -Wall -Wextra -Wshadow
+```csh
+setenv TRICK_CFLAGS "-g -Wall -Wmissing-prototypes -Wextra -Wshadow"
+setenv TRICK_CXXFLAGS "-g -Wall -Wextra -Wshadow"
 ```
 
 ### trick-CP
@@ -806,7 +810,6 @@ pos = [220.699644186, 0.000000000]
 vel = [0.000000000, 0.000000000]
 ========================================
      REALTIME SHUTDOWN STATS:
-     REALTIME TOTAL OVERRUNS:            0
             ACTUAL INIT TIME:        0.203
          ACTUAL ELAPSED TIME:       12.434
 SIMULATION TERMINATED IN
