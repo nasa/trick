@@ -14,8 +14,8 @@ int cannon_analytic( CANNON* C ) {
     C->pos[0] = C->pos0[0] + (C->vel0[0] + (0.5) * C->acc[0] * C->time) * C->time ;
     C->pos[1] = C->pos0[1] + (C->vel0[1] + (0.5) * C->acc[1] * C->time) * C->time ;
     if (C->pos[1] < 0.0) {
-        C->impactTime = (C->vel0[1] + sqrt( C->vel0[1] * C->vel0[1] + 2 * C->g * C->pos0[1])) / C->g;
-        C->pos[0] = C->pos0[0] + (C->vel0[0] + (0.5) * C->acc[0] * C->impactTime) * C->impactTime ;
+        C->impactTime = (C->vel0[1] + sqrt(C->vel0[1] * C->vel0[1] + 2 * C->g * C->pos0[1])) / C->g;
+        C->pos[0]     = C->pos0[0] + (C->vel0[0] + (0.5) * C->acc[0] * C->impactTime) * C->impactTime;
         C->pos[1] = 0.0;
         C->vel[0] = 0.0;
         C->vel[1] = 0.0;
