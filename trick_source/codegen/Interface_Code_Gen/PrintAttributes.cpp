@@ -426,7 +426,8 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
         }
 
         char* resolved_path = almostRealPath(header_file_name.c_str());
-        if (resolved_path == NULL) {
+        if (resolved_path == NULL)
+        {
             continue;
         }
         const std::string path = std::string(resolved_path);
@@ -468,7 +469,8 @@ void PrintAttributes::printIOMakefile()
 
     makefile_io_src.open(trick_build_dir + "build/Makefile_io_src");
     makefile_io_src
-        << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << '\n'
+        << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable"
+        << '\n'
         << '\n'
         << "ifeq ($(IS_CC_CLANG), 0)" << '\n'
         << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << '\n'
@@ -480,7 +482,7 @@ void PrintAttributes::printIOMakefile()
         << "    TRICK_IO_CXXFLAGS += -std=c++14" << '\n'
         << "endif" << '\n'
         << '\n'
-        << "IO_OBJECTS =" ;
+        << "IO_OBJECTS =";
 
     std::map< std::string , std::string >::iterator mit ;
     for (mit = all_io_files.begin(); mit != all_io_files.end(); ++mit)
