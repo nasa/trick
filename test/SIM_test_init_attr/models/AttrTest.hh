@@ -4,23 +4,25 @@ LIBRARY_DEPENDENCIES: ((AttrTest.cpp))
 */
 #pragma once
 
-struct Inner {
-    int i;
+struct Inner
+{
+        int i;
 };
 
-struct AnotherInner {
-    int j;
+struct AnotherInner
+{
+        int j;
 };
 
-struct Outer {
-    Inner inner;
-    AnotherInner another_inner;
+struct Outer
+{
+        Inner inner;
+        AnotherInner another_inner;
 };
 
-class AttrTest {
-  public:
-   void initialization();
-   void scheduled();
+class AttrTest
+{
+    public:
+        void initialization();
+        void scheduled();
 };
-
-
