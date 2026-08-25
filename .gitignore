@@ -2,6 +2,12 @@
 object_*
 io_src
 swig
+!include/trick/swig
+!share/trick/swig
+share/trick/swig/sim_services.py
+share/trick/swig/swig_double.py
+share/trick/swig/swig_int.py
+share/trick/swig/swig_ref.py
 lib
 lib64
 lib_Linux_*

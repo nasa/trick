@@ -107,33 +107,34 @@
 
 %{
 #include <sstream>
+#include "trick/swig/swig_python_compat.hh"
 #include "trick/UnitsMap.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/reference.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/PythonPrint.hh"
 
-#ifndef SWIG_as_voidptr 
-#define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a)) 
+#ifndef SWIG_as_voidptr
+#define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a))
 #endif
 
-#ifndef SWIG_as_voidptrptr 
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),reinterpret_cast< void** >(a)) 
+#ifndef SWIG_as_voidptrptr
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),reinterpret_cast< void** >(a))
 #endif
 
 #ifndef SWIG_IsOK
 #define SWIG_IsOK(r)               (r >= 0)
 #endif
 
-#ifndef SWIG_Error 
+#ifndef SWIG_Error
 #define SWIG_Error(code, msg) std::cout<<"SWIG_Error(errorcode, "<<msg<<")"<<std::endl
 #endif
 
-#ifndef SWIG_exception_fail 
-#define SWIG_exception_fail(code, msg) std::cout<<"SWIG_exception_fail(errorcode, "<<msg<<")"<<std::endl 
+#ifndef SWIG_exception_fail
+#define SWIG_exception_fail(code, msg) std::cout<<"SWIG_exception_fail(errorcode, "<<msg<<")"<<std::endl
 #endif
 
-#ifndef Py_RETURN_TRUE 
+#ifndef Py_RETURN_TRUE
 #define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
 #endif
 
@@ -141,7 +142,7 @@
 #define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
 #endif
 
-#ifndef Py_RETURN_NONE 
+#ifndef Py_RETURN_NONE
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
 #endif
 
@@ -186,4 +187,3 @@ def _swig_setattr(self,class_type,name,value):
     return _swig_setattr_nondynamic(self,class_type,name,value,1)
 %}
 #endif
-

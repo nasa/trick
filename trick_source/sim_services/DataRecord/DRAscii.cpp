@@ -7,16 +7,18 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
-
 #include "trick/DRAscii.hh"
+
+#include "trick/ReferenceUtils.hh"
+#include "trick/bitfield_proto.h"
 #include "trick/command_line_protos.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
-#include "trick/bitfield_proto.h"
+
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
 
 Trick::DRAscii::DRAscii( std::string in_name, Trick::DR_Type dr_type ) : Trick::DataRecordGroup( in_name, dr_type ) {
 
@@ -181,79 +183,83 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
     unsigned long bf;
     int sbf;
 
-    address = DI->buffer + (item_num * DI->ref->attr->size) ;
+    int item_size        = (int)Trick::ReferenceUtils::effective_trick_size(DI->ref);
+    TRICK_TYPE item_type = Trick::ReferenceUtils::effective_trick_type(DI->ref);
+    address              = DI->buffer + (item_num * item_size);
 
     size_t writer_buf_spare = writer_buff + writer_buff_size - buf;
 
-    switch (DI->ref->attr->type) {
-        case TRICK_CHARACTER:
-            snprintf(buf, writer_buf_spare, "%c", *((char *) address));
-            break;
+    switch (item_type)
+    {
+    case TRICK_CHARACTER:
+        snprintf(buf, writer_buf_spare, "%c", *((char*)address));
+        break;
 
-        case TRICK_UNSIGNED_CHARACTER:
-            snprintf(buf, writer_buf_spare, "%u", *((unsigned char *) address));
-            break;
+    case TRICK_UNSIGNED_CHARACTER:
+        snprintf(buf, writer_buf_spare, "%u", *((unsigned char*)address));
+        break;
 
-        case TRICK_BOOLEAN:
-            snprintf(buf, writer_buf_spare, "%u", *((bool *) address));
-            break;
+    case TRICK_BOOLEAN:
+        snprintf(buf, writer_buf_spare, "%u", *((bool*)address));
+        break;
 
-        case TRICK_STRING:
-            snprintf(buf, writer_buf_spare, "%s", *((char **) address));
-            break;
+    case TRICK_STRING:
+        snprintf(buf, writer_buf_spare, "%s", *((char**)address));
+        break;
 
-        case TRICK_SHORT:
-            snprintf(buf, writer_buf_spare, "%d", *((short *) address));
-            break;
+    case TRICK_SHORT:
+        snprintf(buf, writer_buf_spare, "%d", *((short*)address));
+        break;
 
-        case TRICK_UNSIGNED_SHORT:
-            snprintf(buf, writer_buf_spare, "%u", *((unsigned short *) address));
-            break;
+    case TRICK_UNSIGNED_SHORT:
+        snprintf(buf, writer_buf_spare, "%u", *((unsigned short*)address));
+        break;
 
-        case TRICK_ENUMERATED:
-        case TRICK_INTEGER:
-            snprintf(buf, writer_buf_spare, "%d", *((int *) address));
-            break;
+    case TRICK_ENUMERATED:
+    case TRICK_INTEGER:
+        snprintf(buf, writer_buf_spare, "%d", *((int*)address));
+        break;
 
-        case TRICK_UNSIGNED_INTEGER:
-            snprintf(buf, writer_buf_spare, "%u", *((unsigned int *) address));
-            break;
+    case TRICK_UNSIGNED_INTEGER:
+        snprintf(buf, writer_buf_spare, "%u", *((unsigned int*)address));
+        break;
 
-        case TRICK_LONG:
-            snprintf(buf, writer_buf_spare, "%ld", *((long *) address));
-            break;
+    case TRICK_LONG:
+        snprintf(buf, writer_buf_spare, "%ld", *((long*)address));
+        break;
 
-        case TRICK_UNSIGNED_LONG:
-            snprintf(buf, writer_buf_spare, "%lu", *((unsigned long *) address));
-            break;
+    case TRICK_UNSIGNED_LONG:
+        snprintf(buf, writer_buf_spare, "%lu", *((unsigned long*)address));
+        break;
 
-        case TRICK_FLOAT:
-            snprintf(buf, writer_buf_spare, ascii_float_format.c_str() , *((float *) address));
-            break;
+    case TRICK_FLOAT:
+        snprintf(buf, writer_buf_spare, ascii_float_format.c_str(), *((float*)address));
+        break;
 
-        case TRICK_DOUBLE:
-            snprintf(buf, writer_buf_spare, ascii_double_format.c_str() , *((double *) address));
-            break;
+    case TRICK_DOUBLE:
+        snprintf(buf, writer_buf_spare, ascii_double_format.c_str(), *((double*)address));
+        break;
 
-        case TRICK_BITFIELD:
-            sbf = GET_BITFIELD(address, DI->ref->attr->size, DI->ref->attr->index[0].start, DI->ref->attr->index[0].size);
-            snprintf(buf, writer_buf_spare, "%d", sbf);
-            break;
+    case TRICK_BITFIELD:
+        sbf = GET_BITFIELD(address, DI->ref->attr->size, DI->ref->attr->index[0].start, DI->ref->attr->index[0].size);
+        snprintf(buf, writer_buf_spare, "%d", sbf);
+        break;
 
-        case TRICK_UNSIGNED_BITFIELD:
-            bf = GET_UNSIGNED_BITFIELD(address, DI->ref->attr->size, DI->ref->attr->index[0].start, DI->ref->attr->index[0].size);
-            snprintf(buf, writer_buf_spare, "%lu", bf);
-            break;
+    case TRICK_UNSIGNED_BITFIELD:
+        bf = GET_UNSIGNED_BITFIELD(address, DI->ref->attr->size, DI->ref->attr->index[0].start,
+                                   DI->ref->attr->index[0].size);
+        snprintf(buf, writer_buf_spare, "%lu", bf);
+        break;
 
-        case TRICK_LONG_LONG:
-            snprintf(buf, writer_buf_spare, "%lld", *((long long *) address));
-            break;
+    case TRICK_LONG_LONG:
+        snprintf(buf, writer_buf_spare, "%lld", *((long long*)address));
+        break;
 
-        case TRICK_UNSIGNED_LONG_LONG:
-            snprintf(buf, writer_buf_spare, "%llu", *((unsigned long long *) address));
-            break;
-        default:
-            break;
+    case TRICK_UNSIGNED_LONG_LONG:
+        snprintf(buf, writer_buf_spare, "%llu", *((unsigned long long*)address));
+        break;
+    default:
+        break;
     }
 
     return(0) ;

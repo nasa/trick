@@ -1,13 +1,14 @@
 #ifndef MEMORYMANAGER_C_INTF_H
 #define MEMORYMANAGER_C_INTF_H
 
-#include <stdio.h>
-
-#include "trick/parameter_types.h"
 #include "trick/attributes.h"
+#include "trick/io_alloc.h"
+#include "trick/parameter_types.h"
 #include "trick/reference.h"
 #include "trick/var.h"
-#include "trick/io_alloc.h"
+
+#include <stdbool.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,6 +57,8 @@ void  TMM_write_checkpoint( const char* filename) ;
 int   TMM_read_checkpoint( const char* filename);
 int   TMM_read_checkpoint_from_string( const char* str);
 int   TMM_init_from_checkpoint( const char* filename);
+
+bool TMM_get_checkpoint_restore_state(void);
 
 int   TMM_add_shared_library_symbols( const char* filename);
 
