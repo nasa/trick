@@ -35,16 +35,20 @@ if ( defined $ENV{'VERBOSE'} ) {
 
 #### Handle arguments ####
 $numArgs         = $#ARGV + 1;
+$build_dir_args  = 0; # Number of -C / -b args. Only support 1, they are mutually exclusive. 
 $makefileAddArgs = ' ';
 $sdefine_dir     = ".";
 $sdefine         = "S_define";
 $trick_build_dir = "./";
+$makefile = "makefile";
 for $argnum ( 0 .. $#ARGV ) {
     $arg = $ARGV[$argnum];
     if ( $arg =~ /(\w+)=(\w+)/ ) {
         $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
     }
     elsif ( $arg eq "-C" || $arg eq "--directory" ) {
+        $build_dir_args == 0 or die "Only one instance of -C or -b allowed.\n";
+        $build_dir_args++;
         $sdefine_dir     = abs_path( $ARGV[ $argnum + 1 ] );
         $makefileAddArgs = $makefileAddArgs . " -C $sdefine_dir ";
         $sdefine         = $sdefine_dir . "/${sdefine}";
@@ -61,13 +65,15 @@ for $argnum ( 0 .. $#ARGV ) {
         pod2usage( -sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99 );
     }
     elsif ( $arg =~ /-b/ ) {
+        $build_dir_args == 0 or die "Only one instance of -C or -b allowed.\n";
+        $build_dir_args++;
         $trick_build_dir = File::Spec->catdir( $ARGV[ $argnum + 1 ], '' ) . "/";
+        $makefile = "${trick_build_dir}makefile";
     }
     else {
         $ENV{TRICK_CPFLAGS} .= " $arg";
     }
 }
-$makefile = "${trick_build_dir}makefile";
 
 # Ensure build dir exists
 unless ( -d $trick_build_dir ) {

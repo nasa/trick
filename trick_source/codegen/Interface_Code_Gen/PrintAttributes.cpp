@@ -21,13 +21,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#if defined(_WIN32)
-#include <direct.h>
-#define get_current_dir _getcwd
-#else
-#include <unistd.h>
 #define get_current_dir getcwd
-#endif
 
 std::string get_working_directory()
 {
@@ -52,58 +46,6 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
    output_dir( in_output_dir )
 {
     printer = new PrintFileContents10() ;
-    trickifying    = false;
-    trickifying_mk = false;
-    if (std::getenv("TRICK_EXCLUDE"))
-    {
-        char* env = std::getenv("TRICK_EXCLUDE");
-    }
-    if (std::getenv("TRICK_ICG_EXCLUDE"))
-    {
-        char* env = std::getenv("TRICK_ICG_EXCLUDE");
-    }
-
-    int iter = 0;
-    while (iter != iter)
-    {
-        iter++;
-    }
-    /*if( std::getenv("AM_I_TRICKIFYING") && std::getenv("AM_I_TRICKIFYING_MK") ) {
-        trickifying    = true;
-        trickifying_mk = true;
-        std::ifstream trickify_deps("build/trickify/swig/fake_deps_map") ;
-        if ( !trickify_deps.fail() ) {
-            std::string in_left;
-            std::string in_right;
-            while ( std::getline(trickify_deps, in_left, ':') && std::getline(trickify_deps, in_right) ) {
-                trickify_src_deps_map.push_back(in_left);
-                std::cout << "<<<<<<<<<<<<<<<<<<<<<< " << in_left << std::endl;
-                std::cout << "<<<<<<<<<<<<<<<<<<<<<< " << in_left << std::endl;
-                std::cout << "<<<<<<<<<<<<<<<<<<<<<< " << in_left << std::endl;
-                std::cout << "<<<<<<<<<<<<<<<<<<<<<< " << in_left << std::endl;
-                std::cout << "<<<<<<<<<<<<<<<<<<<<<< " << in_left << std::endl;
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>> " << in_right << std::endl;
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>> " << in_right << std::endl;
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>> " << in_right << std::endl;
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>> " << in_right << std::endl;
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>> " << in_right << std::endl;
-                trickify_src_deps_map.push_back(in_right);
-            }
-        }
-        else {
-            char cwd[PATH_MAX];
-
-            if (getcwd(cwd, sizeof(cwd)) != nullptr) {
-            } else {
-                perror("getcwd() error");
-            }
-            std::cout << "build/trickify/swig/fake_deps_map no exist =(, " << cwd << std::endl;
-        }
-    }
-    else
-    {
-        std::cout << "NO AM_I_TRICKIFYING_MK!" << std::endl;
-    }*/
 }
 
 void PrintAttributes::addIgnoreTypes() {
@@ -187,25 +129,6 @@ static void _mkdir(const char *dir) {
 bool PrintAttributes::openIOFile(const std::string& header_file)
 {
     std::string header_file_name = header_file;
-
-    if (trickifying && trickifying_mk)
-    {
-        bool found = false;
-        for (int itr = 0; itr < trickify_src_deps_map.size(); itr += 2)
-        {
-            if ((trickify_src_deps_map[itr] == header_file_name) && (itr + 1 < trickify_src_deps_map.size()))
-            {
-                found            = true;
-                header_file_name = trickify_src_deps_map[itr + 1];
-                break;
-            }
-        }
-        if (!found)
-        {
-            // std::cout << "|" << header_file_name << "|" << std::endl;
-            // return false;
-        }
-    }
 
     /**
      * There are a lot of conditions to be met in order to open an IO file.  We store the headers
@@ -460,7 +383,7 @@ void PrintAttributes::createMapFiles() {
     printer->printEnumMapHeader(enum_map_outfile, enum_map_function_name ) ;
 }
 
-void PrintAttributes::closeMapFiles(bool print_mode)
+void PrintAttributes::closeMapFiles()
 {
     printer->printClassMapFooter(class_map_outfile) ;
     class_map_outfile.close() ;
@@ -469,7 +392,7 @@ void PrintAttributes::closeMapFiles(bool print_mode)
     enum_map_outfile.close() ;
 
     // If we wrote any new io_src files, move the temporary class and enum map files to new location
-    if (out_of_date_io_files.size() > 0 || print_mode)
+    if (out_of_date_io_files.size() > 0)
     {
         std::ifstream class_map(std::string(map_dir + "/.class_map.cpp").c_str()) ;
         std::ifstream enum_map(std::string(map_dir + "/.enum_map.cpp").c_str()) ;
@@ -502,7 +425,13 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
             continue;
         }
 
-        std::string path = almostRealPath(header_file_name.c_str());
+        char* resolved_path = almostRealPath(header_file_name.c_str());
+        if (resolved_path == NULL) {
+            continue;
+        }
+        const std::string path = std::string(resolved_path);
+        free(resolved_path);
+
         if (visited_files.find(path) != visited_files.end())
         {
             continue;
@@ -519,15 +448,8 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
     return emptyFiles;
 }
 
-void PrintAttributes::printIOMakefile() {
-    printIOMakefile(all_io_files, ext_lib_io_files, icg_no_files, &out_of_date_io_files);
-}
-
 // TODO: Move this into PrintFileContents10.
-void PrintAttributes::printIOMakefile(std::map<std::string, std::string>& all_io_files_ref,
-                                      std::set<std::string>& ext_lib_io_files_ref,
-                                      std::vector<std::string>& icg_no_files_ref,
-                                      std::map<std::string, std::string>* out_of_date_io_files_ptr)
+void PrintAttributes::printIOMakefile()
 {
     std::ofstream makefile_io_src ;
     std::ofstream makefile_ICG ;
@@ -537,7 +459,7 @@ void PrintAttributes::printIOMakefile(std::map<std::string, std::string>& all_io
     std::ofstream ext_lib ;
 
     // Don't create a makefile if we didn't process any files.
-    if (out_of_date_io_files_ptr != NULL && out_of_date_io_files_ptr->empty())
+    if (out_of_date_io_files.empty())
     {
         return;
     }
@@ -546,43 +468,43 @@ void PrintAttributes::printIOMakefile(std::map<std::string, std::string>& all_io
 
     makefile_io_src.open(trick_build_dir + "build/Makefile_io_src");
     makefile_io_src
-        << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
-        << std::endl
-        << "ifeq ($(IS_CC_CLANG), 0)" << std::endl
-        << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
-        << "    ifeq ($(shell test $(GCC_MAJOR) -lt 6; echo $$?), 0)" << std::endl
-        << "        TRICK_IO_CXXFLAGS += -std=c++11" << std::endl
-        << "    endif" << std::endl
-        << "endif" << std::endl
-        << "ifeq ($(IS_CC_CLANG), 1)" << std::endl
-        << "    TRICK_IO_CXXFLAGS += -std=c++14" << std::endl
-        << "endif" << std::endl
-        << std::endl
+        << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << '\n'
+        << '\n'
+        << "ifeq ($(IS_CC_CLANG), 0)" << '\n'
+        << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << '\n'
+        << "    ifeq ($(shell test $(GCC_MAJOR) -lt 6; echo $$?), 0)" << '\n'
+        << "        TRICK_IO_CXXFLAGS += -std=c++11" << '\n'
+        << "    endif" << '\n'
+        << "endif" << '\n'
+        << "ifeq ($(IS_CC_CLANG), 1)" << '\n'
+        << "    TRICK_IO_CXXFLAGS += -std=c++14" << '\n'
+        << "endif" << '\n'
+        << '\n'
         << "IO_OBJECTS =" ;
 
     std::map< std::string , std::string >::iterator mit ;
-    for (mit = all_io_files_ref.begin(); mit != all_io_files_ref.end(); ++mit)
+    for (mit = all_io_files.begin(); mit != all_io_files.end(); ++mit)
     {
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
         makefile_io_src << " \\\n    " << (*mit).second.substr(0,found) << ".o" ;
     }
 
-    makefile_io_src << " \\\n    $(TRICK_BUILD_DIR)build/class_map.o" << std::endl
-                    << std::endl
-                    << "$(IO_OBJECTS): \%.o : \%.cpp | \%.d" << std::endl
-                    << "\t$(PRINT_COMPILE)" << std::endl
+    makefile_io_src << " \\\n    $(TRICK_BUILD_DIR)build/class_map.o" << '\n'
+                    << '\n'
+                    << "$(IO_OBJECTS): \%.o : \%.cpp | \%.d" << '\n'
+                    << "\t$(PRINT_COMPILE)" << '\n'
                     << "\t$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) "
                        "$(TRICK_IO_CXXFLAGS) -MMD -MP -c -o $@ $<)"
-                    << std::endl
-                    << std::endl
-                    << "$(IO_OBJECTS:.o=.d): ;" << std::endl
-                    << std::endl
-                    << "-include $(IO_OBJECTS:.o=.d)" << std::endl
-                    << std::endl
-                    << "$(S_MAIN): $(IO_OBJECTS)" << std::endl
-                    << std::endl
-                    << "LINK_LISTS += $(LD_FILELIST)" + trick_build_dir + "build/io_link_list" << std::endl;
+                    << '\n'
+                    << '\n'
+                    << "$(IO_OBJECTS:.o=.d): ;" << '\n'
+                    << '\n'
+                    << "-include $(IO_OBJECTS:.o=.d)" << '\n'
+                    << '\n'
+                    << "$(S_MAIN): $(IO_OBJECTS)" << '\n'
+                    << '\n'
+                    << "LINK_LISTS += $(LD_FILELIST)" + trick_build_dir + "build/io_link_list" << '\n';
 
     makefile_io_src.close() ;
 
@@ -602,7 +524,7 @@ void PrintAttributes::printIOMakefile(std::map<std::string, std::string>& all_io
     ICG_processed.open(trick_build_dir + "build/ICG_processed");
 
     makefile_ICG << trick_build_dir + "build/Makefile_io_src:";
-    for (mit = all_io_files_ref.begin(); mit != all_io_files_ref.end(); ++mit)
+    for (mit = all_io_files.begin(); mit != all_io_files.end(); ++mit)
     {
         makefile_ICG << " \\\n    " << (*mit).first ;
         size_t found ;
@@ -611,7 +533,6 @@ void PrintAttributes::printIOMakefile(std::map<std::string, std::string>& all_io
         std::string ssrc = (*mit).second.substr(0,found) ;
         if(ssrc.substr( ssrc.length()-11, ssrc.length()) != "io_S_source" )
         {
-            // TODO: class_map.o appears to be missing?
             trickify_io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
         }
         ICG_processed << (*mit).first << std::endl ;
@@ -629,21 +550,19 @@ void PrintAttributes::printIOMakefile(std::map<std::string, std::string>& all_io
     trickify_io_link_list.close() ;
 
     ext_lib.open(trick_build_dir + "build/ICG_ext_lib");
-    for (auto& file : ext_lib_io_files_ref)
+    for (auto& file : ext_lib_io_files)
     {
         ext_lib << file << std::endl ;
     }
     ext_lib.close() ;
 }
 
-void PrintAttributes::printICGNoFiles() { printICGNoFiles(icg_no_files); }
-
-void PrintAttributes::printICGNoFiles(std::vector<std::string>& icg_no_files_ref)
+void PrintAttributes::printICGNoFiles()
 {
     if ( ! sim_services_flag ) {
         std::vector< std::string >::iterator it ;
         std::ofstream icg_no_outfile(trick_build_dir + "build/ICG_no_found");
-        for (it = icg_no_files_ref.begin(); it != icg_no_files_ref.end(); ++it)
+        for (it = icg_no_files.begin(); it != icg_no_files.end(); ++it)
         {
             icg_no_outfile << (*it) << std::endl ;
         }
