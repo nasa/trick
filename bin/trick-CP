@@ -35,12 +35,13 @@ if ( defined $ENV{'VERBOSE'} ) {
 
 #### Handle arguments ####
 $numArgs         = $#ARGV + 1;
-$build_dir_args  = 0; # Number of -C / -b args. Only support 1, they are mutually exclusive. 
+$build_dir_args  = 0;            # Number of -C / -b args. Only support 1, they are mutually exclusive.
 $makefileAddArgs = ' ';
 $sdefine_dir     = ".";
 $sdefine         = "S_define";
 $trick_build_dir = "./";
-$makefile = "makefile";
+$makefile        = "makefile";
+
 for $argnum ( 0 .. $#ARGV ) {
     $arg = $ARGV[$argnum];
     if ( $arg =~ /(\w+)=(\w+)/ ) {
@@ -68,7 +69,7 @@ for $argnum ( 0 .. $#ARGV ) {
         $build_dir_args == 0 or die "Only one instance of -C or -b allowed.\n";
         $build_dir_args++;
         $trick_build_dir = File::Spec->catdir( $ARGV[ $argnum + 1 ], '' ) . "/";
-        $makefile = "${trick_build_dir}makefile";
+        $makefile        = "${trick_build_dir}makefile";
     }
     else {
         $ENV{TRICK_CPFLAGS} .= " $arg";

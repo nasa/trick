@@ -288,7 +288,7 @@ all: $ENV{'TRICK_BUILD_DIR'}$swig_sim_zip
     foreach my $dir ( keys %python_module_dirs ) {
         system("mkdir -p $swig_sim_dir/$dir");
         open MODULE_INITFILE, ">$swig_sim_dir/$dir/__init__.py";
-        foreach my $file (@files_to_process, @ext_lib_files) {
+        foreach my $file ( @files_to_process, @ext_lib_files ) {
             if ( exists $trick_headers{$file}{python_module_dir} and $trick_headers{$file}{python_module_dir} eq $dir )
             {
                 print MODULE_INITFILE "# $file\n";
