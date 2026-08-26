@@ -242,6 +242,7 @@ class Job(object):
         self._command = command
         self.log_file = log_file
         self._log_file = None
+        self._stdin_file = None
         self._process = None
         self._start_time = None
         self._stop_time = None
@@ -257,11 +258,24 @@ class Job(object):
         if self.get_status != self.Status.RUNNING:
           logging.debug('Executing command: ' + self._command)
           self._start_time = time.time()
+          self._stdin_file = open(os.devnull, 'r')
           self._log_file = open(self.log_file, 'w')
           self._process = subprocess.Popen(
             self._command, stdout=self._log_file, stderr=self._log_file,
-            stdin=open(os.devnull, 'r'), shell=True, preexec_fn=os.setsid,
+            stdin=self._stdin_file, shell=True, preexec_fn=os.setsid,
             close_fds=True)
+
+    def _close_files(self):
+        """
+        Close any outstanding file handles associated with this job.
+        """
+        if self._log_file is not None and not self._log_file.closed:
+            self._log_file.close()
+        self._log_file = None
+
+        if self._stdin_file is not None and not self._stdin_file.closed:
+            self._stdin_file.close()
+        self._stdin_file = None
 
     def get_status(self):
         """
@@ -287,6 +301,8 @@ class Job(object):
         self._exit_status = self._process.poll()
         if self._exit_status is None:
             return self.Status.RUNNING
+
+        self._close_files()
 
         if self._timeout is not None:
             return self.Status.TIMEOUT
@@ -431,6 +447,7 @@ class Job(object):
             self._process.wait()
         except:
             pass
+        self._close_files()
 
 class FileSizeJob(Job):
     """

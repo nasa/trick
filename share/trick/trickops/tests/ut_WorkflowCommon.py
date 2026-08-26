@@ -97,3 +97,11 @@ class WorkflowCommonTestCase(unittest.TestCase):
         f = open('/tmp/WorkflowCommonTestCase_hi.txt', 'r')
         self.assertTrue(f.readlines()[0].strip() == 'hi')
         f.close()
+
+    def test_job_closes_file_handles_after_completion(self):
+        job = Job(name='testname', command='echo hi',
+          log_file='/tmp/WorkflowCommonTestCase_handles.txt')
+        self.instance.execute_jobs([job], max_concurrent=1)
+        self.assertTrue(job.get_status() == Job.Status.SUCCESS)
+        self.assertTrue(job._log_file is None or job._log_file.closed)
+        self.assertTrue(job._stdin_file is None or job._stdin_file.closed)
