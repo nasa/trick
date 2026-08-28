@@ -112,14 +112,14 @@ $$
 int main(void)
 {
     /* Initial conditions */
-    const double g          = 9.81;        // standard gravity in m/s^2
-    const double acc[2]     = {0.0, -g};   // acceleration in m/s^2
-    const double init_angle = M_PI / 6.0;  // initial angle in radians
-    const double init_speed = 50.0;        // initial speed in m/s
-    const double time_step  = 0.01;        // time step in seconds
+    const double g          = 9.81;       // standard gravity in m/s^2
+    const double acc[2]     = {0.0, -g};  // acceleration in m/s^2
+    const double init_angle = M_PI / 6.0; // initial angle in radians
+    const double init_speed = 50.0;       // initial speed in m/s
+    const double time_step  = 0.01;       // time step in seconds
 
-    const double init_pos[2] = {0.0, 0.0};  // initial position in meters
-    const double init_vel[2]                // initial velocity in m/s
+    const double init_pos[2] = {0.0, 0.0}; // initial position in meters
+    const double init_vel[2]               // initial velocity in m/s
         = {
             cos(init_angle) * init_speed,
             sin(init_angle) * init_speed,
@@ -130,7 +130,7 @@ int main(void)
     double vel[2]      = {init_vel[0], init_vel[1]}; // current velocity in m/s
     double sim_time    = 0.0;                        // current simulation time in seconds
     double impact_time = 0.0;                        // time of impact in seconds
-    int impact         = 0;                         // flag indicating whether an impact has occurred
+    int impact         = 0;                          // flag indicating whether an impact has occurred
 
     printf("time, pos[0], pos[1], vel[0], vel[1]\n");
 
