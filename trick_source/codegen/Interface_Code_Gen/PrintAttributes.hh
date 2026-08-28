@@ -83,6 +83,9 @@ class PrintAttributes {
         /** Output stream to be used to print individual io_src files */
         std::ofstream outfile ;
 
+        /** Output stream to be used for extern_init_attr */
+        std::ofstream extern_init_attr_outfile;
+
         /** Output stream to be used for class_map */
         std::ofstream class_map_outfile ;
 
