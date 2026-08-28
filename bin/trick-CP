@@ -70,6 +70,7 @@ for $argnum ( 0 .. $#ARGV ) {
         $build_dir_args++;
         $trick_build_dir = File::Spec->catdir( $ARGV[ $argnum + 1 ], '' ) . "/";
         $makefile        = "${trick_build_dir}makefile";
+        shift;
     }
     else {
         $ENV{TRICK_CPFLAGS} .= " $arg";
