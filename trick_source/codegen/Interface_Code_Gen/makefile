@@ -55,6 +55,7 @@ CLANGLIBS += -lc++abi -lclang-cpp
 else
 CLANGLIBS += -lc++abi
 endif
+LLVMLDFLAGS += -Wl,-lto_library,$(shell $(LLVM_HOME)/bin/llvm-config --libdir)/libLTO.dylib
 endif
 
 all: $(ICG)
