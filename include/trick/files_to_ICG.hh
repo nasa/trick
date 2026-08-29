@@ -83,6 +83,7 @@
 #include "trick/DRAscii.hh"
 #include "trick/DRBinary.hh"
 #include "trick/DRHDF5.hh"
+#include "trick/IntegrationJobDataRecordGroup.hh"
 #include "trick/DebugPause.hh"
 #include "trick/EchoJobs.hh"
 #include "trick/FrameLog.hh"
