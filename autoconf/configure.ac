@@ -219,12 +219,28 @@ AS_IF([test "x$CLANG_VERSION" = "x"],[],
    ])
 ])
 
-AS_IF([test "x$CLANG_VERSION" = "x"],[],
-  [AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[18.0.0],
-   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangASTMatchers -lclangAPINotes -lclangLex -lclangBasic"],
-   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"]
-   )]
-)
+dnl clangAnalysis pulls in clangASTMatchers and clangAPINotes via
+dnl UnsafeBufferUsage.cpp since clang 16. These libraries must appear after
+dnl clangAnalysis and before their dependencies, so detect them by presence.
+
+OLD_CLANG_LIBS_EXTRA=""
+
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangASTMatchers.a],
+  [OLD_CLANG_LIBS_EXTRA="$OLD_CLANG_LIBS_EXTRA -lclangASTMatchers"])
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangAPINotes.a],
+  [OLD_CLANG_LIBS_EXTRA="$OLD_CLANG_LIBS_EXTRA -lclangAPINotes"])
+
+OLD_CLANG_LIBS="-lclangFrontend \
+-lclangDriver \
+-lclangSerialization \
+-lclangParse \
+-lclangSema \
+-lclangAnalysis \
+-lclangEdit \
+-lclangAST \
+$OLD_CLANG_LIBS_EXTRA \
+-lclangLex \
+-lclangBasic"
 
 NEW_CLANG_LIBS="-lclang-cpp"
 AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],
