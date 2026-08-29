@@ -111,9 +111,9 @@ public:
 
     /**
      * Updates an integration rate by index and cycle. Calling with 0
-     * index is equivalent to set_integ_cycle
-     * @param rateIdx  New integration rate in seconds
-     * @param integRateIn index of the added rate
+     * index is equivalent to set_integ_cycle     * 
+     * @param rateIdx index of the added rate
+     * @param integRateIn New integration rate in seconds
      * @return Zero = success, non-zero = failure (rateIdx is invalid).
      */
     virtual int set_integ_rate(const size_t rateIdx, const double integRateIn);
