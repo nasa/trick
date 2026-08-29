@@ -25,23 +25,34 @@ TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtes
 # created to the list.
 TESTS = Integrator_unittest
 
-OTHER_OBJECTS = \
-    ../../include/object_${TRICK_HOST_CPU}/io_ABM_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_Euler_Cromer_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_Euler_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_MM4_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_NL2_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_RK2_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_RK4_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_RKF45_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_RKF78_Integrator.o \
-    ../../include/object_${TRICK_HOST_CPU}/io_RKG4_Integrator.o
+# These force-include individual .o files rather than relying on -ltrick/
+# -ler7_utils archive linking: these are ICG-registration objects whose
+# static initializers (type introspection) nothing in this test directly
+# calls, so a normal `-lname` archive link — which only pulls in members
+# that satisfy an unresolved symbol reference — silently drops them.
+#
+# Extracted from libtrick.a / liber7_utils.a instead of read from
+# component-level object_$(TRICK_HOST_CPU)/ dirs: those source-tree paths
+# only exist after an in-source `make` build, but this test's own
+# TRICK_HOME can also be an out-of-source CMake install (same pattern/
+# rationale as CommandLineArguments/test/Makefile's MM_OBJECTS). All of
+# liber7_utils.a's members originate from exactly the integration/*,
+# interface/, and trick/integration/ subtrees this Makefile used to
+# wildcard-glob directly, so extracting the whole archive reproduces that
+# scope exactly.
+INTEGRATOR_OBJDIR = integrator_objs
+ER7_OBJDIR = er7_utils_objs
+OTHER_OBJECTS = $(INTEGRATOR_OBJDIR)/.extracted $(ER7_OBJDIR)/.extracted
 
-OTHER_OBJECTS += \
-${TRICK_HOME}/trick_source/er7_utils/integration/*/object_${TRICK_HOST_CPU}/*.o \
-${TRICK_HOME}/trick_source/er7_utils/interface/object_${TRICK_HOST_CPU}/*.o \
-${TRICK_HOME}/trick_source/er7_utils/trick/integration/object_${TRICK_HOST_CPU}/*.o
+$(INTEGRATOR_OBJDIR)/.extracted: ${TRICK_LIB_DIR}/libtrick.a
+	mkdir -p $(INTEGRATOR_OBJDIR)
+	cd $(INTEGRATOR_OBJDIR) && ar x $(abspath $<) $$(ar t $(abspath $<) | grep -E '^io_(ABM_Integrator|Euler_Cromer_Integrator|Euler_Integrator|Integrator|MM4_Integrator|NL2_Integrator|RK2_Integrator|RK4_Integrator|RKF45_Integrator|RKF78_Integrator|RKG4_Integrator)\.')
+	touch $@
+
+$(ER7_OBJDIR)/.extracted: ${TRICK_LIB_DIR}/liber7_utils.a
+	mkdir -p $(ER7_OBJDIR)
+	cd $(ER7_OBJDIR) && ar x $(abspath $<)
+	touch $@
 
 # House-keeping build targets.
 
@@ -52,10 +63,10 @@ test: $(TESTS)
 
 clean :
 	rm -f $(TESTS) *.o
-	rm -rf io_src xml
+	rm -rf io_src xml $(INTEGRATOR_OBJDIR) $(ER7_OBJDIR)
 
 Integrator_unittest.o : Integrator_unittest.cc
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
-Integrator_unittest : Integrator_unittest.o
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+Integrator_unittest : Integrator_unittest.o $(OTHER_OBJECTS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ Integrator_unittest.o $(INTEGRATOR_OBJDIR)/*.o $(ER7_OBJDIR)/*.o $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

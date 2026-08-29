@@ -1,0 +1,30 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 20, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default",
+      "description": "Auto-detect all dependencies from the environment",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "macos-homebrew",
+      "displayName": "macOS (Homebrew)",
+      "description": "Point detection at Homebrew's LLVM, since Apple's system clang lacks the libraries ICG needs",
+      "inherits": "default",
+      "cacheVariables": {
+        "LLVM_HOME": "/opt/homebrew/opt/llvm"
+      }
+    },
+    {
+      "name": "rhel",
+      "displayName": "RHEL-family (RHEL/Rocky/Oracle Linux)",
+      "description": "Same detection as default; installs to lib64 automatically per config_Linux.mk's /etc/redhat-release check",
+      "inherits": "default"
+    }
+  ]
+}

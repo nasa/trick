@@ -40,6 +40,192 @@ jobs:
     needs: [style]
     uses: ./.github/workflows/_test-macos.yml
 
+  cmake-configure:
+    name: CMake Configure (${{ matrix.cfg.os }} ${{ matrix.cfg.tag }})
+    needs: [style]
+    # TODO: Remove always() once style enforcement is stable — ideally builds only run on clean style.
+    if: always()
+    runs-on: ubuntu-latest
+    container: docker://${{ matrix.cfg.image }}:${{ matrix.cfg.tag }}
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - { os: ubuntu, tag: 24.04, arch: debian, image: ubuntu }
+          - { os: ubuntu, tag: 26.04, arch: debian, image: ubuntu }
+          - { os: rockylinux, tag: 9, arch: rhel, image: rockylinux/rockylinux }
+        include:
+          - cfg: {}
+            deps: >-
+              bison
+              clang
+              flex
+              git
+              llvm
+              make
+              maven
+              cmake
+              swig
+              zip
+              gdb
+            conf_pkg: echo package manager already configured
+            enable_repo: ""
+            install_cmd: install -y
+
+          #-------- Debian-based Dependencies ----------------
+          - cfg: { arch: debian }
+            pkg_mgr: apt-get
+            conf_pkg: apt-get update
+            arch_deps: >-
+              curl
+              g++
+              libx11-dev
+              libxml2-dev
+              libxt-dev
+              libmotif-common
+              libmotif-dev
+              zlib1g-dev
+              llvm-dev
+              libclang-dev
+              libudunits2-dev
+              libgtest-dev
+              libgmock-dev
+              libgsl-dev
+              libhdf5-dev
+              default-jdk
+              python3-dev
+              python3-pip
+              python3-venv
+              python3-yaml
+              python3-psutil
+
+          #-------- RHEL-based Dependencies (all versions) ----------------
+          - cfg: { arch: rhel }
+            pkg_mgr: dnf
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+            arch_deps: >-
+              clang-devel
+              diffutils
+              gcc
+              gcc-c++
+              gtest-devel
+              gmock-devel
+              gsl-devel
+              hdf5-devel
+              java-21-openjdk-devel
+              libxml2-devel
+              llvm-devel
+              llvm-static
+              ncurses-devel
+              openmotif
+              openmotif-devel
+              perl
+              perl-Digest-MD5
+              udunits2
+              udunits2-devel
+              which
+              zlib-devel
+              python3-devel
+              python3-pyyaml
+              python3-psutil
+
+          #-------- RHEL 9: gtest lives in crb ----------------
+          - cfg: { arch: rhel, tag: 9 }
+            enable_repo: dnf config-manager --enable crb
+
+    steps:
+      - name: Set noninteractive mode
+        run: echo "DEBIAN_FRONTEND=noninteractive" >> "$GITHUB_ENV"
+        if: matrix.cfg.arch == 'debian'
+      - name: Update Package Manager
+        run: |
+          ${{ matrix.conf_pkg }}
+          ${{ matrix.enable_repo }}
+      - name: Install Dependencies
+        run: >
+          ${{ matrix.pkg_mgr }}
+          ${{ matrix.install_cmd }}
+          ${{ matrix.deps }}
+          ${{ matrix.arch_deps }}
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      # A dedicated step: GITHUB_ENV writes only take effect in *subsequent*
+      # steps, so setting JAVA_HOME inline in the same run block as a script
+      # would leave that script itself without it.
+      - name: Set JAVA_HOME
+        run: echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+      - name: Compare autoconf vs cmake config_user.mk (Phase 1)
+        run: test/build_config/compare_config_user.sh
+      - name: CMake build + archive parity vs make (Phase 2)
+        run: test/build_config/compare_archives.sh
+      - name: CMake install + CTest (Phase 3)
+        run: |
+          NPROC="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
+          # Three-step io_src bootstrap: a nonexistent-at-first-configure
+          # generated list does not wire itself into CMAKE_CONFIGURE_DEPENDS
+          # (see cmake/TrickICG.cmake) — the first `trick_io_src_gen` build
+          # writes it, then a reconfigure picks it up before the real build.
+          cmake -S . -B build
+          cmake --build build --target trick-ICG trick_io_src_gen -j"$NPROC"
+          cmake -S . -B build
+          cmake --build build -j"$NPROC"
+          # Stage a runnable TRICK_HOME (build/stage) — the stage_install
+          # fixture in cmake/TrickTest.cmake also does this, but doing it
+          # explicitly here surfaces install errors directly.
+          cmake --build build --target stage -j"$NPROC"
+          ctest --test-dir build --output-on-failure -L '^(unit|sims)$'
+
+  cmake-configure-macos:
+    name: CMake Configure (macOS)
+    needs: [style]
+    # TODO: Remove always() once style enforcement is stable — ideally builds only run on clean style.
+    if: always()
+    runs-on: macos-26
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install dependencies
+        run: |
+          brew update || true
+          brew upgrade || true
+          brew install --cask xquartz
+          brew install udunits openmotif maven googletest gsl hdf5
+          brew install swig llvm
+      # sims (LABEL sims, exercised by the Phase 3 step below) drives
+      # trickops.py, which needs PyYAML/psutil — it's the only sims test now
+      # (replaced the two-sim smoke subset), so installing these is no longer
+      # optional for this job. Installed into the same Python3 `cmake` resolves
+      # at configure time (find_package(Python3 ...) in TrickTest.cmake) and
+      # bakes as an absolute path into the generated ctest command — a venv's
+      # activate script in a later step would not reach that baked-in path, so
+      # this installs directly rather than isolating in a venv like the
+      # autotools test-macos job above does.
+      - name: Install trickops Python dependencies
+        run: pip3 install --break-system-packages -r share/trick/trickops/requirements.txt
+      - name: Compare autoconf vs cmake config_user.mk (Phase 1)
+        run: test/build_config/compare_config_user.sh
+      - name: CMake build + archive parity vs make (Phase 2)
+        run: test/build_config/compare_archives.sh
+      - name: CMake install + CTest (Phase 3)
+        run: |
+          NPROC="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
+          # Three-step io_src bootstrap: a nonexistent-at-first-configure
+          # generated list does not wire itself into CMAKE_CONFIGURE_DEPENDS
+          # (see cmake/TrickICG.cmake) — the first `trick_io_src_gen` build
+          # writes it, then a reconfigure picks it up before the real build.
+          cmake -S . -B build
+          cmake --build build --target trick-ICG trick_io_src_gen -j"$NPROC"
+          cmake -S . -B build
+          cmake --build build -j"$NPROC"
+          # Stage a runnable TRICK_HOME (build/stage) — the stage_install
+          # fixture in cmake/TrickTest.cmake also does this, but doing it
+          # explicitly here surfaces install errors directly.
+          cmake --build build --target stage -j"$NPROC"
+          ctest --test-dir build --output-on-failure -L '^(unit|sims)$'
+
   trickops:
     needs: [style]
     uses: ./.github/workflows/_trickops.yml

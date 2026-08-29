@@ -1,81 +1,86 @@
 set( TRICK_MM_SRC
-  ADefParseContext
-  MemoryManager
-  MemoryManager_C_Intf
-  MemoryManager_JSON_Intf
-  MemoryManager_add_attr_info
-  MemoryManager_add_checkpoint_alloc_dependency
-  MemoryManager_add_shared_library_symbols
-  MemoryManager_add_template_name_trans
-  MemoryManager_add_var
-  MemoryManager_alloc_depends
-  MemoryManager_alloc_info_map
-  MemoryManager_clear_memory
-  MemoryManager_declare_var
-  MemoryManager_delete_var
-  MemoryManager_get_enumerated
-  MemoryManager_get_size
-  MemoryManager_get_stl_dependencies
-  MemoryManager_get_type_attributes
-  MemoryManager_io_src_intf
-  MemoryManager_is_alloced
-  MemoryManager_make_declaration
-  MemoryManager_make_reference_attr
-  MemoryManager_map_external_object
-  MemoryManager_realloc
-  MemoryManager_ref_allocate
-  MemoryManager_ref_assignment
-  MemoryManager_ref_attributes
-  MemoryManager_ref_dim
-  MemoryManager_ref_name
-  MemoryManager_ref_name_from_address
-  MemoryManager_ref_var
-  MemoryManager_restore
-  MemoryManager_restore_stls
-  MemoryManager_set_checkpointagent
-  MemoryManager_set_debug_level
-  MemoryManager_strdup
-  MemoryManager_write_checkpoint
-  MemoryManager_write_var
-  RefParseContext
-  addr_bitfield
-  extract_bitfield
-  extract_unsigned_bitfield
-  follow_address_path
-  insert_bitfield
-  parameter_types
-  ref_free
-  ref_to_value
-  trickTypeCharString
-  vval
-  wcs_ext
+  ADefParseContext.cpp
+  AttributesUtils.cpp
+  MemoryManager.cpp
+  MemoryManager_C_Intf.cpp
+  MemoryManager_JSON_Intf.cpp
+  MemoryManager_add_attr_info.cpp
+  MemoryManager_add_checkpoint_alloc_dependency.cpp
+  MemoryManager_add_shared_library_symbols.cpp
+  MemoryManager_add_template_name_trans.cpp
+  MemoryManager_add_var.cpp
+  MemoryManager_alloc_depends.cpp
+  MemoryManager_alloc_info_map.cpp
+  MemoryManager_clear_memory.cpp
+  MemoryManager_declare_var.cpp
+  MemoryManager_delete_var.cpp
+  MemoryManager_get_attributes_for_address.cpp
+  MemoryManager_get_enumerated.cpp
+  MemoryManager_get_size.cpp
+  MemoryManager_get_stl_dependencies.cpp
+  MemoryManager_get_type_attributes.cpp
+  MemoryManager_io_src_intf.cpp
+  MemoryManager_is_alloced.cpp
+  MemoryManager_make_declaration.cpp
+  MemoryManager_make_reference_attr.cpp
+  MemoryManager_map_external_object.cpp
+  MemoryManager_realloc.cpp
+  MemoryManager_ref_allocate.cpp
+  MemoryManager_ref_assignment.cpp
+  MemoryManager_ref_attributes.cpp
+  MemoryManager_ref_dim.cpp
+  MemoryManager_ref_name.cpp
+  MemoryManager_ref_name_from_address.cpp
+  MemoryManager_ref_var.cpp
+  MemoryManager_restore.cpp
+  MemoryManager_restore_stls.cpp
+  MemoryManager_set_checkpointagent.cpp
+  MemoryManager_set_debug_level.cpp
+  MemoryManager_strdup.cpp
+  MemoryManager_write_checkpoint.cpp
+  MemoryManager_write_var.cpp
+  RefParseContext.cpp
+  addr_bitfield.c
+  extract_bitfield.c
+  extract_unsigned_bitfield.c
+  follow_address_path.c
+  insert_bitfield.c
+  ref_free.cpp
+  ref_to_value.c
+  trickTypeCharString.c
+  vval.c
+  wcs_ext.c
 )
 
-# Sim services Lex/Yacc files
-set( MM_LEX_YACC_SRC
-  ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/adef_parser.lex
-  ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/adef_parser.tab
-  ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/ref_parser.lex
-  ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/ref_parser.tab
-)
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
 
-add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/adef_parser.lex.cpp
- COMMAND ${FLEX_EXECUTABLE} -d -o ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/adef_parser.lex.cpp ${CMAKE_CURRENT_SOURCE_DIR}/adef_parser.l
- MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/adef_parser.l
-)
-add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/adef_parser.tab.cpp ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/adef_parser.tab.hpp
- COMMAND ${BISON_EXECUTABLE} -d -o ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/adef_parser.tab.cpp ${CMAKE_CURRENT_SOURCE_DIR}/adef_parser.y
- MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/adef_parser.y
-)
-add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/ref_parser.lex.cpp
- COMMAND ${FLEX_EXECUTABLE} -d -o ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/ref_parser.lex.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ref_parser.l
- MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/ref_parser.l
-)
-add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/ref_parser.tab.cpp ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/ref_parser.tab.hpp
- COMMAND ${BISON_EXECUTABLE} -d -o ${CMAKE_BINARY_DIR}/temp_src/lex_yacc/ref_parser.tab.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ref_parser.y
- MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/ref_parser.y
-)
+flex_target(trick_mm_adef_lexer adef_parser.l ${CMAKE_CURRENT_BINARY_DIR}/adef_parser.lex.cpp)
+bison_target(trick_mm_adef_parser adef_parser.y ${CMAKE_CURRENT_BINARY_DIR}/adef_parser.tab.cpp)
+flex_target(trick_mm_ref_lexer ref_parser.l ${CMAKE_CURRENT_BINARY_DIR}/ref_parser.lex.cpp)
+bison_target(trick_mm_ref_parser ref_parser.y ${CMAKE_CURRENT_BINARY_DIR}/ref_parser.tab.cpp)
 
-add_library( trick_mm STATIC ${TRICK_MM_SRC} ${MM_LEX_YACC_SRC})
-target_include_directories( trick_mm PUBLIC ${UDUNITS2_INCLUDES} )
+add_library( trick_mm STATIC
+  ${TRICK_MM_SRC}
+  ${FLEX_trick_mm_adef_lexer_OUTPUTS}
+  ${BISON_trick_mm_adef_parser_OUTPUTS}
+  ${FLEX_trick_mm_ref_lexer_OUTPUTS}
+  ${BISON_trick_mm_ref_parser_OUTPUTS}
+)
+target_link_libraries( trick_mm PUBLIC trick_build_flags )
+set_target_properties( trick_mm PROPERTIES ARCHIVE_OUTPUT_NAME trick_mm)
 
+# Match the Makefile's per-generator-output warning suppressions
+# (CheckPointAgent/Makefile applies the same pattern; see A3).
+set_source_files_properties(
+    ${FLEX_trick_mm_adef_lexer_OUTPUTS} ${FLEX_trick_mm_ref_lexer_OUTPUTS}
+    PROPERTIES COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-unused-function;-Wno-sign-compare;-x;c++"
+)
+set_source_files_properties(
+    ${BISON_trick_mm_adef_parser_OUTPUTS} ${BISON_trick_mm_ref_parser_OUTPUTS}
+    PROPERTIES COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-unused;-x;c++"
+)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set_property(SOURCE ${BISON_trick_mm_adef_parser_OUTPUTS} ${BISON_trick_mm_ref_parser_OUTPUTS}
+        APPEND PROPERTY COMPILE_OPTIONS "-Wno-parentheses-equality")
+endif()
