@@ -390,15 +390,15 @@ void PrintFileContents10::print_io_src_delete( std::ostream & ostream , ClassVal
 }
 
 void PrintFileContents10::print_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
+    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, checkpoint_stl_name_encode(obj_name), checkpoint_stl_name_encode(var_name))", ostream, *fdes, *cv);
 }
 
 void PrintFileContents10::print_post_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
+    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, checkpoint_stl_name_encode(obj_name), checkpoint_stl_name_encode(var_name))", ostream, *fdes, *cv);
 }
 
 void PrintFileContents10::print_restore_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "restore_stl(*stl, obj_name, var_name)",ostream, *fdes, *cv);
+    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "const std::string encoded_object_name = checkpoint_stl_name_encode(obj_name);\n    const std::string encoded_var_name = checkpoint_stl_name_encode(var_name);\n    if (checkpoint_stl_allocation_exists(encoded_object_name, encoded_var_name)) {\n        restore_stl(*stl, encoded_object_name, encoded_var_name);\n    } else {\n        restore_stl(*stl, checkpoint_stl_name_encode_legacy(obj_name), checkpoint_stl_name_encode_legacy(var_name));\n    }",ostream, *fdes, *cv);
 }
 
 void PrintFileContents10::print_clear_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
