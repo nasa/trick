@@ -1117,16 +1117,17 @@ TEST_F(MM_write_checkpoint, WrappedStl ) {
     std::string result= ss.str();
     ASSERT_NE (result.size(), 0);
 
-    EXPECT_EQ( strcmp_IgnoringWhiteSpace(            
-            "// Variable Declarations."
-            "VectorWrapper vec_allocation;"
-            "int vec_allocation_vec[4];"
-            "// Clear all allocations to 0."
-            "clear_all_vars();"
-            "// Variable Assignments."
-            "// STL: vec_allocation.vec"
-            "vec_allocation_vec = "
-            "{10, 20, 30, 40};", result.c_str()), 0);
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace("// Variable Declarations."
+                                        "VectorWrapper vec_allocation;"
+                                        "int vec__allocation_vec[4];"
+                                        "// Clear all allocations to 0."
+                                        "clear_all_vars();"
+                                        "// Variable Assignments."
+                                        "// STL: vec_allocation.vec"
+                                        "vec__allocation_vec = "
+                                        "{10, 20, 30, 40};",
+                                        result.c_str()),
+              0);
 }
 
 // ================================================================================
