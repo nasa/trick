@@ -2,24 +2,14 @@ TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
 # The config_${HOST_TYPE}.mk file provides LLVM_HOME
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti $(UDUNITS_INCLUDES)
+CXXFLAGS := -g -std=c++17 -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti $(UDUNITS_INCLUDES)
 
 CLANG_MAJOR := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f1 -d.)
 CLANG_MINOR := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d.)
 CLANG_PATCHLEVEL := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f3 -d.)
 
-CLANG_MAJOR_GTEQ10 := $(shell [ $(CLANG_MAJOR) -ge 10 ] && echo 1)
-# By default, Clang 16 or later builds C++ code according to the C++17 standard.
+# Clang 16 and later provide libclang-cpp.
 CLANG_MAJOR_GTEQ16 := $(shell [ $(CLANG_MAJOR) -ge 16 ] && echo 1)
-ifeq ($(CLANG_MAJOR_GTEQ16),1)
-CXXFLAGS += -std=c++17
-else
-ifeq ($(CLANG_MAJOR_GTEQ10),1)
-CXXFLAGS += -std=c++14
-else
-CXXFLAGS += -std=c++11
-endif
-endif
 
 LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) $(UDUNITS_LDFLAGS)
 

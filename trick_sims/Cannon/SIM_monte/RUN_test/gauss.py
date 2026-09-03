@@ -9,8 +9,7 @@ trick.mc_set_num_runs(50)
 #trick.mc_add_range(5)
 # Inline method below
 
-# If configure trick build with -std=c++0x or -std=c++11 if available,
-# can use trick.MonteVarRandom.TRICK_DEFAULT_ENGINE, or other selections.
+# Use trick.MonteVarRandom.TRICK_DEFAULT_ENGINE, or other selections,
 # to use C++11 <random> pseudo-random number generators
 
 var0 = trick.MonteVarRandom("dyn.baseball.time_to_fire_jet_1",trick.MonteVarRandom.GAUSSIAN,"s",trick.MonteVarRandom.NO_ENGINE) # NO_ENGINE is default
@@ -68,4 +67,3 @@ dyn.baseball.omega0 = trick.attach_units("rev/s" , 30.0)
 
 
 trick.stop(10.0)
-
