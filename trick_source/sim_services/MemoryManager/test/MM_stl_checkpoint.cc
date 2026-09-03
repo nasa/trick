@@ -2,10 +2,12 @@
 #define private public
 
 #include "trick/MemoryManager.hh"
+
+#include "MM_stl_testbed.hh"
+#include "MM_test.hh"
+
 #include "trick/checkpoint_stl_protos.hh"
 #include "trick/memorymanager_c_intf.h"
-#include "MM_test.hh"
-#include "MM_stl_testbed.hh"
 
 /*
  This tests the implementations of checkpoint_stl
@@ -29,42 +31,46 @@ protected:
     void TearDown() {} 
 };
 
-TEST(STLCheckpointNameEncoding, distinguishes_member_separators_from_literal_underscores) {
+TEST(STLCheckpointNameEncoding, distinguishes_member_separators_from_literal_underscores)
+{
     EXPECT_EQ("vehicle_lvlh_lvlh__frame_links",
               checkpoint_stl_name_encode("vehicle.lvlh.lvlh_frame") + "_" + checkpoint_stl_name_encode("links"));
     EXPECT_EQ("vehicle_lvlh_lvlh_frame_links",
               checkpoint_stl_name_encode("vehicle.lvlh.lvlh.frame") + "_" + checkpoint_stl_name_encode("links"));
 }
 
-std::string checkpoint_test_name(const std::string& object_name, const std::string& suffix) {
+std::string checkpoint_test_name(const std::string& object_name, const std::string& suffix)
+{
     size_t encoded_suffix_end = suffix.size();
 
-    for (size_t index = 0; index < suffix.size(); ++index) {
-        if (suffix[index] != '_') {
+    for (size_t index = 0; index < suffix.size(); ++index)
+    {
+        if (suffix[index] != '_')
+        {
             continue;
         }
 
-        if ((suffix.compare(index, 5, "_keys") == 0) ||
-            (suffix.compare(index, 5, "_data") == 0) ||
-            (suffix.compare(index, 6, "_first") == 0) ||
-            (suffix.compare(index, 7, "_second") == 0)) {
+        if ((suffix.compare(index, 5, "_keys") == 0) || (suffix.compare(index, 5, "_data") == 0)
+            || (suffix.compare(index, 6, "_first") == 0) || (suffix.compare(index, 7, "_second") == 0))
+        {
             encoded_suffix_end = index;
             break;
         }
 
         size_t digit = index + 1;
-        while ((digit < suffix.size()) && std::isdigit(static_cast<unsigned char>(suffix[digit]))) {
+        while ((digit < suffix.size()) && std::isdigit(static_cast<unsigned char>(suffix[digit])))
+        {
             ++digit;
         }
-        if ((digit > index + 1) && ((digit == suffix.size()) || (suffix[digit] == '_'))) {
+        if ((digit > index + 1) && ((digit == suffix.size()) || (suffix[digit] == '_')))
+        {
             encoded_suffix_end = index;
             break;
         }
     }
 
-    return checkpoint_stl_name_encode(object_name) + "_" +
-           checkpoint_stl_name_encode(suffix.substr(0, encoded_suffix_end)) +
-           suffix.substr(encoded_suffix_end);
+    return checkpoint_stl_name_encode(object_name) + "_"
+        + checkpoint_stl_name_encode(suffix.substr(0, encoded_suffix_end)) + suffix.substr(encoded_suffix_end);
 }
 
 template <typename T>
@@ -173,7 +179,7 @@ void validate_temp_set (Trick::MemoryManager * memmgr, std::string object_name, 
 
 template <typename First, typename Second>
 void validate_temp_pair (Trick::MemoryManager * memmgr, std::string object_name, std::string var_name, std::pair<First, Second> expected_data) {
-    std::string temp_name = checkpoint_test_name(object_name, var_name);
+    std::string temp_name   = checkpoint_test_name(object_name, var_name);
     std::string first_name = temp_name + "_first";
     std::string second_name = temp_name + "_second";
 
@@ -1220,7 +1226,7 @@ TEST_F(MM_stl_checkpoint, vec_user_defined ) {
     // ASSERT
     ASSERT_TRUE(memmgr->var_exists("my__alloc_vec__user__defined") == 1);
 
-    REF2 * data_ref = memmgr->ref_attributes("my__alloc_vec__user__defined");
+    REF2* data_ref   = memmgr->ref_attributes("my__alloc_vec__user__defined");
     UserClass * data = (UserClass *) data_ref->address;
 
     ASSERT_TRUE(data != NULL);

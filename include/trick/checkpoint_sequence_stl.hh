@@ -43,7 +43,7 @@ int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string v
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
 
-    cont_size = in_stl.size() ;
+    cont_size = in_stl.size();
 
     if ( cont_size > 0 ) {
         std::string type_string;
@@ -85,8 +85,7 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
     typename STL::iterator it ;
     typename STL::iterator end ;
 
-
-    cont_size = in_stl.size() ;
+    cont_size = in_stl.size();
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
 
@@ -218,7 +217,8 @@ int checkpoint_stl(std::multiset<ITEM_TYPE,_Alloc> & in_stl , std::string object
 /* =================================================================================================*/
 
 template <class STL>
-int delete_sequence_alloc(STL & in_stl __attribute__ ((unused)), std::string object_name , std::string var_name ) {
+int delete_sequence_alloc(STL& in_stl __attribute__((unused)), std::string object_name, std::string var_name)
+{
     REF2 * items_ref ;
     std::string temp_str = object_name + std::string("_") + var_name ;
     items_ref = ref_attributes((char *)temp_str.c_str()) ;
@@ -276,7 +276,7 @@ int restore_sequence_i(STL & in_stl , std::string object_name , std::string var_
     std::string temp_str ;
 
     REF2 * items_ref ;
-    typename STL::value_type * items ;
+    typename STL::value_type* items;
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + std::string("_") + var_name ;
@@ -304,7 +304,7 @@ int restore_sequence_s(STL & in_stl , std::string object_name , std::string var_
 
     REF2 * items_ref ;
     std::string * items ;
-    std::string temp_str ;
+    std::string temp_str;
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
     temp_str = object_name + "_" + var_name ;
@@ -340,7 +340,7 @@ int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std
 
     REF2 * items_ref ;
     std::string * items ;
-    std::string temp_str ;
+    std::string temp_str;
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
     temp_str = object_name + "_" + var_name ;
@@ -372,7 +372,7 @@ int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std
     std::string temp_str ;
 
     REF2 * items_ref ;
-    typename std::array<ITEM_TYPE,N>::value_type * items ;
+    typename std::array<ITEM_TYPE, N>::value_type* items;
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + std::string("_") + var_name ;

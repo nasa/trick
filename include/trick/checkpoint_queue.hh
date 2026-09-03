@@ -40,7 +40,7 @@ int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object
     ITEM_TYPE * items = nullptr ;
     std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
 
-    cont_size = temp_queue.size() ;
+    cont_size = temp_queue.size();
 
     if ( cont_size > 0 ) {
         std::string type_string;
@@ -83,7 +83,7 @@ int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object
     std::string * items = nullptr ;
     std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
 
-    cont_size = temp_queue.size() ;
+    cont_size = temp_queue.size();
 
     if ( cont_size > 0 ) {
         var_declare << "std::string "
@@ -125,7 +125,7 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     ITEM_TYPE * items = nullptr ;
     std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
 
-    cont_size = temp_queue.size() ;
+    cont_size = temp_queue.size();
 
     if ( cont_size > 0 ) {
         std::string type_string;
@@ -169,7 +169,7 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     std::string * items = nullptr ;
     std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
 
-    cont_size = temp_queue.size() ;
+    cont_size = temp_queue.size();
 
     if ( cont_size > 0 ) {
         var_declare << "std::string "
@@ -230,7 +230,7 @@ int restore_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
     std::string temp_str ;
 
     REF2 * items_ref ;
-    ITEM_TYPE * items ;
+    ITEM_TYPE* items;
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + std::string("_") + var_name ;
@@ -263,7 +263,7 @@ int restore_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
     std::string temp_str ;
 
     REF2 * items_ref ;
-    std::string * items ;
+    std::string* items;
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + "_" + var_name ;
@@ -301,7 +301,7 @@ int restore_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
     std::string temp_str ;
 
     REF2 * items_ref ;
-    ITEM_TYPE * items ;
+    ITEM_TYPE* items;
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + std::string("_") + var_name ;
@@ -335,7 +335,7 @@ int restore_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
     std::string temp_str ;
 
     REF2 * items_ref ;
-    std::string * items ;
+    std::string* items;
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + "_" + var_name ;
