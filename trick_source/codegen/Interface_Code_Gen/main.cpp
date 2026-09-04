@@ -146,6 +146,7 @@ const char * gcc_version = "";
     }
 #endif
 }
+
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:
 
@@ -157,6 +158,13 @@ Most of the main program is pieced together from examples on the web. We are doi
 -# Parsing the input file.
 */
 int main(int argc, char * argv[]) {
+    const char* trick_build_dir_ptr = std::getenv("TRICK_BUILD_DIR");
+    if (!trick_build_dir_ptr)
+    {
+        trick_build_dir_ptr = "";
+    }
+    trick_build_dir = trick_build_dir_ptr;
+
     llvm::cl::SetVersionPrinter([]
 #if (LIBCLANG_MAJOR >= 6)
         (llvm::raw_ostream& stream) {stream
@@ -176,14 +184,16 @@ int main(int argc, char * argv[]) {
      */
     std::vector<const char *> filtered_args;
     for ( unsigned int ii = 0;  ii < argc ; ii++ ) {
-        if( strncmp(argv[ii], "-W", 2) ) {
+        if (strncmp(argv[ii], "-W", 2))
+        {
             filtered_args.push_back(argv[ii]);
         }
     }
 
     llvm::cl::ParseCommandLineOptions(filtered_args.size(), filtered_args.data());
 
-    if (input_file_names.empty()) {
+    if (input_file_names.empty())
+    {
         std::cerr << "No header file specified" << std::endl;
         return 1;
     }
