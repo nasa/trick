@@ -1,0 +1,46 @@
+name: Lint PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: read
+  statuses: write # <-- Required to update the status of the PR after linting
+
+jobs:
+  lint:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Semantic PR Title Linter
+        uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          validateSingleCommit: true
+          validateSingleCommitMatchesPrTitle: true
+          # Conventional commit types mapping to the release-please setup
+          # Keep this in sync with release-please-config.json's changelog-sections
+          # and this file's own subjectPattern
+          types: |
+            feat
+            fix
+            perf
+            revert
+            refactor
+            security
+            deprecated
+            chore
+            docs
+            test
+            ci
+            style
+            build
+            
+          # Enforces the conventional commit format (e.g., "feat: Add logging")
+          # This matches what release-please extracts.
+          subjectPattern: '^(feat|fix|perf|revert|refactor|security|deprecated|chore|docs|test|ci|style|build)(\([a-z0-9-]+\))?!?:[[:space:]].+$'
+          subjectPatternError: |
+            The PR title must match the conventional commit format.
+            Example: "feat: Add new feature" or "fix: Resolve memory leak"
