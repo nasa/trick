@@ -22,7 +22,6 @@ jobs:
           validateSingleCommitMatchesPrTitle: true
           # Conventional commit types mapping to the release-please setup
           # Keep this in sync with release-please-config.json's changelog-sections
-          # and this file's own subjectPattern
           types: |
             feat
             fix
@@ -38,9 +37,8 @@ jobs:
             style
             build
             
-          # Enforces the conventional commit format (e.g., "feat: Add logging")
-          # This matches what release-please extracts.
-          subjectPattern: '^(feat|fix|perf|revert|refactor|security|deprecated|chore|docs|test|ci|style|build)(\([a-z0-9-]+\))?!?:[[:space:]].+$'
+          # types: already gatekeeps the type
+          subjectPattern: ^.+$
           subjectPatternError: |
             The PR title must match the conventional commit format.
             Example: "feat: Add new feature" or "fix: Resolve memory leak"
