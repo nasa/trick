@@ -6,20 +6,18 @@
 #ifndef CHECKPOINT_STACK_HH
 #define CHECKPOINT_STACK_HH
 
-#include <stack>
-#include <algorithm>
-#include <typeinfo>
-#include <sstream>
-#include <type_traits>
-
-#ifdef __GNUC__
-#include <cxxabi.h>
-#endif
+#include "checkpoint_stl_protos.hh"
 
 #include "trick/checkpoint_sequence_stl.hh"
-#include "checkpoint_stl_protos.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <sstream>
+#include <stack>
+#include <type_traits>
+#include <typeinfo>
 
 /* =================================================================================================*/
 
