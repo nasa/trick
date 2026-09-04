@@ -7,9 +7,9 @@ class Trick < Formula
   head "https://github.com/nasa/trick.git", branch: "master"
 
   bottle do
-    root_url "https://github.com/nasa/trick/releases/download/25.1.0"
-    sha256 cellar: :any, arm64_tahoe:   "094dc0c7cd02288b3626910f79fbd402d4a18851315b8ae36ea4a6bfc1b97b5e"
-    sha256 cellar: :any, arm64_sequoia: "a1e4e084ffa19317040ba790c11eddb9809336c7e02a0bf600462fabf9aec109"
+    root_url "https://github.com/nasa/trick/releases/download/25.1.1"
+    sha256 cellar: :any, arm64_tahoe:   "40769056581800d9a3bbb8642513971cf02a46bb7818012d98ef2c93c4d2898f"
+    sha256 cellar: :any, arm64_sequoia: "ee0b3fb826156ab141e538b26b36f9a2e3146c4d8727ecf5bdc444d84883ad90"
   end
 
   LLVM_VERSION = "23".freeze
