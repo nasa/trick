@@ -113,6 +113,7 @@ jobs:
           git checkout ${{ env.PRIMARY_BRANCH }}
           git pull origin ${{ env.PRIMARY_BRANCH }}
           git merge --no-edit "origin/pr-${{ env.PR_NUMBER }}"
+          brew trust --formula ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}
           brew bottle --merge --write \
             "$GITHUB_WORKSPACE"/bottles/*.bottle.json
 
