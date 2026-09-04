@@ -1,10 +1,9 @@
 class Trick < Formula
   desc "Simulation development framework"
   homepage "https://github.com/nasa/trick"
-  url "https://github.com/nasa/trick/archive/refs/tags/25.1.0.tar.gz"
-  sha256 "e4dcbc5e618e2805d9560ef5b7cacb1cd98a360fae5b69272ce72a7ba076dbb2"
+  url "https://github.com/nasa/trick/archive/refs/tags/25.1.1.tar.gz"
+  sha256 "69a577668720ee9ab7fcf9312b486f53ba787f669432fa4c63bfc8e91b7b17da"
   license "NASA-1.3"
-  revision 1
   head "https://github.com/nasa/trick.git", branch: "master"
 
   bottle do
@@ -13,7 +12,7 @@ class Trick < Formula
     sha256 cellar: :any, arm64_sequoia: "a1e4e084ffa19317040ba790c11eddb9809336c7e02a0bf600462fabf9aec109"
   end
 
-  LLVM_VERSION = "22".freeze
+  LLVM_VERSION = "23".freeze
 
   depends_on "pkgconf" => :build
   depends_on arch: :arm64
@@ -24,7 +23,7 @@ class Trick < Formula
   depends_on "libaec"
   depends_on "libx11"
   depends_on "libxt"
-  depends_on "llvm@22"
+  depends_on "llvm@23"
   depends_on :macos
   depends_on "maven"
   depends_on "openjdk"
@@ -40,9 +39,9 @@ class Trick < Formula
   def install
     llvm = Formula["llvm@#{LLVM_VERSION}"]
     args = [
-      "--with-gsl=#{Formula["gsl"].opt_prefix}",
-      "--with-hdf5=#{Formula["hdf5"].opt_prefix}",
-      "--with-udunits=#{Formula["udunits"].opt_prefix}",
+      "--with-gsl=#{formula_opt_prefix("gsl")}",
+      "--with-hdf5=#{formula_opt_prefix("hdf5")}",
+      "--with-udunits=#{formula_opt_prefix("udunits")}",
       "--with-llvm=#{llvm.opt_prefix}",
     ]
 
@@ -67,19 +66,16 @@ class Trick < Formula
     rm_r(Dir[prefix/"trick_source/**/io_src"])
 
     inreplace pkgshare/"makefiles/config_user.mk" do |s|
-      # Fix hardcoded shim compiler paths in installed config file
-      s.gsub! "super/clang++", "clang++"
-      s.gsub! "super/clang", "clang"
-      s.gsub! "super/ld", "ld"
+      # Fix hardcoded shim tool paths in installed config file
       s.gsub! %r{#{HOMEBREW_SHIMS_PATH}/[^/]+/}o, ""
       # Replace javac with homebrew openjdk javac path
-      s.gsub! "javac", "#{Formula["openjdk"].opt_bin}/javac"
+      s.gsub! "javac", "#{formula_opt_bin("openjdk")}/javac"
     end
 
     # Fix HDF5 library paths to include libaec for libsz
     inreplace pkgshare/"makefiles/Makefile.common",
       "HDF5_LIB := -L$(HDF5)/lib -lhdf5_hl -lhdf5 -lsz",
-      "HDF5_LIB := -L$(HDF5)/lib -L#{Formula["libaec"].opt_lib} -lhdf5_hl -lhdf5 -lsz"
+      "HDF5_LIB := -L$(HDF5)/lib -L#{formula_opt_lib("libaec")} -lhdf5_hl -lhdf5 -lsz"
   end
 
   test do
