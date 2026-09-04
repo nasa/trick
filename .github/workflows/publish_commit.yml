@@ -45,8 +45,20 @@ jobs:
         run: |
           brew tap ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }} https://github.com/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}
           cd "$TAP_DIR"
-          git fetch origin "+refs/pull/${{ env.PR_NUMBER }}/head:refs/remotes/origin/pr-${{ env.PR_NUMBER }}"
+          git fetch origin \
+            "+refs/heads/${{ env.PRIMARY_BRANCH }}:refs/remotes/origin/${{ env.PRIMARY_BRANCH }}" \
+            "+refs/pull/${{ env.PR_NUMBER }}/head:refs/remotes/origin/pr-${{ env.PR_NUMBER }}"
           git checkout -b "pr-${{ env.PR_NUMBER }}" "origin/pr-${{ env.PR_NUMBER }}"
+
+      - name: Require PR branch to include current master
+        run: |
+          cd "$TAP_DIR"
+          if ! git merge-base --is-ancestor \
+            "origin/${{ env.PRIMARY_BRANCH }}" \
+            "origin/pr-${{ env.PR_NUMBER }}"; then
+            echo "ERROR: PR #${{ env.PR_NUMBER }} must be rebased onto the current ${{ env.PRIMARY_BRANCH }} branch."
+            exit 1
+          fi
 
       # ── Get bottles ──────────────────────────────────────────────────────────
 
@@ -78,7 +90,7 @@ jobs:
           done
 
           # Rename local_filename (--) to filename (-) before uploading
-          find bottles -name '*--*' | while read f; do
+          find bottles -name '*--*' | while read -r f; do
             mv "$f" "${f/--/-}"
           done
 
@@ -111,8 +123,14 @@ jobs:
         run: |
           cd "$TAP_DIR"
           git checkout ${{ env.PRIMARY_BRANCH }}
-          git pull origin ${{ env.PRIMARY_BRANCH }}
-          git merge --no-edit "origin/pr-${{ env.PR_NUMBER }}"
+          git pull --ff-only origin ${{ env.PRIMARY_BRANCH }}
+          if ! git merge-base --is-ancestor \
+            "${{ env.PRIMARY_BRANCH }}" \
+            "origin/pr-${{ env.PR_NUMBER }}"; then
+            echo "ERROR: PR #${{ env.PR_NUMBER }} must be rebased onto the current ${{ env.PRIMARY_BRANCH }} branch."
+            exit 1
+          fi
+          git merge --ff-only "origin/pr-${{ env.PR_NUMBER }}"
           brew trust --formula ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}
           brew bottle --merge --write \
             "$GITHUB_WORKSPACE"/bottles/*.bottle.json
