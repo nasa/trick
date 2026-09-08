@@ -7,4 +7,3 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 TRICK_CFLAGS += $(PYTHON_INCLUDES)
 TRICK_CXXFLAGS += $(PYTHON_INCLUDES)
 
--include Makefile_deps
