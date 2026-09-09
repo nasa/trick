@@ -1,0 +1,17 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "AttrTest.hh"
+
+class AttrTestSimObject : public Trick::SimObject {
+
+    public:
+        AttrTest obj ;
+        AttrTestSimObject() {
+            ("initialization") obj.initialization() ;
+            (1.0, "scheduled") obj.scheduled() ;
+        }
+} ;
+
+AttrTestSimObject attr_test_so;
+
+

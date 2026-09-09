@@ -1,1 +1,0 @@
-#include "trick/NormalStructMember.hh"
