@@ -63,7 +63,7 @@ namespace Trick {
             double stop;                    /**< trick_units(s) */
 
             /** Supplemental data attached to this job.  Typically used internally by instrumentation jobs */
-            void * sup_class_data;          /**< trick_io(**) */
+            void * sup_class_data;          /**< trick_units(--) */
 
             /** Job class id assigned by scheduler */
             int job_class;                  /**< trick_units(--) */
