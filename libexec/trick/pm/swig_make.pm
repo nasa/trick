@@ -60,6 +60,7 @@ sub get_trick_headers() {
             $python_modules{ $trick_headers{$f}{python_module} }         = 1;
             $python_module_dirs{ $trick_headers{$f}{python_module_dir} } = 1;
         }
+        $trick_headers{$f}{swig} = $trick_header{swig} if ( exists $trick_header{swig} );
     }
 }
 
