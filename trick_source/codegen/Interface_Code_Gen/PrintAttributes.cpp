@@ -267,7 +267,7 @@ void PrintAttributes::printEnum(EnumValues* ev) {
         outfile.close() ;
         printSieEnum(&enumValues) ;
     }
-    
+
     if (!isHeaderExcluded(fileName, false)) {
          printer->printEnumMap(enum_map_outfile, ev);
     }
@@ -402,9 +402,7 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
     std::set<std::string> emptyFiles;
     for (auto fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; ++fi ) {
         const clang::FileEntry * fe = (*fi).first ;
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
-        std::string header_file_name = fe->getName() ;
-#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18) 
+#if (LIBCLANG_MAJOR < 18)
         std::string header_file_name = fe->getName().str() ;
 #else
         const clang::FileEntryRef fer = fi->first ;
@@ -446,19 +444,14 @@ void PrintAttributes::printIOMakefile() {
 
     makefile_io_src.open("build/Makefile_io_src") ;
     makefile_io_src
-        << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
-        << std::endl
-        << "ifeq ($(IS_CC_CLANG), 0)" << std::endl
-        << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
-        << "    ifeq ($(shell test $(GCC_MAJOR) -lt 6; echo $$?), 0)" << std::endl
-        << "        TRICK_IO_CXXFLAGS += -std=c++11" << std::endl
-        << "    endif" << std::endl
-        << "endif" << std::endl
-        << "ifeq ($(IS_CC_CLANG), 1)" << std::endl
-        << "    TRICK_IO_CXXFLAGS += -std=c++14" << std::endl
-        << "endif" << std::endl
-        << std::endl
-        << "IO_OBJECTS =" ;
+        << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable"
+        << '\n'
+        << '\n'
+        << "ifeq ($(IS_CC_CLANG), 0)" << '\n'
+        << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << '\n'
+        << "endif" << '\n'
+        << '\n'
+        << "IO_OBJECTS =";
 
     std::map< std::string , std::string >::iterator mit ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; ++mit ) {
@@ -467,19 +460,21 @@ void PrintAttributes::printIOMakefile() {
         makefile_io_src << " \\\n    " << (*mit).second.substr(0,found) << ".o" ;
     }
 
-    makefile_io_src << " \\\n    build/class_map.o" << std::endl
-        << std::endl
-        << "$(IO_OBJECTS): \%.o : \%.cpp | \%.d" << std::endl
-        << "\t$(PRINT_COMPILE)" << std::endl
-        << "\t$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c -o $@ $<)" << std::endl
-        << std::endl
-        << "$(IO_OBJECTS:.o=.d): ;" << std::endl
-        << std::endl
-        << "-include $(IO_OBJECTS:.o=.d)" << std::endl
-        << std::endl
-        << "$(S_MAIN): $(IO_OBJECTS)" << std::endl
-        << std::endl
-        << "LINK_LISTS += $(LD_FILELIST)build/io_link_list" << std::endl;
+    makefile_io_src << " \\\n    build/class_map.o" << '\n'
+                    << '\n'
+                    << "$(IO_OBJECTS): \%.o : \%.cpp | \%.d" << '\n'
+                    << "\t$(PRINT_COMPILE)" << '\n'
+                    << "\t$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) "
+                       "$(TRICK_IO_CXXFLAGS) -MMD -MP -c -o $@ $<)"
+                    << '\n'
+                    << '\n'
+                    << "$(IO_OBJECTS:.o=.d): ;" << '\n'
+                    << '\n'
+                    << "-include $(IO_OBJECTS:.o=.d)" << '\n'
+                    << '\n'
+                    << "$(S_MAIN): $(IO_OBJECTS)" << '\n'
+                    << '\n'
+                    << "LINK_LISTS += $(LD_FILELIST)build/io_link_list" << '\n';
 
     makefile_io_src.close() ;
 

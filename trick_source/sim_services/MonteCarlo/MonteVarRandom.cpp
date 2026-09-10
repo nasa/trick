@@ -29,7 +29,6 @@ Trick::MonteVarRandom::MonteVarRandom(std::string in_name, Distribution in_distr
     randist.type = (TRICK_GSL_TYPE) distribution;
     randist.sigma_range = 1;
 
-#if (defined(_HAVE_TR1_RANDOM) || defined(_HAVE_STL_RANDOM))
     unsigned long seed = randist.seed;
     double unused = 0.0;
     StlRandomGenerator::StlDistribution stlDist =
@@ -59,7 +58,6 @@ Trick::MonteVarRandom::MonteVarRandom(std::string in_name, Distribution in_distr
             break;
         }
     }
-#endif
 }
 
 Trick::MonteVarRandom::~MonteVarRandom()

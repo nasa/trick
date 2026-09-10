@@ -114,10 +114,8 @@ char * getResolvedPath(clang::CompilerInstance & ci , clang::SourceLocation sl) 
     if ( ! fid.isInvalid() ) {
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
-        resolved_path = almostRealPath( fe->getName() ) ;
-#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18) 
-        resolved_path = almostRealPath( fe->getName().str() ) ;
+#if (LIBCLANG_MAJOR < 18)
+            resolved_path = almostRealPath(fe->getName().str());
 #else
         const clang::CustomizableOptional<clang::FileEntryRef> cfer = ci.getSourceManager().getFileEntryRefForID(fid) ;
         if (cfer.has_value()) {

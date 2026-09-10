@@ -1,14 +1,12 @@
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <dlfcn.h>
-
-#ifdef __GNUC__
-#include <cxxabi.h>
-#endif
+#include "trick/MemoryManager.hh"
 
 #include "trick/SimObject.hh"
-#include "trick/MemoryManager.hh"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <dlfcn.h>
+#include <iostream>
+#include <sstream>
 
 /**
  *
