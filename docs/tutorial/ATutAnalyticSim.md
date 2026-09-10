@@ -59,8 +59,9 @@ The CANNON data-type contains the cannonball's initial conditions,
 its acceleration, velocity, and position, the model time, whether the cannonball
 has impacted the ground, and the time of impact.
 
-The prototypes will declare two functions for initializing our CANNON data-type.
-We'll discuss these in the next section.
+The prototypes will declare two functions for initializing our CANNON data-type,
+plus a third that runs when the simulation ends. We'll discuss these in the
+next sections.
 
 <a id=listing_2_cannon_h></a>
 **Listing 2 - `cannon.h`**
@@ -74,28 +75,28 @@ PURPOSE: (Represent the state and initial conditions of a cannonball)
 
 typedef struct {
 
-    double vel0[2] ;    /* *i m Init velocity of cannonball */
-    double pos0[2] ;    /* *i m Init position of cannonball */
-    double init_speed ; /* *i m/s Init barrel speed */
-    double init_angle ; /* *i rad Angle of cannon */
+    double vel0[2];    /* *i m Init velocity of cannonball */
+    double pos0[2];    /* *i m Init position of cannonball */
+    double init_speed; /* *i m/s Init barrel speed */
+    double init_angle; /* *i rad Angle of cannon */
 
-    double acc[2] ;     /* m/s2 xy-acceleration  */
-    double vel[2] ;     /* m/s xy-velocity */
-    double pos[2] ;     /* m xy-position */
+    double acc[2];     /* m/s2 xy-acceleration  */
+    double vel[2];     /* m/s xy-velocity */
+    double pos[2];     /* m xy-position */
 
-    double time;        /* s Model time */
+    double time;       /* s Model time */
 
-    int impact ;        /* -- Has impact occured? */
-    double impactTime;  /* s Time of Impact */
+    int impact;        /* -- Has impact occurred? */
+    double impactTime; /* s Time of Impact */
 
-} CANNON ;
+} CANNON;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    int cannon_default_data(CANNON*) ;
-    int cannon_init(CANNON*) ;
-    int cannon_shutdown(CANNON*) ;
+int cannon_default_data(CANNON*);
+int cannon_init(CANNON*);
+int cannon_shutdown(CANNON*);
 #ifdef __cplusplus
 }
 #endif
@@ -285,40 +286,42 @@ PURPOSE: (Set the initial data values)
 *************************************************************************/
 
 /* Model Include files */
-#include <math.h>
 #include "../include/cannon.h"
+#include <math.h>
 
 /* default data job */
-int cannon_default_data( CANNON* C ) {
+int cannon_default_data(CANNON* C)
+{
+    C->acc[0] = 0.0;            // m/s^2
+    C->acc[1] = -9.81;          // m/s^2
 
-    C->acc[0] = 0.0;
-    C->acc[1] = -9.81;
-    C->init_angle = M_PI/6 ;
-    C->init_speed  = 50.0 ;
-    C->pos0[0] = 0.0 ;
-    C->pos0[1] = 0.0 ;
+    C->init_angle = M_PI / 6.0; // rad
+    C->init_speed = 50.0;       // m/s
 
-    C->time = 0.0 ;
+    C->pos0[0] = 0.0;           // m
+    C->pos0[1] = 0.0;           // m
 
-    C->impact = 0 ;
-    C->impactTime = 0.0 ;
+    C->time = 0.0;              // s
 
-    return 0 ;
+    C->impact     = 0;          // no impact yet
+    C->impactTime = 0.0;        // s
+
+    return 0;
 }
 
 /* initialization job */
-int cannon_init( CANNON* C) {
-   
-    C->vel0[0] = C->init_speed*cos(C->init_angle);
-    C->vel0[1] = C->init_speed*sin(C->init_angle);
+int cannon_init(CANNON* C)
+{
+    C->vel0[0] = C->init_speed * cos(C->init_angle);
+    C->vel0[1] = C->init_speed * sin(C->init_angle);
 
-    C->vel[0] = C->vel0[0] ; 
-    C->vel[1] = C->vel0[1] ; 
+    C->pos[0] = C->pos0[0];
+    C->pos[1] = C->pos0[1];
 
-    C->impactTime = 0.0;
-    C->impact = 0.0;
+    C->vel[0] = C->vel0[0];
+    C->vel[1] = C->vel0[1];
 
-    return 0 ; 
+    return 0;
 }
 ```
 
@@ -360,7 +363,7 @@ PURPOSE: ( Cannon Analytic Model )
 #ifdef __cplusplus
 extern "C" {
 #endif
-int cannon_analytic(CANNON*) ;
+int cannon_analytic(CANNON*);
 #ifdef __cplusplus
 }
 #endif
@@ -381,36 +384,43 @@ Type in the contents of **Listing 4** and save.
 /*****************************************************************************
 PURPOSE:    ( Analytical Cannon )
 *****************************************************************************/
-#include <stdio.h>
-#include <math.h>
 #include "../include/cannon_analytic.h"
+#include <math.h>
+#include <stdio.h>
 
-int cannon_analytic( CANNON* C ) {
+int cannon_analytic(CANNON* C)
+{
+    const double time_step = 0.01; // must match this job's rate in the S_define
 
-    C->acc[0] =  0.00;
-    C->acc[1] = -9.81 ;
-    C->vel[0] = C->vel0[0] + C->acc[0] * C->time ;
-    C->vel[1] = C->vel0[1] + C->acc[1] * C->time ;
-    C->pos[0] = C->pos0[0] + (C->vel0[0] + (0.5) * C->acc[0] * C->time) * C->time ;
-    C->pos[1] = C->pos0[1] + (C->vel0[1] + (0.5) * C->acc[1] * C->time) * C->time ;
-    if (C->pos[1] < 0.0) {
-        C->impactTime = (- C->vel0[1] - sqrt( C->vel0[1] * C->vel0[1] - 2 * C->pos0[1]))/C->acc[1];
-        C->pos[0] = C->impactTime * C->vel0[0];
+    C->vel[0] = C->vel0[0] + C->acc[0] * C->time;
+    C->vel[1] = C->vel0[1] + C->acc[1] * C->time;
+
+    C->pos[0] = C->pos0[0] + (C->vel0[0] + 0.5 * C->acc[0] * C->time) * C->time;
+    C->pos[1] = C->pos0[1] + (C->vel0[1] + 0.5 * C->acc[1] * C->time) * C->time;
+
+    if (C->pos[1] < 0.0) { // check for impact
+        C->impactTime = (-C->vel0[1] - sqrt(C->vel0[1] * C->vel0[1] - 2.0 * C->acc[1] * C->pos0[1]))
+            / C->acc[1];
+
+        C->pos[0] = C->pos0[0] + (C->vel0[0] + 0.5 * C->acc[0] * C->impactTime) * C->impactTime;
         C->pos[1] = 0.0;
+
         C->vel[0] = 0.0;
         C->vel[1] = 0.0;
-        if ( !C->impact ) {
+
+        if (!C->impact) {
             C->impact = 1;
-            fprintf(stderr, "\n\nIMPACT: t = %.9f, pos[0] = %.9f\n\n", C->impactTime, C->pos[0] ) ;
+            fprintf(stderr, "\n\nIMPACT: t = %.9f, pos[0] = %.9f\n\n", C->impactTime, C->pos[0]);
         }
     }
+
     /*
-     * Increment time by the time delta associated with this job
-     * Note that the 0.01 matches the frequency of this job
-     * as specified in the S_define.
+     * Increment model time by the time delta associated with this job.
+     * time_step must match the frequency of this job as specified in the S_define.
      */
-    C->time += 0.01 ;
-    return 0 ;
+    C->time += time_step;
+
+    return 0;
 }
 ```
 
@@ -443,19 +453,22 @@ In our case we're just going to print the final cannon ball state.
 /************************************************************************
 PURPOSE: (Print the final cannon ball state.)
 *************************************************************************/
-#include <stdio.h>
 #include "../include/cannon.h"
 #include "trick/exec_proto.h"
+#include <stdio.h>
 
-int cannon_shutdown( CANNON* C) {
-    double t = exec_get_sim_time();
-    printf( "========================================\n");
-    printf( "      Cannon Ball State at Shutdown     \n");
-    printf( "t = %g\n", t);
-    printf( "pos = [%.9f, %.9f]\n", C->pos[0], C->pos[1]);
-    printf( "vel = [%.9f, %.9f]\n", C->vel[0], C->vel[1]);
-    printf( "========================================\n");
-    return 0 ;
+int cannon_shutdown(CANNON* C)
+{
+    const double t = exec_get_sim_time(); // s
+
+    printf("========================================\n");
+    printf("      Cannon Ball State at Shutdown     \n");
+    printf("t = %g\n", t);
+    printf("pos = [%.9f, %.9f]\n", C->pos[0], C->pos[1]);
+    printf("vel = [%.9f, %.9f]\n", C->vel[0], C->vel[1]);
+    printf("========================================\n");
+
+    return 0;
 }
 ```
 
@@ -493,18 +506,19 @@ LIBRARY DEPENDENCIES:
 
 class CannonSimObject : public Trick::SimObject {
 
-    public:
-        CANNON cannon;
+public:
+    CANNON cannon;
 
-        CannonSimObject() {
-            ("default_data") cannon_default_data( &cannon ) ;
-            ("initialization") cannon_init( &cannon ) ;
-            (0.01, "scheduled") cannon_analytic( &cannon ) ;
-            ("shutdown") cannon_shutdown( &cannon ) ;
-        }
-} ;
+    CannonSimObject()
+    {
+        ("default_data") cannon_default_data(&cannon);
+        ("initialization") cannon_init(&cannon);
+        (0.01, "scheduled") cannon_analytic(&cannon);
+        ("shutdown") cannon_shutdown(&cannon);
+    }
+};
 
-CannonSimObject dyn ;
+CannonSimObject dyn;
 ```
 
 The `S_define` file syntax is C++ with a couple of Trick specific constructs.
@@ -543,12 +557,12 @@ prototypes in a header file (the preferred method).
 
 ### Data Lines
 
-`Class CannonSimObject : public Trick::SimObject`
+`class CannonSimObject : public Trick::SimObject`
 
 The sim object is defined as a C++ class and must be derived from the base class
 SimObject.
 
-* `Class CannonSimObject`
+* `class CannonSimObject`
 The name of the sim_object class is arbitrary.
 
 * `public Trick::SimObject`
@@ -560,7 +574,10 @@ class SimObject.
 * `CANNON` This is the name of the structure typedef that you created in the
 cannon.h header.
 
-* `cannon` This is an alias for the CANNON structure. It is mandatory.
+* `cannon` This is the name of the CANNON member. Like the class name, it is
+yours to choose, but choose it deliberately: together with the sim_object
+instance name it forms the path you will use to reach the member's variables
+from the input file and from Trick's tools, as in `dyn.cannon.pos`.
 
 * `CannonSimObject()` This is the constructor of the sim_object and it will
 contain the job declarations.
@@ -581,7 +598,7 @@ Jobs that are classified `initialization` will be called once before the main
 executive loop and will not be called again.
 
 * `cannon_init(`
-The name of the function we created in $HOME/trick_sims/models/cannon/src/cannon_init.c.
+The name of the function we created in $HOME/trick_sims/SIM_cannon_analytic/models/cannon/src/cannon_init.c.
 
 * `&cannon)`
 This is the actual value passed to cannon_init(). It is the address of the
@@ -645,10 +662,10 @@ In the files that we have created so far, the file paths in `#include` directive
 and in the `LIBRARY_DEPENDENCY` sections, are **relative** paths. These paths
 are relative to a **base-path**, that we still need to specify.
 
-For example, the `S_define` file listed above `#includes` the relative path:
+For example, the `S_define` file listed above `##includes` the relative path:
 `cannon/include/cannon_analytic.h`. We intend for this path to be relative to the
 `models` directory that we created in our `SIM_cannon_analytic` directory. The complete
-path to our cannon.h header file should be:
+path to our `cannon_analytic.h` header file should be:
 
 ```
 ${HOME}/trick_sims/SIM_cannon_analytic/models/cannon/include/cannon_analytic.h
@@ -691,9 +708,9 @@ export TRICK_CXXFLAGS="-g -Wall -Wextra -Wshadow"
 ```
 
 ##### For Your .cshrc File
-```bash
-TRICK_CFLAGS= -g -Wall -Wmissing-prototypes -Wextra -Wshadow
-TRICK_CXXFLAGS= -g -Wall -Wextra -Wshadow
+```csh
+setenv TRICK_CFLAGS "-g -Wall -Wmissing-prototypes -Wextra -Wshadow"
+setenv TRICK_CXXFLAGS "-g -Wall -Wextra -Wshadow"
 ```
 
 ### trick-CP
@@ -793,7 +810,6 @@ pos = [220.699644186, 0.000000000]
 vel = [0.000000000, 0.000000000]
 ========================================
      REALTIME SHUTDOWN STATS:
-     REALTIME TOTAL OVERRUNS:            0
             ACTUAL INIT TIME:        0.203
          ACTUAL ELAPSED TIME:       12.434
 SIMULATION TERMINATED IN
