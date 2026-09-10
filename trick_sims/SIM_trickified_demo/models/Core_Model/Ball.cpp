@@ -29,10 +29,9 @@ PROGRAMMERS:
 // Default consructor.
 Ball::Ball() /* RETURN: -- None. */
 {
-
-   // Print out constructor message.
-   //cout << "In Ball constructor." << endl;
-
+    // Print out constructor message.
+    std::cout << "In Ball constructor." << std::endl;
+    dtt.printout();
 }
 
 // Destructor.
