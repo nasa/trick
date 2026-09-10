@@ -3,8 +3,9 @@ PURPOSE:                     (Controls when jets are fired)
 ***************************************************************************/
 #include "../include/cannon_aero.h"
 #include "../include/cannon_monte_proto.h"
-#include "sim_services/Executive/include/exec_proto.h"
-#include "trick_utils/math/include/trick_math.h"
+
+#include "trick/exec_proto.h"
+#include "trick/trick_math.h"
 
 int cannon_jet_control( CANNON_AERO* C )
 {

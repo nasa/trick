@@ -8,8 +8,8 @@ PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 #ifndef SCHED_H
 #define SCHED_H
 
-#include "sim_services/Integrator/include/regula_falsi.h"
-#include "sim_services/Integrator/include/integrator_c_intf.h"
+#include "trick/integrator_c_intf.h"
+#include "trick/regula_falsi.h"
 
 typedef struct { /* SCHEDULE ------------------------------------------------*/
 

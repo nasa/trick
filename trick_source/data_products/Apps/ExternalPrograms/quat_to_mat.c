@@ -1,4 +1,4 @@
-#include "trick_utils/math/include/trick_math.h"
+#include "trick/trick_math.h"
 
 void quat_to_mat(
                           /* RETURN: -- Zero */

@@ -17,7 +17,7 @@ PROGRAMMERS:
 #ifndef BALL_STATE_H
 #define BALL_STATE_H
 
-#include "sim_services/Integrator/include/regula_falsi.h"
+#include "trick/regula_falsi.h"
 
 typedef struct { /* BSTATE_IN ------------------------------------------------*/
 

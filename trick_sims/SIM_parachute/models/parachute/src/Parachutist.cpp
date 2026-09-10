@@ -72,7 +72,7 @@ int Parachutist::state_deriv() {
    return(0);
 }
 
-#include "sim_services/Integrator/include/integrator_c_intf.h"
+#include "trick/integrator_c_intf.h"
 int Parachutist::state_integ() {
 
    int integration_step;

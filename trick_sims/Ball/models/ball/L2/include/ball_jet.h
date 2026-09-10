@@ -17,7 +17,7 @@ PROGRAMMERS:
 #ifndef BALL_JET_H
 #define BALL_JET_H
 
-#include "sim_services/include/Flag.h"
+#include "trick/Flag.h"
 
 typedef struct { /* BJET_IN --------------------------------------------------*/
 

@@ -1,10 +1,11 @@
-
-#include "sim_services/Message/include/message_proto.h"
 #include "STLCheckpoint.hh"
+
 #include "trick/memorymanager_c_intf.h"
+#include "trick/message_proto.h"
+#include "trick/trick_tests.h"
+
 #include <iostream>
 #include <vector>
-#include "sim_services/UnitTest/include/trick_tests.h"
 /* These 2 constructors add different data to an STLCheckpoint. */
 
 STLCheckpoint::STLCheckpoint() {

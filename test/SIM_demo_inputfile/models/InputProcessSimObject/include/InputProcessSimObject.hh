@@ -10,11 +10,11 @@ LIBRARY_DEPENDENCIES:
 #ifndef INPUTPROCESSSIMOBJECT_HH
 #define INPUTPROCESSSIMOBJECT_HH
 
-#include <vector>
-#include <string>
-#include <map>
+#include "trick/SimObject.hh"
 
-#include "sim_services/SimObject/include/SimObject.hh"
+#include <map>
+#include <string>
+#include <vector>
 
 namespace Trick {
 

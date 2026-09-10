@@ -1,15 +1,15 @@
 #define protected public
 
-#include <iostream>
-#include <string.h>
+#include "DPC/DPC_TimeCstrDataStream.hh"
+#include "DPC/DPC_UnitConvDataStream.hh"
+#include "DPM/DPM_time_constraints.hh"
 #include "Log/DataStream.hh"
 #include "Log/DataStreamFactory.hh"
-#include "DPC/DPC_UnitConvDataStream.hh"
-#include "DPC/DPC_TimeCstrDataStream.hh"
-#include "DPM/DPM_time_constraints.hh"
+
+#include <iostream>
+#include <string.h>
 
 #include "gtest/gtest.h"
-//#include "trick_utils/reqs/include/RequirementScribe.hh"
 
 namespace Trick {
 

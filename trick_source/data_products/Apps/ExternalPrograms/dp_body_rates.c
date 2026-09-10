@@ -13,8 +13,9 @@
        (Dorci L. Smith) (TSC-AEU) (May 2002) (Reduce ext program size))
 */
 
+#include "trick/matrix_macros.h"
+
 #include <stdio.h>
-#include "trick_utils/math/include/matrix_macros.h"
 
 int extGetNextRecord(double *in, int numIn, double *out, int numOut)
 {

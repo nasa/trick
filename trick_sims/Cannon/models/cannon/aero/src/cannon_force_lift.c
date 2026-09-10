@@ -3,7 +3,8 @@ PURPOSE: (Lift-Magnus Force)
 Tutorial Section 8
 ***************************************************************************/
 #include "../include/cannon_aero_proto.h"
-#include "trick_utils/math/include/trick_math.h"
+
+#include "trick/trick_math.h"
 
 int cannon_force_lift( CANNON_AERO *C ) {
 

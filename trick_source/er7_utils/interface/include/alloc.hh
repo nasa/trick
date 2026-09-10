@@ -90,11 +90,12 @@ namespace er7_utils {
  */
 #ifdef TRICK_VER
 
-#include <new>
-#include <string>
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "type_traits.hh"
 
+#include "trick/memorymanager_c_intf.h"
+
+#include <new>
+#include <string>
 
 namespace er7_utils {
 
