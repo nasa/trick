@@ -22,7 +22,7 @@
 #include "parse_format.h"
 #include "post_dialog.h"
 
-#define BYTES_PER_MALLOC 0xFFFF
+#include "table_text_buffer.hh"
 
 // CALLBACK
 static void FSB_cb( Widget w, XtPointer client_data, XtPointer call_data) {
@@ -73,37 +73,6 @@ static void save_table_cb( Widget w, XtPointer client_data, XtPointer call_data)
 
     XtManageChild( dialog);
 
-}
-
-static char* twprint( char* text_buf, size_t *text_buf_size, size_t *insertion_pos, char* format, ...) {
-    char message[4096];
-    va_list vargs;
-    size_t new_insertion_pos;
-    size_t message_len;
-
-    va_start(vargs, format);
-    vsprintf(message, format, vargs); // vsnprint ??
-    va_end(vargs);
-
-    message_len = strlen(message);
-    new_insertion_pos = *insertion_pos + message_len;
-
-    if (text_buf == NULL) {
-        text_buf = (char*)calloc(1, size_t(BYTES_PER_MALLOC));
-    }
-
-    while ( new_insertion_pos > *text_buf_size) {
-        *text_buf_size += (size_t)BYTES_PER_MALLOC;
-        if ((text_buf = (char *)realloc( text_buf, *text_buf_size )) == NULL) {
-            std::cerr << "OUT_OF_MEMORY in twprint." << std::endl;
-            exit(1);
-        }
-    }
-
-    strcpy(&text_buf[*insertion_pos], message);
-    *insertion_pos = new_insertion_pos;
-
-    return (text_buf);
 }
 
 // CLASS VARIABLE INITIALIZATION
