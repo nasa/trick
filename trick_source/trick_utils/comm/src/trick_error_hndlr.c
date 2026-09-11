@@ -613,7 +613,10 @@ void trick_error_report(TrickErrorHndlr * error_hndlr,  /* In: Error object */
         return;
     }
 
-    vsprintf(message, format, args);
+    /* Keep oversized diagnostics within the fixed error-message buffer. */
+    if (vsnprintf(message, sizeof(message), format, args) < 0) {
+        message[0] = '\0';
+    }
     va_end(args);
 
     /*
