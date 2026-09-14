@@ -15,7 +15,8 @@ LIBRARY DEPENDENCIES:
 
 ##include "include/trick/exec_proto.h"
 ##include "manipulator/manipulator.hh"
-
+##include <random>
+##include <unistd.h>
 class ManipulatorSimObject : public Trick::SimObject
 {
 
@@ -30,8 +31,26 @@ class ManipulatorSimObject : public Trick::SimObject
             ("integration")       trick_ret = robot.updateState();
         }
 
-};
+}
+
+class RandomWaitTimeSimObject : public Trick::SimObject
+{
+    public:
+        int waitTime = 500;
+        void randomWait()
+        {
+            static std::mt19937 gen(std::random_device{}());
+            std::uniform_int_distribution<useconds_t> dist(0, waitTime);
+            usleep(dist(gen));
+        }
+
+        RandomWaitTimeSimObject()
+        {
+            (0.010, "scheduled")  randomWait();
+        }
+}
 
 ManipulatorSimObject Manip2D(2);
+RandomWaitTimeSimObject  randWait;
 
 IntegLoop armIntegLoop(0.050) Manip2D;

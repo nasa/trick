@@ -33,7 +33,9 @@ int Trick::FrameDataRecordGroup::frame_log_clear() {
         return 0 ;
     }
     std::vector< Trick::JobData *>::iterator it ;
-    for ( it = rec_jobs.begin() ; it != rec_jobs.end() ; ++it ) {
+    for ( it = rec_jobs.begin() ; it != rec_jobs.end() ; ++it )
+    {
+        (*it)->prev_frame_time_seconds = (*it)->frame_time_seconds;
         (*it)->frame_time = 0 ;
         (*it)->frame_time_seconds = 0.0;
     }

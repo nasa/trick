@@ -59,13 +59,13 @@ namespace Trick {
             Trick::timeline_t **timeline_other; /**<  trick_units(--) */
 
             /** Number of threads in this sim.\n */
-            int num_threads;                /**<  trick_io(**) */
+            int num_threads;                /**<  trick_units(--) */
             /** The maximum number of job samples we can timeline (user settable).\n */
-            int tl_max_samples;             /**<  trick_io(**) */
+            int tl_max_samples;             /**<  trick_units(--) */
             /** Count how many Cyclic jobs are in the timeline per thread.\n */
-            int *tl_count;                  /**<  trick_io(**) */
+            int *tl_count;                  /**<  trick_units(--) */
             /** Count how many Non-Cyclic jobs are in the timeline per thread.\n */
-            int *tl_other_count;            /**<  trick_io(**) */
+            int *tl_other_count;            /**<  trick_units(--) */
 
             /** True when logging of initialization jobs started.\n */
             bool log_init_start;            /**<  trick_io(**) */
