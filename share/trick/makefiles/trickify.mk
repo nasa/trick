@@ -92,12 +92,22 @@ MY_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
 
 -include $(TRICKIFY_MAKE_DUMP)
 
+ifndef TRICKIFY_ORIG_DIR
+    $(error TRICKIFY_ORIG_DIR must be set to the home directory of the package being trickified)
+endif
+
 ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
 endif
 
 TRICKIFY_BUILD_TYPE ?= PLO
 TRICKIFY_OBJECT_NAME ?= trickified.o
+
+TRICKIFY_OBJECT_BASE = $(basename $(TRICKIFY_OBJECT_NAME))
+
+TRICKIFY_PLO = $(TRICKIFY_OBJECT_BASE).o
+TRICKIFY_SHARED = $(TRICKIFY_OBJECT_BASE).so
+TRICKIFY_STATIC = $(TRICKIFY_OBJECT_BASE).a
 
 # We started zipping the Python modules, and this variable is now misnamed :(
 # python.zip would be a better default value, but leave it as python for backward compatibility.
@@ -109,14 +119,7 @@ include $(MY_HOME)Makefile.common
 BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
 IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
-OBJ_LINK_LIST := trickify_obj_list
-ifdef FULL_TRICKIFY_BUILD
-	FULL_TRICKIFY_BUILD = "1"
-	SRC_OBJECTS   := $(shell cat trickify_dep_list)
-else
-	FULL_TRICKIFY_BUILD = "0"
-	SRC_OBJECTS   := 
-endif
+
 ifneq ($(wildcard $(BUILD_DIR)),)
 	SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
 	IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
@@ -140,31 +143,11 @@ else
 endif
 
 .PHONY: trickify
-trickify: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
+trickify: $(TRICKIFY_PLO) $(TRICKIFY_SHARED) $(TRICKIFY_STATIC) $(TRICKIFY_PYTHON_DIR) build_dir.txt
+	$(info [32mTrickify Complete[00m)
 
-$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) $(SRC_OBJECTS)| $(dir $(TRICKIFY_OBJECT_NAME))
-	@sh -c '\
-		FILES=""; \
-		while IFS= read -r line; do \
-			FILES="$$FILES $$line"; \
-		done < $(PY_LINK_LIST); \
-		while IFS= read -r line; do \
-			FILES="$$FILES $$line"; \
-		done < $(IO_LINK_LIST); \
-		if [ "$(FULL_TRICKIFY_BUILD)" = "1" ]; then \
-			while IFS= read -r line; do \
-				FILES="$$FILES $$line"; \
-			done < $(OBJ_LINK_LIST); \
-		fi; \
-		echo $$FILES > full_file ; \
-		if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ]; then \
-			$(LD) $(LD_PARTIAL) -o $@ $$FILES; \
-		elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ]; then \
-			$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) $(LD_OPTIONS) $(USER_ADDITIONAL_OPTIONS) -o $@ $$FILES; \
-		elif [ "$(TRICKIFY_BUILD_TYPE)" = "STATIC" ]; then \
-			ar rcs $@ $$FILES; \
-		fi; \
-	'
+build_dir.txt:
+	@echo "${TRICKIFY_ORIG_DIR}" > $@
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
 	@mkdir -p $@
@@ -233,10 +216,26 @@ $(TRICKIFY_PYTHON_DIR): $(SWIG_OBJECTS:.o=.cpp) | $(dir $(TRICKIFY_PYTHON_DIR))
 # dependency list. The method is laid out in more detail here:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
+build/S_define.lib_deps: | $(BUILD_DIR)
+	touch $@
 
-$(BUILD_DIR)S_source.d: | $(BUILD_DIR)
+$(BUILD_DIR)S_source.d: build/S_define.lib_deps | $(BUILD_DIR)
 	$(call ECHO_AND_LOG,$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh)
 	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig)
 	$(call ECHO_AND_LOG,$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICK_CXXFLAGS) S_source.hh)
 
+$(BUILD_DIR)Makefile_src: $(BUILD_DIR)S_source.d
+	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_src)
+
 -include $(BUILD_DIR)S_source.d
+include $(BUILD_DIR)Makefile_src
+
+$(TRICKIFY_PLO): $(SWIG_OBJECTS) $(IO_OBJECTS) $(MODEL_OBJECTS)| $(dir $(TRICKIFY_OBJECT_NAME))
+	$(LD) $(LD_PARTIAL) -o $@ @$(PY_LINK_LIST) @$(IO_LINK_LIST) $(LINK_LISTS)
+
+$(TRICKIFY_SHARED): $(SWIG_OBJECTS) $(IO_OBJECTS) $(MODEL_OBJECTS)| $(dir $(TRICKIFY_OBJECT_NAME))
+	$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) $(LD_OPTIONS) $(USER_ADDITIONAL_OPTIONS) -o $@ @$(PY_LINK_LIST) @$(IO_LINK_LIST) $(LINK_LISTS)
+
+$(TRICKIFY_STATIC): $(SWIG_OBJECTS) $(IO_OBJECTS) $(MODEL_OBJECTS)| $(dir $(TRICKIFY_OBJECT_NAME))
+	ar rcs $@ @$(PY_LINK_LIST) @$(IO_LINK_LIST) $(LINK_LISTS)
+

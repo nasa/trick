@@ -26,6 +26,54 @@ my %trick_headers;
 my %python_modules;
 my %python_module_dirs;
 
+my %build_dirs;
+
+# create_ext_libs_map loops through each directory listed in TRICK_EXT_LIB_DIRS. If a build_dir.txt
+# file exists inside of the directory create a map entry from the ext_lib to directory written inside
+# of build_dir.txt
+sub create_ext_libs_map() {
+
+    # Read the environment variable, using an empty string if it is not defined.
+    my $ext_lib_dirs_string = $ENV{'TRICK_EXT_LIB_DIRS'} // '';
+
+    # Split on any sequence of colons or whitespace.
+    # grep removes an empty entry when the environment variable is empty.
+    my @ext_lib_dirs = grep { length $_ } split /[:\s]+/, $ext_lib_dirs_string;
+
+    foreach my $dir (@ext_lib_dirs) {
+        $dir =~ s/\/$//;
+        my $filename = "$dir/build_dir.txt";
+
+        # Skip directories that do not contain a readable build_dir.txt.
+        if (!-r $filename) {
+            next;
+        }
+
+        # Open the file using a lexical file handle.
+        open my $file_handle, '<', $filename
+            or do {
+                warn "Cannot open $filename: $!\n";
+                next;
+            };
+
+        # The file is expected to contain one directory name.
+        my $build_dir = <$file_handle>;
+        close $file_handle;
+
+        # Skip an empty file.
+        if (!defined $build_dir) {
+            warn "$filename is empty; skipping\n";
+            next;
+        }
+
+        # Remove leading and trailing whitespace, including the newline.
+        $build_dir =~ s/^\s+//;
+        $build_dir =~ s/\s+$//;
+
+        $build_dirs{$dir} = $build_dir;
+    }
+}
+
 sub read_files_to_process() {
     ( my $version, my $thread ) = get_trick_version();
     ( my $year ) = $version =~ /^(\d+)/;
@@ -62,7 +110,16 @@ sub read_files_to_process() {
 
             # skip duplicate files
             next if ( exists( $md5s{$word} ) );
-            $md5s{$word} = md5_hex($word);
+
+            # check to see if current word is a file that comes from an external library.  If so use the original
+            # external library build path to calculate the md5sum.
+            my $word_sub = $word;
+            my ($matching_dir) = grep { index($word_sub, $_) == 0 } sort { length($b) <=> length($a) } keys %build_dirs;
+            if (defined $matching_dir) {
+                $word_sub =~ s/$matching_dir/$build_dirs{$matching_dir}/;
+            }
+
+            $md5s{$word} = md5_hex($word_sub);
 
             # skip system headers that are missed by the compiler -MM flag
             next if ( $word =~ /^\/usr\/include/ );
@@ -146,6 +203,7 @@ sub write_makefile_swig() {
     my $swig_src_dir = "build";
 
     open MAKEFILE,     ">build/Makefile_swig" or die "Could not open build/Makefile_swig for writing";
+    open MAKEFILE_EXT, ">build/Makefile_ext_libs" or die "Could not open build/Makefile_swig for writing";
     open PY_LINK_LIST, ">build/py_link_list"  or die "Could not open build/py_link_list for writing";
     open TRICKIFY_PY_LINK_LIST, ">build/trickify_py_link_list"
         or die "Could not open build/trickify_py_link_list for writing";
@@ -246,7 +304,37 @@ $swig_sim_zip: \$(SWIG_SRC) \$(TRICK_FIXED_PYTHON) $swig_sim_dir/__init__.py
 all: $swig_sim_zip
 ";
 
+    print MAKEFILE_EXT "
+# TRICKIFIED_LIBS ==========================================================================
+
+# Allow for spaces and colons in TRICK_EXT_LIB_DIRS, check for a build_dir.txt file
+TRICK_EXT_LIB_DIRS_VALID = \$(foreach ext,\$(patsubst %/,%,\$(strip \$(subst :, ,\$(TRICK_EXT_LIB_DIRS)))), \$(if \$(wildcard \$(ext)/build_dir.txt),\$(ext)))
+
+# Generate both links for one external package.
+#
+# \$(1) is the external package directory.
+# \$(2) is the original directory read from build_dir.txt.
+define make_trick_ext_lib_links
+.PHONY: link-\$(1)
+
+link-\$(1):
+\tmkdir -p \"build\$(dir \$(1))\"
+\tln -sfn \"\$(1)/build\$(2)\" \"build\$(1)\"
+\tmkdir -p \"build\$(dir \$(2))\"
+\tln -sfn \"\$(1)/build\$(2)\" \"build\$(2)\"
+endef
+
+# Generate a phony link-<path> target for each package.
+\$(foreach ext,\$(TRICK_EXT_LIB_DIRS_VALID), \$(eval \$(call make_trick_ext_lib_links,\$(ext),\$(strip \$(file <\$(ext)/build_dir.txt)))))
+# Generate rules only when the corresponding build_dir.txt exists.
+
+TRICK_EXT_LIB_LINK_TARGETS = \$(foreach ext,\$(TRICK_EXT_LIB_DIRS_VALID),link-\$(ext))
+
+\$(SWIG_SRC): | \$(TRICK_EXT_LIB_LINK_TARGETS)
+";
+
     close MAKEFILE;
+    close MAKEFILE_EXT;
     close PY_LINK_LIST;
     close TRICKIFY_PY_LINK_LIST;
 
@@ -389,6 +477,7 @@ all: $swig_sim_zip
 @swig_exclude_paths      = get_paths("TRICK_SWIG_EXCLUDE");
 @ext_lib_paths           = get_paths("TRICK_EXT_LIB_DIRS");
 @ext_lib_paths_overrides = get_paths("TRICK_EXT_LIB_DIRS_OVERRIDES");
+create_ext_libs_map();
 read_files_to_process();
 write_makefile_swig_deps();
 

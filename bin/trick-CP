@@ -224,7 +224,7 @@ build/Makefile_src: build/Makefile_src_deps build/Makefile_io_src S_source.hh
 build/Makefile_src_deps: ;
 
 # Create makefile for SWIG code
-build/Makefile_swig: S_source.hh build/Makefile_swig_deps
+build/Makefile_swig build/Makefile_ext_libs &: S_source.hh build/Makefile_swig_deps
 	$(PRINT_MAKEFILE_SWIG)
 	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig)
 
@@ -273,6 +273,8 @@ endif
 -include S_overrides.mk
 -include trickify.mk
 -include S_post.mk
+
+include build/Makefile_ext_libs
 
 ifndef MAKE_RESTARTS
 REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
