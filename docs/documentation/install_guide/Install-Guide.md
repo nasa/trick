@@ -18,7 +18,7 @@ Trick requires various free third party utilities in order to function. All the 
 |          [java] |   11+   |  Programming Language   |                Necessary for Trick GUIs.                 |                                                                                                                                                                                                         |
 |          [swig] | 3.x-4.x |  Language Interfacing   | Connects the python input processor with Trick's C code. | 3.0+ is now required for Trick. SWIG 4.x is compatible with Trick, but has some [issues](https://github.com/nasa/trick/issues/1288). Please open an issue if you encounter a problem related to SWIG 4. |
 |          [make] |  3.78+  |    Build Automation     |      Automates the building and cleaning of Trick.       |                                                                                                                                                                                                         |
-|     [openmotif] | 2.2.0+  |       GUI Toolkit       |          Covers Trick GUIs not made with Java.           |                                                                                                                                                                                                         |
+|         [motif] | 2.2.0+  |       GUI Toolkit       |          Covers Trick GUIs not made with Java.           | The package name varies by platform. See [Motif](#motif-package-names).                                                                                                                                 |
 |       [udunits] |  2.x+   | C Unit Library/Database |    Provides support for units of physical quantities.    |                                                                                                                                                                                                         |
 |         [maven] |   x.x   |  Java package manager   |    Downloads Java dependencies and builds Trick GUIs.    |                                                                                                                                                                                                         |
 
@@ -30,7 +30,7 @@ Trick requires various free third party utilities in order to function. All the 
 [java]: https://www.java.com/
 [swig]: http://www.swig.org/
 [make]: https://www.gnu.org/software/make/
-[openmotif]: http://www.opengroup.org/openmotif/
+[motif]: https://motif.ics.com/motif
 [udunits]: https://www.unidata.ucar.edu/software/udunits/
 [maven]: https://maven.apache.org/
 
@@ -45,6 +45,23 @@ Clang/LLVM can be installed and located manually should your package manager fai
 Trick needs the `javac` compiler included in the Java Development Kit (JDK). Trick will work with either the Oracle JDK or OpenJDK.
 
 **Installing both the Oracle JDK and OpenJDK may lead to problems and confusion.**
+
+<a name="motif-package-names"></a>
+
+### Motif
+
+Motif is packaged under different names depending on your platform:
+
+| Platform                                   | Packages                          |
+| ------------------------------------------ | --------------------------------- |
+| RHEL 8+, Oracle Linux, Rocky, Alma, Fedora | `motif`, `motif-devel`            |
+| RHEL 7 and older                           | `openmotif`, `openmotif-devel`    |
+| Debian, Ubuntu                             | `libmotif-common`, `libmotif-dev` |
+| macOS ([Homebrew])                         | `openmotif`                       |
+
+On RHEL-based distributions, the packages were renamed from `openmotif` to `motif` in RHEL 8. The current `motif` packages still declare `Provides: openmotif`, so `dnf install openmotif-devel` continues to work, but `dnf search motif` will only list the `motif` names.
+
+[Homebrew]: https://brew.sh/
 
 # Operating Systems
 
@@ -129,7 +146,7 @@ dnf install -y \
     bison clang clang-devel cmake diffutils flex gcc \
     gcc-c++ git java-17-openjdk-devel \
     libxml2-devel llvm-devel llvm-static maven ncurses-devel \
-    openmotif openmotif-devel perl perl-Digest-MD5 python3-devel \
+    motif motif-devel perl perl-Digest-MD5 python3-devel \
     swig udunits2 udunits2-devel which zlib-devel
 ```
 
@@ -156,7 +173,7 @@ dnf install epel-release
 dnf update
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
-ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 \
+ncurses-devel motif motif-devel perl perl-Digest-MD5 udunits2 \
 udunits2-devel which zlib-devel libX11-devel libXt-devel \
 python3-devel diffutils
 ```
@@ -193,7 +210,7 @@ Trick requires development packages from the base repositories.
 ```bash
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
-ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 udunits2-devel \
+ncurses-devel motif motif-devel perl perl-Digest-MD5 udunits2 udunits2-devel \
 which zlib-devel perl-Text-Balanced python-devel diffutils zip
 ```
 
