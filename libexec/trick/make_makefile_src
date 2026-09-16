@@ -299,6 +299,9 @@ foreach ( @all_read_only_libs ) {
 
 print MAKEFILE "
 
+.PHONY: sie
+sie: S_sie.resource
+
 all: S_sie.resource
 
 ifeq (\$(MANUAL_TRICKIFY_LD), 1)
