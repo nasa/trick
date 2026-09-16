@@ -25,6 +25,9 @@ import trick.sniffer.SimulationSniffer;
  * A single rate field configures both the Variable Server data push frequency
  * and the local Swing redraw timer. A threshold field filters jobs below a minimum
  * percentage to reduce visual noise and improve list stability.
+ *
+ * A rolling total of job execution times over the last 100 frames is maintained
+ * and displayed on the left.
  */
 public class RealTimeJobPieChart extends JPanel {
 
@@ -41,6 +44,44 @@ public class RealTimeJobPieChart extends JPanel {
     private List<JobDuration> currentFrameData = new ArrayList<>();
     private final Map<String, Color> jobColorMap = new HashMap<>();
 
+    // Rolling total of job durations over last 100 frames
+    private final Map<String, RollingTotal> jobTotals = new HashMap<>();
+    private static final int ROLLING_WINDOW_SIZE = 100;
+
+    private static class RollingTotal {
+        private final List<Double> frameDurations = new ArrayList<>();
+        private final int maxSize;
+        private int framesSinceLastSeen = 0;
+
+        public RollingTotal(int maxSize) {
+            this.maxSize = maxSize;
+        }
+
+        public void add(double duration) {
+            frameDurations.add(duration);
+            if (frameDurations.size() > maxSize) {
+                frameDurations.remove(0);
+            }
+            framesSinceLastSeen = 0;
+        }
+
+        public void incrementFramesSinceLastSeen() {
+            framesSinceLastSeen++;
+        }
+
+        public boolean isStale() {
+            return framesSinceLastSeen > ROLLING_WINDOW_SIZE;
+        }
+
+        public double getTotal() {
+            double sum = 0;
+            for (double d : frameDurations) {
+                sum += d;
+            }
+            return sum;
+        }
+    }
+
     private JLabel modeLabel;
     private JLabel timeLabel;
     private JComboBox<String> threadComboBox;
@@ -51,6 +92,8 @@ public class RealTimeJobPieChart extends JPanel {
     private boolean isInitializingCombo = false;
 
     private JPanel pieChartPanel;
+    private DefaultListModel<String> totalListModel;
+    private JList<String> totalList;
     private DefaultListModel<String> listModel;
     private JList<String> jobList;
 
@@ -126,6 +169,37 @@ public class RealTimeJobPieChart extends JPanel {
         pieChartPanel.setBackground(Color.WHITE);
         pieChartPanel.setToolTipText("");
 
+        // Left panel: Rolling totals
+        totalListModel = new DefaultListModel<>();
+        totalList = new JList<>(totalListModel);
+        totalList.setCellRenderer(new ListCellRenderer<String>() {
+            private JPanel panel = new JPanel(new BorderLayout());
+            private JLabel label = new JLabel();
+            private JPanel colorBox = new JPanel();
+            {
+                panel.setOpaque(true);
+                colorBox.setPreferredSize(new Dimension(15, 15));
+                panel.add(colorBox, BorderLayout.WEST);
+                panel.add(label, BorderLayout.CENTER);
+                panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+            }
+            @Override
+            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+                label.setText(value);
+                String jobName = value.split(" ")[0];
+                colorBox.setBackground(getJobColor(jobName));
+                panel.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+                label.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+                return panel;
+            }
+        });
+
+        JScrollPane totalScrollPane = new JScrollPane(totalList);
+        totalScrollPane.setMinimumSize(new Dimension(200, 300));
+        totalScrollPane.setBorder(BorderFactory.createTitledBorder("Rolling Total (Last 100 Frames)"));
+
+        // Right panel: Current frame jobs
         listModel = new DefaultListModel<>();
         jobList = new JList<>(listModel);
         jobList.setCellRenderer(new ListCellRenderer<String>() {
@@ -152,13 +226,24 @@ public class RealTimeJobPieChart extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(jobList);
         scrollPane.setMinimumSize(new Dimension(200, 300));
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Job Execution (Sorted by Time)"));
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Job Execution (Current Frame)"));
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pieChartPanel, scrollPane);
-        splitPane.setContinuousLayout(true);
-        splitPane.setResizeWeight(0.65);
-        splitPane.setBorder(null);
-        add(splitPane, BorderLayout.CENTER);
+        // Center: Pie chart
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(pieChartPanel, BorderLayout.CENTER);
+
+        // Left-Center split: Totals and Pie Chart
+        JSplitPane leftCenterSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, totalScrollPane, centerPanel);
+        leftCenterSplit.setContinuousLayout(true);
+        leftCenterSplit.setResizeWeight(0.3);
+        leftCenterSplit.setBorder(null);
+
+        // Full split: (Totals + Pie) and Job List
+        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftCenterSplit, scrollPane);
+        mainSplit.setContinuousLayout(true);
+        mainSplit.setResizeWeight(0.65);
+        mainSplit.setBorder(null);
+        add(mainSplit, BorderLayout.CENTER);
 
         // Drives Swing repaints matched to default 0.02s (20ms / 50 Hz)
         refreshTimer = new Timer(20, e -> renderLatestFrame());
@@ -205,7 +290,7 @@ public class RealTimeJobPieChart extends JPanel {
     /**
      * Runs on the EDT via refreshTimer. Paints whatever the most recently
      * received frame snapshot is at the configured rate. Filters jobs below
-     * the percentage threshold.
+     * the percentage threshold. Updates rolling totals.
      */
     private void renderLatestFrame() {
         List<JobDuration> frameData = pendingFrameData;
@@ -226,11 +311,38 @@ public class RealTimeJobPieChart extends JPanel {
 
         this.currentFrameData = filteredData;
 
+        // Mark all existing jobs as not seen this frame
+        for (RollingTotal total : jobTotals.values()) {
+            total.incrementFramesSinceLastSeen();
+        }
+
+        // Update rolling totals for all jobs that meet the threshold
+        for (JobDuration job : filteredData) {
+            jobTotals.computeIfAbsent(job.jobId, k -> new RollingTotal(ROLLING_WINDOW_SIZE))
+                    .add(job.duration);
+        }
+
+        // Remove stale jobs (not seen in more than ROLLING_WINDOW_SIZE frames)
+        jobTotals.entrySet().removeIf(entry -> entry.getValue().isStale());
+
+        // Update current frame list
         Vector<String> batchUpdate = new Vector<>();
         for (JobDuration job : currentFrameData) {
             batchUpdate.add(String.format("%s (%.1f%%, %.6fs)", job.jobId, job.percentage, job.duration));
         }
         jobList.setListData(batchUpdate);
+
+        // Update rolling total list (sorted by total duration)
+        List<Map.Entry<String, RollingTotal>> totalEntries = new ArrayList<>(jobTotals.entrySet());
+        totalEntries.sort((e1, e2) -> Double.compare(e2.getValue().getTotal(), e1.getValue().getTotal()));
+
+        Vector<String> totalUpdate = new Vector<>();
+        for (Map.Entry<String, RollingTotal> entry : totalEntries) {
+            double total = entry.getValue().getTotal();
+            totalUpdate.add(String.format("%s (%.6fs)", entry.getKey(), total));
+        }
+        totalList.setListData(totalUpdate);
+
         pieChartPanel.repaint();
     }
 
@@ -366,7 +478,7 @@ public class RealTimeJobPieChart extends JPanel {
         } catch (Exception e) {} finally { sniffer.setPaused(true); }
 
         RealTimeJobPieChart pieChart = new RealTimeJobPieChart();
-        pieChart.setPreferredSize(new Dimension(1000, 600));
+        pieChart.setPreferredSize(new Dimension(1200, 600));
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("RTPerf - Real-Time Job Performance");
