@@ -23,7 +23,8 @@ import trick.sniffer.SimulationSniffer;
  * durations alongside a sorted list of jobs and their frame percentages.
  *
  * A single rate field configures both the Variable Server data push frequency
- * and the local Swing redraw timer.
+ * and the local Swing redraw timer. A threshold field filters jobs below a minimum
+ * percentage to reduce visual noise and improve list stability.
  */
 public class RealTimeJobPieChart extends JPanel {
 
@@ -44,6 +45,7 @@ public class RealTimeJobPieChart extends JPanel {
     private JLabel timeLabel;
     private JComboBox<String> threadComboBox;
     private JTextField cycleRateField;
+    private JTextField thresholdField;
     private Timer refreshTimer;
     private TrickVariableServerClient vsClient;
     private boolean isInitializingCombo = false;
@@ -56,6 +58,9 @@ public class RealTimeJobPieChart extends JPanel {
     private volatile double pendingSimTime = 0.0;
     private volatile String pendingModeString = "Connecting...";
     private volatile List<JobDuration> pendingFrameData = null;
+
+    // Threshold for filtering jobs (percentage of frame)
+    private volatile double percentageThreshold = 0.1; // Default: 0.1%
 
     public RealTimeJobPieChart() {
         setLayout(new BorderLayout());
@@ -91,9 +96,20 @@ public class RealTimeJobPieChart extends JPanel {
         cycleRateField.addActionListener(e -> applyCycleRate());
         ratePanel.add(cycleRateField);
 
+        JPanel thresholdPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        thresholdPanel.setOpaque(false);
+        thresholdPanel.setBorder(BorderFactory.createTitledBorder("Threshold"));
+
+        thresholdPanel.add(new JLabel("Min %:"));
+        thresholdField = new JTextField("0.1", 5);
+        thresholdField.addActionListener(e -> applyThreshold());
+        thresholdPanel.add(thresholdField);
+
         JPanel eastPanel = new JPanel();
         eastPanel.setOpaque(false);
         eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.X_AXIS));
+        eastPanel.add(thresholdPanel);
+        eastPanel.add(Box.createHorizontalStrut(12));
         eastPanel.add(ratePanel);
         eastPanel.add(Box.createHorizontalStrut(12));
         eastPanel.add(threadComboBox);
@@ -188,7 +204,8 @@ public class RealTimeJobPieChart extends JPanel {
 
     /**
      * Runs on the EDT via refreshTimer. Paints whatever the most recently
-     * received frame snapshot is at the configured rate.
+     * received frame snapshot is at the configured rate. Filters jobs below
+     * the percentage threshold.
      */
     private void renderLatestFrame() {
         List<JobDuration> frameData = pendingFrameData;
@@ -199,7 +216,15 @@ public class RealTimeJobPieChart extends JPanel {
         timeLabel.setText(String.format("Time: %.3f", pendingSimTime));
         modeLabel.setText("Mode: " + pendingModeString);
 
-        this.currentFrameData = new ArrayList<>(frameData);
+        // Filter jobs by threshold
+        List<JobDuration> filteredData = new ArrayList<>();
+        for (JobDuration job : frameData) {
+            if (job.percentage >= percentageThreshold) {
+                filteredData.add(job);
+            }
+        }
+
+        this.currentFrameData = filteredData;
 
         Vector<String> batchUpdate = new Vector<>();
         for (JobDuration job : currentFrameData) {
@@ -222,18 +247,35 @@ public class RealTimeJobPieChart extends JPanel {
             if (seconds <= 0.001 || seconds > 10.0) {
                 throw new NumberFormatException("out of range");
             }
-            
+
             // 1. Send update to Variable Server via background thread
             new Thread(() -> vsClient.setCycleRate(seconds)).start();
-            
+
             // 2. Adjust local Swing timer rate (convert seconds to milliseconds)
             int millis = (int) Math.round(seconds * 1000.0);
             refreshTimer.setDelay(Math.max(millis, 1));
-            
+
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this,
                 "Enter a valid cycle time in seconds (e.g., 0.02 for 50 Hz).",
                 "Invalid Rate", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    /**
+     * Reads the Threshold (%) textbox and updates the minimum percentage filter.
+     */
+    private void applyThreshold() {
+        try {
+            double threshold = Double.parseDouble(thresholdField.getText().trim());
+            if (threshold < 0.0 || threshold > 100.0) {
+                throw new NumberFormatException("out of range");
+            }
+            this.percentageThreshold = threshold;
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this,
+                "Enter a valid percentage threshold (0.0 to 100.0, e.g., 0.1 for 0.1%).",
+                "Invalid Threshold", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -252,6 +294,10 @@ public class RealTimeJobPieChart extends JPanel {
         double currentAngle = 0, totalDuration = 0;
         for (JobDuration job : currentFrameData) {
             totalDuration += job.duration;
+        }
+        if (totalDuration == 0) {
+            g2d.drawString("No job data available", 10, 20);
+            return;
         }
         for (JobDuration job : currentFrameData) {
             double extentAngle = (job.percentage / 100.0) * 360.0;
