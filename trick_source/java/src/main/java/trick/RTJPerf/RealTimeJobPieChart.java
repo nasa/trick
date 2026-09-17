@@ -126,6 +126,7 @@ public class RealTimeJobPieChart extends JPanel {
         threadComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED && !isInitializingCombo && vsClient != null) {
                 int threadId = threadComboBox.getSelectedIndex();
+                clearRollingTotals();
                 new Thread(() -> vsClient.subscribeToThread(threadId)).start();
             }
         });
@@ -260,6 +261,25 @@ public class RealTimeJobPieChart extends JPanel {
             }
             isInitializingCombo = false;
         });
+    }
+
+    /**
+     * Sets the cycle rate field and timer based on the software frame value.
+     * Called from the Variable Server client after retrieving the software frame.
+     */
+    public void setSoftwareFrameRate(double softwareFrame) {
+        SwingUtilities.invokeLater(() -> {
+            cycleRateField.setText(String.format("%.6f", softwareFrame));
+            applyCycleRate();
+        });
+    }
+
+    /**
+     * Clears the rolling totals when switching threads.
+     */
+    private void clearRollingTotals() {
+        jobTotals.clear();
+        totalListModel.clear();
     }
 
     /**

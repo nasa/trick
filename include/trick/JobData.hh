@@ -63,7 +63,7 @@ namespace Trick {
             double stop;                    /**< trick_units(s) */
 
             /** Supplemental data attached to this job.  Typically used internally by instrumentation jobs */
-            void * sup_class_data;          /**< trick_units(--) */
+            void * sup_class_data;          /**< trick_io(**) */
 
             /** Job class id assigned by scheduler */
             int job_class;                  /**< trick_units(--) */
@@ -101,7 +101,7 @@ namespace Trick {
             double frame_time_seconds;       /**< trick_io(**) trick_units(s) */
 
             /** Sim_object_id.id (for job identification in timeline logging) */
-            double frame_id;                /**< trick_units(--) */
+            double frame_id;                /**< trick_io(**) */
 
             /** Thread specified in the S_define file */
             unsigned int thread ;           /**< trick_units(--) */
