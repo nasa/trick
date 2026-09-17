@@ -259,7 +259,7 @@ namespace Trick {
             std::multimap<std::string, Trick::JobData *> all_tagged_jobs ;    /**< trick_io(**) */
 
             /** All jobs known to the scheduler.\n */
-            std::vector<Trick::JobData *> all_jobs_vector ;       /**< trick_io(*o) */
+            std::vector<Trick::JobData*> all_jobs_vector; /**< trick_io(*o) */
 
             /** Contains same info as the all_jobs_vector but in a checkpointable form\n */
             Trick::JobData * all_jobs_for_checkpoint ;       /**< trick_units(--) */
