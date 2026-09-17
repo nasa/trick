@@ -11,6 +11,7 @@ import java.util.Map;
  * Handles network communication with the Trick Variable Server.
  * Maps jobs at startup, manages thread-specific subscriptions,
  * and processes incoming real-time job execution telemetry.
+ * Uses binary format for efficient data transmission.
  */
 public class TrickVariableServerClient implements Runnable {
 
@@ -117,7 +118,7 @@ public class TrickVariableServerClient implements Runnable {
                 vsConnection.put(cmd);
                 String batchResponse = vsConnection.get();
 
-                if (batchResponse != null && batchResponse.startsWith("5")) {
+                if (batchResponse != null && batchResponse.split("\t").length > 0) {
                     String[] tokens = batchResponse.split("\t");
 
                     // Token 0 is msg type (5). Each job produces 2 values (name & thread ID).
@@ -147,59 +148,84 @@ public class TrickVariableServerClient implements Runnable {
             gui.initializeThreads(numThreads, this);
             subscribeToThread(0);
 
-            // 7. Data Reading Loop
-            String line;
-            while (running && (line = vsConnection.get()) != null) {
-                String[] tokens = line.split("\t");
-                if (tokens.length >= 4 && tokens[0].equals("0")) {
-
-                    double simTime = 0.0;
-                    int mode = 5;
-                    try {
-                        double timeTics = Double.parseDouble(tokens[1].trim());
-                        double timeTicValue = Double.parseDouble(tokens[2].trim());
-                        if (timeTicValue > 0) {
-                            simTime = timeTics / timeTicValue;
-                        }
-                        mode = Integer.parseInt(tokens[3].trim());
-                    } catch (Exception e) {}
-
-                    String modeStr = getModeString(mode);
-                    List<RealTimeJobPieChart.JobDuration> frameData = new ArrayList<>();
-                    Map<String, Double> aggregatedDurations = new HashMap<>();
-
-                    // Snapshot active jobs to prevent data race during thread switches
-                    List<JobMeta> currentJobsSnapshot;
-                    synchronized (this) {
-                        currentJobsSnapshot = new ArrayList<>(activeThreadJobs);
+            // 7. Data Reading Loop (Binary format)
+            while (running) {
+                try {
+                    // Get data from Variable Server in binary format
+                    // The get() method handles binary parsing and returns tab-delimited values
+                    String line = vsConnection.get(3 + activeThreadJobs.size());
+                    
+                    if (line == null || line.isEmpty()) {
+                        continue;
                     }
 
-                    // Parse duration values from remaining tokens
-                    for (int i = 0; i < currentJobsSnapshot.size(); i++) {
-                        int tokenIdx = i + 4;
-                        if (tokenIdx < tokens.length) {
-                            try {
-                                double duration = Double.parseDouble(tokens[tokenIdx].trim());
-                                if (duration > 0.0 && duration < 100.0) {
-                                    if (duration < 0.000001) {
-                                        duration = 0.000001; // Floor value for UI rendering
-                                    }
-                                    JobMeta meta = currentJobsSnapshot.get(i);
-                                    aggregatedDurations.put(meta.name, aggregatedDurations.getOrDefault(meta.name, 0.0) + duration);
-                                }
-                            } catch (Exception e) {}
-                        }
+                    String[] tokens = line.split("\t");
+                    if (tokens.length >= 4) {
+                        processFrameData(tokens);
                     }
-
-                    for (Map.Entry<String, Double> entry : aggregatedDurations.entrySet()) {
-                        frameData.add(new RealTimeJobPieChart.JobDuration(entry.getKey(), entry.getValue()));
-                    }
-                    gui.updateFrameData(simTime, modeStr, frameData);
+                } catch (Exception e) {
+                    System.err.println("Error reading data: " + e.getMessage());
                 }
             }
         } catch (IOException e) {
             System.err.println("Variable Server connection lost: " + e.getMessage());
         }
+    }
+
+    /**
+     * Processes frame data from the Variable Server.
+     * Expected format: [time_tics, time_tic_value, mode, job_duration_1, job_duration_2, ...]
+     */
+    private void processFrameData(String[] tokens) {
+        double simTime = 0.0;
+        int mode = 5;
+
+        try {
+            double timeTics = Double.parseDouble(tokens[0].trim());
+            double timeTicValue = Double.parseDouble(tokens[1].trim());
+            if (timeTicValue > 0) {
+                simTime = timeTics / timeTicValue;
+            }
+            mode = Integer.parseInt(tokens[2].trim());
+        } catch (Exception e) {
+            System.err.println("Error parsing time/mode data: " + e.getMessage());
+            return;
+        }
+
+        String modeStr = getModeString(mode);
+        List<RealTimeJobPieChart.JobDuration> frameData = new ArrayList<>();
+        Map<String, Double> aggregatedDurations = new HashMap<>();
+
+        // Snapshot active jobs to prevent data race during thread switches
+        List<JobMeta> currentJobsSnapshot;
+        synchronized (this) {
+            currentJobsSnapshot = new ArrayList<>(activeThreadJobs);
+        }
+
+        // Parse job durations
+        for (int i = 0; i < currentJobsSnapshot.size(); i++) {
+            int tokenIdx = i + 3;
+            if (tokenIdx < tokens.length) {
+                try {
+                    double duration = Double.parseDouble(tokens[tokenIdx].trim());
+                    if (duration > 0.0 && duration < 100.0) {
+                        if (duration < 0.000001) {
+                            duration = 0.000001; // Floor value for UI rendering
+                        }
+                        JobMeta meta = currentJobsSnapshot.get(i);
+                        aggregatedDurations.put(meta.name, aggregatedDurations.getOrDefault(meta.name, 0.0) + duration);
+                    }
+                } catch (Exception e) {
+                    // Skip this job if parsing fails
+                }
+            }
+        }
+
+        for (Map.Entry<String, Double> entry : aggregatedDurations.entrySet()) {
+            frameData.add(new RealTimeJobPieChart.JobDuration(entry.getKey(), entry.getValue()));
+        }
+
+        gui.updateFrameData(simTime, modeStr, frameData);
     }
 
     /**
@@ -216,12 +242,15 @@ public class TrickVariableServerClient implements Runnable {
             vsConnection.put("trick.var_set_copy_mode(1)\n");
             vsConnection.put("trick.var_cycle(" + currentCycleRate + ")\n");
 
-            // Step 2: Add the core simulation state variables
+            // Step 2: Switch to binary format (no names to reduce packet size)
+            vsConnection.setBinaryNoNames();
+
+            // Step 3: Add the core simulation state variables
             vsConnection.put("trick.var_add(\"trick_sys.sched.time_tics\")\n");
             vsConnection.put("trick.var_add(\"trick_sys.sched.time_tic_value\")\n");
             vsConnection.put("trick.var_add(\"trick_sys.sched.mode\")\n");
 
-            // Step 3: Build the list of active jobs for this thread
+            // Step 4: Build the list of active jobs for this thread
             activeThreadJobs.clear();
             for (JobMeta job : allJobs) {
                 if (job.thread == threadId) {
@@ -229,7 +258,7 @@ public class TrickVariableServerClient implements Runnable {
                 }
             }
 
-            // Step 4: Batch var_add commands to avoid exceeding 8192-byte message limit
+            // Step 5: Batch var_add commands to avoid exceeding 8192-byte message limit
             // Each var_add line is roughly 70-80 bytes. Use batch size of 30 to stay well under limit.
             final int VAR_ADD_BATCH_SIZE = 30;
             for (int i = 0; i < activeThreadJobs.size(); i += VAR_ADD_BATCH_SIZE) {
@@ -248,7 +277,7 @@ public class TrickVariableServerClient implements Runnable {
                 Thread.sleep(5);
             }
 
-            // Step 5: Unpause and start the cyclic stream
+            // Step 6: Unpause and start the cyclic stream
             vsConnection.put("trick.var_unpause()\n");
             vsConnection.put("trick.var_send()\n");
 
