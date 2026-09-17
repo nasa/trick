@@ -111,7 +111,10 @@ class send_hs(object):
              " You must provide a valid send_hs output file.")
 
         self.num_lines = 0
-        with open(self.hs_file) as fp:
+        # Interpret the file using latin-1 (ISO-8859-1), which can decode any byte value (0-255)
+        # into a character. The "backslashreplace" option shows problematic bytes as \xbc, making
+        # them readable in stdout.
+        with open(self.hs_file, encoding='latin-1', errors='backslashreplace') as fp:
           # Efficiency guard - we don't do an re pattern match until we've starting parsing the diagnostic msg
           start_reading_diagnostics = False
           for line in fp:
