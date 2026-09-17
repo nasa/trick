@@ -23,7 +23,7 @@ PROGRAMMERS:
 void mat_lvlh_inertial(double lvlh_inrtl[3][3],
                        double inrtl_pos[3], double inrtl_vel[3]);
 
-#include "trick_utils/math/include/trick_math.h"
+#include "trick/trick_math.h"
 
 #define ROLL  1
 #define PITCH 2

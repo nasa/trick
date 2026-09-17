@@ -3,7 +3,8 @@ PURPOSE: (Collect all forces and calculate acceleration)
 Tutorial Section 8
 ***************************************************************************/
 #include "../include/cannon_aero_proto.h"
-#include "sim_services/include/collect_macros.h"
+
+#include "trick/collect_macros.h"
 
 int cannon_collect_forces( CANNON_AERO *C ) {
 

@@ -92,7 +92,7 @@ DynamicsSimObject dynamics (jeod_time.time_manager);
 ##include "environment/gravity/include/spherical_harmonics_gravity_controls.hh"
 ##include "er7_utils/interface/include/alloc.hh"
 ##include "er7_utils/to_trick/include/getIntegrator.hh"
-##include "sim_services/Integrator/include/Integrator.hh"
+##include "trick/Integrator.hh"
 
 class VehSimObject: public Trick::SimObject {
 

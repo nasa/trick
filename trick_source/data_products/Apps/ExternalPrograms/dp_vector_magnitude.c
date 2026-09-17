@@ -14,9 +14,10 @@ PROGRAMMERS:
          (Dorci L. Smith) (TSC-AEU) (May 2002) (Reduce ext program size))
 */
 
-#include <stdio.h>
+#include "trick/vector_macros.h"
+
 #include <float.h>
-#include "trick_utils/math/include/vector_macros.h"
+#include <stdio.h>
 
 #define X 0
 #define Y 1

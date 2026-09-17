@@ -21,7 +21,7 @@ Purpose: ()
 #define ER7_UTILS_TRANSLATE_TRICK_INTEG_TYPE_HH
 
 // Trick includes
-#include "sim_services/Integrator/include/Integrator.hh"
+#include "trick/Integrator.hh"
 
 // Integration includes
 #include "er7_utils/integration/core/include/integration_technique.hh"

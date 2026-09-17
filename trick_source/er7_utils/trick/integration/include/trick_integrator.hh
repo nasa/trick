@@ -26,7 +26,7 @@ Purpose: ()
 #include <cstddef>
 
 // Trick includes
-#include "sim_services/Integrator/include/Integrator.hh"
+#include "trick/Integrator.hh"
 
 // Interface includes
 #include "er7_utils/interface/include/er7_class.hh"

@@ -5,9 +5,10 @@ PROGRAMMERS:
    (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-#include "trick_utils/units/include/constant.h"
-#include "ball/L1/include/ball_state.h"
 #include "ball/L1/include/ball_proto.h"
+#include "ball/L1/include/ball_state.h"
+
+#include "trick/constant.h"
 
 int ball_state_default_data( BSTATE * ball_state ) {
 

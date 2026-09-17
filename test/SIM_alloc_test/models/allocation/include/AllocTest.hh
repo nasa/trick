@@ -12,8 +12,9 @@ PURPOSE:
 
 // System include files.
 
+#include "trick/mm_macros.hh"
+
 #include <iostream>
-#include "sim_services/include/mm_macros.hh"
 
 class AllocTest {
     public:

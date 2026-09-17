@@ -8,11 +8,13 @@ LIBRARY DEPENDENCY:          (ip.o)
 PROGRAMMERS:                 ((lin) (Thu Feb 27 14:57:16 CST 2003))
 ***************************************************************************/
 
-#include <stdio.h>
 #include "../include/ip.h"
-#include "sim_services/MemoryManager/include/attributes.h"
-#include "sim_services/Executive/include/exec_proto.h"
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
+
+#include "trick/attributes.h"
+#include "trick/exec_proto.h"
+#include "trick/memorymanager_c_intf.h"
+
+#include <stdio.h>
 
 extern ATTRIBUTES attrstruct_LinkedList[] ;
 
