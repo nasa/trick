@@ -219,9 +219,11 @@ AS_IF([test "x$CLANG_VERSION" = "x"],[],
    ])
 ])
 
-dnl clangAnalysis pulls in clangASTMatchers and clangAPINotes via
-dnl UnsafeBufferUsage.cpp since clang 16. These libraries must appear after
-dnl clangAnalysis and before their dependencies, so detect them by presence.
+dnl Static Clang archives require explicit transitive dependencies:
+dnl clangAnalysis uses clangASTMatchers; clangFrontend uses clangAPINotes.
+dnl Shared components carry these dependencies themselves. Detect the extra
+dnl archives by presence and place them after their users but before clangAST,
+dnl clangLex, and clangBasic, which provide symbols needed by these archives.
 
 OLD_CLANG_LIBS_EXTRA=""
 
@@ -237,8 +239,8 @@ OLD_CLANG_LIBS="-lclangFrontend \
 -lclangSema \
 -lclangAnalysis \
 -lclangEdit \
--lclangAST \
 $OLD_CLANG_LIBS_EXTRA \
+-lclangAST \
 -lclangLex \
 -lclangBasic"
 
