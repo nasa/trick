@@ -144,7 +144,17 @@ public class TrickVariableServerClient implements Runnable {
                 }
             }
 
-            // Initialize GUI thread selection and subscribe to Thread 0
+ 
+
+            // Register all discovered jobs with the GUI
+            List<String> jobNamesList = new ArrayList<>();
+            for (JobMeta job : allJobs)
+            {
+                jobNamesList.add(job.name);
+            }
+            gui.registerAllJobs(jobNamesList);
+
+           // Initialize GUI thread selection and subscribe to Thread 0
             gui.initializeThreads(numThreads, this);
             subscribeToThread(0);
 
