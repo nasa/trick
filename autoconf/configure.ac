@@ -219,12 +219,30 @@ AS_IF([test "x$CLANG_VERSION" = "x"],[],
    ])
 ])
 
-AS_IF([test "x$CLANG_VERSION" = "x"],[],
-  [AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[18.0.0],
-   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangASTMatchers -lclangAPINotes -lclangLex -lclangBasic"],
-   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"]
-   )]
-)
+dnl Static Clang archives require explicit transitive dependencies:
+dnl clangAnalysis uses clangASTMatchers; clangFrontend uses clangAPINotes.
+dnl Shared components carry these dependencies themselves. Detect the extra
+dnl archives by presence and place them after their users but before clangAST,
+dnl clangLex, and clangBasic, which provide symbols needed by these archives.
+
+OLD_CLANG_LIBS_EXTRA=""
+
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangASTMatchers.a],
+  [OLD_CLANG_LIBS_EXTRA="$OLD_CLANG_LIBS_EXTRA -lclangASTMatchers"])
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangAPINotes.a],
+  [OLD_CLANG_LIBS_EXTRA="$OLD_CLANG_LIBS_EXTRA -lclangAPINotes"])
+
+OLD_CLANG_LIBS="-lclangFrontend \
+-lclangDriver \
+-lclangSerialization \
+-lclangParse \
+-lclangSema \
+-lclangAnalysis \
+-lclangEdit \
+$OLD_CLANG_LIBS_EXTRA \
+-lclangAST \
+-lclangLex \
+-lclangBasic"
 
 NEW_CLANG_LIBS="-lclang-cpp"
 AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],
