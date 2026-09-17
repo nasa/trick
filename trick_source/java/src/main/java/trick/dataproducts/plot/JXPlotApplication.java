@@ -1,4 +1,3 @@
-
 package trick.dataproducts.plot;
 
 import java.awt.Dimension;
@@ -7,12 +6,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.util.ArrayList;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -26,7 +23,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
@@ -39,16 +36,6 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.xml.sax.SAXException;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.dataproducts.plot.utils.PlotUtils;
@@ -62,15 +49,15 @@ import trick.dataproducts.plot.utils.TrickXYSeries;
 import trick.dataproducts.trickqp.utils.Product;
 import trick.dataproducts.trickqp.utils.ProductCurve;
 import trick.dataproducts.trickqp.utils.ProductDataPanel;
+import trick.dataproducts.trickqp.utils.ProductDomParser;
 import trick.dataproducts.trickqp.utils.ProductPage;
 import trick.dataproducts.trickqp.utils.ProductPlot;
 import trick.dataproducts.trickqp.utils.ProductTable;
 import trick.dataproducts.trickqp.utils.ProductVar;
 import trick.dataproducts.trickqp.utils.ProductVarcase;
-import trick.dataproducts.trickqp.utils.ProductDomParser;
 import trick.dataproducts.utils.Session;
-import trick.dataproducts.utils.SessionRun;
 import trick.dataproducts.utils.SessionDomParser;
+import trick.dataproducts.utils.SessionRun;
 
 /**
  * Plotting using Java.
@@ -80,15 +67,13 @@ import trick.dataproducts.utils.SessionDomParser;
  */
 public class JXPlotApplication extends TrickApplication {
 
-  //========================================
+    // ========================================
     //  Public data
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //  Protected data
-    //========================================
-
+    // ========================================
 
     private JXTree productTree;
     private DefaultMutableTreeNode productTreeRoot;
@@ -100,14 +85,13 @@ public class JXPlotApplication extends TrickApplication {
     private static int chartInitialLocY = 50;
     private Session sessionObject;
 
-    //========================================
+    // ========================================
     //  Constructors
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //    Actions
-    //========================================
+    // ========================================
     @Action
     public void saveAllToPDF() {
         File file = UIUtils.chooseSaveFile(null, "plot_", "pdf", getMainFrame());
@@ -119,12 +103,14 @@ public class JXPlotApplication extends TrickApplication {
             if (dpFileCount > 0) {
                 PDDocument document = new PDDocument();
                 for (int i = 0; i < dpFileCount; i++) {
-                    DefaultMutableTreeNode eachDPFile = (DefaultMutableTreeNode)productTree.getModel().getChild(productTreeRoot, i);
+                    DefaultMutableTreeNode eachDPFile =
+                            (DefaultMutableTreeNode) productTree.getModel().getChild(productTreeRoot, i);
                     int pageCount = eachDPFile.getChildCount();
                     for (int j = 0; j < pageCount; j++) {
-                        DefaultMutableTreeNode eachPage = (DefaultMutableTreeNode)productTree.getModel().getChild(eachDPFile, j);
+                        DefaultMutableTreeNode eachPage =
+                                (DefaultMutableTreeNode) productTree.getModel().getChild(eachDPFile, j);
                         if (eachPage.getUserObject() instanceof TrickChartFrame) {
-                            TrickChartFrame theFrame = (TrickChartFrame)eachPage.getUserObject();
+                            TrickChartFrame theFrame = (TrickChartFrame) eachPage.getUserObject();
                             theFrame.writePDFPage(document);
                         }
                     }
@@ -137,16 +123,13 @@ public class JXPlotApplication extends TrickApplication {
         }
     }
 
-
-    //========================================
+    // ========================================
     //  Set/Get methods
-    //========================================
+    // ========================================
 
-
-
-    //========================================
+    // ========================================
     //  Methods
-    //========================================
+    // ========================================
     /**
      * Main method for this application.
      * @param args command line arguments
@@ -160,7 +143,7 @@ public class JXPlotApplication extends TrickApplication {
      *
      * @see #startup
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected void initialize(String[] args) {
         super.initialize(args);
@@ -173,7 +156,7 @@ public class JXPlotApplication extends TrickApplication {
             public void mouseClicked(MouseEvent e) {
                 int index = tableList.locationToIndex(e.getPoint());
                 if (index != -1 && listModel.getElementAt(index) instanceof TrickFrame) {
-                    TrickFrame theFrame = (TrickFrame)listModel.getElementAt(index);
+                    TrickFrame theFrame = (TrickFrame) listModel.getElementAt(index);
                     if (!theFrame.isVisible()) {
                         theFrame.setVisible(true);
                     } else {
@@ -195,17 +178,17 @@ public class JXPlotApplication extends TrickApplication {
                 TreePath clickedPath = null;
                 DefaultMutableTreeNode clickedNode = null;
 
-                // when nothing is viewable, do nothing and return immediately 
+                // when nothing is viewable, do nothing and return immediately
                 if (productTree.getClosestPathForLocation(e.getX(), e.getY()) == null) {
                     return;
                 }
                 clickedPath = productTree.getClosestPathForLocation(e.getX(), e.getY());
                 if (clickedPath.getLastPathComponent() instanceof DefaultMutableTreeNode) {
-                    clickedNode = (DefaultMutableTreeNode)clickedPath.getLastPathComponent();
+                    clickedNode = (DefaultMutableTreeNode) clickedPath.getLastPathComponent();
                 }
 
                 if (clickedNode.getUserObject() instanceof TrickFrame) {
-                    TrickFrame theFrame = (TrickFrame)clickedNode.getUserObject();
+                    TrickFrame theFrame = (TrickFrame) clickedNode.getUserObject();
                     if (!theFrame.isVisible()) {
                         theFrame.setVisible(true);
                     } else {
@@ -220,7 +203,6 @@ public class JXPlotApplication extends TrickApplication {
             openSessionFile(args[0]);
         }
     }
-
 
     /**
      * Opens a session file for plotting.
@@ -243,16 +225,18 @@ public class JXPlotApplication extends TrickApplication {
             for (String dpFile : sessionObject.getProductFiles()) {
                 // if parsing is failed, stop!
                 try {
-                    Product productObject = ProductDomParser.parse(new File(dpFile)) ;
+                    Product productObject = ProductDomParser.parse(new File(dpFile));
 
                     if (productObject != null) {
                         // if the mode is not defined or is set to PLOT_MODE, plot the data.
-                        if (sessionObject.getMode() == null || sessionObject.getMode().equals(Session.MODE_OPTIONS[Session.PLOT_MODE])) {
+                        if (sessionObject.getMode() == null
+                                || sessionObject.getMode().equals(Session.MODE_OPTIONS[Session.PLOT_MODE])) {
                             DefaultMutableTreeNode dpFileNode = new DefaultMutableTreeNode(dpFile);
                             productTreeRoot.add(dpFileNode);
                             ((DefaultTreeModel) productTree.getModel()).reload();
                             // if there is any page
-                            if (productObject.getPageList() != null && productObject.getPageList().size() > 0) {
+                            if (productObject.getPageList() != null
+                                    && productObject.getPageList().size() > 0) {
                                 for (ProductPage eachPage : productObject.getPageList()) {
                                     if (eachPage != null) {
                                         createAndShowCharts(dpFileNode, eachPage);
@@ -260,7 +244,8 @@ public class JXPlotApplication extends TrickApplication {
                                 }
                             }
                         } else if (sessionObject.getMode().equals(Session.MODE_OPTIONS[Session.TABLE_MODE])) {
-                            if (productObject.getTableList() != null && productObject.getTableList().size() > 0) {
+                            if (productObject.getTableList() != null
+                                    && productObject.getTableList().size() > 0) {
                                 for (ProductTable eachTable : productObject.getTableList()) {
                                     createAndShowTable(tableList, productObject.getTitle(), eachTable);
                                 }
@@ -278,7 +263,7 @@ public class JXPlotApplication extends TrickApplication {
     /**
      * Helper method for creating table.
      */
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     private void createAndShowTable(JList list, String title, ProductTable theTable) {
         showTable(theTable);
     }
@@ -291,19 +276,23 @@ public class JXPlotApplication extends TrickApplication {
 
         if (sessionObject.getPresentation().equals(Session.PRESENTATION_OPTIONS[Session.SIMPLE_PRESENTATION])) {
             createChartsForSingle(thePage, chartList);
-        } else if (sessionObject.getPresentation().equals(Session.PRESENTATION_OPTIONS[Session.COMPARISON_PRESENTATION])) {
+        } else if (sessionObject
+                .getPresentation()
+                .equals(Session.PRESENTATION_OPTIONS[Session.COMPARISON_PRESENTATION])) {
             createChartsForComparison(thePage, chartList);
         } else if (sessionObject.getPresentation().equals(Session.PRESENTATION_OPTIONS[Session.DELTA_PRESENTATION])) {
             createChartsForDelta(thePage, chartList, false);
-        } else if (sessionObject.getPresentation().equals(Session.PRESENTATION_OPTIONS[Session.CONTRAST_PRESENTATION])) {
+        } else if (sessionObject
+                .getPresentation()
+                .equals(Session.PRESENTATION_OPTIONS[Session.CONTRAST_PRESENTATION])) {
             createChartsForContrast(thePage, chartList);
         }
         showPagePlots(dpFileNode, thePage, chartList);
     }
 
     /**
-     * Helper method for creating all charts using contrast plotting for a particular {@link ProductPage} 
-     * and adding the charts to a list. Contrast plotting shows both comparison and delta plots on the 
+     * Helper method for creating all charts using contrast plotting for a particular {@link ProductPage}
+     * and adding the charts to a list. Contrast plotting shows both comparison and delta plots on the
      * same page.
      */
     private void createChartsForContrast(ProductPage thePage, ArrayList<TrickChart> chartList) {
@@ -312,7 +301,7 @@ public class JXPlotApplication extends TrickApplication {
     }
 
     /**
-     * Helper method for creating all charts using delta plotting for a particular {@link ProductPage} 
+     * Helper method for creating all charts using delta plotting for a particular {@link ProductPage}
      * and adding the charts to a list.
      */
     private void createChartsForDelta(ProductPage thePage, ArrayList<TrickChart> chartList, boolean isContrast) {
@@ -322,10 +311,18 @@ public class JXPlotApplication extends TrickApplication {
             if (totalRuns == 1) {
                 dataset = new XYSeriesCollection();
                 for (ProductCurve eachCurve : eachPlot.getCurveList()) {
-                    //dataset.addSeries(getXYSeriesForCurve(sessionObject.getRuns().get(0), thePage, eachPlot, eachCurve));
-                    addSeriesToDataset(dataset, getXYSeriesForCurve(sessionObject.getRuns().get(0), thePage, eachPlot, eachCurve));
+                    // dataset.addSeries(getXYSeriesForCurve(sessionObject.getRuns().get(0), thePage, eachPlot,
+                    // eachCurve));
+                    addSeriesToDataset(
+                            dataset, getXYSeriesForCurve(sessionObject.getRuns().get(0), thePage, eachPlot, eachCurve));
                 }
-                createAndAddChart("(" + sessionObject.getRuns().get(0).getDirName() +")", chartList, thePage, eachPlot, dataset, false);
+                createAndAddChart(
+                        "(" + sessionObject.getRuns().get(0).getDirName() + ")",
+                        chartList,
+                        thePage,
+                        eachPlot,
+                        dataset,
+                        false);
             } else {
                 if (isContrast) {
                     dataset = new XYSeriesCollection();
@@ -336,26 +333,24 @@ public class JXPlotApplication extends TrickApplication {
                             dataset = new XYSeriesCollection();
                         }
                         for (ProductCurve eachCurve : eachPlot.getCurveList()) {
-                            TrickXYSeries series1 = getXYSeriesForCurve(sessionObject.getRuns().get(i), thePage, eachPlot, eachCurve);
-                            TrickXYSeries series2 = getXYSeriesForCurve(sessionObject.getRuns().get(j), thePage, eachPlot, eachCurve);
+                            TrickXYSeries series1 =
+                                    getXYSeriesForCurve(sessionObject.getRuns().get(i), thePage, eachPlot, eachCurve);
+                            TrickXYSeries series2 =
+                                    getXYSeriesForCurve(sessionObject.getRuns().get(j), thePage, eachPlot, eachCurve);
                             if (series1 == null || series2 == null) {
                                 continue;
                             }
-                            int totalCount = series1.getItemCount() < series2.getItemCount() ? series1.getItemCount() : series2.getItemCount();
-
-                            TrickXYSeries deltaSeries = new TrickXYSeries("DELTA: "
-                                    + series1.getDescription().substring(0, series1.getDescription().lastIndexOf("["))
+                            String deltaKey = "DELTA: "
+                                    + series1.getDescription()
+                                            .substring(
+                                                    0, series1.getDescription().lastIndexOf("["))
                                     + " ["
                                     + sessionObject.getRuns().get(i).getDirName()
                                     + " - "
-                                    + sessionObject.getRuns().get(j).getDirName() + "]", false, true);
-                            for (int k = 0; k < totalCount; k++) {
-                                deltaSeries.add(series1.getX(k).doubleValue(), series1.getY(k).doubleValue() - series2.getY(k).doubleValue());
-                            }
-                            //dataset.addSeries(deltaSeries);
+                                    + sessionObject.getRuns().get(j).getDirName() + "]";
+                            TrickXYSeries deltaSeries = PlotUtils.getDeltaSeries(deltaKey, series1, series2);
+                            // dataset.addSeries(deltaSeries);
                             addSeriesToDataset(dataset, deltaSeries);
-                            deltaSeries.setXVar(series1.getXVar());
-                            deltaSeries.setYVar(series1.getYVar());
                         }
                         if (!isContrast) {
                             createAndAddChart("(Difference)", chartList, thePage, eachPlot, dataset, isContrast);
@@ -376,7 +371,7 @@ public class JXPlotApplication extends TrickApplication {
     private void createChartsForComparison(ProductPage thePage, ArrayList<TrickChart> chartList) {
         for (ProductPlot eachPlot : thePage.getPlotList()) {
             XYSeriesCollection dataset = getComparisonPlotDataset(thePage, eachPlot);
-            createAndAddChart("(Compare)" , chartList, thePage, eachPlot, dataset, false);
+            createAndAddChart("(Compare)", chartList, thePage, eachPlot, dataset, false);
         }
     }
 
@@ -388,7 +383,7 @@ public class JXPlotApplication extends TrickApplication {
         for (ProductPlot eachPlot : thePage.getPlotList()) {
             for (SessionRun eachRun : sessionObject.getRuns()) {
                 XYSeriesCollection dataset = getSinglePlotDataset(eachRun, thePage, eachPlot);
-                createAndAddChart("("+eachRun.getDirName()+")", chartList, thePage, eachPlot, dataset, false);
+                createAndAddChart("(" + eachRun.getDirName() + ")", chartList, thePage, eachPlot, dataset, false);
             }
         }
     }
@@ -397,13 +392,19 @@ public class JXPlotApplication extends TrickApplication {
      * Creates a chart for the specified {@link XYSeriesCollection} and {@link ProductPlot} and then
      * adds to the list.
      */
-    private void createAndAddChart(String subTitle, ArrayList<TrickChart> chartList, ProductPage aPage, ProductPlot aPlot, XYSeriesCollection dataset, boolean isContrast) {
+    private void createAndAddChart(
+            String subTitle,
+            ArrayList<TrickChart> chartList,
+            ProductPage aPage,
+            ProductPlot aPlot,
+            XYSeriesCollection dataset,
+            boolean isContrast) {
         XYPlot plot = createXYPlot(aPage, aPlot, dataset);
 
         TrickChart chart = new TrickChart(aPlot.getTitle(), TrickChart.TRICK_DEFAULT_TITLE_FONT, plot, true);
-        //TrickChartTheme chartTheme = new TrickChartTheme("TrickChart");
+        // TrickChartTheme chartTheme = new TrickChartTheme("TrickChart");
 
-        //chartTheme.apply(chart);
+        // chartTheme.apply(chart);
         configureChart(subTitle, chart, aPage, aPlot, isContrast);
         chartList.add(chart);
     }
@@ -427,11 +428,12 @@ public class JXPlotApplication extends TrickApplication {
     /**
      * Configures the specified chart.
      */
-    private void configureChart(String subTitleText, TrickChart chart, ProductPage aPage, ProductPlot aPlot, boolean isContrast) {
+    private void configureChart(
+            String subTitleText, TrickChart chart, ProductPage aPage, ProductPlot aPlot, boolean isContrast) {
         // TODO: will see if need to remove the legend for contrast plotting
-        //if (isContrast) {
+        // if (isContrast) {
         //    chart.removeLegend();
-        //} else {
+        // } else {
         if (aPlot.getForegroundColor() != null) {
             chart.getLegend().setItemPaint(aPlot.getForegroundColor());
         } else if (aPage.getForegroundColor() != null) {
@@ -442,7 +444,7 @@ public class JXPlotApplication extends TrickApplication {
         } else if (aPage.getBackgroundColor() != null) {
             chart.getLegend().setBackgroundPaint(aPage.getBackgroundColor());
         }
-        //}
+        // }
 
         TextTitle subTitle = null;
         if (subTitleText != null && !subTitleText.isEmpty()) {
@@ -453,9 +455,9 @@ public class JXPlotApplication extends TrickApplication {
         if (aPlot.getFont() != null && !(aPlot.getFont().isEmpty())) {
             Font plotFont = ProductDataPanel.getFontFromText(aPlot.getFont());
             chart.getTitle().setFont(plotFont);
-            //if (!isContrast) {
-                chart.getLegend().setItemFont(plotFont);
-            //}
+            // if (!isContrast) {
+            chart.getLegend().setItemFont(plotFont);
+            // }
             if (subTitleText != null && !subTitleText.isEmpty()) {
                 subTitle.setFont(plotFont);
             }
@@ -464,18 +466,19 @@ public class JXPlotApplication extends TrickApplication {
         if (subTitle != null) {
             chart.addSubtitle(subTitle);
         }
-
     }
 
     /**
      * Shows all plots on a page.
      */
-    private void showPagePlots(DefaultMutableTreeNode dpFileNode, ProductPage thePage, ArrayList<TrickChart> chartList) {
+    private void showPagePlots(
+            DefaultMutableTreeNode dpFileNode, ProductPage thePage, ArrayList<TrickChart> chartList) {
         if (chartList.size() > 0) {
-            TrickChartFrame chartFrame = new TrickChartFrame(thePage.getTitle(), getMainFrame().getIconImage(), thePage, chartList);
+            TrickChartFrame chartFrame =
+                    new TrickChartFrame(thePage.getTitle(), getMainFrame().getIconImage(), thePage, chartList);
 
             dpFileNode.add(new DefaultMutableTreeNode(chartFrame));
-            ((DefaultTreeModel)productTree.getModel()).reload();
+            ((DefaultTreeModel) productTree.getModel()).reload();
 
             locateFrame(chartFrame);
         }
@@ -492,21 +495,23 @@ public class JXPlotApplication extends TrickApplication {
     /**
      * Display the table.
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void showTable(ProductTable theTable) {
-        if (theTable == null || theTable.getColumnList() == null || theTable.getColumnList().size() < 1) {
+        if (theTable == null
+                || theTable.getColumnList() == null
+                || theTable.getColumnList().size() < 1) {
             return;
         }
 
-        TrickTableFrame tableFrame = new TrickTableFrame(theTable.getTitle(), getMainFrame().getIconImage(), sessionObject, theTable);
+        TrickTableFrame tableFrame =
+                new TrickTableFrame(theTable.getTitle(), getMainFrame().getIconImage(), sessionObject, theTable);
         tableFrame.setLocation(this.getMainFrame().getLocation());
         if (tableList.getModel() instanceof DefaultListModel) {
-            DefaultListModel listModel = (DefaultListModel)tableList.getModel();
+            DefaultListModel listModel = (DefaultListModel) tableList.getModel();
             listModel.addElement(tableFrame);
         }
         locateFrame(tableFrame);
     }
-
 
     /**
      * Gets the dataset for single plotting. Note that for single plotting,
@@ -520,7 +525,7 @@ public class JXPlotApplication extends TrickApplication {
             if (eachCurve != null && eachCurve.isValid()) {
                 TrickXYSeries series = getXYSeriesForCurve(theRun, page, plot, eachCurve);
                 if (series != null) {
-                    //dataset.addSeries(series);
+                    // dataset.addSeries(series);
                     addSeriesToDataset(dataset, series);
                 }
             }
@@ -532,7 +537,8 @@ public class JXPlotApplication extends TrickApplication {
      * Helper method for getting {@link XYSeries} for the specified {@link ProductCurve}.
      * @param page TODO
      */
-    private TrickXYSeries getXYSeriesForCurve(SessionRun theRun, ProductPage page, ProductPlot plot, ProductCurve eachCurve) {
+    private TrickXYSeries getXYSeriesForCurve(
+            SessionRun theRun, ProductPage page, ProductPlot plot, ProductCurve eachCurve) {
         TrickXYSeries series = null;
         ProductVar theXVar = null;
         ProductVar theYVar = null;
@@ -546,7 +552,8 @@ public class JXPlotApplication extends TrickApplication {
 
                     series = PlotUtils.getXYVarSeries(theRun, page, plot, theXVar, theYVar);
 
-                    // if XYSeries for this varcase can be found, skip the rest. otherwise, keep checking the next varcase
+                    // if XYSeries for this varcase can be found, skip the rest. otherwise, keep checking the next
+                    // varcase
                     if (series != null) {
                         break;
                     }
@@ -560,7 +567,6 @@ public class JXPlotApplication extends TrickApplication {
         }
         return series;
     }
-
 
     /**
      * Helper method for setting X and Y variable scales.
@@ -622,7 +628,7 @@ public class JXPlotApplication extends TrickApplication {
     /**
      * Starts building GUI. This is called after initialize.
      * Once startup() is done, ready() is called.
-     * 
+     *
      * @see #initialize
      * @see #ready
      */
@@ -633,10 +639,10 @@ public class JXPlotApplication extends TrickApplication {
         View view = getMainView();
         view.setComponent(createMainPanel());
         view.setMenuBar(createMenuBar());
-        //view.setToolBar(createToolBar());
+        // view.setToolBar(createToolBar());
         show(view);
 
-        //getMainFrame().setLocation(0, 0);
+        // getMainFrame().setLocation(0, 0);
 
     }
 
@@ -662,7 +668,7 @@ public class JXPlotApplication extends TrickApplication {
 
     /**
      * Creates the main panel. This is required by TrickApplication.
-     * 
+     *
      * @return a {@link JComponent} as the main panel.
      */
     @Override
@@ -670,15 +676,13 @@ public class JXPlotApplication extends TrickApplication {
 
         JXMultiSplitPane msp = new JXMultiSplitPane();
 
-        String layoutDef =
-            "(COLUMN (LEAF name=top weight=0.7)" +
-            //"        (LEAF name=middle weight=0.2)" +
-            "        (LEAF name=bottom weight=0.3)" +
-            ")";
-        MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel( layoutDef );
+        String layoutDef = "(COLUMN (LEAF name=top weight=0.7)" +
+                // "        (LEAF name=middle weight=0.2)" +
+                "        (LEAF name=bottom weight=0.3)"
+                + ")";
+        MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 
-        msp.getMultiSplitLayout().setModel( modelRoot );
-
+        msp.getMultiSplitLayout().setModel(modelRoot);
 
         JPanel productsPanel = UIUtils.createSearchableTitledPanel("Products & Pages", productTree, null);
         productsPanel.setMinimumSize(new Dimension(250, 50));
@@ -686,16 +690,14 @@ public class JXPlotApplication extends TrickApplication {
 
         JPanel tablesPanel = UIUtils.createSearchableTitledPanel("Tables", tableList, null);
         tablesPanel.setMinimumSize(new Dimension(250, 50));
-        //pagesPanel.setPreferredSize(new Dimension(400, 50));
+        // pagesPanel.setPreferredSize(new Dimension(400, 50));
 
-        msp.add(productsPanel, "top" );
-        //msp.add(pagesPanel, "middle" );
-        msp.add(tablesPanel, "bottom" );
+        msp.add(productsPanel, "top");
+        // msp.add(pagesPanel, "middle" );
+        msp.add(tablesPanel, "bottom");
 
         return msp;
     }
-
-
 
     /**
      * Create the JMenuBar for this application.
@@ -706,15 +708,14 @@ public class JXPlotApplication extends TrickApplication {
 
         JMenu menu = menuBar.getMenu(0);
         menu.add(new JSeparator(), 0);
-        //menu.add(new JMenuItem(getAction("saveALLToPDF")), 0);
+        // menu.add(new JMenuItem(getAction("saveALLToPDF")), 0);
         menu.add(createMenuItem("saveAllToPDF"), 0);
         return menuBar;
     }
 
-
     /**
      * Creates the tool bar for the application.
-     * 
+     *
      * @return a {@link JToolBar} for the application.
      */
     @Override
@@ -744,14 +745,14 @@ public class JXPlotApplication extends TrickApplication {
 
     }*/
 
-    //========================================
+    // ========================================
     //    Inner classes
-    //========================================
+    // ========================================
     public class DecimalScientificFormat extends DecimalFormat {
 
         private static final long serialVersionUID = -7709354031636993724L;
 
-        private  DecimalFormat normalFormat = new DecimalFormat("0.#####");
+        private DecimalFormat normalFormat = new DecimalFormat("0.#####");
 
         private DecimalFormat scientificFormat = new DecimalFormat("0.#####E0");
 
