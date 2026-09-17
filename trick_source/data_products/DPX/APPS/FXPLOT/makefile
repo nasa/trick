@@ -93,3 +93,5 @@ fxplot: ../../../lib_${TRICK_HOST_CPU}/liblog.a \
 
 
 # Dependencies
+
+$(OBJDIR)/table_view_node.o: table_text_buffer.hh

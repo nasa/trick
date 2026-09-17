@@ -57,7 +57,8 @@ DS_LIBS         = ${DP_LIBS} -ldl ${CONTROLLER_LIBS}
 
 TESTS = DPM_test \
 		DPC_test \
-		DS_test
+		DS_test \
+		TableTextBuffer_test
 
 #############################################################################
 ##                            MODEL TARGETS                                ##
@@ -75,6 +76,12 @@ test : $(TESTS)
 	./DPC_test --gtest_output=xml:${TRICK_HOME}/trick_test/DataProducts_C.xml
 	./DPM_test --gtest_output=xml:${TRICK_HOME}/trick_test/DataProducts_M.xml
 	./DS_test  --gtest_output=xml:${TRICK_HOME}/trick_test/DataStream.xml
+	./TableTextBuffer_test --gtest_output=xml:${TRICK_HOME}/trick_test/TableTextBuffer.xml
+
+TableTextBuffer_test: TableTextBuffer_test.o
+	${CPP} -o $@ $^ ${GTEST_LIBS} -lpthread
+
+TableTextBuffer_test.o: ${DPX_DIR}/APPS/FXPLOT/table_text_buffer.hh
 
 DPM_test: DPM_test.o ${LIB_DPX_DIR}/libDPM.a
 	@echo "===== Making DPM_test ====="
