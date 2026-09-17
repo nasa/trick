@@ -1,6 +1,5 @@
 package trick.rtperf;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
@@ -8,7 +7,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +14,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.swing.*;
 import trick.common.utils.VariableServerConnection;
 import trick.sniffer.SimulationInformation;
 import trick.sniffer.SimulationListener;
@@ -39,6 +38,7 @@ public class RealTimeJobPieChart extends JPanel {
         public String jobId;
         public double duration;
         public double percentage;
+
         public JobDuration(String jobId, double duration) {
             this.jobId = jobId;
             this.duration = duration;
@@ -142,7 +142,7 @@ public class RealTimeJobPieChart extends JPanel {
         infoPanel.add(modeLabel);
         controlPanel.add(infoPanel, BorderLayout.WEST);
 
-        threadComboBox = new JComboBox<>(new String[]{"Thread 0 (Loading...)"});
+        threadComboBox = new JComboBox<>(new String[] {"Thread 0 (Loading...)"});
         threadComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED && !isInitializingCombo && vsClient != null) {
                 int threadId = threadComboBox.getSelectedIndex();
@@ -183,8 +183,16 @@ public class RealTimeJobPieChart extends JPanel {
         add(controlPanel, BorderLayout.NORTH);
 
         pieChartPanel = new JPanel() {
-            @Override protected void paintComponent(Graphics g) { super.paintComponent(g); drawPieChart(g); }
-            @Override public String getToolTipText(MouseEvent e) { return getPieSliceToolTip(e); }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawPieChart(g);
+            }
+
+            @Override
+            public String getToolTipText(MouseEvent e) {
+                return getPieSliceToolTip(e);
+            }
         };
         pieChartPanel.setMinimumSize(new Dimension(300, 300));
         pieChartPanel.setBackground(Color.WHITE);
@@ -197,6 +205,7 @@ public class RealTimeJobPieChart extends JPanel {
             private JPanel panel = new JPanel(new BorderLayout());
             private JLabel label = new JLabel();
             private JPanel colorBox = new JPanel();
+
             {
                 panel.setOpaque(true);
                 colorBox.setPreferredSize(new Dimension(15, 15));
@@ -205,11 +214,13 @@ public class RealTimeJobPieChart extends JPanel {
                 panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
                 label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             }
+
             @Override
-            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(
+                    JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
                 String displayText = value;
                 String jobName = value.split(" ")[0];
-                
+
                 label.setText(displayText);
                 colorBox.setBackground(getJobColor(jobName));
                 panel.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
@@ -225,6 +236,7 @@ public class RealTimeJobPieChart extends JPanel {
                     showUnpinnedTotalListContextMenu(e);
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -244,6 +256,7 @@ public class RealTimeJobPieChart extends JPanel {
             private JPanel panel = new JPanel(new BorderLayout());
             private JLabel label = new JLabel();
             private JPanel colorBox = new JPanel();
+
             {
                 panel.setOpaque(true);
                 colorBox.setPreferredSize(new Dimension(15, 15));
@@ -252,8 +265,10 @@ public class RealTimeJobPieChart extends JPanel {
                 panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
                 label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             }
+
             @Override
-            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(
+                    JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
                 String jobName = value.split(" ")[0];
                 String displayText = "🔒 " + value;
                 label.setText(displayText);
@@ -271,6 +286,7 @@ public class RealTimeJobPieChart extends JPanel {
                     showPinnedTotalListContextMenu(e);
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -284,7 +300,8 @@ public class RealTimeJobPieChart extends JPanel {
         pinnedTotalScrollPane.setBorder(BorderFactory.createTitledBorder("Pinned Jobs"));
 
         // Split pane for rolling total and pinned total jobs
-        JSplitPane totalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, unpinnedTotalScrollPane, pinnedTotalScrollPane);
+        JSplitPane totalSplit =
+                new JSplitPane(JSplitPane.VERTICAL_SPLIT, unpinnedTotalScrollPane, pinnedTotalScrollPane);
         totalSplit.setContinuousLayout(true);
         totalSplit.setResizeWeight(0.6);
         totalSplit.setBorder(null);
@@ -299,6 +316,7 @@ public class RealTimeJobPieChart extends JPanel {
             private JPanel panel = new JPanel(new BorderLayout());
             private JLabel label = new JLabel();
             private JPanel colorBox = new JPanel();
+
             {
                 panel.setOpaque(true);
                 colorBox.setPreferredSize(new Dimension(15, 15));
@@ -307,8 +325,10 @@ public class RealTimeJobPieChart extends JPanel {
                 panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
                 label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             }
+
             @Override
-            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(
+                    JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
                 String jobName = value.split(" ")[0];
                 String displayText = value;
                 label.setText(displayText);
@@ -326,6 +346,7 @@ public class RealTimeJobPieChart extends JPanel {
                     showCurrentFrameContextMenu(e);
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -345,6 +366,7 @@ public class RealTimeJobPieChart extends JPanel {
             private JPanel panel = new JPanel(new BorderLayout());
             private JLabel label = new JLabel();
             private JPanel colorBox = new JPanel();
+
             {
                 panel.setOpaque(true);
                 colorBox.setPreferredSize(new Dimension(15, 15));
@@ -353,8 +375,10 @@ public class RealTimeJobPieChart extends JPanel {
                 panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
                 label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             }
+
             @Override
-            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(
+                    JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
                 String jobName = value.split(" ")[0];
                 String displayText = "🔒 " + value;
                 label.setText(displayText);
@@ -372,6 +396,7 @@ public class RealTimeJobPieChart extends JPanel {
                     showPinnedJobsContextMenu(e);
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -385,7 +410,8 @@ public class RealTimeJobPieChart extends JPanel {
         pinnedJobsScrollPane.setBorder(BorderFactory.createTitledBorder("Pinned Jobs"));
 
         // Split pane for current frame and pinned jobs
-        JSplitPane currentFrameSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, currentFrameScrollPane, pinnedJobsScrollPane);
+        JSplitPane currentFrameSplit =
+                new JSplitPane(JSplitPane.VERTICAL_SPLIT, currentFrameScrollPane, pinnedJobsScrollPane);
         currentFrameSplit.setContinuousLayout(true);
         currentFrameSplit.setResizeWeight(0.6);
         currentFrameSplit.setBorder(null);
@@ -394,7 +420,7 @@ public class RealTimeJobPieChart extends JPanel {
 
         // Tab 2: All jobs with search
         JPanel allJobsPanel = new JPanel(new BorderLayout());
-        
+
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         searchPanel.setBackground(new Color(240, 240, 240));
         searchPanel.add(new JLabel("Search:"));
@@ -406,14 +432,14 @@ public class RealTimeJobPieChart extends JPanel {
             }
         });
         searchPanel.add(searchField);
-        
+
         clearSearchButton = new JButton("Clear Search");
         clearSearchButton.addActionListener(e -> {
             searchField.setText("");
             updateAllJobsListFilter();
         });
         searchPanel.add(clearSearchButton);
-        
+
         allJobsPanel.add(searchPanel, BorderLayout.NORTH);
 
         allJobsListModel = new DefaultListModel<>();
@@ -422,6 +448,7 @@ public class RealTimeJobPieChart extends JPanel {
             private JPanel panel = new JPanel(new BorderLayout());
             private JLabel label = new JLabel();
             private JPanel colorBox = new JPanel();
+
             {
                 panel.setOpaque(true);
                 colorBox.setPreferredSize(new Dimension(15, 15));
@@ -430,8 +457,10 @@ public class RealTimeJobPieChart extends JPanel {
                 panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
                 label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             }
+
             @Override
-            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(
+                    JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
                 String displayText = value;
                 if (pinnedJobs.contains(value)) {
                     displayText = "🔒 " + value;
@@ -451,6 +480,7 @@ public class RealTimeJobPieChart extends JPanel {
                     showAllJobsContextMenu(e);
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -497,12 +527,12 @@ public class RealTimeJobPieChart extends JPanel {
         if (selectedValue == null) return;
 
         String jobName = selectedValue.split(" ")[0];
-        
+
         // Create final reference for use in lambda
         final String finalJobName = jobName;
 
         JPopupMenu menu = new JPopupMenu();
-        
+
         JMenuItem pinItem = new JMenuItem("Pin Job");
         pinItem.addActionListener(ev -> {
             pinnedJobs.add(finalJobName);
@@ -533,12 +563,12 @@ public class RealTimeJobPieChart extends JPanel {
         if (jobName.startsWith("🔒")) {
             jobName = jobName.substring(2).trim();
         }
-        
+
         // Create final reference for use in lambda
         final String finalJobName = jobName;
 
         JPopupMenu menu = new JPopupMenu();
-        
+
         JMenuItem unlockItem = new JMenuItem("Unlock Job");
         unlockItem.addActionListener(ev -> {
             pinnedJobs.remove(finalJobName);
@@ -565,12 +595,12 @@ public class RealTimeJobPieChart extends JPanel {
         if (selectedValue == null) return;
 
         String jobName = selectedValue.split(" ")[0];
-        
+
         // Create final reference for use in lambda
         final String finalJobName = jobName;
 
         JPopupMenu menu = new JPopupMenu();
-        
+
         JMenuItem pinItem = new JMenuItem("Pin Job");
         pinItem.addActionListener(ev -> {
             pinnedJobs.add(finalJobName);
@@ -601,12 +631,12 @@ public class RealTimeJobPieChart extends JPanel {
         if (jobName.startsWith("🔒")) {
             jobName = jobName.substring(2).trim();
         }
-        
+
         // Create final reference for use in lambda
         final String finalJobName = jobName;
 
         JPopupMenu menu = new JPopupMenu();
-        
+
         JMenuItem unlockItem = new JMenuItem("Unlock Job");
         unlockItem.addActionListener(ev -> {
             pinnedJobs.remove(finalJobName);
@@ -633,7 +663,7 @@ public class RealTimeJobPieChart extends JPanel {
         if (selectedValue == null) return;
 
         JPopupMenu menu = new JPopupMenu();
-        
+
         if (pinnedJobs.contains(selectedValue)) {
             JMenuItem unlockItem = new JMenuItem("Unlock Job");
             unlockItem.addActionListener(ev -> {
@@ -799,7 +829,8 @@ public class RealTimeJobPieChart extends JPanel {
 
         // Update rolling totals for all jobs that meet the threshold or are pinned
         for (JobDuration job : filteredData) {
-            jobTotals.computeIfAbsent(job.jobId, k -> new RollingTotal(ROLLING_WINDOW_SIZE))
+            jobTotals
+                    .computeIfAbsent(job.jobId, k -> new RollingTotal(ROLLING_WINDOW_SIZE))
                     .add(job.duration);
         }
 
@@ -840,12 +871,13 @@ public class RealTimeJobPieChart extends JPanel {
 
         // Update rolling total list (unpinned jobs sorted by total)
         List<Map.Entry<String, RollingTotal>> totalEntries = new ArrayList<>(jobTotals.entrySet());
-        totalEntries.sort((e1, e2) -> Double.compare(e2.getValue().getTotal(), e1.getValue().getTotal()));
+        totalEntries.sort((e1, e2) ->
+                Double.compare(e2.getValue().getTotal(), e1.getValue().getTotal()));
 
         Vector<String> unpinnedTotalUpdate = new Vector<>();
         List<Map.Entry<String, RollingTotal>> unpinnedTotalEntries = new ArrayList<>();
         Map<String, RollingTotal> pinnedTotalMap = new HashMap<>();
-        
+
         for (Map.Entry<String, RollingTotal> entry : totalEntries) {
             if (pinnedJobs.contains(entry.getKey())) {
                 pinnedTotalMap.put(entry.getKey(), entry.getValue());
@@ -853,7 +885,7 @@ public class RealTimeJobPieChart extends JPanel {
                 unpinnedTotalEntries.add(entry);
             }
         }
-        
+
         // Add unpinned jobs first (sorted by total)
         for (Map.Entry<String, RollingTotal> entry : unpinnedTotalEntries) {
             double total = entry.getValue().getTotal();
@@ -896,9 +928,11 @@ public class RealTimeJobPieChart extends JPanel {
             refreshTimer.setDelay(Math.max(millis, 1));
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
-                "Enter a valid cycle time in seconds (e.g., 0.02 for 50 Hz).",
-                "Invalid Rate", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Enter a valid cycle time in seconds (e.g., 0.02 for 50 Hz).",
+                    "Invalid Rate",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -913,14 +947,17 @@ public class RealTimeJobPieChart extends JPanel {
             }
             this.percentageThreshold = threshold;
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
-                "Enter a valid percentage threshold (0.0 to 100.0, e.g., 0.1 for 0.1%).",
-                "Invalid Threshold", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Enter a valid percentage threshold (0.0 to 100.0, e.g., 0.1 for 0.1%).",
+                    "Invalid Threshold",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
     private Color getJobColor(String jobId) {
-        return jobColorMap.computeIfAbsent(jobId, id -> Color.getHSBColor(Math.abs(id.hashCode() % 360) / 360f, 0.7f, 0.9f));
+        return jobColorMap.computeIfAbsent(
+                jobId, id -> Color.getHSBColor(Math.abs(id.hashCode() % 360) / 360f, 0.7f, 0.9f));
     }
 
     private void drawPieChart(Graphics g) {
@@ -987,23 +1024,32 @@ public class RealTimeJobPieChart extends JPanel {
         try {
             String localHostName = InetAddress.getLocalHost().getHostName();
             sniffer.addSimulationListener(new SimulationListener() {
-                @Override public void simulationAdded(SimulationInformation simInfo) {
-                    if (simInfo.simDirectory.equals(currentDir) &&
-                       (simInfo.machine.equalsIgnoreCase(localHostName) || simInfo.machine.equalsIgnoreCase("localhost"))) {
+                @Override
+                public void simulationAdded(SimulationInformation simInfo) {
+                    if (simInfo.simDirectory.equals(currentDir)
+                            && (simInfo.machine.equalsIgnoreCase(localHostName)
+                                    || simInfo.machine.equalsIgnoreCase("localhost"))) {
                         portWrapper[0] = Integer.parseInt(simInfo.handshakePort);
                         hostWrapper[0] = simInfo.machine;
                         searchLatch.countDown();
                     }
                 }
-                @Override public void simulationRemoved(SimulationInformation simInfo) {}
-                @Override public void exceptionOccurred(Exception e) {}
+
+                @Override
+                public void simulationRemoved(SimulationInformation simInfo) {}
+
+                @Override
+                public void exceptionOccurred(Exception e) {}
             });
             sniffer.start();
             if (!searchLatch.await(3, TimeUnit.SECONDS)) {
                 System.err.println("Timeout: Could not auto-discover a simulation in the current directory.");
                 System.exit(1);
             }
-        } catch (Exception e) {} finally { sniffer.setPaused(true); }
+        } catch (Exception e) {
+        } finally {
+            sniffer.setPaused(true);
+        }
 
         RealTimeJobPieChart pieChart = new RealTimeJobPieChart();
         pieChart.setPreferredSize(new Dimension(1200, 600));

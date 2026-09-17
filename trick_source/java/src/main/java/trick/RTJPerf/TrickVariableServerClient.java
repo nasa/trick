@@ -1,11 +1,11 @@
 package trick.rtperf;
 
-import trick.common.utils.VariableServerConnection;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import trick.common.utils.VariableServerConnection;
 
 /**
  * Handles network communication with the Trick Variable Server.
@@ -31,6 +31,7 @@ public class TrickVariableServerClient implements Runnable {
         int index;
         String name;
         int thread;
+
         public JobMeta(int index, String name, int thread) {
             this.index = index;
             this.name = name;
@@ -134,27 +135,25 @@ public class TrickVariableServerClient implements Runnable {
 
                                 allJobs.add(new JobMeta(jobIndex, name, threadId));
                             } catch (Exception e) {
-                                System.err.println("Error parsing batch job at relative index " + i + ": " + e.getMessage());
+                                System.err.println(
+                                        "Error parsing batch job at relative index " + i + ": " + e.getMessage());
                             }
                         }
                     } else {
-                        System.err.println("Warning: Batch response had fewer tokens than expected. " +
-                            "Expected " + ((expectedCount * 2) + 1) + ", got " + tokens.length);
+                        System.err.println("Warning: Batch response had fewer tokens than expected. " + "Expected "
+                                + ((expectedCount * 2) + 1) + ", got " + tokens.length);
                     }
                 }
             }
 
- 
-
             // Register all discovered jobs with the GUI
             List<String> jobNamesList = new ArrayList<>();
-            for (JobMeta job : allJobs)
-            {
+            for (JobMeta job : allJobs) {
                 jobNamesList.add(job.name);
             }
             gui.registerAllJobs(jobNamesList);
 
-           // Initialize GUI thread selection and subscribe to Thread 0
+            // Initialize GUI thread selection and subscribe to Thread 0
             gui.initializeThreads(numThreads, this);
             subscribeToThread(0);
 
@@ -164,7 +163,7 @@ public class TrickVariableServerClient implements Runnable {
                     // Get data from Variable Server in binary format
                     // The get() method handles binary parsing and returns tab-delimited values
                     String line = vsConnection.get(3 + activeThreadJobs.size());
-                    
+
                     if (line == null || line.isEmpty()) {
                         continue;
                     }
@@ -277,7 +276,8 @@ public class TrickVariableServerClient implements Runnable {
                 StringBuilder batchCommands = new StringBuilder();
                 for (int j = i; j < batchEnd; j++) {
                     JobMeta job = activeThreadJobs.get(j);
-                    batchCommands.append("trick.var_add(\"trick_sys.sched.all_jobs_vector[")
+                    batchCommands
+                            .append("trick.var_add(\"trick_sys.sched.all_jobs_vector[")
                             .append(job.index)
                             .append("].prev_frame_time_seconds\")\n");
                 }
@@ -318,13 +318,19 @@ public class TrickVariableServerClient implements Runnable {
     }
 
     private String getModeString(int modeId) {
-        switch(modeId) {
-            case 0: return "Initialization";
-            case 1: return "Freeze";
-            case 4: return "Step";
-            case 5: return "Run";
-            case 6: return "Exit";
-            default: return "Unknown (" + modeId + ")";
+        switch (modeId) {
+            case 0:
+                return "Initialization";
+            case 1:
+                return "Freeze";
+            case 4:
+                return "Step";
+            case 5:
+                return "Run";
+            case 6:
+                return "Exit";
+            default:
+                return "Unknown (" + modeId + ")";
         }
     }
 }
