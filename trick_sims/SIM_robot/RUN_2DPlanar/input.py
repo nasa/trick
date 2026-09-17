@@ -3,7 +3,6 @@ exec(open("./Modified_data/realtime.py").read())
 # Variable Server Data should be copied at top of frame.
 trick.var_allow_connections()
 trick.var_resolve_hostname()
-trick.frame_log_on()
 
 trick.var_set_copy_mode(2)
 
@@ -25,3 +24,13 @@ armIntegLoop.getIntegrator(trick.Euler, Manip2D.robot.ndof)
 varServerPort = trick.var_server_get_port();
 RobotDisplay_path = "models/graphics/build/RobotDisplay.jar"
 
+if (os.path.isfile(RobotDisplay_path)) :
+    RobotDisplay_cmd = "java -jar " \
+                   + RobotDisplay_path \
+                   + " " + str(varServerPort) + " &" ;
+    print(RobotDisplay_cmd)
+    os.system( RobotDisplay_cmd);
+else :
+    print('==================================================================================')
+    print('RobotDisplay needs to be built. Please \"cd\" into ../models/graphics and type \"make\".')
+    print('==================================================================================')

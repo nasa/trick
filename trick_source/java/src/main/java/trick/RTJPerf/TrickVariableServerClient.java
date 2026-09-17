@@ -52,13 +52,28 @@ public class TrickVariableServerClient implements Runnable {
             // 1. Ensure frame logging is turned on so prev_frame_time_seconds is populated
             vsConnection.put("trick.frame_log_on()\n");
             vsConnection.put("trick.var_debug(1)\n"); // Enable debug for troubleshooting
-            vsConnection.put("trick.var_cycle(" + currentCycleRate + ")\n"); // Set initial cycle rate matching GUI default
 
-            // 2. Pause the variable server while configuring initial mapping
+            // 2. Retrieve the software frame and set it as the default cycle rate
+            vsConnection.put("trick.var_send_once(\"trick_sys.sched.software_frame\")\n");
+            String frameResponse = vsConnection.get();
+            if (frameResponse != null && frameResponse.split("\t").length >= 2) {
+                try {
+                    double softwareFrame = Double.parseDouble(frameResponse.split("\t")[1].trim());
+                    currentCycleRate = softwareFrame;
+                    gui.setSoftwareFrameRate(softwareFrame);
+                } catch (Exception e) {
+                    System.err.println("Failed to parse software frame, using default 0.02s.");
+                    currentCycleRate = 0.02;
+                }
+            }
+
+            vsConnection.put("trick.var_cycle(" + currentCycleRate + ")\n");
+
+            // 3. Pause the variable server while configuring initial mapping
             vsConnection.put("trick.var_pause()\n");
             vsConnection.clear();
 
-            // 3. Get Thread Count from the simulation
+            // 4. Get Thread Count from the simulation
             vsConnection.put("trick.var_send_once(\"trick_frame_log.frame_log.num_threads\")\n");
             String threadResponse = vsConnection.get();
             if (threadResponse != null && threadResponse.split("\t").length >= 2) {
@@ -69,7 +84,7 @@ public class TrickVariableServerClient implements Runnable {
                 }
             }
 
-            // 4. Get Job Count from the scheduler's job vector
+            // 5. Get Job Count from the scheduler's job vector
             int numberOfJobs = 0;
             vsConnection.put("trick.var_get_stl_size(\"trick_sys.sched.all_jobs_vector\")\n");
             String sizeResponse = vsConnection.get();
@@ -82,7 +97,7 @@ public class TrickVariableServerClient implements Runnable {
                 }
             }
 
-            // 5. Batched Job Mapping (Chunks of 50 to minimize socket round-trips)
+            // 6. Batched Job Mapping (Chunks of 50 to minimize socket round-trips)
             for (int batchStart = 0; batchStart < numberOfJobs; batchStart += BATCH_SIZE) {
                 int batchEnd = Math.min(batchStart + BATCH_SIZE, numberOfJobs);
                 StringBuilder varList = new StringBuilder();
@@ -132,7 +147,7 @@ public class TrickVariableServerClient implements Runnable {
             gui.initializeThreads(numThreads, this);
             subscribeToThread(0);
 
-            // 6. Data Reading Loop
+            // 7. Data Reading Loop
             String line;
             while (running && (line = vsConnection.get()) != null) {
                 String[] tokens = line.split("\t");
