@@ -1,12 +1,11 @@
-
-//========================================
+// ========================================
 //    Package
-//========================================
+// ========================================
 package trick.dataproducts.trickdp;
 
-//========================================
+// ========================================
 //    Imports
-//========================================
+// ========================================
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
@@ -22,7 +21,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
 import java.util.Vector;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DropMode;
@@ -36,10 +34,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
-
 import trick.common.TrickApplication;
 import trick.common.ui.TrickFileFilter;
 import trick.common.ui.UIUtils;
@@ -58,7 +54,6 @@ import trick.dataproducts.utils.SessionRunTransferHandler;
 import trick.dataproducts.utils.SimDPTree;
 import trick.dataproducts.utils.SimRunTree;
 
-
 /**
  * Trick DP Application that extends {@link DataProductsApplication}.
  *
@@ -67,9 +62,9 @@ import trick.dataproducts.utils.SimRunTree;
  */
 public class TrickDPApplication extends DataProductsApplication {
 
-    //========================================
+    // ========================================
     //    Public data
-    //========================================
+    // ========================================
     public FileTreePanel simRunTree;
     public FileTreePanel simDPTree;
     public ListPanel runList;
@@ -77,14 +72,13 @@ public class TrickDPApplication extends DataProductsApplication {
 
     public String rightClickedDP = null;
 
-    //========================================
+    // ========================================
     //    Protected data
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //    Private Data
-    //========================================
+    // ========================================
     private TrickDPActionController actionController = null;
 
     // the current dir where the app is started from
@@ -102,14 +96,13 @@ public class TrickDPApplication extends DataProductsApplication {
     // menu items for device choices
     private JRadioButtonMenuItem[] deviceMenuItems;
 
-    //========================================
+    // ========================================
     //    Constructors
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //    Actions
-    //========================================
+    // ========================================
     @Action
     public void newSession() {
         actionController.handleNewSession();
@@ -186,23 +179,29 @@ public class TrickDPApplication extends DataProductsApplication {
 
     @Action
     public void gnuSinglePlot() {
-        JOptionPane.showMessageDialog(getMainFrame(), "UNIMPLEMENTED FEATURE !\n" +
-            "Gnu plot is not implemented yet.",
-            "Error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(
+                getMainFrame(),
+                "UNIMPLEMENTED FEATURE !\n" + "Gnu plot is not implemented yet.",
+                "Error",
+                JOptionPane.WARNING_MESSAGE);
     }
 
     @Action
     public void gnuComparisonPlot() {
-        JOptionPane.showMessageDialog(getMainFrame(), "UNIMPLEMENTED FEATURE !\n" +
-            "Gnu plot is not implemented yet.",
-            "Error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(
+                getMainFrame(),
+                "UNIMPLEMENTED FEATURE !\n" + "Gnu plot is not implemented yet.",
+                "Error",
+                JOptionPane.WARNING_MESSAGE);
     }
 
     @Action
     public void gnuErrorPlot() {
-        JOptionPane.showMessageDialog(getMainFrame(), "UNIMPLEMENTED FEATURE !\n" +
-            "Gnu plot is not implemented yet.",
-            "Error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(
+                getMainFrame(),
+                "UNIMPLEMENTED FEATURE !\n" + "Gnu plot is not implemented yet.",
+                "Error",
+                JOptionPane.WARNING_MESSAGE);
     }
 
     @Action
@@ -244,9 +243,9 @@ public class TrickDPApplication extends DataProductsApplication {
                 int len = allRuns.length;
                 if (len > 0) {
                     final String[] dirList = new String[len];
-                    for (int i = 0; i < len; i ++) {
+                    for (int i = 0; i < len; i++) {
                         if (allRuns[i] instanceof SessionRun) {
-                            dirList[i] = ((SessionRun)allRuns[i]).getDir();
+                            dirList[i] = ((SessionRun) allRuns[i]).getDir();
                         }
                     }
                     try {
@@ -319,15 +318,17 @@ public class TrickDPApplication extends DataProductsApplication {
     public void editSelectedDP() {
         int selectedLen = dpList.getSelectedData().length;
         if (selectedLen < 1) {
-            JOptionPane.showMessageDialog(getMainFrame(),
-                                          "No DP_ file is selected from DP Selections!",
-                                          "Error",
-                                          JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    getMainFrame(),
+                    "No DP_ file is selected from DP Selections!",
+                    "Error",
+                    JOptionPane.WARNING_MESSAGE);
         } else if (selectedLen > 1) {
-            JOptionPane.showMessageDialog(getMainFrame(),
-                                          "More than one DP_ file selected in DP Selections. Only one may be edited at a time!",
-                                          "Error",
-                                          JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    getMainFrame(),
+                    "More than one DP_ file selected in DP Selections. Only one may be edited at a time!",
+                    "Error",
+                    JOptionPane.WARNING_MESSAGE);
         } else {
             actionController.handleEditDP(dpList.getSelectedFirstData().toString());
         }
@@ -338,7 +339,6 @@ public class TrickDPApplication extends DataProductsApplication {
     public void editRightClickedDP() {
         actionController.handleEditDP(rightClickedDP);
     }
-
 
     // Filter from Data Product menu
     @Action
@@ -356,7 +356,7 @@ public class TrickDPApplication extends DataProductsApplication {
             while (!simFilePath.getName().startsWith("SIM_")) {
                 simFilePath = simFilePath.getParentFile();
             }
-            String simExeArg = eachItem+java.io.File.separator+"input.py";
+            String simExeArg = eachItem + java.io.File.separator + "input.py";
             ProcessBuilder pb = new ProcessBuilder(simExe, simExeArg);
             pb.directory(simFilePath);
             printStatusMessage("cd " + simFilePath.getPath() + "\n");
@@ -375,13 +375,11 @@ public class TrickDPApplication extends DataProductsApplication {
 
     @Action
     public void refreshSelected() {
-         actionController.handleRefreshSelected();
+        actionController.handleRefreshSelected();
     }
 
     @Action
-    public void plotDestination() {
-
-    }
+    public void plotDestination() {}
 
     @Action
     public void selectFileDevice() {
@@ -395,14 +393,13 @@ public class TrickDPApplication extends DataProductsApplication {
         }
     }
 
-    //========================================
+    // ========================================
     //    Set/Get methods
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //    Methods
-    //========================================
+    // ========================================
     /**
      * Main method for this application.
      * @param args command line arguments
@@ -449,7 +446,6 @@ public class TrickDPApplication extends DataProductsApplication {
         } catch (MalformedURLException me) {
 
         }
-
     }
 
     /**
@@ -469,7 +465,7 @@ public class TrickDPApplication extends DataProductsApplication {
         Vector<DefaultMutableTreeNode> rootChildren = simRunTree.getAllChildren(simRunTree.getRoot());
         if (rootChildren != null) {
             String dirs = "";
-            for (DefaultMutableTreeNode eachChild: rootChildren) {
+            for (DefaultMutableTreeNode eachChild : rootChildren) {
                 if (!dirs.isEmpty()) {
                     dirs += ",";
                 }
@@ -511,9 +507,9 @@ public class TrickDPApplication extends DataProductsApplication {
              * is hidden/filtered.
              * Fixed in FileTree.
              */
-            //Arrays.sort( simdirs, Collections.reverseOrder() );
+            // Arrays.sort( simdirs, Collections.reverseOrder() );
 
-            for (int i = 0; i < simDirs.length; i ++) {
+            for (int i = 0; i < simDirs.length; i++) {
                 File dir = new File(simDirs[i]);
                 if (i == 0) {
                     simRunTree = new SimRunTree(dir, simRunFileFilter, 4);
@@ -537,7 +533,9 @@ public class TrickDPApplication extends DataProductsApplication {
 
         String[] popupMenuActions = {"refreshSelected", "openSelected", "closeSelected", "removeSelectedNodes"};
         simRunTree.setPopup(createPopupMenu(popupMenuActions), 0);
-        popupMenuActions = new String[] { "addRuns", "readDPList", "refreshSelected", "openSelected", "closeSelected", "removeSelectedNodes" };
+        popupMenuActions = new String[] {
+            "addRuns", "readDPList", "refreshSelected", "openSelected", "closeSelected", "removeSelectedNodes"
+        };
         simRunTree.setPopup(createPopupMenu(popupMenuActions), 1);
         popupMenuActions = new String[] {"addRuns"};
         simRunTree.setPopup(createPopupMenu(popupMenuActions), 2);
@@ -556,7 +554,6 @@ public class TrickDPApplication extends DataProductsApplication {
         treePanel.getTree().expandRow(0);
         treePanel.scrollToTreeTop();
     }
-
 
     /**
      * Required by {@link DataProductsApplication}.
@@ -577,7 +574,7 @@ public class TrickDPApplication extends DataProductsApplication {
         runList.setBorder(BorderFactory.createTitledBorder(loweredetched, "Run Selections"));
         runList.getJList().setBackground(Color.white);
 
-        String[] popupMenuActions = { "removeSelectedItems", "removeAllItems", "quickPlot", "configureRunTimename" };
+        String[] popupMenuActions = {"removeSelectedItems", "removeAllItems", "quickPlot", "configureRunTimename"};
         runList.setPopup(createPopupMenu(popupMenuActions), 0);
 
         return runList;
@@ -599,10 +596,10 @@ public class TrickDPApplication extends DataProductsApplication {
         Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
         simDPTree.setBorder(BorderFactory.createTitledBorder(loweredetched, "DP Tree"));
 
-        String[] popupMenuActions = { "addDPs", "refreshSelected", "removeSelectedNodes" };
+        String[] popupMenuActions = {"addDPs", "refreshSelected", "removeSelectedNodes"};
         simDPTree.setPopup(createPopupMenu(popupMenuActions), 0);
         simDPTree.setPopup(createPopupMenu(popupMenuActions), 1);
-        popupMenuActions= new String[] { "addDPs", "refreshSelected"};
+        popupMenuActions = new String[] {"addDPs", "refreshSelected"};
         simDPTree.setPopup(createPopupMenu(popupMenuActions), 2);
         popupMenuActions = new String[] {"addDPs", "editRightClickedDP"};
         simDPTree.setPopup(createPopupMenu(popupMenuActions), 3);
@@ -627,7 +624,7 @@ public class TrickDPApplication extends DataProductsApplication {
         dpList.setBorder(BorderFactory.createTitledBorder(loweredetched, "DP Selections"));
         dpList.getJList().setBackground(Color.white);
 
-        String[] popupMenuActions = { "editRightClickedDP", "removeSelectedItems", "removeAllItems" };
+        String[] popupMenuActions = {"editRightClickedDP", "removeSelectedItems", "removeAllItems"};
         dpList.setPopup(createPopupMenu(popupMenuActions), 0);
 
         return dpList;
@@ -655,57 +652,46 @@ public class TrickDPApplication extends DataProductsApplication {
         String[] sessionMenuActionNames = {
             "newSession",
             "openSession",
-            //"convertSession",
+            // "convertSession",
             "saveSession",
             "refreshSession",
-            //"propertiesSession",
+            // "propertiesSession",
             "---",
             "lookAndFeel",
             "---",
             "quit"
         };
-        String[] simsRunsMenuActionNames = {
-            "importSimDir",
-            "addRunDir"
-        };
-        String[] dataProductMenuActionNames = {
-                "addDP",
-                "editSelectedDP",
-                "filterDP"
-        };
+        String[] simsRunsMenuActionNames = {"importSimDir", "addRunDir"};
+        String[] dataProductMenuActionNames = {"addDP", "editSelectedDP", "filterDP"};
 
         String[] actionsMenuActionNames = {
-                "singlePlot",
-                "comparisonPlot",
-                "errorPlot",
-                "contrastPlot",
-                "tabularData",
-                "tabularErrorData",
-                "---",
-                "gnuSinglePlot",
-                "gnuComparisonPlot",
-                "gnuErrorPlot",
-                "---",
-                "quickPlot",
-                "---",
-                "createPDF"
+            "singlePlot",
+            "comparisonPlot",
+            "errorPlot",
+            "contrastPlot",
+            "tabularData",
+            "tabularErrorData",
+            "---",
+            "gnuSinglePlot",
+            "gnuComparisonPlot",
+            "gnuErrorPlot",
+            "---",
+            "quickPlot",
+            "---",
+            "createPDF"
         };
-        String[] helpMenuActionNames = {
-                "helpContents",
-                "---",
-                "showAboutBox"
-        };
+        String[] helpMenuActionNames = {"helpContents", "---", "showAboutBox"};
 
         JMenu sessionMenu = createMenu("sessionMenu", sessionMenuActionNames);
-        sessionMenu.insert(confirmExitSelection, sessionMenuActionNames.length-1);
+        sessionMenu.insert(confirmExitSelection, sessionMenuActionNames.length - 1);
         menuBar.add(sessionMenu);
 
-        menuBar.add(createMenu("simsRunsMenu",simsRunsMenuActionNames));
-        menuBar.add(createMenu("dataProductMenu",dataProductMenuActionNames));
+        menuBar.add(createMenu("simsRunsMenu", simsRunsMenuActionNames));
+        menuBar.add(createMenu("dataProductMenu", dataProductMenuActionNames));
 
         menuBar.add(createSettingsMenu());
 
-        menuBar.add(createMenu("actionsMenu",actionsMenuActionNames));
+        menuBar.add(createMenu("actionsMenu", actionsMenuActionNames));
 
         menuBar.add(createHelpMenu("helpMenu", helpMenuActionNames, "Help.hs"));
 
@@ -720,26 +706,26 @@ public class TrickDPApplication extends DataProductsApplication {
     @Override
     protected JToolBar createToolBar() {
         String[] toolbarActionNames = {
-                "newSession",
-                "openSession",
-                "saveSession",
-                "---",
-                "singlePlot",
-                "comparisonPlot",
-                "errorPlot",
-                "contrastPlot",
-                "tabularData",
-                "tabularErrorData",
-                "---",
-                "quickPlot",
-                "---",
-                "createPDF",
-                "gnuSinglePlot",
-                "gnuComparisonPlot",
-                "gnuErrorPlot",
-                "---",
-                "toggleGnuplot"
-            };
+            "newSession",
+            "openSession",
+            "saveSession",
+            "---",
+            "singlePlot",
+            "comparisonPlot",
+            "errorPlot",
+            "contrastPlot",
+            "tabularData",
+            "tabularErrorData",
+            "---",
+            "quickPlot",
+            "---",
+            "createPDF",
+            "gnuSinglePlot",
+            "gnuComparisonPlot",
+            "gnuErrorPlot",
+            "---",
+            "toggleGnuplot"
+        };
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
         for (String actionName : toolbarActionNames) {
@@ -765,15 +751,12 @@ public class TrickDPApplication extends DataProductsApplication {
 
         settingsMenu.add(new JLabel("Device"));
 
-        deviceMenuItems = addRadioButtonMenuItems(settingsMenu, new String[]{"selectTerminalDevice", "selectPrinterDevice", "selectFileDevice"});
+        deviceMenuItems = addRadioButtonMenuItems(
+                settingsMenu, new String[] {"selectTerminalDevice", "selectPrinterDevice", "selectFileDevice"});
         settingsMenu.addSeparator();
 
         settingsMenu.add(new JLabel("Plot Utility"));
-        if ( fermiExists ) {
-            addRadioButtonMenuItems(settingsMenu, new JRadioButtonMenuItem[]{fermiRadioButton, javaRadioButton, gnuplotRadioButton});
-        } else {
-            addRadioButtonMenuItems(settingsMenu, new JRadioButtonMenuItem[]{javaRadioButton, gnuplotRadioButton});
-        }
+        addRadioButtonMenuItems(settingsMenu, new JRadioButtonMenuItem[] {javaRadioButton, gnuplotRadioButton});
 
         settingsMenu.addSeparator();
 
@@ -781,7 +764,9 @@ public class TrickDPApplication extends DataProductsApplication {
         getAction("selectGnuplotTerminal").setEnabled(false);
 
         settingsMenu.add(gnuplotTerminalMenu);
-        gnuplotTerminalMenuItems = addRadioButtonMenuItems(gnuplotTerminalMenu, new String[]{"selectX11", "selectPSColor", "selectPSBW", "selectPNG", "selectEPS", "selectAQUA"});
+        gnuplotTerminalMenuItems = addRadioButtonMenuItems(
+                gnuplotTerminalMenu,
+                new String[] {"selectX11", "selectPSColor", "selectPSBW", "selectPNG", "selectEPS", "selectAQUA"});
         return settingsMenu;
     }
 
@@ -848,7 +833,6 @@ public class TrickDPApplication extends DataProductsApplication {
         trickProperties.setProperty("TRICK_DP_SIM_DIRS", simDirs);
     }
 
-
     /**
      * Helper method to initially set current dir to the dir string.
      *
@@ -857,7 +841,7 @@ public class TrickDPApplication extends DataProductsApplication {
         String simDirs = "";
 
         // if current dir is in a SIM dir, import its parent
-        if ( currentDir.contains("/SIM") ) {
+        if (currentDir.contains("/SIM")) {
             try {
                 simDirs = (new File("..")).getCanonicalPath();
             } catch (java.io.IOException ioe) {
@@ -870,7 +854,7 @@ public class TrickDPApplication extends DataProductsApplication {
             FilenameFilter simFilter = new FilenameFilter() {
                 public boolean accept(File path, String filename) {
                     File myFullPath = new File(path + java.io.File.separator + filename);
-                    if ( myFullPath.isDirectory() && filename.contains("SIM") ) {
+                    if (myFullPath.isDirectory() && filename.contains("SIM")) {
                         return true;
                     } else {
                         return false;
@@ -878,13 +862,12 @@ public class TrickDPApplication extends DataProductsApplication {
                 }
             };
             String[] simsList = new File(currentDir).list(simFilter);
-            if ( simsList != null && simsList.length > 0 ) {
+            if (simsList != null && simsList.length > 0) {
                 simDirs = currentDir;
             }
         }
         return simDirs;
     }
-
 
     /**
      * Helper method to append those dirs specified as TRICK_DP_SIM_DIRS property
@@ -895,7 +878,7 @@ public class TrickDPApplication extends DataProductsApplication {
     private String appendDirsFromPropertyFile(String simDirs) {
         // prevent the duplicate ones
         File myDpPropFile = new File(propDirectory + java.io.File.separator + applicationName + ".properties");
-        if ( myDpPropFile.exists() ) {
+        if (myDpPropFile.exists()) {
             String dpSimDirsProperty = trickProperties.getProperty("TRICK_DP_SIM_DIRS");
             // if the property doesn't exist, return the original string
             if (dpSimDirsProperty == null) {
@@ -918,13 +901,13 @@ public class TrickDPApplication extends DataProductsApplication {
                 boolean t1 = new File(eachDir).exists();
                 boolean t2 = false;
                 for (String myDir : simDirs.split(",")) {
-                    if ( myDir.equals(eachDir) ) {
-                        t2 = true;  //found duplicate directories
+                    if (myDir.equals(eachDir)) {
+                        t2 = true; // found duplicate directories
                         break;
                     }
                 }
                 // Keep the first one as the first one as it will be expanded automatically at beginning
-                if ( t1 == true  &&  t2 == false ){
+                if (t1 == true && t2 == false) {
                     if (!simDirs.isEmpty()) {
                         simDirs = simDirs.concat("," + eachDir);
                     } else {
@@ -936,14 +919,13 @@ public class TrickDPApplication extends DataProductsApplication {
         return simDirs;
     }
 
-
     /**
      * Helper method for getting selected run paths.
      * @return list of selected run paths
      */
     public String[] getSelectedRunPaths() {
         String[] runPaths = null;
-        if (runList.getAllData() != null && runList.getAllData().length>0) {
+        if (runList.getAllData() != null && runList.getAllData().length > 0) {
             Object[] runDirs = runList.getAllData();
             runPaths = new String[runDirs.length];
             for (int i = 0; i < runDirs.length; i++) {
@@ -989,18 +971,17 @@ public class TrickDPApplication extends DataProductsApplication {
         }
     }
 
-
-    //========================================
+    // ========================================
     //    Inner classes
-    //========================================
+    // ========================================
     /**
      * Localized mouse call handling.
      */
     private class LocalMouseListener extends MouseAdapter {
 
-        //========================================
+        // ========================================
         //    MouseListener method(s)
-        //========================================
+        // ========================================
         /**
          * Invoked when the mouse button has been clicked (pressed
          * and released) on a component.
@@ -1011,9 +992,9 @@ public class TrickDPApplication extends DataProductsApplication {
         public void mouseClicked(MouseEvent e) {
             if (UIUtils.isRightMouseClick(e)) {
                 if (e.getSource() == runList.getJList()) {
-                    if (runList.getSelectedFirstData() != null &&
-                        runList.getSelectedFirstData() instanceof SessionRun) {
-                        runToConfigure = (SessionRun)runList.getSelectedFirstData();
+                    if (runList.getSelectedFirstData() != null
+                            && runList.getSelectedFirstData() instanceof SessionRun) {
+                        runToConfigure = (SessionRun) runList.getSelectedFirstData();
                     }
                 } else if (e.getSource() == dpList.getJList()) {
                     int index = dpList.getJList().locationToIndex(e.getPoint());
@@ -1025,7 +1006,8 @@ public class TrickDPApplication extends DataProductsApplication {
                     }
                 } else if (e.getSource() == simDPTree.getTree()) {
                     if (simDPTree.getRightClickedTreeUserObj() != null) {
-                        rightClickedDP = simDPTree.getRightClickedTreeUserObj().getFile().getAbsolutePath();
+                        rightClickedDP =
+                                simDPTree.getRightClickedTreeUserObj().getFile().getAbsolutePath();
                     } else {
                         rightClickedDP = null;
                     }
@@ -1033,12 +1015,11 @@ public class TrickDPApplication extends DataProductsApplication {
                 // common behaviors are handled in ListPanel
             } else if (UIUtils.isDoubleClick(e)) {
                 if (e.getSource() == dpList.getJList()) {
-                     dpList.removeSelectedData();
+                    dpList.removeSelectedData();
                 } else if (e.getSource() == runList.getJList()) {
                     runList.removeSelectedData();
                 }
             }
         }
     }
-
 }

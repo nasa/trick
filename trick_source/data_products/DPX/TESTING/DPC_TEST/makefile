@@ -52,8 +52,6 @@ else
      XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXm -lXt -lX11 -ldl
 endif
 
-FLIBS = -L${TRICK_HOME}/trick_source/data_products/Apps/FPlot/fermi-ware/object_${TRICK_HOST_CPU} -lfermi
-
 TRICK_UNIT_LIBS = -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_units
 DP_LIBS         = -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} \
                   -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CPU} \
