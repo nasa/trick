@@ -2,26 +2,14 @@ TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
 # The config_${HOST_TYPE}.mk file provides LLVM_HOME
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti $(UDUNITS_INCLUDES)
+CXXFLAGS := -g -std=c++17 -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti $(UDUNITS_INCLUDES)
 
 CLANG_MAJOR := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f1 -d.)
 CLANG_MINOR := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d.)
 CLANG_PATCHLEVEL := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f3 -d.)
-# check to see if version is greater than 3.5
-CLANG_MINOR_GTEQ5 := $(shell [ $(CLANG_MAJOR) -gt 3 -o \( $(CLANG_MAJOR) -eq 3 -a $(CLANG_MINOR) -ge 5 \) ] && echo 1)
 
-CLANG_MAJOR_GTEQ10 := $(shell [ $(CLANG_MAJOR) -ge 10 ] && echo 1)
-# By default, Clang 16 or later builds C++ code according to the C++17 standard.
+# Clang 16 and later provide libclang-cpp.
 CLANG_MAJOR_GTEQ16 := $(shell [ $(CLANG_MAJOR) -ge 16 ] && echo 1)
-ifeq ($(CLANG_MAJOR_GTEQ16),1)
-CXXFLAGS += -std=c++17
-else
-ifeq ($(CLANG_MAJOR_GTEQ10),1)
-CXXFLAGS += -std=c++14
-else
-CXXFLAGS += -std=c++11
-endif
-endif
 
 LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) $(UDUNITS_LDFLAGS)
 
@@ -45,10 +33,8 @@ endif
 ifeq ($(TRICK_HOST_TYPE),Linux)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
 CXXFLAGS += -DTRICK_GCC_VERSION=\"$(TRICK_GCC_VERSION)\"
-ifeq ($(CLANG_MINOR_GTEQ5),1)
 # Fedora 21 adds -ledit as a system lib, but it isn't installed, or required.
 CLANGLIBS += $(filter-out -ledit,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
-endif
 endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)

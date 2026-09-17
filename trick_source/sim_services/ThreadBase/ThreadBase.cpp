@@ -294,14 +294,10 @@ int Trick::ThreadBase::create_thread() {
     created = true;
 
 #if __linux__
-#ifdef __GNUC__
-#if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
     if ( ! name.empty() ) {
        std::string short_str = name.substr(0,15) ;
        pthread_setname_np(pthread_id, short_str.c_str()) ;
     }
-#endif
-#endif
 #endif
     return(0) ;
 }

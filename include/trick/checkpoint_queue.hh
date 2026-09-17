@@ -6,22 +6,20 @@
 #ifndef CHECKPOINT_QUEUE_HH
 #define CHECKPOINT_QUEUE_HH
 
-#include <queue>
-#include <algorithm>
-#include <typeinfo>
-#include <sstream>
-#include <type_traits>
-
-#ifdef __GNUC__
-#include <cxxabi.h>
-#endif
-
-#include "checkpoint_is_stl_container.hh"
-#include "checkpoint_stl_protos.hh"
 #include "checkpoint_fwd_declare.hh"
+#include "checkpoint_is_stl_container.hh"
 #include "checkpoint_sequence_stl.hh"
+#include "checkpoint_stl_protos.hh"
+
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <queue>
+#include <sstream>
+#include <type_traits>
+#include <typeinfo>
 
 /* =================================================================================================*/
 

@@ -73,54 +73,18 @@ void set_lang_opts(clang::CompilerInstance & ci) {
     // Always use at least C++11
     ci.getLangOpts().CPlusPlus11 = true ;
 
-
-#if (LIBCLANG_MAJOR < 6)
-    // Check if standard_version was specified and if it's a version that is supported by this libclang
-    if (standard_version != "") {
-        if (standard_version == "c++11") {
-            // Nothing to be done here really
-        } else if (standard_version == "c++14" || standard_version == "c++17" || standard_version == "c++20") {
-            std::cerr << "C++ standard " << standard_version << " is not supported by this version of Clang." << std::endl;
-        } else {
-            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
-        }
-    }
-#endif
-
     // Activate C++14 parsing
-#if (LIBCLANG_MAJOR >= 6)
     ci.getLangOpts().CPlusPlus14 = true ;
     ci.getLangOpts().DoubleSquareBracketAttributes = true;
-#endif
-
-#if (LIBCLANG_MAJOR >= 6 && LIBCLANG_MAJOR < 10)
-    // Check if standard_version was specified and if it's a version that is supported by this libclang
-    if (standard_version != "") {
-        if (standard_version == "c++11") {
-            // Turn off c++14, c++11 is already on
-            ci.getLangOpts().CPlusPlus14 = false ;
-        } else if (standard_version == "c++14") {
-            // Nothing to be done here
-        }else if (standard_version == "c++17" || standard_version == "c++20") {
-            std::cerr << "C++ standard " << standard_version << " is not supported by this version of Clang." << std::endl;
-        } else {
-            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
-        }
-    }
-#endif
-
 
     // Activate C++17 parsing
 #ifdef TRICK_GCC_VERSION
-const char * gcc_version = TRICK_GCC_VERSION;
+    const char* gcc_version = TRICK_GCC_VERSION;
 #else
-const char * gcc_version = "";
+    const char* gcc_version = "";
 #endif
 
-
-
-#if (LIBCLANG_MAJOR >= 10)
-    ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 40805);
+    ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 80500);
     ci.getLangOpts().CPlusPlus17 = true ;
 
     // Check if standard_version was specified and if it's a version that is supported by this libclang
@@ -132,19 +96,16 @@ const char * gcc_version = "";
             ci.getLangOpts().CPlusPlus17 = false ;
         } else if (standard_version == "c++17" ) {
             // Nothing to do here
-        } else if (standard_version == "c++20") {
-            #if (LIBCLANG_MAJOR == 10)
-            // https://github.com/nasa/trick/issues/1519
-            // Before LLVM 11, the flag was named CPlusPlus2a
-            ci.getLangOpts().CPlusPlus2a = true ;
-#else
-            ci.getLangOpts().CPlusPlus20 = true ;
-#endif
-        } else {
+        }
+        else if (standard_version == "c++20")
+        {
+            ci.getLangOpts().CPlusPlus20 = true;
+        }
+        else
+        {
             std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
         }
     }
-#endif
 }
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:
@@ -157,14 +118,8 @@ Most of the main program is pieced together from examples on the web. We are doi
 -# Parsing the input file.
 */
 int main(int argc, char * argv[]) {
-    llvm::cl::SetVersionPrinter([]
-#if (LIBCLANG_MAJOR >= 6)
-        (llvm::raw_ostream& stream) {stream
-#else
-        {std::cout
-#endif
-            << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << '\n';}
-    );
+    llvm::cl::SetVersionPrinter([](llvm::raw_ostream& stream)
+                                { stream << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << '\n'; });
 
     /**
      * Gather all of the command line arguments into lists of include directories, defines, and input files.
@@ -187,10 +142,7 @@ int main(int argc, char * argv[]) {
         std::cerr << "No header file specified" << std::endl;
         return 1;
     }
-    clang::CompilerInstance ci ;
-#if (LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR < 9)
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts() , clang::IK_CXX) ;
-#endif
+    clang::CompilerInstance ci;
 
 #if (LIBCLANG_MAJOR >= 22)
     ci.createDiagnostics();
@@ -228,7 +180,6 @@ int main(int argc, char * argv[]) {
     ppo.UsePredefines = true;
 
     // Set the default target architecture
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     clang::TargetOptions to;
     if ( m32 ) {
         to.Triple = llvm::Triple(llvm::sys::getDefaultTargetTriple()).get32BitArchVariant().str();
@@ -243,42 +194,23 @@ int main(int argc, char * argv[]) {
 #endif
     ci.setTarget(pti);
     ci.createPreprocessor(clang::TU_Complete);
-#else
-    clang::TargetOptions * to = new clang::TargetOptions() ;
-    if ( m32 ) {
-        to->Triple = llvm::Triple(llvm::sys::getDefaultTargetTriple()).get32BitArchVariant().str();
-    } else {
-        to->Triple = llvm::sys::getDefaultTargetTriple();
-    }
-    clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), to);
-    ci.setTarget(pti);
-    ci.createPreprocessor();
-#endif
 
     // Set all of the defaults to c++
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
     llvm::Triple trip (to.Triple) ;
 #if (LIBCLANG_MAJOR >= 15)
     clang::LangOptions::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes);
-#elif (LIBCLANG_MAJOR >= 12)
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
-#elif (LIBCLANG_MAJOR >= 10)
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo) ;
-#elif (LIBCLANG_MAJOR >= 5)
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo) ;
 #else
-    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::IK_CXX, trip, ppo) ;
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes);
 #endif
 
     // setting the language defaults clears some of the language opts, set them again.
     set_lang_opts(ci);
 
-#endif
     clang::Preprocessor& pp = ci.getPreprocessor();
 
-#if (LIBCLANG_MAJOR >= 10) && (LIBCLANG_MAJOR < 18)
+#if (LIBCLANG_MAJOR < 18)
     clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts());
-#elif (LIBCLANG_MAJOR >= 18)
+#else
     clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts(), ci.getCodeGenOpts());
 #endif
 
@@ -293,19 +225,10 @@ int main(int argc, char * argv[]) {
     const auto BOU_FALSE_VAL = llvm::cl::BOU_FALSE;
 #endif
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 6))
     auto ftg = std::make_unique<FindTrickICG>(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
-    pp.addPPCallbacks(std::move(ftg)) ;
-#else
-    FindTrickICG* ftg = new FindTrickICG(ci, hsd, print_trick_icg != BOU_FALSE_VAL);
-    pp.addPPCallbacks(ftg) ;
-#endif
+    pp.addPPCallbacks(std::move(ftg));
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 8))
     pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
-#else
-    pp.getBuiltinInfo().InitializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
-#endif
     // Add all of the #define from the command line to the default predefines
     hsd.addDefines(defines);
 
@@ -323,11 +246,7 @@ int main(int argc, char * argv[]) {
 
     // Tell the compiler to use our ICGASTconsumer
     ICGASTConsumer* astConsumer = new ICGASTConsumer(ci, hsd, cs, printAttributes);
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 6))
     ci.setASTConsumer(std::move(std::unique_ptr<clang::ASTConsumer>(astConsumer)));
-#else
-    ci.setASTConsumer(astConsumer);
-#endif
     ci.createASTContext();
     ci.createSema(clang::TU_Complete, NULL);
 
@@ -346,20 +265,18 @@ int main(int argc, char * argv[]) {
         exit(-1);
     }
     // Open up the input file and parse it
-#if (LIBCLANG_MAJOR >= 10 && LIBCLANG_MAJOR < 18)
+#if (LIBCLANG_MAJOR < 18)
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath).get();
-#elif (LIBCLANG_MAJOR >= 18)
-    const clang::FileEntryRef fileEntryRef = llvm::cantFail(ci.getFileManager().getFileRef(inputFilePath));
 #else
-    const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
+    const clang::FileEntryRef fileEntryRef = llvm::cantFail(ci.getFileManager().getFileRef(inputFilePath));
 #endif
     free(inputFilePath);
-#if ((LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18)) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
-    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
-#elif (LIBCLANG_MAJOR >= 18)
-    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
+#if (LIBCLANG_MAJOR < 18)
+    ci.getSourceManager().setMainFileID(
+        ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
-    ci.getSourceManager().createMainFileID(fileEntry);
+    ci.getSourceManager().setMainFileID(
+        ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #endif
     ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
     ci.getDiagnostics().setClient(icgDiagConsumer);
