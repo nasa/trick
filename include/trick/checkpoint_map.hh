@@ -51,8 +51,7 @@ int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string va
     typename STL::key_type * keys = nullptr ;
     typename STL::mapped_type * items = nullptr ;
 
-    cont_size = in_map.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    cont_size = in_map.size();
 
     if ( cont_size > 0 ) {
         std::string type_string ;
@@ -130,8 +129,7 @@ int checkpoint_map_ik_sd(STL & in_map , std::string object_name , std::string va
     typename STL::key_type * keys = nullptr ;
     std::string * items = nullptr ;
 
-    cont_size = in_map.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    cont_size = in_map.size();
 
     if ( cont_size > 0 ) {
         std::string type_string ;
@@ -211,8 +209,7 @@ int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string va
     std::string * keys = nullptr ;
     typename STL::mapped_type * items = nullptr ;
 
-    cont_size = in_map.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    cont_size = in_map.size();
 
     if ( cont_size > 0 ) {
         var_declare << "std::string "
@@ -291,8 +288,7 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
     std::string * keys = nullptr ;
     std::string * items = nullptr ;
 
-    cont_size = in_map.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    cont_size = in_map.size();
 
     if ( cont_size > 0 ) {
         var_declare << "std::string "
@@ -355,8 +351,8 @@ int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::strin
 /* =================================================================================================*/
 
 template <class STL>
-int delete_map_allocs(STL & in_map __attribute__ ((unused)), std::string object_name , std::string var_name ) {
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+int delete_map_allocs(STL& in_map __attribute__((unused)), std::string object_name, std::string var_name)
+{
     REF2 * items_ref ;
     std::string temp_str;
     temp_str = object_name + std::string("_") + var_name + std::string("_keys");
@@ -404,7 +400,6 @@ int restore_map_ik_id(STL & in_map , std::string object_name , std::string var_n
 
     //message_publish(1, "in regular map template restore\n") ;
 
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     temp_str = object_name + "_" + var_name + "_keys";
     keys_ref = ref_attributes(temp_str.c_str()) ;
     temp_str = object_name + "_" + var_name + "_data";
@@ -452,8 +447,6 @@ int restore_map_ik_sd(STL & in_map , std::string object_name , std::string var_n
     std::string * items ;
 
     //message_publish(1, "in regular map template restore\n") ;
-
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     temp_str = object_name + "_" + var_name + "_keys";
     keys_ref = ref_attributes(temp_str.c_str()) ;
@@ -507,8 +500,6 @@ int restore_map_sk_id(STL & in_map , std::string object_name , std::string var_n
 
     //message_publish(1, "in regular map template restore\n") ;
 
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
-
     temp_str = object_name + "_" + var_name + "_keys";
     keys_ref = ref_attributes(temp_str.c_str()) ;
     temp_str = object_name + "_" + var_name + "_data";
@@ -560,8 +551,6 @@ int restore_map_sk_sd(STL & in_map , std::string object_name , std::string var_n
     std::string * items ;
 
     //message_publish(1, "in regular map template restore\n") ;
-
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     temp_str = object_name + "_" + var_name + "_keys";
     keys_ref = ref_attributes((char *)temp_str.c_str()) ;
