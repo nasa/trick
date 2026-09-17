@@ -8,8 +8,11 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +30,8 @@ import trick.sniffer.SimulationSniffer;
  * percentage to reduce visual noise and improve list stability.
  *
  * A rolling total of job execution times over the last 100 frames is maintained
- * and displayed on the left.
+ * and displayed on the left. A tabbed interface allows switching between the current
+ * frame job list and a searchable list of all jobs with pinning capability.
  */
 public class RealTimeJobPieChart extends JPanel {
 
@@ -47,6 +51,12 @@ public class RealTimeJobPieChart extends JPanel {
     // Rolling total of job durations over last 100 frames
     private final Map<String, RollingTotal> jobTotals = new HashMap<>();
     private static final int ROLLING_WINDOW_SIZE = 100;
+
+    // Pinned jobs that are always displayed (LinkedHashSet maintains insertion order)
+    private final Set<String> pinnedJobs = new LinkedHashSet<>();
+
+    // All jobs discovered from the simulation
+    private final List<String> allJobNames = new ArrayList<>();
 
     private static class RollingTotal {
         private final List<Double> frameDurations = new ArrayList<>();
@@ -70,6 +80,7 @@ public class RealTimeJobPieChart extends JPanel {
         }
 
         public boolean isStale() {
+            // Pinned jobs should never be considered stale
             return framesSinceLastSeen > ROLLING_WINDOW_SIZE;
         }
 
@@ -92,10 +103,19 @@ public class RealTimeJobPieChart extends JPanel {
     private boolean isInitializingCombo = false;
 
     private JPanel pieChartPanel;
-    private DefaultListModel<String> totalListModel;
-    private JList<String> totalList;
-    private DefaultListModel<String> listModel;
-    private JList<String> jobList;
+    private DefaultListModel<String> unpinnedTotalListModel;
+    private JList<String> unpinnedTotalList;
+    private DefaultListModel<String> pinnedTotalListModel;
+    private JList<String> pinnedTotalList;
+    private DefaultListModel<String> currentFrameListModel;
+    private JList<String> currentFrameList;
+    private DefaultListModel<String> pinnedJobsListModel;
+    private JList<String> pinnedJobsList;
+    private DefaultListModel<String> allJobsListModel;
+    private JList<String> allJobsList;
+    private JTextField searchField;
+    private JButton clearSearchButton;
+    private JTabbedPane rightTabbedPane;
 
     // Latest data snapshot written by Variable Server network thread and read by Swing timer
     private volatile double pendingSimTime = 0.0;
@@ -170,10 +190,10 @@ public class RealTimeJobPieChart extends JPanel {
         pieChartPanel.setBackground(Color.WHITE);
         pieChartPanel.setToolTipText("");
 
-        // Left panel: Rolling totals
-        totalListModel = new DefaultListModel<>();
-        totalList = new JList<>(totalListModel);
-        totalList.setCellRenderer(new ListCellRenderer<String>() {
+        // Left panel: Rolling totals (split into unpinned and pinned)
+        unpinnedTotalListModel = new DefaultListModel<>();
+        unpinnedTotalList = new JList<>(unpinnedTotalListModel);
+        unpinnedTotalList.setCellRenderer(new ListCellRenderer<String>() {
             private JPanel panel = new JPanel(new BorderLayout());
             private JLabel label = new JLabel();
             private JPanel colorBox = new JPanel();
@@ -187,8 +207,10 @@ public class RealTimeJobPieChart extends JPanel {
             }
             @Override
             public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
-                label.setText(value);
+                String displayText = value;
                 String jobName = value.split(" ")[0];
+                
+                label.setText(displayText);
                 colorBox.setBackground(getJobColor(jobName));
                 panel.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
                 label.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
@@ -196,14 +218,29 @@ public class RealTimeJobPieChart extends JPanel {
             }
         });
 
-        JScrollPane totalScrollPane = new JScrollPane(totalList);
-        totalScrollPane.setMinimumSize(new Dimension(200, 300));
-        totalScrollPane.setBorder(BorderFactory.createTitledBorder("Rolling Total (Last 100 Frames)"));
+        unpinnedTotalList.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showUnpinnedTotalListContextMenu(e);
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showUnpinnedTotalListContextMenu(e);
+                }
+            }
+        });
 
-        // Right panel: Current frame jobs
-        listModel = new DefaultListModel<>();
-        jobList = new JList<>(listModel);
-        jobList.setCellRenderer(new ListCellRenderer<String>() {
+        JScrollPane unpinnedTotalScrollPane = new JScrollPane(unpinnedTotalList);
+        unpinnedTotalScrollPane.setMinimumSize(new Dimension(200, 150));
+        unpinnedTotalScrollPane.setBorder(BorderFactory.createTitledBorder("Rolling Total"));
+
+        // Pinned total jobs list
+        pinnedTotalListModel = new DefaultListModel<>();
+        pinnedTotalList = new JList<>(pinnedTotalListModel);
+        pinnedTotalList.setCellRenderer(new ListCellRenderer<String>() {
             private JPanel panel = new JPanel(new BorderLayout());
             private JLabel label = new JLabel();
             private JPanel colorBox = new JPanel();
@@ -217,30 +254,227 @@ public class RealTimeJobPieChart extends JPanel {
             }
             @Override
             public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
-                label.setText(value);
-                colorBox.setBackground(getJobColor(value.split(" ")[0]));
+                String jobName = value.split(" ")[0];
+                String displayText = "🔒 " + value;
+                label.setText(displayText);
+                colorBox.setBackground(getJobColor(jobName));
                 panel.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
                 label.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
                 return panel;
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane(jobList);
-        scrollPane.setMinimumSize(new Dimension(200, 300));
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Job Execution (Current Frame)"));
+        pinnedTotalList.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPinnedTotalListContextMenu(e);
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPinnedTotalListContextMenu(e);
+                }
+            }
+        });
+
+        JScrollPane pinnedTotalScrollPane = new JScrollPane(pinnedTotalList);
+        pinnedTotalScrollPane.setMinimumSize(new Dimension(200, 150));
+        pinnedTotalScrollPane.setBorder(BorderFactory.createTitledBorder("Pinned Jobs"));
+
+        // Split pane for rolling total and pinned total jobs
+        JSplitPane totalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, unpinnedTotalScrollPane, pinnedTotalScrollPane);
+        totalSplit.setContinuousLayout(true);
+        totalSplit.setResizeWeight(0.6);
+        totalSplit.setBorder(null);
+
+        // Right panel: Tabbed pane with current frame jobs and all jobs
+        rightTabbedPane = new JTabbedPane();
+
+        // Tab 1: Current frame jobs (split into current and pinned)
+        currentFrameListModel = new DefaultListModel<>();
+        currentFrameList = new JList<>(currentFrameListModel);
+        currentFrameList.setCellRenderer(new ListCellRenderer<String>() {
+            private JPanel panel = new JPanel(new BorderLayout());
+            private JLabel label = new JLabel();
+            private JPanel colorBox = new JPanel();
+            {
+                panel.setOpaque(true);
+                colorBox.setPreferredSize(new Dimension(15, 15));
+                panel.add(colorBox, BorderLayout.WEST);
+                panel.add(label, BorderLayout.CENTER);
+                panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+            }
+            @Override
+            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+                String jobName = value.split(" ")[0];
+                String displayText = value;
+                label.setText(displayText);
+                colorBox.setBackground(getJobColor(jobName));
+                panel.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+                label.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+                return panel;
+            }
+        });
+
+        currentFrameList.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showCurrentFrameContextMenu(e);
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showCurrentFrameContextMenu(e);
+                }
+            }
+        });
+
+        JScrollPane currentFrameScrollPane = new JScrollPane(currentFrameList);
+        currentFrameScrollPane.setMinimumSize(new Dimension(200, 150));
+        currentFrameScrollPane.setBorder(BorderFactory.createTitledBorder("Current Frame"));
+
+        // Pinned jobs list
+        pinnedJobsListModel = new DefaultListModel<>();
+        pinnedJobsList = new JList<>(pinnedJobsListModel);
+        pinnedJobsList.setCellRenderer(new ListCellRenderer<String>() {
+            private JPanel panel = new JPanel(new BorderLayout());
+            private JLabel label = new JLabel();
+            private JPanel colorBox = new JPanel();
+            {
+                panel.setOpaque(true);
+                colorBox.setPreferredSize(new Dimension(15, 15));
+                panel.add(colorBox, BorderLayout.WEST);
+                panel.add(label, BorderLayout.CENTER);
+                panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+            }
+            @Override
+            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+                String jobName = value.split(" ")[0];
+                String displayText = "🔒 " + value;
+                label.setText(displayText);
+                colorBox.setBackground(getJobColor(jobName));
+                panel.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+                label.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+                return panel;
+            }
+        });
+
+        pinnedJobsList.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPinnedJobsContextMenu(e);
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPinnedJobsContextMenu(e);
+                }
+            }
+        });
+
+        JScrollPane pinnedJobsScrollPane = new JScrollPane(pinnedJobsList);
+        pinnedJobsScrollPane.setMinimumSize(new Dimension(200, 150));
+        pinnedJobsScrollPane.setBorder(BorderFactory.createTitledBorder("Pinned Jobs"));
+
+        // Split pane for current frame and pinned jobs
+        JSplitPane currentFrameSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, currentFrameScrollPane, pinnedJobsScrollPane);
+        currentFrameSplit.setContinuousLayout(true);
+        currentFrameSplit.setResizeWeight(0.6);
+        currentFrameSplit.setBorder(null);
+
+        rightTabbedPane.addTab("Current Frame", currentFrameSplit);
+
+        // Tab 2: All jobs with search
+        JPanel allJobsPanel = new JPanel(new BorderLayout());
+        
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        searchPanel.setBackground(new Color(240, 240, 240));
+        searchPanel.add(new JLabel("Search:"));
+        searchField = new JTextField(15);
+        searchField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                updateAllJobsListFilter();
+            }
+        });
+        searchPanel.add(searchField);
+        
+        clearSearchButton = new JButton("Clear Search");
+        clearSearchButton.addActionListener(e -> {
+            searchField.setText("");
+            updateAllJobsListFilter();
+        });
+        searchPanel.add(clearSearchButton);
+        
+        allJobsPanel.add(searchPanel, BorderLayout.NORTH);
+
+        allJobsListModel = new DefaultListModel<>();
+        allJobsList = new JList<>(allJobsListModel);
+        allJobsList.setCellRenderer(new ListCellRenderer<String>() {
+            private JPanel panel = new JPanel(new BorderLayout());
+            private JLabel label = new JLabel();
+            private JPanel colorBox = new JPanel();
+            {
+                panel.setOpaque(true);
+                colorBox.setPreferredSize(new Dimension(15, 15));
+                panel.add(colorBox, BorderLayout.WEST);
+                panel.add(label, BorderLayout.CENTER);
+                panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+            }
+            @Override
+            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
+                String displayText = value;
+                if (pinnedJobs.contains(value)) {
+                    displayText = "🔒 " + value;
+                }
+                label.setText(displayText);
+                colorBox.setBackground(getJobColor(value));
+                panel.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+                label.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+                return panel;
+            }
+        });
+
+        allJobsList.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showAllJobsContextMenu(e);
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showAllJobsContextMenu(e);
+                }
+            }
+        });
+
+        JScrollPane allJobsScrollPane = new JScrollPane(allJobsList);
+        allJobsPanel.add(allJobsScrollPane, BorderLayout.CENTER);
+        rightTabbedPane.addTab("All Jobs", allJobsPanel);
 
         // Center: Pie chart
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(pieChartPanel, BorderLayout.CENTER);
 
-        // Left-Center split: Totals and Pie Chart
-        JSplitPane leftCenterSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, totalScrollPane, centerPanel);
+        // Left-Center split: Rolling totals and Pie Chart
+        JSplitPane leftCenterSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, totalSplit, centerPanel);
         leftCenterSplit.setContinuousLayout(true);
         leftCenterSplit.setResizeWeight(0.3);
         leftCenterSplit.setBorder(null);
 
         // Full split: (Totals + Pie) and Job List
-        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftCenterSplit, scrollPane);
+        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftCenterSplit, rightTabbedPane);
         mainSplit.setContinuousLayout(true);
         mainSplit.setResizeWeight(0.65);
         mainSplit.setBorder(null);
@@ -249,6 +483,196 @@ public class RealTimeJobPieChart extends JPanel {
         // Drives Swing repaints matched to default 0.02s (20ms / 50 Hz)
         refreshTimer = new Timer(20, e -> renderLatestFrame());
         refreshTimer.start();
+    }
+
+    /**
+     * Shows context menu for jobs in the unpinned rolling total list.
+     */
+    private void showUnpinnedTotalListContextMenu(MouseEvent e) {
+        int index = unpinnedTotalList.locationToIndex(e.getPoint());
+        if (index < 0) return;
+
+        unpinnedTotalList.setSelectedIndex(index);
+        String selectedValue = unpinnedTotalList.getSelectedValue();
+        if (selectedValue == null) return;
+
+        String jobName = selectedValue.split(" ")[0];
+        
+        // Create final reference for use in lambda
+        final String finalJobName = jobName;
+
+        JPopupMenu menu = new JPopupMenu();
+        
+        JMenuItem pinItem = new JMenuItem("Pin Job");
+        pinItem.addActionListener(ev -> {
+            pinnedJobs.add(finalJobName);
+            unpinnedTotalList.repaint();
+            pinnedTotalList.repaint();
+            currentFrameList.repaint();
+            pinnedJobsList.repaint();
+            allJobsList.repaint();
+        });
+        menu.add(pinItem);
+
+        menu.show(unpinnedTotalList, e.getX(), e.getY());
+    }
+
+    /**
+     * Shows context menu for jobs in the pinned rolling total list.
+     */
+    private void showPinnedTotalListContextMenu(MouseEvent e) {
+        int index = pinnedTotalList.locationToIndex(e.getPoint());
+        if (index < 0) return;
+
+        pinnedTotalList.setSelectedIndex(index);
+        String selectedValue = pinnedTotalList.getSelectedValue();
+        if (selectedValue == null) return;
+
+        String jobName = selectedValue.split(" ")[0];
+        // Remove lock icon if present
+        if (jobName.startsWith("🔒")) {
+            jobName = jobName.substring(2).trim();
+        }
+        
+        // Create final reference for use in lambda
+        final String finalJobName = jobName;
+
+        JPopupMenu menu = new JPopupMenu();
+        
+        JMenuItem unlockItem = new JMenuItem("Unlock Job");
+        unlockItem.addActionListener(ev -> {
+            pinnedJobs.remove(finalJobName);
+            unpinnedTotalList.repaint();
+            pinnedTotalList.repaint();
+            currentFrameList.repaint();
+            pinnedJobsList.repaint();
+            allJobsList.repaint();
+        });
+        menu.add(unlockItem);
+
+        menu.show(pinnedTotalList, e.getX(), e.getY());
+    }
+
+    /**
+     * Shows context menu for jobs in the current frame list.
+     */
+    private void showCurrentFrameContextMenu(MouseEvent e) {
+        int index = currentFrameList.locationToIndex(e.getPoint());
+        if (index < 0) return;
+
+        currentFrameList.setSelectedIndex(index);
+        String selectedValue = currentFrameList.getSelectedValue();
+        if (selectedValue == null) return;
+
+        String jobName = selectedValue.split(" ")[0];
+        
+        // Create final reference for use in lambda
+        final String finalJobName = jobName;
+
+        JPopupMenu menu = new JPopupMenu();
+        
+        JMenuItem pinItem = new JMenuItem("Pin Job");
+        pinItem.addActionListener(ev -> {
+            pinnedJobs.add(finalJobName);
+            currentFrameList.repaint();
+            pinnedJobsList.repaint();
+            unpinnedTotalList.repaint();
+            pinnedTotalList.repaint();
+            allJobsList.repaint();
+        });
+        menu.add(pinItem);
+
+        menu.show(currentFrameList, e.getX(), e.getY());
+    }
+
+    /**
+     * Shows context menu for jobs in the pinned jobs list.
+     */
+    private void showPinnedJobsContextMenu(MouseEvent e) {
+        int index = pinnedJobsList.locationToIndex(e.getPoint());
+        if (index < 0) return;
+
+        pinnedJobsList.setSelectedIndex(index);
+        String selectedValue = pinnedJobsList.getSelectedValue();
+        if (selectedValue == null) return;
+
+        String jobName = selectedValue.split(" ")[0];
+        // Remove lock icon if present
+        if (jobName.startsWith("🔒")) {
+            jobName = jobName.substring(2).trim();
+        }
+        
+        // Create final reference for use in lambda
+        final String finalJobName = jobName;
+
+        JPopupMenu menu = new JPopupMenu();
+        
+        JMenuItem unlockItem = new JMenuItem("Unlock Job");
+        unlockItem.addActionListener(ev -> {
+            pinnedJobs.remove(finalJobName);
+            currentFrameList.repaint();
+            pinnedJobsList.repaint();
+            unpinnedTotalList.repaint();
+            pinnedTotalList.repaint();
+            allJobsList.repaint();
+        });
+        menu.add(unlockItem);
+
+        menu.show(pinnedJobsList, e.getX(), e.getY());
+    }
+
+    /**
+     * Shows context menu for jobs in the all jobs list.
+     */
+    private void showAllJobsContextMenu(MouseEvent e) {
+        int index = allJobsList.locationToIndex(e.getPoint());
+        if (index < 0) return;
+
+        allJobsList.setSelectedIndex(index);
+        String selectedValue = allJobsList.getSelectedValue();
+        if (selectedValue == null) return;
+
+        JPopupMenu menu = new JPopupMenu();
+        
+        if (pinnedJobs.contains(selectedValue)) {
+            JMenuItem unlockItem = new JMenuItem("Unlock Job");
+            unlockItem.addActionListener(ev -> {
+                pinnedJobs.remove(selectedValue);
+                currentFrameList.repaint();
+                pinnedJobsList.repaint();
+                unpinnedTotalList.repaint();
+                pinnedTotalList.repaint();
+                allJobsList.repaint();
+            });
+            menu.add(unlockItem);
+        } else {
+            JMenuItem pinItem = new JMenuItem("Pin Job");
+            pinItem.addActionListener(ev -> {
+                pinnedJobs.add(selectedValue);
+                currentFrameList.repaint();
+                pinnedJobsList.repaint();
+                unpinnedTotalList.repaint();
+                pinnedTotalList.repaint();
+                allJobsList.repaint();
+            });
+            menu.add(pinItem);
+        }
+
+        menu.show(allJobsList, e.getX(), e.getY());
+    }
+
+    /**
+     * Updates the all jobs list based on the search filter.
+     */
+    private void updateAllJobsListFilter() {
+        String searchText = searchField.getText().toLowerCase().trim();
+        allJobsListModel.clear();
+
+        for (String jobName : allJobNames) {
+            if (searchText.isEmpty() || jobName.toLowerCase().contains(searchText)) {
+                allJobsListModel.addElement(jobName);
+            }
+        }
     }
 
     public void initializeThreads(int numThreads, TrickVariableServerClient client) {
@@ -260,6 +684,18 @@ public class RealTimeJobPieChart extends JPanel {
                 threadComboBox.addItem("Thread " + i + (i == 0 ? " (Main)" : ""));
             }
             isInitializingCombo = false;
+        });
+    }
+
+    /**
+     * Registers all discovered jobs from the simulation.
+     */
+    public void registerAllJobs(List<String> jobNames) {
+        SwingUtilities.invokeLater(() -> {
+            allJobNames.clear();
+            allJobNames.addAll(jobNames);
+            Collections.sort(allJobNames);
+            updateAllJobsListFilter();
         });
     }
 
@@ -279,7 +715,8 @@ public class RealTimeJobPieChart extends JPanel {
      */
     private void clearRollingTotals() {
         jobTotals.clear();
-        totalListModel.clear();
+        unpinnedTotalListModel.clear();
+        pinnedTotalListModel.clear();
     }
 
     /**
@@ -329,6 +766,30 @@ public class RealTimeJobPieChart extends JPanel {
             }
         }
 
+        // Add pinned jobs even if they don't meet threshold
+        for (String pinnedJob : pinnedJobs) {
+            boolean found = false;
+            for (JobDuration job : filteredData) {
+                if (job.jobId.equals(pinnedJob)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // Find the job in the full frame data
+                for (JobDuration job : frameData) {
+                    if (job.jobId.equals(pinnedJob)) {
+                        filteredData.add(job);
+                        break;
+                    }
+                }
+                // If pinned job wasn't in this frame, create a zero-duration entry
+                if (!found) {
+                    filteredData.add(new JobDuration(pinnedJob, 0.0));
+                }
+            }
+        }
+
         this.currentFrameData = filteredData;
 
         // Mark all existing jobs as not seen this frame
@@ -336,32 +797,79 @@ public class RealTimeJobPieChart extends JPanel {
             total.incrementFramesSinceLastSeen();
         }
 
-        // Update rolling totals for all jobs that meet the threshold
+        // Update rolling totals for all jobs that meet the threshold or are pinned
         for (JobDuration job : filteredData) {
             jobTotals.computeIfAbsent(job.jobId, k -> new RollingTotal(ROLLING_WINDOW_SIZE))
                     .add(job.duration);
         }
 
         // Remove stale jobs (not seen in more than ROLLING_WINDOW_SIZE frames)
-        jobTotals.entrySet().removeIf(entry -> entry.getValue().isStale());
+        // BUT keep pinned jobs even if stale
+        jobTotals.entrySet().removeIf(entry -> {
+            String jobName = entry.getKey();
+            return entry.getValue().isStale() && !pinnedJobs.contains(jobName);
+        });
 
-        // Update current frame list
-        Vector<String> batchUpdate = new Vector<>();
+        // Update current frame list (unpinned jobs only, sorted by duration)
+        Vector<String> currentFrameUpdate = new Vector<>();
+        List<JobDuration> unpinnedJobs = new ArrayList<>();
         for (JobDuration job : currentFrameData) {
-            batchUpdate.add(String.format("%s (%.1f%%, %.6fs)", job.jobId, job.percentage, job.duration));
+            if (!pinnedJobs.contains(job.jobId)) {
+                unpinnedJobs.add(job);
+            }
         }
-        jobList.setListData(batchUpdate);
+        // Sort unpinned jobs by duration
+        unpinnedJobs.sort((j1, j2) -> Double.compare(j2.duration, j1.duration));
+        for (JobDuration job : unpinnedJobs) {
+            currentFrameUpdate.add(String.format("%s (%.1f%%, %.6fs)", job.jobId, job.percentage, job.duration));
+        }
+        currentFrameList.setListData(currentFrameUpdate);
 
-        // Update rolling total list (sorted by total duration)
+        // Update pinned jobs list (maintain insertion order, don't sort)
+        Vector<String> pinnedUpdate = new Vector<>();
+        for (String pinnedJobName : pinnedJobs) {
+            // Find the job in currentFrameData
+            for (JobDuration job : currentFrameData) {
+                if (job.jobId.equals(pinnedJobName)) {
+                    pinnedUpdate.add(String.format("%s (%.1f%%, %.6fs)", job.jobId, job.percentage, job.duration));
+                    break;
+                }
+            }
+        }
+        pinnedJobsList.setListData(pinnedUpdate);
+
+        // Update rolling total list (unpinned jobs sorted by total)
         List<Map.Entry<String, RollingTotal>> totalEntries = new ArrayList<>(jobTotals.entrySet());
         totalEntries.sort((e1, e2) -> Double.compare(e2.getValue().getTotal(), e1.getValue().getTotal()));
 
-        Vector<String> totalUpdate = new Vector<>();
+        Vector<String> unpinnedTotalUpdate = new Vector<>();
+        List<Map.Entry<String, RollingTotal>> unpinnedTotalEntries = new ArrayList<>();
+        Map<String, RollingTotal> pinnedTotalMap = new HashMap<>();
+        
         for (Map.Entry<String, RollingTotal> entry : totalEntries) {
-            double total = entry.getValue().getTotal();
-            totalUpdate.add(String.format("%s (%.6fs)", entry.getKey(), total));
+            if (pinnedJobs.contains(entry.getKey())) {
+                pinnedTotalMap.put(entry.getKey(), entry.getValue());
+            } else {
+                unpinnedTotalEntries.add(entry);
+            }
         }
-        totalList.setListData(totalUpdate);
+        
+        // Add unpinned jobs first (sorted by total)
+        for (Map.Entry<String, RollingTotal> entry : unpinnedTotalEntries) {
+            double total = entry.getValue().getTotal();
+            unpinnedTotalUpdate.add(String.format("%s (%.6fs)", entry.getKey(), total));
+        }
+        unpinnedTotalList.setListData(unpinnedTotalUpdate);
+
+        // Add pinned jobs (maintain insertion order from pinnedJobs LinkedHashSet)
+        Vector<String> pinnedTotalUpdate = new Vector<>();
+        for (String pinnedJobName : pinnedJobs) {
+            if (pinnedTotalMap.containsKey(pinnedJobName)) {
+                double total = pinnedTotalMap.get(pinnedJobName).getTotal();
+                pinnedTotalUpdate.add(String.format("%s (%.6fs)", pinnedJobName, total));
+            }
+        }
+        pinnedTotalList.setListData(pinnedTotalUpdate);
 
         pieChartPanel.repaint();
     }
