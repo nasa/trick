@@ -75,7 +75,7 @@ class Ball {
 
    double test_double;
 
-   TemplateTest<double, 100> dtt;
+   TT_NS::TemplateTest<double, 100> dtt;
 };
 
 #ifdef SWIG

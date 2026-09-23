@@ -102,7 +102,7 @@ unlink "$trick_build_dir/Makefile_sim", $makefile;
 $makefile_text = do { local $/; <main::DATA> };
 $makefile_text =~ s/SUB_TRICK_HOME/$trick_home/;
 $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/;
-$ENV{'TRICK_SIM_DIR'}   = "$my_cwd/";
+$ENV{'TRICK_SIM_DIR'}   = abs_path($sdefine_dir) . "/";
 $ENV{'TRICK_BUILD_DIR'} = $trick_build_dir;
 
 open MAKEFILE, ">$makefile";
@@ -119,8 +119,6 @@ if ( not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk" ) {
 
 system( "make -f ${trick_build_dir}makefile " . $makefileAddArgs );
 
-# Dump the build dir readme
-system("cp $trick_home/share/doc/trick/data/build_dir_readme ${trick_build_dir}build/README");
 exit $? >> 8;
 
 # trick-CP help message
@@ -260,7 +258,7 @@ S_define: $(TRICK_SIM_DIR)S_define
 
 $(TRICK_BUILD_DIR)build/Makefile_S_define: $(TRICK_BUILD_DIR)S_source.hh
 	$(PRINT_S_DEF_DEPS)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF $(TRICK_BUILD_DIR)build/Makefile_S_define -x c++ $(TRICK_SIM_DIR)S_define)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT $(TRICK_BUILD_DIR)S_source.hh -MF $(TRICK_BUILD_DIR)build/Makefile_S_define -x c++ $(TRICK_SIM_DIR)S_define)
 
 # Automatic and manual ICG rules
 ICG:
