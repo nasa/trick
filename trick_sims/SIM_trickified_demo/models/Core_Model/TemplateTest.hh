@@ -12,26 +12,30 @@ PURPOSE:
 
 #include <iostream>
 
-namespace TT_NS {
+namespace TT_NS
+{
 
-  template <class A, int B>
-  class TemplateTest {
-      public:
-
-          TemplateTest() {
-            for(int i = 0; i < B; ++i) {
-              aa[i] = i ;
+    template <class A, int B> class TemplateTest
+    {
+        public:
+            TemplateTest()
+            {
+                for (int i = 0; i < B; ++i)
+                {
+                    aa[i] = i;
+                }
             }
-          }
 
-          void printout() {
-            for(int i = 0; i < B; ++i) {
-              std::cout << aa[i] << "\n" ;
+            void printout()
+            {
+                for (int i = 0; i < B; ++i)
+                {
+                    std::cout << aa[i] << "\n";
+                }
             }
-          }
 
-          A aa[B] ;
-  } ;
+            A aa[B];
+    };
 
 }
 
@@ -40,4 +44,3 @@ namespace TT_NS {
 #endif
 
 #endif /* TEMPLATETEST_HH */
-

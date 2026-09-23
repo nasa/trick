@@ -19,10 +19,6 @@ with open(trick_build_dir + "build/CP_instances") as cp_instances:
             "\n" + instances + "\n"
             "%}\n"
             "\n"
-            '%import "'
-            + "build"
-            + path
-            + "/"
-            + 'S_source_py.i"\n'
+            '%import "' + "build" + path + "/" + 'S_source_py.i"\n'
             "\n" + instances
         )
