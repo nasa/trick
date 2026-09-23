@@ -11,58 +11,44 @@
    We also print a warning to the screen where the TRICK_ICG was found.
  */
 
-class FindTrickICG : public clang::PPCallbacks {
-  public:
-    FindTrickICG(clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd , bool in_print_msgs ) ;
+class FindTrickICG final : public clang::PPCallbacks
+{
+    public:
+        FindTrickICG(clang::CompilerInstance& in_ci, HeaderSearchDirs& in_hsd, bool in_print_msgs);
 
-    // called when the file changes for a variety of reasons.
-    virtual void FileChanged(clang::SourceLocation Loc, FileChangeReason Reason,
-                           clang::SrcMgr::CharacteristicKind FileType,
-                           clang::FileID PrevFID = clang::FileID()) ;
+        // called when the file changes for a variety of reasons.
+        void FileChanged(clang::SourceLocation Loc, FileChangeReason Reason, clang::SrcMgr::CharacteristicKind FileType,
+                         clang::FileID PrevFID = clang::FileID()) override;
 
-#if (LIBCLANG_MAJOR < 10) // TODO delete when RHEL 7 no longer supported
-  virtual void FileSkipped(const clang::FileEntry &SkippedFile,
-                           const clang::Token &FilenameTok,
-                           clang::SrcMgr::CharacteristicKind FileType) ;
-#else
-    // called when a header file is skipped because of a header guard optimization.
-    virtual void FileSkipped(const clang::FileEntryRef & SkippedFile,
-                        const clang::Token & FilenameTok,
-                        clang::SrcMgr::CharacteristicKind FileType) ;
-#endif
+        // called when a header file is skipped because of a header guard optimization.
+        void FileSkipped(const clang::FileEntryRef& SkippedFile, const clang::Token& FilenameTok,
+                         clang::SrcMgr::CharacteristicKind FileType) override;
 
-    // callbacks called when the preprocessor directives of types are processed.
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
-    virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
-    virtual void ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
-#else
-    virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue) ;
-    virtual void ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue) ;
-#endif
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
-    virtual void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
-    virtual void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
-#else
-    virtual void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD) ;
-    virtual void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD) ;
-#endif
+        // callbacks called when the preprocessor directives of types are processed.
+        void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange,
+                clang::PPCallbacks::ConditionValueKind ConditionValue) override;
+        void Elif(clang::SourceLocation Loc, clang::SourceRange ConditionRange,
+                  clang::PPCallbacks::ConditionValueKind ConditionValue, clang::SourceLocation IfLoc) override;
+        void Ifdef(clang::SourceLocation Loc, const clang::Token& MacroNameTok,
+                   const clang::MacroDefinition& MD) override;
+        void Ifndef(clang::SourceLocation Loc, const clang::Token& MacroNameTok,
+                    const clang::MacroDefinition& MD) override;
 
-    // print a warning about using TRICK_ICG.
-    void print_header() ;
+        // print a warning about using TRICK_ICG.
+        void print_header();
 
-  private:
+    private:
+        // compiler instance to help locating file names
+        clang::CompilerInstance& ci;
 
-    // compiler instance to help locating file names
-    clang::CompilerInstance & ci ;
+        HeaderSearchDirs& hsd;
 
-    HeaderSearchDirs & hsd ;
+        // Are we printing warning messages?
+        bool print_msgs;
 
-    // Are we printing warning messages?
-    bool print_msgs ;
+        // Have we printed the big warning about TRICK_ICG?
+        bool header_printed = false;
 
-    // Have we printed the big warning about TRICK_ICG?
-    bool header_printed ;
-
-    // Using a vector as a stack to hold the stack of included headers we have entered.
-    std::vector<std::string> included_files ;
-} ;
+        // Using a vector as a stack to hold the stack of included headers we have entered.
+        std::vector<std::string> included_files;
+};

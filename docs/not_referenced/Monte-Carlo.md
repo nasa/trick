@@ -184,27 +184,17 @@ generate the value for the variable from run to run.
                            (use Trick::MonteVarRandom::set_min_is_relative, Trick::MonteVarRandom::set_max_is_relative)
       - <b> FLAT</b>: Uniform distribution. No bell. Returns uniform random values between (-\f$\infty\f$, +\f$\infty\f$) bracketed
             optionally by [min, max]. (use Trick::MonteVarRandom::set_min, Trick::MonteVarRandom::set_max)
-    - engine - the C++11 predefined pseudo-random engine type. NO_ENGINE is the default (results in Trick coded random number engine).
-      Other options using the C++11 <random> facilities of the Standard Template Library:
-      (Requires --std=c++0x or --std=c++11 on Trick configure command line when building Trick.)
-        - TRICK_DEFAULT_ENGINE    - <b>SUGGESTED FOR USE</b>. std::ranlux_base_01 for c++0x, std::mt19937 for c++11
-        - C++ TR1 options: (pre-C++11 compiler, GCC versions 4.4 through 4.6). 
-          (Requires --std=c++0x on Trick configure command line when building Trick.)
-          - RANLUX_BASE_01_ENGINE - std::ranlux_base_01 Engine
-          - RANLUX_64_BASE_01_ENGINE - std::ranlux64_base_01 Engine
-          - (others such as std::mt19937 not provided, because they return 
-             outside the canonical 0 <= x < 1 range in some GCC versions, 
-             which can cause infinite loops in distributions.) 
-        - C++11 options: (C++11 compiler, versions 4.7, 4.8). 
-          (Requires --std=c++11 on Trick configure command line when building Trick.)
-          - MINSTD_RAND_ENGINE    - std::minstd_rand Minimal Standard Linear Congruential Engine
-          - MT19937_ENGINE        - std::mt19937 Mersenne Twister Engine. Said to provide better behavior than Linear Congruential Engines.
-          - MT19937_64_ENGINE     - std::mt19937_64  64 bit Mersenne Twister Engine.
-          - RANLUX_24_BASE_ENGINE - std::ranlux24_base Engine
-          - RANLUX_44_BASE_ENGINE - std::ranlux48_base Engine
-          - RANLUX_24_ENGINE      - std::ranlux24 Engine
-          - RANLUX_44_ENGINE      - std::ranlux48 Engine
-          - KNUTH_B_ENGINE        - std::knuth_b Engine
+    - engine - the predefined pseudo-random engine type. NO_ENGINE is the default (results in Trick coded random number engine).
+      All other options use the &lt;random&gt; facilities of the C++ Standard Library:
+      - TRICK_DEFAULT_ENGINE  - <b>SUGGESTED FOR USE</b>. std::mt19937 Mersenne Twister Engine
+      - MINSTD_RAND_ENGINE    - std::minstd_rand Minimal Standard Linear Congruential Engine
+      - MT19937_ENGINE        - std::mt19937 Mersenne Twister Engine. Said to provide better behavior than Linear Congruential Engines.
+      - MT19937_64_ENGINE     - std::mt19937_64  64 bit Mersenne Twister Engine.
+      - RANLUX_24_BASE_ENGINE - std::ranlux24_base Engine
+      - RANLUX_44_BASE_ENGINE - std::ranlux48_base Engine
+      - RANLUX_24_ENGINE      - std::ranlux24 Engine
+      - RANLUX_44_ENGINE      - std::ranlux48 Engine
+      - KNUTH_B_ENGINE        - std::knuth_b Engine
 
 After constructing such a variable, it can be added via:
 

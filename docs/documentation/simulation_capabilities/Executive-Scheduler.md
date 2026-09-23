@@ -129,7 +129,7 @@ exec_get_mode returns the current mode of the simulation.  See the SIM_MODE defi
 
 ```c
 // C/C++ code
-#include "sim_services/Executive/include/exec_proto.h"
+#include "trick/exec_proto.h"
 exec_freeze()
 ```
 

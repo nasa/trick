@@ -282,7 +282,7 @@ void PrintAttributes::printEnum(EnumValues* ev) {
         outfile.close() ;
         printSieEnum(&enumValues) ;
     }
-    
+
     if (!isHeaderExcluded(fileName, false)) {
          printer->printEnumMap(enum_map_outfile, ev);
     }
@@ -417,9 +417,7 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
     std::set<std::string> emptyFiles;
     for (auto fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; ++fi ) {
         const clang::FileEntry * fe = (*fi).first ;
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
-        std::string header_file_name = fe->getName() ;
-#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18) 
+#if (LIBCLANG_MAJOR < 18)
         std::string header_file_name = fe->getName().str() ;
 #else
         const clang::FileEntryRef fer = fi->first ;
@@ -479,12 +477,6 @@ void PrintAttributes::printIOMakefile()
         << '\n'
         << "ifeq ($(IS_CC_CLANG), 0)" << '\n'
         << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << '\n'
-        << "    ifeq ($(shell test $(GCC_MAJOR) -lt 6; echo $$?), 0)" << '\n'
-        << "        TRICK_IO_CXXFLAGS += -std=c++11" << '\n'
-        << "    endif" << '\n'
-        << "endif" << '\n'
-        << "ifeq ($(IS_CC_CLANG), 1)" << '\n'
-        << "    TRICK_IO_CXXFLAGS += -std=c++14" << '\n'
         << "endif" << '\n'
         << '\n'
         << "IO_OBJECTS =";

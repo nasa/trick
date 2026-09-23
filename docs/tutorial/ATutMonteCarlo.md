@@ -224,7 +224,7 @@ PURPOSE: Monte Carlo optimization functions.
 
 #include "../include/optimization.h"
 #include "../include/cannon.h"
-#include "sim_services/MonteCarlo/include/montecarlo_c_intf.h"
+#include "trick/montecarlo_c_intf.h"
 
 int cannon_slave_post(CANNON *C)
 {

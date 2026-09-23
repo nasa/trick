@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* Model include files. */
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
+#include "trick/memorymanager_c_intf.h"
 
 std::vector< int > dv ;
 

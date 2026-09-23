@@ -52,18 +52,4 @@ HAVE_BFD := 1
 PLATFORM_LIBS += -lbfd
 endif
 
-# determine if -std=c++0x or -std=c++11 compile flags are desired
-ifeq "" "c++0x"
-TRICK_ADDITIONAL_CXXFLAGS += -std=c++0x -D_HAVE_TR1_RANDOM
-endif
-
-ifeq "" "c++11"
-TRICK_ADDITIONAL_CXXFLAGS += -std=c++11 -D_HAVE_STL_RANDOM
-endif
-
-ifeq "" "c++14"
-TRICK_ADDITIONAL_CXXFLAGS += -std=c++14 -D_HAVE_STL_RANDOM
-endif
-
 TRICK_ADDITIONAL_TEST_FLAGS += -std=c++17
-

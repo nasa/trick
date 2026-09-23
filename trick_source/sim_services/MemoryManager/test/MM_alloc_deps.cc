@@ -1,7 +1,6 @@
 
 #include <gtest/gtest.h>
 #define private public
-//#include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "MM_test.hh"
 #include "MM_alloc_deps.hh"
 #include <iostream>

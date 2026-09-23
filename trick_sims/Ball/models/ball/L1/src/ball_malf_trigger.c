@@ -12,11 +12,11 @@ PROGRAMMERS:
 
      /* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "ball/L1/include/ball_force.h"
-#include "sim_services/include/exec_proto.h"
 #include "ball/L1/include/ball_proto.h"
 
+#include "trick/exec_proto.h"
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_malf_trigger(
                 /* RETURN: -- Always return zero */
   double curr_time )   /* INOUT:  -- Ball ext. force parameters */

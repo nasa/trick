@@ -1,12 +1,12 @@
+#include "SegmentedExecutive.hh"
 
-#include <iostream>
+#include "trick/command_line_protos.h"
+#include "trick/message_proto.h"
+
 #include <algorithm>
+#include <iostream>
 #include <stdio.h>
 #include <sys/stat.h>
-
-#include "SegmentedExecutive.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/CommandLineArguments/include/command_line_protos.h"
 
 Trick::SegmentedExecutive * the_phe = NULL ;
 

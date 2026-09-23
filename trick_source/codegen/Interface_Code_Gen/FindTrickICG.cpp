@@ -5,8 +5,12 @@
 #include "FindTrickICG.hh"
 #include "Utilities.hh"
 
-FindTrickICG::FindTrickICG(clang::CompilerInstance & in_ci, HeaderSearchDirs & in_hsd , bool in_print_msgs )
- : ci(in_ci) , hsd(in_hsd) , print_msgs(in_print_msgs) , header_printed(false) { }
+FindTrickICG::FindTrickICG(clang::CompilerInstance& in_ci, HeaderSearchDirs& in_hsd, bool in_print_msgs)
+    : ci(in_ci)
+    , hsd(in_hsd)
+    , print_msgs(in_print_msgs)
+{
+}
 
 void FindTrickICG::FileChanged(clang::SourceLocation Loc, FileChangeReason Reason,
                          clang::SrcMgr::CharacteristicKind FileType,
@@ -35,19 +39,12 @@ void FindTrickICG::FileChanged(clang::SourceLocation Loc, FileChangeReason Reaso
     }
 }
 
-#if (LIBCLANG_MAJOR < 10) // TODO delete when RHEL 7 no longer supported
-void FindTrickICG::FileSkipped(const clang::FileEntry &SkippedFile,
-                           const clang::Token &FilenameTok,
-                           clang::SrcMgr::CharacteristicKind FileType) {
-    std::string file_name = SkippedFile.getName() ;
-#else
 void FindTrickICG::FileSkipped(const clang::FileEntryRef & SkippedFile, const clang::Token & FilenameTok,
                         clang::SrcMgr::CharacteristicKind FileType) {
     /* Files that have header guards are only preprocessed once because of an optimization.
     We still need to add its include chain to compat15 if TRICK_ICG was found when it was
     originally preprocessed */
-    std::string file_name = SkippedFile.getName().str() ;
-#endif
+    std::string file_name = SkippedFile.getName().str();
     std::string file_path;
     {
         char* path_cstr = almostRealPath(file_name.c_str());
@@ -66,12 +63,8 @@ void FindTrickICG::FileSkipped(const clang::FileEntryRef & SkippedFile, const cl
     }
 }
 
-
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
-void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue)
-#else
-void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue)
-#endif
+void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange,
+                      clang::PPCallbacks::ConditionValueKind ConditionValue)
 {
     if ( ConditionRange.isValid() ) {
         // Get the full text of the if statement into a string
@@ -100,21 +93,14 @@ void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRan
     }
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
-void FindTrickICG::ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue)
-#else
-void FindTrickICG::ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue)
-#endif
+void FindTrickICG::Elif(clang::SourceLocation Loc, clang::SourceRange ConditionRange,
+                        clang::PPCallbacks::ConditionValueKind ConditionValue, clang::SourceLocation IfLoc)
 {
     // Do the same processing for an #elif statement as an #if statement.
     If(Loc,ConditionRange,ConditionValue) ;
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
-void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
-#else
-void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD)
-#endif
+void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token& MacroNameTok, const clang::MacroDefinition& MD)
 {
     // Get the token name that is being tested.
     std::string name = MacroNameTok.getIdentifierInfo()->getName().str() ;
@@ -137,11 +123,7 @@ void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNam
 
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
-void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
-#else
-void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD)
-#endif
+void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token& MacroNameTok, const clang::MacroDefinition& MD)
 {
     // Get the token name that is being tested.
     std::string name = MacroNameTok.getIdentifierInfo()->getName().str() ;

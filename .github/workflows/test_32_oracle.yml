@@ -19,7 +19,7 @@ jobs:
         glibc.i686 glibc.x86_64 gsl-devel gsl-devel.i686 java-11-openjdk
         java-11-openjdk-devel libstdc++-devel libstdc++-devel.i686 libxml2-devel
         libxml2-devel.i686 llvm llvm-devel llvm-static make maven ncurses-devel
-        ncurses-devel.i686 openmotif openmotif-devel perl perl-Digest-MD5
+        ncurses-devel.i686 motif motif-devel perl perl-Digest-MD5
         python2-devel python3-devel python3-libs.i686 swig tar udunits2
         udunits2-devel wget which zip zlib-devel zlib-devel.i686
     - name: Symlink python

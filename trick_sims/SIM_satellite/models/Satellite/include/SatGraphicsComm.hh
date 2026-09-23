@@ -8,8 +8,9 @@ PURPOSE:
 PROGRAMMERS:
       (((John M. Penn) () () () ))
 *******************************************************************************/
-#include "trick_utils/comm/include/tc_proto.h"
 #include "Satellite.hh"
+
+#include "trick/tc_proto.h"
 
 class SatGraphicsComm {
     public:

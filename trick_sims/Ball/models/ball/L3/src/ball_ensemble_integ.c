@@ -12,8 +12,9 @@ PROGRAMMERS:
 #include <stdio.h>
 
 /* GLOBAL DATA STRUCTURE DECLARATIONS */
-#include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/ball_ensemble.h"
+
+#include "trick/integrator_c_intf.h"
 
 /* ENTRY POINT */
 int ball_ensemble_integ( BSTATE *S[] ) {

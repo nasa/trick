@@ -2,9 +2,11 @@
 PURPOSE: ( Cannon initialization )
 Tutorial Section 8
 ***************************************************************************/
-#include <math.h>
 #include "../include/cannon_aero_proto.h"
-#include "trick_utils/math/include/trick_math.h"
+
+#include "trick/trick_math.h"
+
+#include <math.h>
 
 int cannon_init_aero( CANNON_AERO* C) {
 

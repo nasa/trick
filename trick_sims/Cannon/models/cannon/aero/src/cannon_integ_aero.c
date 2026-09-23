@@ -2,9 +2,11 @@
 PURPOSE: (Cannon integration)
 Tutorial Section 8
 ***************************************************************************/
-#include <stdio.h>
-#include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/cannon_aero_proto.h"
+
+#include "trick/integrator_c_intf.h"
+
+#include <stdio.h>
 
 int cannon_integ_aero(
   CANNON_AERO* C)

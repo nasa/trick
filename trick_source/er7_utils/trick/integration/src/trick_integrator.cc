@@ -20,8 +20,8 @@ Purpose: ()
 #include <iostream>
 
 // Trick includes
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 
 // Interface includes
 #include "er7_utils/interface/include/alloc.hh"

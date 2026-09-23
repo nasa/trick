@@ -18,7 +18,7 @@ PROGRAMMERS:
 #ifndef BALL_CONTROL_H
 #define BALL_CONTROL_H
 
-#include "sim_services/include/Flag.h"
+#include "trick/Flag.h"
 
 typedef struct { /* BCONTROL_IN ----------------------------------------------*/
 

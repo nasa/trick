@@ -1,4 +1,4 @@
- /*********************************** TRICK HEADER **************************
+/*********************************** TRICK HEADER **************************
 PURPOSE:                     (Test ip)
 REFERENCES:                  (None)
 ASSUMPTIONS AND LIMITATIONS: (Autocreated by trick_ui)
@@ -8,7 +8,7 @@ PROGRAMMERS:                 ((lin) (Thu Feb 27 14:57:16 CST 2003))
 #ifndef IP_H
 #define IP_H
 
-#include "sim_services/include/Flag.h"
+#include "trick/Flag.h"
 
 typedef struct {
 
