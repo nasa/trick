@@ -64,6 +64,8 @@ ifeq ($(USE_ER7_UTILS), 0)
 SIM_SERV_DIRS += ${TRICK_HOME}/trick_source/sim_services/Integrator/trick_algorithms
 endif
 
+TRICK_MAKEFILE_DEPS_DIRS = $(addsuffix /Makefile_deps,$(foreach dir,$(SIM_SERV_DIRS),$(if $(findstring include,$(dir)),,$(dir))))
+
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
 SIM_SERV_OBJS := $(filter-out ${TRICK_HOME}/trick_source/sim_services/MemoryManager/%, $(SIM_SERV_OBJS))
 
@@ -165,7 +167,7 @@ endif
 
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
-no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
+no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB) trick_makefile_deps
 	@ echo ; echo "Trick libs compiled:" ; date
 
 # 1.1.1 Build libTrick.a
@@ -219,6 +221,14 @@ $(TRICK_SWIG_LIB): $(SWIG_DIRS) | $(TRICK_LIB_DIR)
 .PHONY: $(SWIG_DIRS)
 $(SWIG_DIRS): icg_sim_serv $(TRICK_LIB_DIR)
 	@ $(MAKE) -C $@ trick
+
+# 1.1.3 Create Makefile_deps for Trick source
+#trick_makefile_deps: $(addsuffix /Makefile_deps,$(SIM_SERV_DIRS) $(UTILS_DIRS))
+trick_makefile_deps: $(TRICK_MAKEFILE_DEPS_DIRS)
+
+# 1.1.3.1 Create each individual Makefile_deps
+%/Makefile_deps:
+	make -C $(@D) depend
 
 #-------------------------------------------------------------------------------
 # 1.2 Build Trick's Data-products Applications.
