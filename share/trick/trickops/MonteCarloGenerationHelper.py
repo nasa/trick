@@ -139,7 +139,7 @@ class MonteCarloGenerationHelper():
         if len(run_list) == 0:
             msg = (f"Error: {monte_dir} doesn't have any runs!")
             raise RuntimeError(msg)
-        self.generated_input_files = [os.path.join(monte_dir, x, just_input_file) for x in run_list
+        self.generated_input_files = [os.path.join(monte_dir_path_full, x, just_input_file) for x in run_list
           if os.path.isfile(os.path.join( monte_dir_path_full, x, just_input_file ))]
         if len(self.generated_input_files) == 0:
             msg = (f"Error: {monte_dir}'s RUN directories don't have any input files of expected "

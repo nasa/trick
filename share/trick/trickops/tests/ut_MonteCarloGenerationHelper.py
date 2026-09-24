@@ -1,5 +1,7 @@
 import os, sys, glob
 import unittest, shutil
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import pdb
 from testconfig import this_trick, tests_dir
 import TrickWorkflow
@@ -12,6 +14,7 @@ def suite():
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MCGAllArgsTestCase))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MCGInvalidGenerationTestCase))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MCGInvalidInputsTestCase))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(MCGRelativePathsTestCase))
     return (suites)
 
 class MCGNominalTestCase(unittest.TestCase):
@@ -202,3 +205,101 @@ class MCGInvalidInputsTestCase(unittest.TestCase):
 
     def test_init(self):
         pass
+
+
+class MCGRelativePathsTestCase(unittest.TestCase):
+    """Generated paths must survive the job's change to its simulation directory."""
+
+    def setUp(self):
+        self.original_cwd = os.getcwd()
+        self.directory = TemporaryDirectory()
+        self.root = Path(self.directory.name).resolve()
+        self.sim = self.root / "sim"
+        (self.sim / "RUN_source").mkdir(parents=True)
+        (self.sim / "RUN_source/input.py").write_text("", encoding="utf-8")
+        self.monte = self.sim / "MONTE_source"
+        for number in (2, 0):
+            run = self.monte / ("RUN_%03d" % number)
+            run.mkdir(parents=True)
+            (run / "monte_input.py").write_text("run %d\n" % number, encoding="utf-8")
+        # This local executable tests argument delivery, not the simulation engine.
+        executable = self.sim / "S_main_fixture.exe"
+        executable.write_text('#!/bin/sh\ncat "$1"\n', encoding="utf-8")
+        executable.chmod(0o700)
+        os.chdir(self.root)
+        self.helper = MonteCarloGenerationHelper(
+            str(self.sim), "RUN_source/input.py", S_main_name="S_main_fixture.exe"
+        )
+
+    def tearDown(self):
+        os.chdir(self.original_cwd)
+        self.directory.cleanup()
+
+    def test_relative_input_paths_are_absolute_and_sorted(self):
+        for directory in ("sim/MONTE_source", "./sim/MONTE_source"):
+            with self.subTest(directory=directory):
+                paths = self.helper.get_generated_input_files(directory)
+                expected = [str(self.monte / name / "monte_input.py")
+                            for name in ("RUN_000", "RUN_002")]
+                self.assertEqual(paths, expected)
+                os.chdir(self.sim)
+                try:
+                    self.assertTrue(all(os.path.isfile(path) for path in paths))
+                finally:
+                    os.chdir(self.root)
+                paths.clear()
+                self.assertEqual(self.helper.generated_input_files, expected)
+
+    def test_absolute_input_paths_are_unchanged(self):
+        paths = self.helper.get_generated_input_files(str(self.monte))
+        self.assertEqual(paths, [str(self.monte / name / "monte_input.py")
+                                for name in ("RUN_000", "RUN_002")])
+
+    def test_generated_jobs_read_inputs_after_changing_directory(self):
+        jobs = self.helper.get_generated_run_jobs("sim/MONTE_source")
+        self.assertEqual(len(jobs), 2)
+        for job, expected in zip(jobs, ("run 0\n", "run 2\n")):
+            with self.subTest(job=job.name):
+                job.set_use_var_server(False)
+                try:
+                    job.start()
+                    job._process.wait(timeout=10)
+                    self.assertEqual(job.get_status(), job.Status.SUCCESS)
+                    self.assertTrue(os.path.isabs(job.log_file))
+                    self.assertEqual(Path(job.log_file).read_text(), expected)
+                finally:
+                    if job._process is not None and job._process.poll() is None:
+                        job.die()
+                    else:
+                        job._close_files()
+
+    def test_jobs_created_in_simulation_directory_run_from_elsewhere(self):
+        os.chdir(self.sim)
+        jobs = self.helper.get_generated_run_jobs("MONTE_source")
+        os.chdir(self.root)
+        for job, expected in zip(jobs, ("run 0\n", "run 2\n")):
+            with self.subTest(job=job.name):
+                job.set_use_var_server(False)
+                try:
+                    job.start()
+                    job._process.wait(timeout=10)
+                    self.assertEqual(job.get_status(), job.Status.SUCCESS)
+                    self.assertEqual(Path(job.log_file).read_text(), expected)
+                finally:
+                    if job._process is not None and job._process.poll() is None:
+                        job.die()
+                    else:
+                        job._close_files()
+
+    def test_relative_paths_from_simulation_directory(self):
+        os.chdir(self.sim)
+        paths = self.helper.get_generated_input_files("MONTE_source")
+        self.assertEqual(paths, [str(self.monte / name / "monte_input.py")
+                                for name in ("RUN_000", "RUN_002")])
+
+    def test_missing_input_filter_is_unchanged(self):
+        (self.monte / "RUN_001").mkdir()
+        paths = self.helper.get_generated_input_files("sim/MONTE_source")
+        self.assertEqual([Path(path).parent.name for path in paths], ["RUN_000", "RUN_002"])
+        with self.assertRaises(RuntimeError):
+            self.helper.get_generated_input_files("does-not-exist")
