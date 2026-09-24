@@ -132,26 +132,29 @@ int Trick::DataRecordGroup::call_function( Trick::JobData * curr_job ) {
     int ret = 0 ;
 
     switch (curr_job->id) {
-        case 1:
+        case INIT_JOB_ID:
             ret = init() ;
             break ;
-        case 2:
+        case WRITE_DATA_JOB_ID:
             ret = write_data(false) ;
             break ;
-        case 3:
+        case CHECKPOINT_JOB_ID:
             ret = checkpoint() ;
             break ;
-        case 4:
+        case CLEAR_CHECKPOINT_VARS_JOB_ID:
             clear_checkpoint_vars() ;
             break ;
-        case 5:
+        case RESTART_JOB_ID:
             ret = restart() ;
             break ;
-        case 6:
+        case SHUTDOWN_JOB_ID:
             ret = shutdown() ;
             break ;
-        default:
+        case DATA_RECORD_JOB_ID:
             ret = data_record(exec_get_sim_time()) ;
+            break ;
+        default:
+            ret = -1 ;
             break ;
     }
 
@@ -517,19 +520,18 @@ void Trick::DataRecordGroup::configure_jobs(DR_Type type) {
     switch(type) {
     default:
         // run the restart job in phase 60001
-        add_job(0, 5, (char *)"restart", NULL, 1.0, (char *)"restart", (char *)"TRK", 60001) ;
+        add_job(0, RESTART_JOB_ID, (char *)"restart", NULL, 1.0, (char *)"restart", (char *)"TRK", 60001) ;
 
     case DR_Type::DR_Type_FrameLogDataRecord:
-        // add_jobs_to_queue will fill in job_id later
         // make the init job run after all other initialization jobs but before the post init checkpoint
         // job so users can allocate memory in initialization jobs and checkpointing data rec groups will work
-        add_job(0, 1, (char *)"initialization", NULL, cycle, (char *)"init", (char *)"TRK", 65534) ;
-        add_job(0, 2, (char *)"end_of_frame", NULL, 1.0, (char *)"write_data", (char *)"TRK") ;
-        add_job(0, 3, (char *)"checkpoint", NULL, 1.0, (char *)"checkpoint", (char *)"TRK") ;
-        add_job(0, 4, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
-        add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
+        add_job(0, INIT_JOB_ID, (char *)"initialization", NULL, cycle, (char *)"init", (char *)"TRK", 65534) ;
+        add_job(0, WRITE_DATA_JOB_ID, (char *)"end_of_frame", NULL, 1.0, (char *)"write_data", (char *)"TRK") ;
+        add_job(0, CHECKPOINT_JOB_ID, (char *)"checkpoint", NULL, 1.0, (char *)"checkpoint", (char *)"TRK") ;
+        add_job(0, CLEAR_CHECKPOINT_VARS_JOB_ID, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
+        add_job(0, SHUTDOWN_JOB_ID, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
 
-        write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
+        write_job = add_job(0, DATA_RECORD_JOB_ID, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
         break ;
     }
     write_job->set_system_job_class(true);
