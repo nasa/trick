@@ -53,13 +53,14 @@ namespace Trick {
 
         protected:
             /** Job ids for this class, continuing the numbering from Trick::DataRecordGroup. */
-            enum JobId {
+            enum JobId
+            {
                 START_TIMER_JOB_ID = Trick::DataRecordGroup::NUM_JOB_IDS,
                 STOP_TIMER_JOB_ID,
                 FRAME_LOG_CLEAR_JOB_ID,
                 ADJUST_TIME_JOB_ID,
                 NUM_JOB_IDS
-            } ;
+            };
 
             /** thread this group will run on. */
             unsigned int thread_id ;
