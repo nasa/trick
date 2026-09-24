@@ -1,5 +1,7 @@
 import os, sys, shutil
 import unittest
+import tempfile
+from pathlib import Path
 import pdb
 from testconfig import this_trick, tests_dir
 from TrickWorkflow import *
@@ -9,7 +11,51 @@ def suite():
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(TrickWorkflowTestCase))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(TrickWorkflowSingleRunTestCase))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(TrickWorkflowComparisonRetryTestCase))
     return (suites)
+
+class TrickWorkflowComparisonRetryTestCase(unittest.TestCase):
+    """Check that comparison results reflect each attempt's files."""
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.test_file = Path(directory.name) / 'test.dat'
+        self.baseline_file = Path(directory.name) / 'baseline.dat'
+        self.comparison = TrickWorkflow.Comparison(
+            str(self.test_file), str(self.baseline_file))
+
+    def test_missing_files_recover_when_both_arrive(self):
+        self.assertEqual(self.comparison.compare(), Job.Status.FAILED)
+        self.assertEqual(self.comparison.missing,
+                         [str(self.test_file), str(self.baseline_file)])
+        self.test_file.write_bytes(b'same')
+        self.baseline_file.write_bytes(b'same')
+        self.assertEqual(self.comparison.compare(), Job.Status.SUCCESS)
+        self.assertEqual(self.comparison.missing, [])
+
+    def test_retries_report_only_files_still_missing(self):
+        for _ in range(2):
+            self.assertEqual(self.comparison.compare(), Job.Status.FAILED)
+            self.assertEqual(self.comparison.missing,
+                             [str(self.test_file), str(self.baseline_file)])
+        self.test_file.write_bytes(b'same')
+        self.assertEqual(self.comparison.compare(), Job.Status.FAILED)
+        self.assertEqual(self.comparison.missing, [str(self.baseline_file)])
+
+    def test_success_then_missing_then_mismatch_then_recovery(self):
+        self.test_file.write_bytes(b'same')
+        self.baseline_file.write_bytes(b'same')
+        self.assertEqual(self.comparison.compare(), Job.Status.SUCCESS)
+        self.test_file.unlink()
+        self.assertEqual(self.comparison.compare(), Job.Status.FAILED)
+        self.assertEqual(self.comparison.missing, [str(self.test_file)])
+        self.test_file.write_bytes(b'different')
+        self.assertEqual(self.comparison.compare(), Job.Status.FAILED)
+        self.assertEqual(self.comparison.missing, [])
+        self.test_file.write_bytes(b'same')
+        self.assertEqual(self.comparison.compare(), Job.Status.SUCCESS)
+        self.assertEqual(self.comparison.missing, [])
 
 class TrickWorkflowSingleRunTestCase(unittest.TestCase):
     def setUp(self):
