@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+
+use FindBin qw($RealBin);
+use lib "$RealBin/pm";
+use trick_print;
+
+use File::Path qw(make_path);
+use File::Basename;
+use File::Find;
+use File::Copy;
+
+use Cwd qw(getcwd);
+
+use strict;
+
+my $og_trick_build_dir = $ENV{'TRICK_BUILD_DIR'};
+my %all_file_list;
+my %all_io_file_list;
+my %empty_file_list;
+my %ext_lib_io_files_list;
+my %icg_no_files_list;
+
+sub run_ICG($) {
+    my ($file) = @_;
+    print "ICGing:$file\n";
+    system(
+        "$ENV{TRICK_HOME}/bin/trick-ICG $ENV{TRICK_CXXFLAGS} $ENV{TRICK_SYSTEM_CXXFLAGS} $ENV{TRICK_ICGFLAGS} $file");
+}
+
+sub ICG_print($) {
+    my ($path) = @_;
+    system(
+        "$ENV{TRICK_HOME}/bin/trick-ICG $ENV{TRICK_CXXFLAGS} $ENV{TRICK_SYSTEM_CXXFLAGS} $ENV{TRICK_ICGFLAGS} --printIO $path"
+    );
+}
+
+sub read_icg_artifacts() {
+    read_icg_processed();
+    read_ext_lib_io_files();
+    read_icg_no_found();
+}
+
+sub read_icg_processed() {
+    my $path = $ENV{'TRICK_BUILD_DIR'};
+    my @trickify_io_link_list;
+
+#ICG_processed is actually split into two parts. First are the "non-empty" files, which we actually generate io files for.
+#Aferwards are the "empty" files, which are files that ICG decides not generate io for, but are still needed for builds.
+#These separate lists are smushed together in ICG_processed, so we have to find where the first list ends.
+#trickify_io_link_list only contains the "non-empty list", so we can get a count of how long the non-empty file list is.
+    open IO_LL, "${path}build/trickify_io_link_list" or die "Could not open ${path}build/trickify_io_link_list";
+    while (<IO_LL>) {
+        chomp;
+        push @trickify_io_link_list, $_;
+    }
+    close IO_LL;
+
+    my $count;
+    open ICGP, "${path}build/ICG_processed" or die "Could not open ${path}build/ICG_processed";
+    while (<ICGP>) {
+        chomp;
+        if ( $count < @trickify_io_link_list ) {
+            $all_file_list{$_}++;
+        }
+        else {
+            $empty_file_list{$_}++;
+        }
+        $count++;
+    }
+    close ICGP;
+}
+
+sub read_ext_lib_io_files() {
+    my $path = $ENV{'TRICK_BUILD_DIR'};
+    open EXT_LIB, "${path}build/ICG_ext_lib" or die "Could not open ${path}build/ICG_ext_lib";
+    while (<EXT_LIB>) {
+        chomp;
+        $ext_lib_io_files_list{$_}++;
+    }
+    close EXT_LIB;
+}
+
+sub read_icg_no_found() {
+    my $path = $ENV{'TRICK_BUILD_DIR'};
+    open ICG_NO_FOUND, "${path}build/ICG_no_found" or die "Could not open ${path}build/ICG_no_found";
+    while (<ICG_NO_FOUND>) {
+        chomp;
+        $icg_no_files_list{$_}++;
+    }
+    close ICG_NO_FOUND;
+}
+
+sub file_to_io_cpp($) {
+    my ($file) = @_;
+
+    $file =~ /(.*)\.[^.]*$/;
+    my $ret = dirname($1) . "/io_" . basename($1) . ".cpp";
+}
+
+run_ICG("S_source.hh");
+
+# Restore build dir
+$ENV{'TRICK_BUILD_DIR'} = $og_trick_build_dir;
