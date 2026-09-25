@@ -1540,6 +1540,7 @@ class TrickWorkflow(WorkflowCommon):
             Job.Status ENUM
                 status of the comparison: Job.Status.SUCCESS on success, Job.Status.FAILED
             """
+            self.missing = []
             for hs in [self.test_data, self.baseline_data]:
                 if not os.path.exists(hs):
                     self.missing.append(hs)
