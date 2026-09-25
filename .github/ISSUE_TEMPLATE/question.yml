@@ -5,7 +5,7 @@ labels: ["question"]
 body:
   - type: markdown
     attributes:
-      value: |
+      value: >
         Before asking, check the
         [Install Guide](https://nasa.github.io/trick/documentation/install_guide/Install-Guide),
         [Tutorial](https://nasa.github.io/trick/tutorial/Tutorial),
