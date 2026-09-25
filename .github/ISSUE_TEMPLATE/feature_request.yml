@@ -1,0 +1,68 @@
+name: Feature request
+description: Describe a problem you cannot solve with Trick today in a simulation you run.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please read
+        [CONTRIBUTING.md](https://github.com/nasa/trick/blob/master/CONTRIBUTING.md)
+        first. Feature requests must describe a concrete problem encountered
+        while using Trick. Requests for features you do not personally need,
+        generic modernization proposals, and lists of suggested improvements
+        are closed. An open feature request is not an accepted one; do not
+        start implementing anything until a maintainer agrees to it here.
+
+  - type: checkboxes
+    id: prereqs
+    attributes:
+      label: Prerequisites
+      options:
+        - label: The entity checking this box and clicking submit is a human.
+          required: true
+        - label: I have read [CONTRIBUTING.md](https://github.com/nasa/trick/blob/master/CONTRIBUTING.md) and this request follows it.
+          required: true
+        - label: I searched open and closed issues and did not find this request.
+          required: true
+        - label: I use Trick and need this for a simulation I build or run.
+          required: true
+        - label: I have checked the documentation and Trick does not already provide a way to do this.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: >
+        What are you trying to do with Trick that you cannot do today? Describe
+        the simulation context. Focus on the problem, not the solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What you do today instead
+      description: Current workaround, if any, and why it is not sufficient.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution (optional)
+      description: If you have a specific approach in mind, describe it. Alternatives you considered are also useful.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: implement
+    attributes:
+      label: Are you willing to implement this if it is accepted?
+      options:
+        - "Yes"
+        - "Yes, with guidance"
+        - "No"
+    validations:
+      required: true

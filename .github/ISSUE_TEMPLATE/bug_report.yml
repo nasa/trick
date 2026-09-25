@@ -1,0 +1,121 @@
+name: Bug report
+description: Report a reproducible defect you encountered while building or installing Trick, while building or running a Trick simulation, or while following the Trick documentation.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a problem. Please read
+        [CONTRIBUTING.md](https://github.com/nasa/trick/blob/master/CONTRIBUTING.md)
+        first. All required fields must be completed truthfully. Reports that
+        are not reproduced against a real Trick build, simulation, or
+        documentation page, that consist of tool output without a
+        reproduction, or that contain placeholder answers are closed without
+        further review.
+
+  - type: checkboxes
+    id: prereqs
+    attributes:
+      label: Prerequisites
+      description: Every box must be checked truthfully.
+      options:
+        - label: The entity checking this box and clicking submit is a human.
+          required: true
+        - label: I have read [CONTRIBUTING.md](https://github.com/nasa/trick/blob/master/CONTRIBUTING.md) and this report follows it.
+          required: true
+        - label: I searched open and closed issues and did not find this problem.
+          required: true
+        - label: I reproduced this problem myself, while building or installing Trick, while building or running a Trick simulation, or while following the Trick documentation, on the version listed below. This is not a suspected problem from reading source code or from an automated tool.
+          required: true
+
+
+  - type: input
+    id: version
+    attributes:
+      label: Trick version or commit
+      description: Output of `trick-version` or the commit hash you built.
+      placeholder: "e.g. 19.7.3 or a1b2c3d"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system, compiler, LLVM, Swig and Python version
+      description: >
+        For a documentation error, enter "not applicable" for any version that
+        is not relevant to the problem.
+      placeholder: "e.g. RHEL 9.4, gcc 11.4.1, llvm 17, swig 4.0.2, python 3.9.18"
+    validations:
+      required: true
+
+  - type: textarea
+    id: usage
+    attributes:
+      label: How you use Trick and how this bug affects that use
+      description: >
+        Briefly describe the simulation or project you use Trick for (or are
+        trying to set it up for) and the impact of this problem on it. This is
+        required; it is how the team prioritizes work. General statements such
+        as "this could affect users" are not sufficient.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: >
+        Exact steps a maintainer can follow to see the problem. For a build or
+        install failure of Trick itself, give the exact `configure` and `make`
+        commands and the dependency versions installed. For a simulation
+        problem, name a sim in `trick_sims/` or `test/` plus an input file, or
+        attach a minimal sim. Include the commands you ran. For a documentation
+        error, give the page URL, quote the incorrect statement exactly, give
+        the expected correction, and describe what happened when you followed
+        the documentation.
+      placeholder: |
+        Build failure example:
+        1. ./configure --with-llvm=/usr/lib/llvm-17
+        2. make
+        3. Observe error ...
+
+        Simulation example:
+        1. cd trick_sims/Ball/SIM_ball_L1
+        2. trick-CP
+        3. ./S_main_Linux_11_x86_64.exe RUN_test/input.py  # executable name is platform dependent
+        4. Observe ...
+
+        Documentation example:
+        Page URL: https://nasa.github.io/trick/...
+        Incorrect statement: "..."
+        Expected correction: "..."
+        What happened when I followed it: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: For a documentation error, the expected correction.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior, with output or logs
+      description: Paste relevant output. For a documentation error, quote the incorrect statement. This will be formatted as code automatically.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else relevant, such as a suspected cause or a workaround you found.
+    validations:
+      required: false

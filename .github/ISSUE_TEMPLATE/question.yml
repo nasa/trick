@@ -1,0 +1,51 @@
+name: Question
+description: Ask a usage question that the documentation does not answer.
+title: "question: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before asking, check the
+        [Install Guide](https://nasa.github.io/trick/documentation/install_guide/Install-Guide),
+        [Tutorial](https://nasa.github.io/trick/tutorial/Tutorial),
+        [FAQ](https://nasa.github.io/trick/faq/FAQ), and
+        [Documentation](https://nasa.github.io/trick/documentation/Documentation-Home).
+        Questions answered directly by the documentation are closed with a
+        link. See
+        [CONTRIBUTING.md](https://github.com/nasa/trick/blob/master/CONTRIBUTING.md).
+
+  - type: checkboxes
+    id: prereqs
+    attributes:
+      label: Prerequisites
+      options:
+        - label: The entity checking this box and clicking submit is a human.
+          required: true
+        - label: I have read the relevant documentation and searched existing issues.
+          required: true
+        - label: I am asking about Trick itself, not about a project that uses Trick.
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Trick version and platform
+      placeholder: "e.g. 19.7.3 on Ubuntu 24.04"
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to accomplish in your simulation, and what is unclear?
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you tried and which documentation you consulted
+    validations:
+      required: true
