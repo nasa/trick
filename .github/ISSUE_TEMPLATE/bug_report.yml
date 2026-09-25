@@ -5,7 +5,7 @@ labels: ["bug"]
 body:
   - type: markdown
     attributes:
-      value: |
+      value: >
         Thank you for taking the time to report a problem. Please read
         [CONTRIBUTING.md](https://github.com/nasa/trick/blob/master/CONTRIBUTING.md)
         first. All required fields must be completed truthfully. Reports that
