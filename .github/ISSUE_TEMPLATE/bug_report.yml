@@ -84,7 +84,7 @@ body:
         Simulation example:
         1. cd trick_sims/Ball/SIM_ball_L1
         2. trick-CP
-        3. ./S_main_Linux_11_x86_64.exe RUN_test/input.py  (executable name is platform dependent)
+        3. ./S_main_Linux_11_x86_64.exe RUN_test/input.py  # executable name is platform dependent
         4. Observe ...
 
         Documentation example:
