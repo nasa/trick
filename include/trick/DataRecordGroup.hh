@@ -229,11 +229,11 @@ namespace Trick {
             int set_freq(DR_Freq in_freq) ;
 
             /**
-             @brief @userdesc Command to set the size of each variable buffer in the group used to hold recorded variable values (default is 100000).
-             The buffer size will be set during initialization in Trick::DataRecordGroup::init.
+             @brief @userdesc Command to set the maximum number of records each variable buffer in the group can hold
+             (default is 100000). The buffer size will be set during initialization in Trick::DataRecordGroup::init.
              @par Python Usage:
              @code <dr_group>.set_max_buffer_size(<num>) @endcode
-             @param num - the buffer size in bytes
+             @param num - the maximum number of records to buffer per variable
              @return always 0
             */
             virtual int set_max_buffer_size(int num) ;
@@ -428,6 +428,19 @@ namespace Trick {
             std::string type_string(int item_type, int item_size) ;
 
         protected:
+            /** Job ids for this class.  Derived classes that add jobs must start numbering at NUM_JOB_IDS. */
+            enum JobId
+            {
+                INIT_JOB_ID = 0,
+                WRITE_DATA_JOB_ID,
+                CHECKPOINT_JOB_ID,
+                CLEAR_CHECKPOINT_VARS_JOB_ID,
+                RESTART_JOB_ID,
+                SHUTDOWN_JOB_ID,
+                DATA_RECORD_JOB_ID,
+                NUM_JOB_IDS
+            };
+
             /**
              @brief This routine adds the sys.exec.out.time variable to the data record group
              @returns always 0
