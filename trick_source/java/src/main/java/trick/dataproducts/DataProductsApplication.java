@@ -1,12 +1,11 @@
-
-//========================================
+// ========================================
 //    Package
-//========================================
+// ========================================
 package trick.dataproducts;
 
-//========================================
+// ========================================
 //    Imports
-//========================================
+// ========================================
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
@@ -16,7 +15,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
@@ -29,12 +27,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingWorker;
-
 import org.jdesktop.application.Action;
 import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
-
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.components.NumberTextField;
@@ -42,8 +38,6 @@ import trick.dataproducts.trickqp.TrickQPApplication;
 import trick.dataproducts.utils.Session;
 import trick.dataproducts.utils.SessionRun;
 import trick.dataproducts.utils.SessionXMLCreator;
-
-
 
 /**
  * Data Products Application that extends {@link TrickApplication}.
@@ -53,9 +47,9 @@ import trick.dataproducts.utils.SessionXMLCreator;
  */
 public abstract class DataProductsApplication extends TrickApplication {
 
-    //========================================
+    // ========================================
     //  Public data
-    //========================================
+    // ========================================
     public JTextField versionField;
     public JTextField titleField;
     public NumberTextField startField;
@@ -70,9 +64,9 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     public File fileDevice;
 
-    //========================================
+    // ========================================
     //  Protected data
-    //========================================
+    // ========================================
     protected JLabel versionLabel;
     protected JLabel titleLabel;
     protected JLabel startLabel;
@@ -81,7 +75,6 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     // radio buttons for plot utility
     protected ButtonGroup radioButtonGroup;
-    protected JRadioButtonMenuItem fermiRadioButton;
     protected JRadioButtonMenuItem javaRadioButton;
     protected JRadioButtonMenuItem gnuplotRadioButton;
 
@@ -90,15 +83,12 @@ public abstract class DataProductsApplication extends TrickApplication {
     protected String plotDevice = Session.DEVICE_OPTIONS[Session.TERMINAL_DEVICE];
     protected String gnuplotTerminal = Session.GNUPLOT_TERMINAL_OPTIONS[Session.X11_GNUPLOT_TERMINAL];
 
+    protected static String TEMP_DP_FILE = "/tmp/DP_" + System.getenv("USER") + ".xml";
+    protected static String TEMP_SESSION_FILE = "/tmp/Session_" + System.getenv("USER") + ".xml";
 
-    protected static String TEMP_DP_FILE         = "/tmp/DP_" + System.getenv("USER") + ".xml";
-    protected static String TEMP_SESSION_FILE    = "/tmp/Session_" + System.getenv("USER") + ".xml";
-
-    protected boolean fermiExists ;
-
-    //========================================
+    // ========================================
     //  Private Data
-    //========================================
+    // ========================================
     private String plotCommand;
 
     // Options are: "Simple", "Comparison", "Delta", "Contrast"
@@ -107,15 +97,13 @@ public abstract class DataProductsApplication extends TrickApplication {
     // Options are: "Plot", "Table".
     private String displayMode;
 
-
-    //========================================
+    // ========================================
     //  Constructors
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //  Set/Get methods
-    //========================================
+    // ========================================
     /**
      * Sets the preferred presentation.
      * @param pt the presentation string
@@ -206,28 +194,28 @@ public abstract class DataProductsApplication extends TrickApplication {
         return panel;
     }
 
-
-    //========================================
+    // ========================================
     //    Methods
-    //========================================
+    // ========================================
     @Action
     public void configureRunTimename() {
         String msgStr1 = "Please specify the time name for the selected run\n";
         String msgStr2 = "\n\n";
 
         if (runToConfigure != null) {
-            msgStr2 = runToConfigure.getDir() + msgStr2 ;
-            //String timeName = resourceMap.getString("default.timename");
+            msgStr2 = runToConfigure.getDir() + msgStr2;
+            // String timeName = resourceMap.getString("default.timename");
             String timeName = DEFAULT_TIME_NAME;
             if (runToConfigure.getTimename() != null) {
                 timeName = runToConfigure.getTimename();
             }
-            Object inputValue = JOptionPane.showInputDialog(getMainFrame(), msgStr1+msgStr2, timeName);
+            Object inputValue = JOptionPane.showInputDialog(getMainFrame(), msgStr1 + msgStr2, timeName);
             if (inputValue != null) {
                 runToConfigure.setTimename(inputValue.toString());
             }
         } else {
-            JOptionPane.showMessageDialog(getMainFrame(), "Please select a Run first!", "No Run Selected", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    getMainFrame(), "Please select a Run first!", "No Run Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
     }
@@ -241,21 +229,10 @@ public abstract class DataProductsApplication extends TrickApplication {
         } else {
             gnuplotButton.setIcon(resourceMap.getIcon("gnuplot.off.icon"));
             if (gnuplotRadioButton.isSelected()) {
-                if ( fermiExists ) {
-                    fermiRadioButton.setSelected(true);
-                } else {
-                    javaRadioButton.setSelected(true);
-                }
+                javaRadioButton.setSelected(true);
             }
             getAction("selectGnuplotTerminal").setEnabled(false);
         }
-    }
-
-    @Action
-    public void selectFermi() {
-        gnuplotButton.setSelected(false);
-        getAction("selectGnuplotTerminal").setEnabled(false);
-        toggleGnuplot();
     }
 
     @Action
@@ -325,7 +302,6 @@ public abstract class DataProductsApplication extends TrickApplication {
         super.shutdown();
     }
 
-
     /**
      * Makes initialization as needed. This is called before startup().
      *
@@ -364,31 +340,17 @@ public abstract class DataProductsApplication extends TrickApplication {
         gnuplotButton.setText(null);
         gnuplotButton.setFocusable(false);
 
-        fermiRadioButton = new JRadioButtonMenuItem();
-        fermiRadioButton.setAction(getAction("selectFermi"));
-
         javaRadioButton = new JRadioButtonMenuItem(getAction("selectJavaPlot"));
 
-        String fermi_exe = UIUtils.getTrickHome() + "/bin/trick-fxplot" ;
-        File f = new File(fermi_exe) ;
-        fermiExists = f.exists() ;
-
-        if ( fermiExists ) {
-            fermiRadioButton.setSelected(true);
-        } else {
-            javaRadioButton.setSelected(true);
-        }
+        javaRadioButton.setSelected(true);
 
         gnuplotRadioButton = new JRadioButtonMenuItem();
         gnuplotRadioButton.setAction(getAction("selectGnuplot"));
 
         radioButtonGroup = new ButtonGroup();
-        if ( fermiExists ) {
-            radioButtonGroup.add(fermiRadioButton);
-        }
+
         radioButtonGroup.add(javaRadioButton);
         radioButtonGroup.add(gnuplotRadioButton);
-
 
         View view = getMainView();
         view.setComponent(createMainPanel());
@@ -397,7 +359,6 @@ public abstract class DataProductsApplication extends TrickApplication {
 
         show(view);
     }
-
 
     /**
      * Creates the main panel. This is required by TrickApplication.
@@ -409,33 +370,30 @@ public abstract class DataProductsApplication extends TrickApplication {
 
         JXMultiSplitPane msp = new JXMultiSplitPane();
 
-        String layoutDef =
-            "(COLUMN " +
-                "(ROW weight=0.8 " +
-                    "(COLUMN weight=0.44  (LEAF name=left.top weight=0.55) " +
-                    "                     (LEAF name=left.middle weight=0.45) " +
-                    ") " +
-                    "(COLUMN weight=0.56  (LEAF name=right.top weight=0.55) " +
-                    "                     (LEAF name=right.middle weight=0.45) " +
-                    ") " +
-                ")" +
-                "(LEAF name=bottom weight=0.2) " +
-            ")";
-        MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel( layoutDef );
+        String layoutDef = "(COLUMN " + "(ROW weight=0.8 "
+                + "(COLUMN weight=0.44  (LEAF name=left.top weight=0.55) "
+                + "                     (LEAF name=left.middle weight=0.45) "
+                + ") "
+                + "(COLUMN weight=0.56  (LEAF name=right.top weight=0.55) "
+                + "                     (LEAF name=right.middle weight=0.45) "
+                + ") "
+                + ")"
+                + "(LEAF name=bottom weight=0.2) "
+                + ")";
+        MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 
-        msp.getMultiSplitLayout().setModel( modelRoot );
+        msp.getMultiSplitLayout().setModel(modelRoot);
 
-        msp.add( createLeftTop(), "left.top" );
-        msp.add( createLeftMiddle(), "left.middle" );
-        msp.add( createRightTop(), "right.top" );
-        msp.add( createRightMiddle(), "right.middle");
-        msp.add( createBottom(), "bottom" );
+        msp.add(createLeftTop(), "left.top");
+        msp.add(createLeftMiddle(), "left.middle");
+        msp.add(createRightTop(), "right.top");
+        msp.add(createRightMiddle(), "right.middle");
+        msp.add(createBottom(), "bottom");
 
         msp.validate();
 
         return msp;
     }
-
 
     /**
      * Creates the component for left top.
@@ -467,7 +425,6 @@ public abstract class DataProductsApplication extends TrickApplication {
      */
     protected abstract JComponent createBottom();
 
-
     /**
      * Helper method for setting gnuplot terminal.
      *
@@ -479,7 +436,7 @@ public abstract class DataProductsApplication extends TrickApplication {
      *                            Session.AQUA_GNUPLOT_TERMINAL.
      */
     private void setGnuplotTerminal(int index) {
-        if (index >= 0 && index<Session.GNUPLOT_TERMINAL_OPTIONS.length) {
+        if (index >= 0 && index < Session.GNUPLOT_TERMINAL_OPTIONS.length) {
             gnuplotTerminal = Session.GNUPLOT_TERMINAL_OPTIONS[index];
         } else {
             gnuplotTerminal = Session.GNUPLOT_TERMINAL_OPTIONS[Session.X11_GNUPLOT_TERMINAL];
@@ -494,7 +451,7 @@ public abstract class DataProductsApplication extends TrickApplication {
      *                            Session.FILE_DEVICE.
      */
     private void setDevice(int index) {
-        if (index >= 0 && index<Session.DEVICE_OPTIONS.length) {
+        if (index >= 0 && index < Session.DEVICE_OPTIONS.length) {
             plotDevice = Session.DEVICE_OPTIONS[index];
         } else {
             plotDevice = Session.DEVICE_OPTIONS[Session.TERMINAL_DEVICE];
@@ -519,7 +476,6 @@ public abstract class DataProductsApplication extends TrickApplication {
      */
     protected abstract void createActionController();
 
-
     /**
      * Saves {@link Session} related data to a specified file.
      *
@@ -543,24 +499,24 @@ public abstract class DataProductsApplication extends TrickApplication {
 
         session.setVersion(versionField.getText());
         // session file doesn't have title, add this back if it needs it.
-        //if (!titleField.getText().isEmpty()) {
-            //session.setTitle(titleField.getText());
-        //}
+        // if (!titleField.getText().isEmpty()) {
+        // session.setTitle(titleField.getText());
+        // }
         session.setDevice(plotDevice);
         if (gnuplotButton.isSelected()) {
             session.setGnuplotTerminal(gnuplotTerminal);
         }
 
-        session.setTStart((Double)startField.getValue());
-        session.setTStop((Double)stopField.getValue());
-        session.setFrequency((Double)freqField.getValue());
+        session.setTStart((Double) startField.getValue());
+        session.setTStop((Double) stopField.getValue());
+        session.setFrequency((Double) freqField.getValue());
         xmlCreator.setRoot(session);
 
         for (int i = 0; i < runData.length; i++) {
             SessionRun sr = null;
 
             if (runData[i] instanceof SessionRun) {
-                sr = (SessionRun)runData[i];
+                sr = (SessionRun) runData[i];
             } else {
                 sr = new SessionRun(runData[i].toString());
             }
@@ -579,9 +535,7 @@ public abstract class DataProductsApplication extends TrickApplication {
      * @param sessionFile    The session used for plotting.
      */
     public void launchPlotProgram(String sessionFile) {
-        if (fermiRadioButton.isSelected()) {
-            plotCommand = resourceMap.getString("fxplot.command");
-        } else if (javaRadioButton.isSelected()) {
+        if (javaRadioButton.isSelected()) {
             plotCommand = resourceMap.getString("jxplot.command");
         } else if (gnuplotRadioButton.isSelected()) {
             plotCommand = resourceMap.getString("gxplot.command");
@@ -597,7 +551,7 @@ public abstract class DataProductsApplication extends TrickApplication {
      * @param command     The operating system program and arguments.
      * @throws Exception Exception
      */
-    public void launchPlotProcess(String... command) throws Exception{
+    public void launchPlotProcess(String... command) throws Exception {
         if (command == null || command.length < 0) {
             printStatusMessage("No plotting command specified!\n");
             return;
@@ -644,9 +598,9 @@ public abstract class DataProductsApplication extends TrickApplication {
         statusArea.append(msg);
     }
 
-
     private class LaunchPlotProcessTask extends SwingWorker<Void, Void> {
         private String[] processCommand;
+
         public LaunchPlotProcessTask(String... command) {
             this.processCommand = command;
         }
@@ -662,8 +616,6 @@ public abstract class DataProductsApplication extends TrickApplication {
         }
 
         @Override
-        public void done() {
-        }
+        public void done() {}
     }
-
 }

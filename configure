@@ -685,7 +685,6 @@ TRICK_FORCE_32BIT
 LIBXML
 X_LIB_DIR
 USE_X_WINDOWS
-MOTIF_HOME
 CXXCPP
 XMKMF
 ac_ct_CXX
@@ -4754,95 +4753,6 @@ else case e in #(
   e) as_fn_error $? "could not find libxt development headers" "$LINENO" 5 ;;
 esac
 fi
-
-
-    { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for trick_source/data_products/fermi-ware" >&5
-printf %s "checking for trick_source/data_products/fermi-ware... " >&6; }
-if test ${ac_cv_file_trick_source_data_products_fermi_ware+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "trick_source/data_products/fermi-ware"; then
-  ac_cv_file_trick_source_data_products_fermi_ware=yes
-else
-  ac_cv_file_trick_source_data_products_fermi_ware=no
-fi ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file_trick_source_data_products_fermi_ware" >&5
-printf '%s\n' "$ac_cv_file_trick_source_data_products_fermi_ware" >&6; }
-if test "x$ac_cv_file_trick_source_data_products_fermi_ware" = xyes
-then :
-
-       ac_fn_cxx_check_header_compile "$LINENO" "Xm/Xm.h" "ac_cv_header_Xm_Xm_h" "$ac_includes_default"
-if test "x$ac_cv_header_Xm_Xm_h" = xyes
-then :
-  MOTIF_HOME="/usr"
-else case e in #(
-  e) { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for /usr/local/include/Xm/Xm.h" >&5
-printf %s "checking for /usr/local/include/Xm/Xm.h... " >&6; }
-if test ${ac_cv_file__usr_local_include_Xm_Xm_h+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "/usr/local/include/Xm/Xm.h"; then
-  ac_cv_file__usr_local_include_Xm_Xm_h=yes
-else
-  ac_cv_file__usr_local_include_Xm_Xm_h=no
-fi ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__usr_local_include_Xm_Xm_h" >&5
-printf '%s\n' "$ac_cv_file__usr_local_include_Xm_Xm_h" >&6; }
-if test "x$ac_cv_file__usr_local_include_Xm_Xm_h" = xyes
-then :
-  MOTIF_HOME="/usr/local"
-else case e in #(
-  e) { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/Xm/Xm.h" >&5
-printf %s "checking for /opt/homebrew/include/Xm/Xm.h... " >&6; }
-if test ${ac_cv_file__opt_homebrew_include_Xm_Xm_h+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "/opt/homebrew/include/Xm/Xm.h"; then
-  ac_cv_file__opt_homebrew_include_Xm_Xm_h=yes
-else
-  ac_cv_file__opt_homebrew_include_Xm_Xm_h=no
-fi ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_Xm_Xm_h" >&5
-printf '%s\n' "$ac_cv_file__opt_homebrew_include_Xm_Xm_h" >&6; }
-if test "x$ac_cv_file__opt_homebrew_include_Xm_Xm_h" = xyes
-then :
-  MOTIF_HOME="/opt/homebrew"
-else case e in #(
-  e) as_fn_error $? "could not find Xm/Xm.h" "$LINENO" 5 ;;
-esac
-fi
- ;;
-esac
-fi
- ;;
-esac
-fi
-
-
-else case e in #(
-  e)
-       MOTIF_HOME=""
-
-     ;;
-esac
-fi
-
-
 
 
 	 ;;

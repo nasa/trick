@@ -1,4 +1,3 @@
-
 package trick.dataproducts.plot.utils;
 
 import java.awt.Color;
@@ -6,15 +5,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
-
 import org.jfree.data.xy.XYSeries;
-
 import trick.common.ui.TrickFileFilter;
 import trick.common.ui.UIUtils;
 import trick.common.utils.BinaryDataReader;
@@ -35,27 +31,21 @@ import trick.dataproducts.utils.SessionRun;
  */
 public class PlotUtils {
 
-    //========================================
+    // ========================================
     //    Public data
-    //========================================
+    // ========================================
 
-
-
-    //========================================
+    // ========================================
     //    Protected data
-    //========================================
+    // ========================================
 
-
-
-    //========================================
+    // ========================================
     //    Private Data
-    //========================================
+    // ========================================
 
-
-
-    //========================================
+    // ========================================
     //   Methods
-    //========================================
+    // ========================================
     /**
      * Writes the logged data based on the {@link ProductTable} spec to the {@link StyledDocument}
      * for a specified {@link SessionRun}. The data is then displayed in the form of a table.
@@ -101,9 +91,11 @@ public class PlotUtils {
             // variable names row
             for (ProductColumn theColumn : theTable.getColumnList()) {
                 DataReader eachReader = getVarDataReader(runDir, theColumn.getVar());
-                eachRow.append(theColumn.getVar().getShortName() + " {" + theColumn.getVar().getUnits() + "}" + "\t");
+                eachRow.append(theColumn.getVar().getShortName() + " {"
+                        + theColumn.getVar().getUnits() + "}" + "\t");
 
-                if (eachReader == null || eachReader.locateVarIndex(theColumn.getVar().getName()) == -1) {
+                if (eachReader == null
+                        || eachReader.locateVarIndex(theColumn.getVar().getName()) == -1) {
                     continue;
                 }
                 try {
@@ -152,7 +144,7 @@ public class PlotUtils {
 
                         String fmt = theColumn.getFormat();
                         if (fmt != null && fmt != "") {
-                            eachRow.append( String.format(fmt, eachVarValue) + "\t");
+                            eachRow.append(String.format(fmt, eachVarValue) + "\t");
                         } else {
                             eachRow.append(eachVarValue + "\t");
                         }
@@ -202,12 +194,7 @@ public class PlotUtils {
      * @return      An instance of {@link XYSeries}.
      */
     public static TrickXYSeries getXYVarSeries(
-                                               SessionRun run,
-                                               ProductPage page,
-                                               ProductPlot plot,
-                                               ProductVar xVar,
-                                               ProductVar yVar
-                                               ) {
+            SessionRun run, ProductPage page, ProductPlot plot, ProductVar xVar, ProductVar yVar) {
         TrickXYSeries series = null;
         DataReader dataReaderX = null;
         DataReader dataReaderY = null;
@@ -261,9 +248,9 @@ public class PlotUtils {
                 // The xVar and yVar values are added to the series only if their time stamp
                 // matches within 1e-9. TODO: Is 1e-9 good enough?
                 while (!Double.isNaN(xValue) && !Double.isNaN(yValue)) {
-                    if (DataReader.nearlyEqual(dataReaderX.getTimeValue(), dataReaderY.getTimeValue()) ||
-                                                              Double.isNaN(dataReaderX.getTimeValue()) ||
-                                                              Double.isNaN(dataReaderY.getTimeValue())) {
+                    if (DataReader.nearlyEqual(dataReaderX.getTimeValue(), dataReaderY.getTimeValue())
+                            || Double.isNaN(dataReaderX.getTimeValue())
+                            || Double.isNaN(dataReaderY.getTimeValue())) {
                         series.add(xValue, yValue);
                         xValue = dataReaderX.getVarValue();
                         yValue = dataReaderY.getVarValue();
@@ -289,6 +276,51 @@ public class PlotUtils {
         }
 
         return series;
+    }
+
+    /**
+     * Builds a delta {@link TrickXYSeries} holding the difference between two series that were
+     * recorded by different runs.
+     *
+     * The two runs need not share a recording interval, a start time, or a sample count, so the
+     * points are paired by their X values, which are times for a delta plot. Only pairs whose
+     * times match within {@link DataReader#nearlyEqual} are differenced; samples that have no
+     * counterpart in the other run are skipped. This is what the native data products code does
+     * in <code>DPC_delta_curve::getXY()</code>.
+     *
+     * @param key       The key for the returned series.
+     * @param series1   The series to subtract from.
+     * @param series2   The series to subtract.
+     * @return          An instance of {@link TrickXYSeries} holding series1 - series2.
+     */
+    public static TrickXYSeries getDeltaSeries(String key, TrickXYSeries series1, TrickXYSeries series2) {
+        TrickXYSeries deltaSeries = new TrickXYSeries(key, false, true);
+
+        int index1 = 0;
+        int index2 = 0;
+
+        while (index1 < series1.getItemCount() && index2 < series2.getItemCount()) {
+            double time1 = series1.getX(index1).doubleValue();
+            double time2 = series2.getX(index2).doubleValue();
+
+            if (DataReader.nearlyEqual(time1, time2)) {
+                deltaSeries.add(
+                        time1,
+                        series1.getY(index1).doubleValue()
+                                - series2.getY(index2).doubleValue());
+                index1++;
+                index2++;
+            } else if (time1 < time2) {
+                index1++;
+            } else {
+                index2++;
+            }
+        }
+
+        deltaSeries.setXVar(series1.getXVar());
+        deltaSeries.setYVar(series1.getYVar());
+
+        return deltaSeries;
     }
 
     /**
@@ -376,5 +408,4 @@ public class PlotUtils {
         }
         return yVarLabel + " VS. " + xVarLabel + " [" + runDir + "]";
     }
-
 }
