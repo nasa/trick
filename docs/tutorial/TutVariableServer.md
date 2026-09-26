@@ -116,10 +116,10 @@ while(True):
 <a id=running-the-client></a>
 ### Running the Client
 
-To run the variable server client :
+To run the variable server client:
 
-* Create a new file called *CannonDisplay_Rev1.py* in your home directory,
-  and copy the contents of the above listing above into it.
+* Create a new file called *CannonDisplay_Rev1.py* in your home directory
+  then copy the contents of the above listing above into it.
 * Make the file executable. Example: ```% chmod +x CannonDisplay_Rev1.py```.
 * Execute, but don't "Start" the cannonball simulation.
 * Find the variable server port number in the bottom left hand corner of the Sim
@@ -153,7 +153,7 @@ that they were specified in the script.
 <a id=how-the-client-works></a>
 ### How the Client Works
 
-The script first gets the variable server's port number, and creates a TCP/IP
+The script first gets the variable server's port number then creates a TCP/IP
 connection to it. The script then configures the variable server session, with
 the commands listed below, to periodically send the cannonball position with the
 following commands:
@@ -165,7 +165,7 @@ following commands:
 * **trick.var_unpause()**
 
 The [**var_pause**](#api-var-pause), and [**var_unpause**](#api-var-unpause)
-commands are generally used at the beginning, and ending of variable server
+commands are generally used at the beginning and ending of variable server
 session configurations. [**var_pause**](#api-var-pause) tells the variable
 server to stop sending data, if it is. [**var_unpause**](#api-var-unpause),
 tells the variable server to start sending data.
@@ -187,7 +187,7 @@ client_socket.send( b"trick.var_add(\"dyn.cannon.pos[0]\") \n" +
 
 When the [**var_unpause**](#api-var-unpause) command is executed, messages
 containing the values of the variables listed in the session variable list will
-be repeatedly created, and sent to the client.
+be repeatedly created and sent to the client.
 
 By default, the variable server sends data every 0.1 seconds (that is, 10 hertz).
 This is equivalent to commanding: [**var_cycle(0.1)**](#api-var-cycle).
@@ -278,12 +278,12 @@ client_socket.send( b"trick.var_clear()\n" )
 
 In this snippet of code, we add  ```dyn.cannon.init_angle``` to the session
 variable list. Then we call [**var_send**](#api-var-send) to tell the variable
-server to send us the value, and wait for the response by calling
+server to send us the value and wait for the response by calling
 ```insock.readline()```. When it arrives, we print it. Before the script adds
 the cannon position variables, we need to remove ```dyn.cannon.init_angle```,
 otherwise we'll be getting this in our messages too. We can do this in one of
 two ways. We can 1) call [**var_clear**](#api-var-clear) to clear the the list,
-or 2) we can call [**var_remove**](#api-var-remove). Specifically we could do
+or 2) we can call [**var_remove**](#api-var-remove). Specifically, we could do
 the following:
 
 ```python
@@ -472,7 +472,7 @@ while(True):
     tk.update()
 
 # ----------------------------------------------------------------------
-# 9.0 Keep the window open, when the data stops.
+# 9.0 Keep the window open when the data stops.
 tk.mainloop()
 
 ```
@@ -566,7 +566,7 @@ used in this tutorial:
 <a id=api-var-add></a>
 **var\_add( variable_name )** -
 Add a name to the session variable list. The value of the added variable will
-transmitted in subsequent variable server messages.
+be transmitted in subsequent variable server messages.
 
 <a id=api-var-ascii></a>
 **var\_ascii()** -
@@ -634,18 +634,18 @@ Set the synchronization mode of the variable server session, where the modes are
 
   This means that periodic data messages are not guaranteed to
   be time homogeneous. That is, data may not all be associated with
-  a the exact same sim time. The variable server data messages are
+  the exact same sim time. The variable server data messages are
   written from a thread other than the main thread.
  
 * **1 = sync data gather, async socket write**
 
   This means that periodic data messages are guaranteed to
-  be time homogeneous, but are written from a thread other
+  be time homogeneous but are written from a thread other
   than the main simulation thread.
 
 * **2 = sync data gather, sync socket write**
 
   This means that periodic data messages are guaranteed to
-  be time homogeneous, but are written from the main simulation thread.
+  be time homogeneous but are written from the main simulation thread.
 
 [Next Page](ATutMonteCarlo)
