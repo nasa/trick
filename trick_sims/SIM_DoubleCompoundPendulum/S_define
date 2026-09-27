@@ -1,0 +1,25 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ( double compound pendulum simulation )
+LIBRARY DEPENDENCIES:
+    ((models/src/pendulum.cpp)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "models/include/pendulum.hh"
+class PendulumSimObject : public Trick::SimObject {
+	public:
+	PENDULUM pendulum;
+
+	PendulumSimObject() {
+		("default_data")		pendulum.default_data() ;
+		("initialization")			pendulum.init() ;
+		("derivative")		       	  pendulum.derivative() ;
+		("integration") trick_ret = pendulum.integ() ;
+	}
+};
+
+PendulumSimObject dyn;
+IntegLoop dyn_integloop(0.0001) dyn;
+
