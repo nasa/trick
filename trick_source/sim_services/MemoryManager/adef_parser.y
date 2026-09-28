@@ -1,4 +1,3 @@
-%name-prefix="ADEF_"
 %pure-parser
 %locations
 %parse-param {Trick::ADefParseContext* context}

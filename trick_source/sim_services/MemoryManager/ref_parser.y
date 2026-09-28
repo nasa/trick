@@ -1,4 +1,3 @@
-%name-prefix="REF_"
 %pure-parser
 %locations
 %parse-param {RefParseContext* context}

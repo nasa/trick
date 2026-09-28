@@ -1,4 +1,3 @@
-%name-prefix="CCP_"
 %pure-parser
 %locations
 %parse-param {ChkPtParseContext* IP}
