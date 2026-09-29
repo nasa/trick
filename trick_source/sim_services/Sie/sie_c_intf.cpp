@@ -35,9 +35,9 @@ extern "C" void sie_append_runtime_objs(void) {
     }
 }
 
-extern "C" std::string sie_get_runtime_sie_dir(void) 
+extern "C" std::string sie_get_runtime_sie_dir(void)
 {
-    if ( the_sie != NULL ) 
+    if (the_sie != NULL)
     {
         return the_sie->get_runtime_sie_dir();
     }
@@ -46,4 +46,3 @@ extern "C" std::string sie_get_runtime_sie_dir(void)
         return std::string(command_line_args_get_default_dir());
     }
 }
-
