@@ -133,10 +133,10 @@ root@8615d8bf75c5:/apps/trick#
 Execute: ```ls``` at the prompt to see that it contains Trick.
 
 ```
-CMakeLists.txt  Makefile                autoconf      configure  lib      test_overrides.mk trickops.py
-CMakeModules.   README.md               bin           docs       libexec  test_sims.yml     trigger
-CMakeTestFiles  TrickLogo.png           config.log    doxygen    share    trick_sims
-LICENSE         TrickLogo_darkmode.png. config.status include    test     trick_source
+LICENSE         TrickLogo_darkmode.png  config.status include    test              trick_source
+Makefile        autoconf                configure     lib        test_overrides.mk trickops.py
+README.md       bin                     docs          libexec    test_sims.yml     trigger
+TrickLogo.png   config.log              doxygen       share      trick_sims
 root@8615d8bf75c5:/apps/trick#
 ```
 
