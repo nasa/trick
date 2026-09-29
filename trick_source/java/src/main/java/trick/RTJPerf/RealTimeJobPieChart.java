@@ -1,9 +1,9 @@
 package trick.rtperf;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,13 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import javax.swing.*;
+import trick.common.ui.panels.ConnectionStatusBar;
 import trick.common.utils.VariableServerConnection;
-import trick.sniffer.SimulationInformation;
-import trick.sniffer.SimulationListener;
-import trick.sniffer.SimulationSniffer;
 
 /**
  * The main GUI class for RTPerf. It renders a real-time pie chart of job execution
@@ -705,6 +701,40 @@ public class RealTimeJobPieChart extends JPanel {
         }
     }
 
+    /**
+     * Clears all sim-specific state so the GUI can be reused for a new connection.
+     * Called when (re)connecting to a simulation, since job names, thread counts,
+     * and rolling totals are only meaningful for the previously connected sim.
+     */
+    public void reset() {
+        SwingUtilities.invokeLater(() -> {
+            vsClient = null;
+            allJobNames.clear();
+            pinnedJobs.clear();
+            jobTotals.clear();
+            currentFrameData.clear();
+            pendingFrameData = null;
+            pendingSimTime = 0.0;
+            pendingModeString = "Connecting...";
+
+            isInitializingCombo = true;
+            threadComboBox.removeAllItems();
+            threadComboBox.addItem("Thread 0 (Loading...)");
+            isInitializingCombo = false;
+
+            unpinnedTotalListModel.clear();
+            pinnedTotalListModel.clear();
+            currentFrameListModel.clear();
+            pinnedJobsListModel.clear();
+            allJobsListModel.clear();
+            searchField.setText("");
+
+            timeLabel.setText("Time: 0.000");
+            modeLabel.setText("Mode: Connecting...");
+            pieChartPanel.repaint();
+        });
+    }
+
     public void initializeThreads(int numThreads, TrickVariableServerClient client) {
         SwingUtilities.invokeLater(() -> {
             this.vsClient = client;
@@ -1015,58 +1045,85 @@ public class RealTimeJobPieChart extends JPanel {
     }
 
     public static void main(String[] args) {
-        String currentDir = System.getProperty("user.dir");
-        SimulationSniffer sniffer = new SimulationSniffer();
-        CountDownLatch searchLatch = new CountDownLatch(1);
-        final int[] portWrapper = new int[] {-1};
-        final String[] hostWrapper = new String[] {"localhost"};
-
-        try {
-            String localHostName = InetAddress.getLocalHost().getHostName();
-            sniffer.addSimulationListener(new SimulationListener() {
-                @Override
-                public void simulationAdded(SimulationInformation simInfo) {
-                    if (simInfo.simDirectory.equals(currentDir)
-                            && (simInfo.machine.equalsIgnoreCase(localHostName)
-                                    || simInfo.machine.equalsIgnoreCase("localhost"))) {
-                        portWrapper[0] = Integer.parseInt(simInfo.handshakePort);
-                        hostWrapper[0] = simInfo.machine;
-                        searchLatch.countDown();
-                    }
-                }
-
-                @Override
-                public void simulationRemoved(SimulationInformation simInfo) {}
-
-                @Override
-                public void exceptionOccurred(Exception e) {}
-            });
-            sniffer.start();
-            if (!searchLatch.await(3, TimeUnit.SECONDS)) {
-                System.err.println("Timeout: Could not auto-discover a simulation in the current directory.");
-                System.exit(1);
-            }
-        } catch (Exception e) {
-        } finally {
-            sniffer.setPaused(true);
-        }
-
         RealTimeJobPieChart pieChart = new RealTimeJobPieChart();
         pieChart.setPreferredSize(new Dimension(1200, 600));
+
+        // Holds the currently connected client so the Disconnect/Connect actions,
+        // which are constructed before the ConnectionStatusBar exists, can reach it.
+        final TrickVariableServerClient[] activeClient = new TrickVariableServerClient[1];
+        final ConnectionStatusBar[] statusBarHolder = new ConnectionStatusBar[1];
+
+        AbstractAction connectAction = new AbstractAction("Connect") {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                ConnectionStatusBar connectionStatusBar = statusBarHolder[0];
+                setEnabled(false);
+
+                final String host;
+                final int port;
+                try {
+                    host = connectionStatusBar.getHostName();
+                    port = connectionStatusBar.getPort();
+                } catch (IllegalArgumentException illegalArgumentException) {
+                    JOptionPane.showMessageDialog(pieChart, illegalArgumentException,
+                      "Invalid Connection", JOptionPane.ERROR_MESSAGE);
+                    setEnabled(true);
+                    return;
+                }
+
+                new Thread(() -> {
+                    try {
+                        VariableServerConnection vsConnection = new VariableServerConnection(host, port);
+                        TrickVariableServerClient client = new TrickVariableServerClient(vsConnection, pieChart);
+                        activeClient[0] = client;
+                        pieChart.reset();
+                        new Thread(client).start();
+                        SwingUtilities.invokeLater(() -> {
+                            connectionStatusBar.setConnectionState(true);
+                            setEnabled(true);
+                        });
+                    } catch (Exception exception) {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(pieChart, exception,
+                              "Failed to Connect", JOptionPane.ERROR_MESSAGE);
+                            setEnabled(true);
+                        });
+                    }
+                }).start();
+            }
+        };
+
+        AbstractAction disconnectAction = new AbstractAction("Disconnect") {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (activeClient[0] != null) {
+                    activeClient[0].stop();
+                    activeClient[0] = null;
+                }
+                statusBarHolder[0].setConnectionState(false);
+                pieChart.reset();
+            }
+        };
+
+        AbstractAction stopSearchingAction = new AbstractAction("Stop") {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                statusBarHolder[0].cancelAutoConnect();
+            }
+        };
+
+        ConnectionStatusBar connectionStatusBar =
+          new ConnectionStatusBar(connectAction, disconnectAction, stopSearchingAction);
+        statusBarHolder[0] = connectionStatusBar;
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("RTPerf - Real-Time Job Performance");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.add(pieChart);
+            frame.add(pieChart, BorderLayout.CENTER);
+            frame.add(connectionStatusBar, BorderLayout.SOUTH);
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
-        try {
-            VariableServerConnection vsConnection = new VariableServerConnection(hostWrapper[0], portWrapper[0]);
-            new Thread(new TrickVariableServerClient(vsConnection, pieChart)).start();
-        } catch (Exception e) {
-            System.exit(1);
-        }
     }
 }

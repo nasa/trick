@@ -48,6 +48,19 @@ public class TrickVariableServerClient implements Runnable {
         this.gui = gui;
     }
 
+    /**
+     * Stops the read loop and closes the underlying Variable Server connection.
+     * Safe to call from any thread (e.g. in response to a Disconnect button).
+     */
+    public void stop() {
+        running = false;
+        try {
+            vsConnection.close();
+        } catch (IOException e) {
+            // Connection is being torn down anyway.
+        }
+    }
+
     @Override
     public void run() {
         try {
