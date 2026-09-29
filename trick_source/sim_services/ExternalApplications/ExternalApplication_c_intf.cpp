@@ -13,9 +13,11 @@
 static void *getFirstInstanceOfType(const std::type_info &type) {
     std::vector<Trick::ExternalApplication *> &externalApplications =
       Trick::get_external_applications();
-    for (Trick::ExternalApplication *app : externalApplications) {
-        if (typeid(*app) == type) {
-            return static_cast<void *>(app);
+    for (Trick::ExternalApplication* app : externalApplications)
+    {
+        if (typeid(*app) == type)
+        {
+            return static_cast<void*>(app);
         }
     }
     return nullptr;

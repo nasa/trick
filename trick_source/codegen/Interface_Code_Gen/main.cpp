@@ -270,7 +270,7 @@ int main(int argc, char * argv[]) {
     char* inputFilePath = almostRealPath(path);*/
     // The function almostRealPath does above commented code internally.
     // Keep the above commented code as a reference.
-    char *inputFilePath = almostRealPath(input_file_names[0]);
+    char* inputFilePath = almostRealPath(input_file_names[0]);
 
     struct stat dummy;
     if (stat(inputFilePath, &dummy)) {
