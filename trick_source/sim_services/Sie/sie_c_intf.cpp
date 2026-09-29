@@ -1,6 +1,6 @@
+#include "trick/sie_c_intf.h"
 
 #include "trick/Sie.hh"
-#include "trick/sie_c_intf.h"
 #include "trick/command_line_protos.h"
 
 extern Trick::Sie * the_sie ;
@@ -38,7 +38,9 @@ extern "C" void sie_append_runtime_objs(void) {
 extern "C" std::string sie_get_runtime_sie_dir(void) {
     if ( the_sie != NULL ) {
         return the_sie->get_runtime_sie_dir() ;
-    } else {
+    }
+    else
+    {
         return std::string(command_line_args_get_default_dir());
     }
 }
