@@ -36,8 +36,10 @@
 #           does, and compares the code they generate. Run it from the top of a
 #           configured source tree. Exits non-zero on any difference.
 #
-# sim-test  Runs trickops against test_sims.yml and records one line per job
-#           (OK / FAIL / NOT RUN) in sim-results.txt.
+# sim-test  Runs trickops against test_sims.yml. Records one line per job in
+#           sim-results.txt and make's exit status in sim-test-status.txt, so
+#           compare sees a failed run. Exits non-zero if make failed or no job
+#           results were found; the captured files are written either way.
 #
 # compare   Diffs every file two captures have in common and reports files
 #           present in only one of them. Exits non-zero on any difference.
@@ -216,8 +218,14 @@ sim_test() {
         | grep -v '^|' \
         | sed -E 's/^ +//; s/ +/ /g' \
         | LC_ALL=C sort > "$out/sim-results.txt" || true
+    echo "$status" > "$out/sim-test-status.txt"
     echo "build-parity: sim_test exit status $status; $(grep -c ' succeeded$' "$out/sim-results.txt" || true) succeeded," \
          "$(grep -vc ' succeeded$' "$out/sim-results.txt" || true) other -> $out/sim-results.txt"
+    if [[ ! -s $out/sim-results.txt ]]; then
+        echo "build-parity: no job results in $out/sim-test.log" >&2
+        return 1
+    fi
+    return "$status"
 }
 
 compare() {

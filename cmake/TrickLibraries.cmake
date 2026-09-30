@@ -3,7 +3,9 @@
 # Everything Trick builds is linked into simulation executables, which may be
 # position independent.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-# -std=c++17 rather than -std=gnu++17, as the Make build uses.
+# -std=c++17 rather than -std=gnu++17. The top-level Makefile passes
+# -std=c++17 to every library it builds (TRICK_CXXFLAGS); data products are the
+# exception and use the compiler's default.
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # trick_headers: Trick's public headers and the definitions they depend on.

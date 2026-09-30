@@ -268,6 +268,9 @@ still pass, and each should be fixed separately.
 4. ICG code generation, parsers, `libtrick`, and `libtrick_mm`.
 5. SWIG and `libtrick_pyip`.
 6. The install tree, `config_user.mk`, and an exported CMake package.
-7. Data products, Java, CivetWeb, and documentation.
+7. Data products, Java, CivetWeb, and documentation. The Make build compiles
+   data products without `-std`, so they use the compiler's default C++
+   dialect (gnu++14 with GCC 8.5, gnu++17 with GCC 11 and later). Match it for
+   parity, or decide to move them to C++17.
 8. Unit tests and sim tests through CTest.
 9. Switch CI and packaging to CMake, then remove the autotools build.
