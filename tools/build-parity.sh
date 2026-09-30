@@ -7,6 +7,7 @@
 #   tools/build-parity.sh capture <trick_install_dir> <out_dir>
 #   tools/build-parity.sh archives <build_dir> <out_dir>
 #   tools/build-parity.sh check-cmake <make_lib_dir> <cmake_build_dir> <out_dir>
+#   tools/build-parity.sh check-icg <make_icg> <cmake_build_dir> <out_dir>
 #   tools/build-parity.sh sim-test <trick_source_dir> <out_dir>
 #   tools/build-parity.sh compare <baseline_dir> <candidate_dir>
 #
@@ -29,6 +30,11 @@
 #           the same tree. Both builds must use the same compiler and no
 #           optimization; configure CMake with the parity preset. Exits
 #           non-zero on any difference. Used by CI during the migration.
+#
+# check-icg Runs the Make-built trick-ICG and the one under a CMake build
+#           directory on include/trick/files_to_ICG.hh, the way the Make build
+#           does, and compares the code they generate. Run it from the top of a
+#           configured source tree. Exits non-zero on any difference.
 #
 # sim-test  Runs trickops against test_sims.yml and records one line per job
 #           (OK / FAIL / NOT RUN) in sim-results.txt.
@@ -169,6 +175,34 @@ check_cmake() {
     return $rc
 }
 
+check_icg() {
+    local make_icg=$1 cmake_dir=$2 out=$3 cmake_icg flags side exe
+    cmake_icg=$(find "$cmake_dir" -name trick-ICG -type f | head -n 1)
+    [[ -x $make_icg ]] || die "$make_icg is not an executable"
+    [[ -n $cmake_icg ]] || die "no trick-ICG under $cmake_dir"
+    [[ -f include/trick/files_to_ICG.hh ]] || die "run check-icg from the top of the Trick source tree"
+    export TRICK_HOME=$PWD
+    # The Make build's flags for ICG'ing Trick itself: TRICK_CXXFLAGS plus
+    # TRICK_SYSTEM_CXXFLAGS, with -isystem changed to -I so ICG doesn't skip
+    # Trick's headers.
+    flags=$(make -s -f share/trick/makefiles/Makefile.trickconfig print-TRICK_SYSTEM_CXXFLAGS)
+    flags=${flags#*=}
+    flags=${flags//-isystem/-I}
+    rm -rf "$out"
+    for side in make cmake; do
+        if [[ $side == make ]]; then exe=$make_icg; else exe=$cmake_icg; fi
+        mkdir -p "$out/$side"
+        # shellcheck disable=SC2086 # flags is a list of arguments
+        "$exe" -sim_services -m -o "$out/$side" -std=c++17 $flags include/trick/files_to_ICG.hh \
+            > "$out/$side.log" 2>&1 || { cat "$out/$side.log"; die "$exe failed"; }
+    done
+    if diff -r "$out/make" "$out/cmake"; then
+        echo "build-parity: trick-ICG output identical ($(find "$out/make" -type f | wc -l | tr -d ' ') files)"
+    else
+        return 1
+    fi
+}
+
 sim_test() {
     local src out
     src=$(cd "$1" && pwd -P)
@@ -202,12 +236,14 @@ compare() {
 
 case $1 in
     check-cmake) [[ $# -eq 4 ]] || die "usage: $0 check-cmake <make_lib_dir> <cmake_build_dir> <out_dir>" ;;
+    check-icg)   [[ $# -eq 4 ]] || die "usage: $0 check-icg <make_icg> <cmake_build_dir> <out_dir>" ;;
     *)           [[ $# -eq 3 ]] || die "usage: $0 {capture|archives|sim-test|compare} <dir> <dir>" ;;
 esac
 case $1 in
     capture)  capture "$2" "$3" ;;
     archives) archives "$2" "$3" ;;
     check-cmake) check_cmake "$2" "$3" "$4" ;;
+    check-icg)   check_icg "$2" "$3" "$4" ;;
     sim-test) sim_test "$2" "$3" ;;
     compare)  compare "$2" "$3" ;;
     *)        die "unknown command: $1" ;;

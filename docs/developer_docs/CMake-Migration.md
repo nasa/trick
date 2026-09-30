@@ -85,12 +85,19 @@ in the same checkout:
 ./configure && make
 cmake --workflow --preset parity
 tools/build-parity.sh check-cmake lib out/build/parity out/parity-check
+tools/build-parity.sh check-icg bin/trick-ICG out/build/parity out/icg-check
 ```
 
 `check-cmake` compares the archives the CMake build produces so far, which are
 listed in `CMAKE_ARCHIVES` in the script. Add each archive there as it is
 migrated. It leaves out the Make build's ICG-generated `io_*` members until the
-CMake build runs ICG. CI runs this check on every Linux and macOS job.
+CMake build runs ICG.
+
+`check-icg` runs both builds' `trick-ICG` on `include/trick/files_to_ICG.hh`
+with the flags the Make build uses, and compares the generated code file by
+file.
+
+CI runs both checks on every Linux and macOS job.
 
 The `parity` preset leaves the build type empty. The Make build passes no
 optimization or debug flags, and an optimized build inlines functions whose
@@ -218,6 +225,38 @@ exist yet. They are added along with those libraries:
   uses the memory manager.
 - ICG generates code for er7_utils headers into er7_utils' own directories. It
   is compiled into `liber7_utils.a` along with ICG's other output.
+
+## trick-ICG
+
+`trick_source/codegen/Interface_Code_Gen/CMakeLists.txt` builds `trick-ICG`.
+The values the makefile passes as `-D` flags come from CMake's LLVM package:
+
+| Definition | Value |
+|---|---|
+| `LIBCLANG_MAJOR`, `LIBCLANG_MINOR`, `LIBCLANG_PATCHLEVEL` | `LLVM_VERSION_MAJOR`, `_MINOR`, `_PATCH` |
+| `LLVM_HOME` | `LLVM_INSTALL_PREFIX` |
+| `TRICK_VERSION` | the full version from `trick_ver.txt` |
+| `TRICK_GCC_VERSION` | the C++ compiler's version, when it is GCC |
+
+ICG links Clang's `clangFrontend`, `clangParse`, `clangSema`, `clangLex`,
+`clangAST`, and `clangBasic` targets. Clang's CMake package records their
+dependencies, including LLVM's libraries, so the link order problems that
+`configure` works around do not arise. If a distribution installs only the
+combined library, ICG links `clang-cpp` instead.
+
+## Existing bugs found during the migration
+
+These predate the migration. The CMake build reproduces them, so parity checks
+still pass, and each should be fixed separately.
+
+- `test/SIM_rti RUN_test` fails its `char bitfield` checks on aarch64 Linux,
+  where plain `char` is unsigned.
+- `MulticastGroup.cpp` has a non-void function that does not return a value
+  (`-Wreturn-type`).
+- On Linux, ICG looks for Clang's builtin headers in
+  `<LLVM_HOME>/lib/clang/<major>.<minor>.<patch>/include`. LLVM 16 and later
+  install them in `lib/clang/<major>/include`, so ICG silently skips the
+  directory.
 
 ## Phases
 
