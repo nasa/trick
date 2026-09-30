@@ -1065,31 +1065,33 @@ public class RealTimeJobPieChart extends JPanel {
                     host = connectionStatusBar.getHostName();
                     port = connectionStatusBar.getPort();
                 } catch (IllegalArgumentException illegalArgumentException) {
-                    JOptionPane.showMessageDialog(pieChart, illegalArgumentException,
-                      "Invalid Connection", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            pieChart, illegalArgumentException, "Invalid Connection", JOptionPane.ERROR_MESSAGE);
                     setEnabled(true);
                     return;
                 }
 
                 new Thread(() -> {
-                    try {
-                        VariableServerConnection vsConnection = new VariableServerConnection(host, port);
-                        TrickVariableServerClient client = new TrickVariableServerClient(vsConnection, pieChart);
-                        activeClient[0] = client;
-                        pieChart.reset();
-                        new Thread(client).start();
-                        SwingUtilities.invokeLater(() -> {
-                            connectionStatusBar.setConnectionState(true);
-                            setEnabled(true);
-                        });
-                    } catch (Exception exception) {
-                        SwingUtilities.invokeLater(() -> {
-                            JOptionPane.showMessageDialog(pieChart, exception,
-                              "Failed to Connect", JOptionPane.ERROR_MESSAGE);
-                            setEnabled(true);
-                        });
-                    }
-                }).start();
+                            try {
+                                VariableServerConnection vsConnection = new VariableServerConnection(host, port);
+                                TrickVariableServerClient client =
+                                        new TrickVariableServerClient(vsConnection, pieChart);
+                                activeClient[0] = client;
+                                pieChart.reset();
+                                new Thread(client).start();
+                                SwingUtilities.invokeLater(() -> {
+                                    connectionStatusBar.setConnectionState(true);
+                                    setEnabled(true);
+                                });
+                            } catch (Exception exception) {
+                                SwingUtilities.invokeLater(() -> {
+                                    JOptionPane.showMessageDialog(
+                                            pieChart, exception, "Failed to Connect", JOptionPane.ERROR_MESSAGE);
+                                    setEnabled(true);
+                                });
+                            }
+                        })
+                        .start();
             }
         };
 
@@ -1113,7 +1115,7 @@ public class RealTimeJobPieChart extends JPanel {
         };
 
         ConnectionStatusBar connectionStatusBar =
-          new ConnectionStatusBar(connectAction, disconnectAction, stopSearchingAction);
+                new ConnectionStatusBar(connectAction, disconnectAction, stopSearchingAction);
         statusBarHolder[0] = connectionStatusBar;
 
         SwingUtilities.invokeLater(() -> {
