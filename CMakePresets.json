@@ -37,12 +37,23 @@
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "BUILD_TESTING": "ON"
       }
+    },
+    {
+      "name": "parity",
+      "displayName": "Parity",
+      "description": "No optimization or debug flags, like the Make build, so the two builds' libraries can be compared (tools/build-parity.sh check-cmake)",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "",
+        "BUILD_TESTING": "ON"
+      }
     }
   ],
   "buildPresets": [
     { "name": "dev", "configurePreset": "dev" },
     { "name": "release", "configurePreset": "release" },
-    { "name": "ci", "configurePreset": "ci" }
+    { "name": "ci", "configurePreset": "ci" },
+    { "name": "parity", "configurePreset": "parity" }
   ],
   "testPresets": [
     {
@@ -51,7 +62,8 @@
       "output": { "outputOnFailure": true }
     },
     { "name": "dev", "configurePreset": "dev", "inherits": "base" },
-    { "name": "ci", "configurePreset": "ci", "inherits": "base" }
+    { "name": "ci", "configurePreset": "ci", "inherits": "base" },
+    { "name": "parity", "configurePreset": "parity", "inherits": "base" }
   ],
   "workflowPresets": [
     {
@@ -75,6 +87,14 @@
         { "type": "configure", "name": "ci" },
         { "type": "build", "name": "ci" },
         { "type": "test", "name": "ci" }
+      ]
+    },
+    {
+      "name": "parity",
+      "steps": [
+        { "type": "configure", "name": "parity" },
+        { "type": "build", "name": "parity" },
+        { "type": "test", "name": "parity" }
       ]
     }
   ]
