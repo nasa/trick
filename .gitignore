@@ -1,5 +1,6 @@
 # Build artifacts
 /out/
+CMakeUserPresets.json
 object_*
 io_src
 swig
