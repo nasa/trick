@@ -48,14 +48,29 @@ endif()
 # LLVM and Clang are built without RTTI.
 target_compile_options(trick-ICG PRIVATE -fno-rtti)
 
-# Clang's targets carry their dependencies, including LLVM's libraries, so only
-# the components ICG uses directly are named. Some distributions install only
-# the combined clang-cpp library.
+# Clang's targets carry their own dependencies, so only the components ICG
+# uses directly are named. Some distributions install only the combined
+# clang-cpp library.
 if(TARGET clangFrontend)
     target_link_libraries(trick-ICG PRIVATE
         clangFrontend clangParse clangSema clangLex clangAST clangBasic)
 else()
     target_link_libraries(trick-ICG PRIVATE clang-cpp)
+endif()
+
+# ICG also calls LLVM directly, so it links LLVM itself. Where LLVM reaches the
+# link only as a dependency of a Clang shared library, GNU ld will not use it to
+# resolve ICG's own references ("DSO missing from command line").
+if(LLVM_LINK_LLVM_DYLIB AND TARGET LLVM)
+    target_link_libraries(trick-ICG PRIVATE LLVM)
+else()
+    set(_icg_llvm_components Support)
+    if(LLVM_VERSION_MAJOR VERSION_GREATER_EQUAL 16)
+        # llvm::Triple moved from Support to TargetParser.
+        list(APPEND _icg_llvm_components TargetParser)
+    endif()
+    llvm_map_components_to_libnames(_icg_llvm_libs ${_icg_llvm_components})
+    target_link_libraries(trick-ICG PRIVATE ${_icg_llvm_libs})
 endif()
 target_link_libraries(trick-ICG PRIVATE UDUNITS2::UDUNITS2)
 

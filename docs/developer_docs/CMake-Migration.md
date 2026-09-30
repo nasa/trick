@@ -94,8 +94,13 @@ migrated. It leaves out the Make build's ICG-generated `io_*` members until the
 CMake build runs ICG.
 
 `check-icg` runs both builds' `trick-ICG` on `include/trick/files_to_ICG.hh`
-with the flags the Make build uses, and compares the generated code file by
-file.
+with the flags the Make build uses, and compares everything they generate: the
+`io_*.cpp` files, the class and enum maps, and the XML class resource. `-o`
+redirects only the `io_*.cpp` files. ICG still writes its maps into
+`trick_source/sim_services/include/io_src` and appends to
+`share/trick/xml/sim_services_classes.resource`, so `check-icg` starts each run
+from the same state, collects what it wrote, and restores the originals. It
+fails if anything else in the tree changed.
 
 CI runs both checks on every Linux and macOS job.
 
@@ -239,10 +244,17 @@ The values the makefile passes as `-D` flags come from CMake's LLVM package:
 | `TRICK_GCC_VERSION` | the C++ compiler's version, when it is GCC |
 
 ICG links Clang's `clangFrontend`, `clangParse`, `clangSema`, `clangLex`,
-`clangAST`, and `clangBasic` targets. Clang's CMake package records their
-dependencies, including LLVM's libraries, so the link order problems that
-`configure` works around do not arise. If a distribution installs only the
-combined library, ICG links `clang-cpp` instead.
+`clangAST`, and `clangBasic` targets. Clang's CMake package records the
+dependencies among them, so the link order problems that `configure` works
+around do not arise. If a distribution installs only the combined library, ICG
+links `clang-cpp` instead.
+
+ICG also calls LLVM directly, so it links LLVM itself: the `LLVM` shared
+library where LLVM is built as one (`LLVM_LINK_LLVM_DYLIB`), otherwise the
+`Support` and, from LLVM 16, `TargetParser` components. Relying on Clang's
+targets to bring LLVM in fails on Enterprise Linux: LLVM reaches the link only
+as a dependency of a shared library, and GNU ld will not use it to resolve
+ICG's own references.
 
 ## Existing bugs found during the migration
 
@@ -257,6 +269,12 @@ still pass, and each should be fixed separately.
   `<LLVM_HOME>/lib/clang/<major>.<minor>.<patch>/include`. LLVM 16 and later
   install them in `lib/clang/<major>/include`, so ICG silently skips the
   directory.
+- Without `EXTERNAL_BUILD`, ICG writes enum entries for the XML class resource
+  to `share/trick/xml/include/sim_services_classes.resource`, a directory that
+  does not exist, so they are dropped. Classes go to
+  `share/trick/xml/sim_services_classes.resource`.
+- ICG appends to `sim_services_classes.resource` and nothing truncates it, so
+  any run that regenerates Trick's `io_src` adds a second copy of every class.
 
 ## Phases
 

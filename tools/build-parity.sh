@@ -33,8 +33,10 @@
 #
 # check-icg Runs the Make-built trick-ICG and the one under a CMake build
 #           directory on include/trick/files_to_ICG.hh, the way the Make build
-#           does, and compares the code they generate. Run it from the top of a
-#           configured source tree. Exits non-zero on any difference.
+#           does, and compares everything they generate: io_*.cpp files, class
+#           and enum maps, and the XML class resource. Run it from the top of a
+#           configured source tree; it restores the files ICG writes there.
+#           Exits non-zero on any difference, or if the tree was left changed.
 #
 # sim-test  Runs trickops against test_sims.yml. Records one line per job in
 #           sim-results.txt and make's exit status in sim-test-status.txt, so
@@ -178,7 +180,7 @@ check_cmake() {
 }
 
 check_icg() {
-    local make_icg=$1 cmake_dir=$2 out=$3 cmake_icg flags side exe
+    local make_icg=$1 cmake_dir=$2 out=$3 cmake_icg flags side exe f
     cmake_icg=$(find "$cmake_dir" -name trick-ICG -type f | head -n 1)
     [[ -x $make_icg ]] || die "$make_icg is not an executable"
     [[ -n $cmake_icg ]] || die "no trick-ICG under $cmake_dir"
@@ -190,19 +192,61 @@ check_icg() {
     flags=$(make -s -f share/trick/makefiles/Makefile.trickconfig print-TRICK_SYSTEM_CXXFLAGS)
     flags=${flags#*=}
     flags=${flags//-isystem/-I}
+
+    # -o redirects only the per-header io_*.cpp files. ICG still writes its
+    # class and enum maps into map_dir and appends classes to the XML
+    # resource. Give each run the same starting state, collect what it wrote,
+    # and put the source tree back afterwards.
+    local map_dir=trick_source/sim_services/include/io_src
+    local xml=share/trick/xml/sim_services_classes.resource
     rm -rf "$out"
+    mkdir -p "$out/.saved"
+    [[ -d $map_dir ]] && cp -Rp "$map_dir" "$out/.saved/io_src"
+    [[ -f $xml ]] && cp -p "$xml" "$out/.saved/resource"
+    touch "$out/.started"
+    # shellcheck disable=SC2064 # expand $out now
+    trap "check_icg_restore '$out' '$map_dir' '$xml'" EXIT
+
     for side in make cmake; do
         if [[ $side == make ]]; then exe=$make_icg; else exe=$cmake_icg; fi
-        mkdir -p "$out/$side"
+        check_icg_restore "$out" "$map_dir" "$xml"
+        rm -f "$xml"
+        mkdir -p "$out/$side/io" "$out/$side/maps" "$(dirname "$xml")"
+        touch "$out/.run"
         # shellcheck disable=SC2086 # flags is a list of arguments
-        "$exe" -sim_services -m -o "$out/$side" -std=c++17 $flags include/trick/files_to_ICG.hh \
+        "$exe" -sim_services -m -o "$out/$side/io" -std=c++17 $flags include/trick/files_to_ICG.hh \
             > "$out/$side.log" 2>&1 || { cat "$out/$side.log"; die "$exe failed"; }
+        while IFS= read -r f; do
+            cp -p "$f" "$out/$side/maps/"
+        done < <(find "$map_dir" -type f -newer "$out/.run")
+        [[ -f $xml ]] && cp -p "$xml" "$out/$side/sim_services_classes.resource"
     done
+    check_icg_restore "$out" "$map_dir" "$xml"
+    trap - EXIT
+
+    local changed
+    changed=$(find . -type f -newer "$out/.started" -not -path './.git/*' -not -path "./${out#./}/*" | head)
+    if [[ -n $changed ]]; then
+        echo "build-parity: check-icg left changes in the source tree:" >&2
+        echo "$changed" >&2
+        return 1
+    fi
+
     if diff -r "$out/make" "$out/cmake"; then
         echo "build-parity: trick-ICG output identical ($(find "$out/make" -type f | wc -l | tr -d ' ') files)"
     else
         return 1
     fi
+}
+
+# Puts back the map directory and XML resource saved by check_icg.
+check_icg_restore() {
+    local out=$1 map_dir=$2 xml=$3
+    rm -rf "$map_dir"
+    [[ -d $out/.saved/io_src ]] && cp -Rp "$out/.saved/io_src" "$map_dir"
+    rm -f "$xml"
+    [[ -f $out/.saved/resource ]] && cp -p "$out/.saved/resource" "$xml"
+    return 0
 }
 
 sim_test() {
