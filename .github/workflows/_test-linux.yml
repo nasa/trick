@@ -127,8 +127,11 @@ jobs:
       - name: Configure Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
-          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))" >> "$GITHUB_ENV"
           ./configure
+      # CMake migration: configure only until the CMake build reaches parity.
+      - name: Configure Trick (CMake)
+        run: cmake --preset ci
       - name: Build Trick
         run: make
       - name: Test Trick
