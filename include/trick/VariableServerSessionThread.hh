@@ -98,8 +98,6 @@ namespace Trick {
             bool _saved_pause_cmd;
     } ;
 
-    std::ostream& operator<< (std::ostream& s, VariableServerSessionThread& vst);
-
 }
 
 #endif
