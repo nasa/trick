@@ -224,11 +224,16 @@ check_icg() {
     check_icg_restore "$out" "$map_dir" "$xml"
     trap - EXIT
 
-    local changed
-    changed=$(find . -type f -newer "$out/.started" -not -path './.git/*' -not -path "./${out#./}/*" | head)
+    # Compare absolute, symlink-free paths so $out is excluded whether it was
+    # given as a relative or an absolute path.
+    local changed root out_abs
+    root=$(pwd -P)
+    out_abs=$(cd "$out" && pwd -P)
+    changed=$(find "$root" -type f -newer "$out/.started" \
+        -not -path "$root/.git/*" -not -path "$out_abs/*")
     if [[ -n $changed ]]; then
         echo "build-parity: check-icg left changes in the source tree:" >&2
-        echo "$changed" >&2
+        sed -n '1,10p' <<< "$changed" >&2
         return 1
     fi
 
