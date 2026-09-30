@@ -146,6 +146,15 @@ ifeq ($(IS_CC_CLANG), 1)
 else
    GCC_MAJOR := $(shell $(TRICK_CC) -dumpversion | cut -f1 -d.)
    GCC_MINOR := $(shell $(TRICK_CC) -dumpversion | cut -f2 -d.)
+   # libstdc++ 8 ships std::filesystem in a separate archive, so anything that
+   # links libtrick on GCC 8 (RHEL 8) needs it. Only add it when the archive is
+   # present: on RHEL 8 it comes from libstdc++-static, and a sim that does not
+   # touch std::filesystem must still link on a machine without that package.
+   ifeq ($(shell test $(GCC_MAJOR) -lt 9 && echo 1),1)
+      ifneq ($(wildcard $(shell $(TRICK_CXX) -print-file-name=libstdc++fs.a)),)
+         TRICK_EXEC_LINK_LIBS += -lstdc++fs
+      endif
+   endif
 endif
 
 ifneq ($(HDF5),)
@@ -196,7 +205,17 @@ export TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
 TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
 TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
 
-TRICK_TEST_FLAGS += -Wall -Wextra $(GTEST_CXXSTD)
+# Trick does not set a -std= for simulations. The headers in include/trick require
+# C++14 or newer, which every supported compiler (GCC 8.5+, Clang) already uses by
+# default, and a simulation may pass any newer -std= through TRICK_CXXFLAGS.
+# TRICK_MIN_CXX_STD is the header requirement; `make header_compat_test` checks it.
+# Trick's own libraries are built with a newer standard (see TRICK_CXXFLAGS in
+# $(TRICK_HOME)/Makefile); that must not leak into the flags handed to simulations.
+TRICK_MIN_CXX_STD := 14
+
+# Trick's unit tests are built against gtest, which requires C++17 as of 1.17, and
+# Trick itself is built with C++17.
+TRICK_TEST_FLAGS += -Wall -Wextra -std=c++17
 
 TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i and $$i ne "/usr/include")}') \
                  $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')

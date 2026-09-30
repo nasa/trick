@@ -51,5 +51,3 @@ ifneq ($(BFD_HOME),)
 HAVE_BFD := 1
 PLATFORM_LIBS += -lbfd
 endif
-
-TRICK_ADDITIONAL_TEST_FLAGS += -std=c++17
