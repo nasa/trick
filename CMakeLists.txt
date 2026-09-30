@@ -21,6 +21,9 @@ project(Trick
 include(GNUInstallDirs)
 include(TrickOptions)
 include(TrickDependencies)
+include(TrickLibraries)
+
+add_subdirectory(trick_source)
 
 if(PROJECT_IS_TOP_LEVEL)
     feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES PACKAGES_FOUND INCLUDE_QUIET_PACKAGES
