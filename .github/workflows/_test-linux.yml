@@ -82,6 +82,7 @@ jobs:
               libxml2-devel
               llvm-devel
               llvm-static
+              maven-openjdk21
               ncurses-devel
               motif
               motif-devel
@@ -94,8 +95,12 @@ jobs:
               python3-devel
 
           #-------- RHEL 8: gtest lives in powertools ----------------
+          # The default maven:3.5 stream installs Java 8 and has no
+          # maven-openjdk21; maven:3.8 has it.
           - cfg: { arch: rhel, tag: 8 }
-            enable_repo: dnf config-manager --enable powertools
+            enable_repo: |
+              dnf config-manager --enable powertools
+              dnf module enable -y maven:3.8
 
           #-------- RHEL 9/10: gtest lives in crb ----------------
           - cfg: { arch: rhel, tag: 9 }
@@ -106,7 +111,9 @@ jobs:
 
           #-------- OL 8: gtest lives in codeready_builder ----------------
           - cfg: { os: oracle, tag: 8 }
-            enable_repo: dnf config-manager --enable ol8_codeready_builder
+            enable_repo: |
+              dnf config-manager --enable ol8_codeready_builder
+              dnf module enable -y maven:3.8
 
     steps:
       - name: Set noninteractive mode
@@ -127,7 +134,7 @@ jobs:
       - name: Configure Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
-          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))" >> "$GITHUB_ENV"
           ./configure
       # CMake migration: builds what the CMake build has so far, alongside
       # make, unoptimized like make so the next step can compare them.

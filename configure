@@ -7826,8 +7826,8 @@ fi
 test -z "$JAVA_CC" && as_fn_error $? "no acceptable java compiler found in \$PATH" "$LINENO" 5
 
         JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+(\.\d+)?/'`
-        { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking $JAVA_CC version >= 1.8" >&5
-printf %s "checking $JAVA_CC version >= 1.8... " >&6; }
+        { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking $JAVA_CC version >= 11" >&5
+printf %s "checking $JAVA_CC version >= 11... " >&6; }
 
 
 
@@ -7847,7 +7847,7 @@ printf %s "checking $JAVA_CC version >= 1.8... " >&6; }
                      -e 's/[^0-9]//g'`
 
 
-  ax_compare_version_B=`echo "1.8" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+  ax_compare_version_B=`echo "11" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
                      -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
                      -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
                      -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
@@ -7864,7 +7864,7 @@ x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version
 printf '%s\n' "yes" >&6; }
     else { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf '%s\n' "no" >&6; }
-          as_fn_error $? "Trick requires javac version >= 1.8" "$LINENO" 5
+          as_fn_error $? "Trick requires javac version >= 11" "$LINENO" 5
 
   fi
 
