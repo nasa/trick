@@ -97,7 +97,6 @@ namespace Trick {
 
             bool _saved_pause_cmd;
     } ;
-
 }
 
 #endif
