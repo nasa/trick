@@ -87,14 +87,19 @@ mark_as_advanced(TEE_EXECUTABLE ZIP_EXECUTABLE)
 # Optional components
 #
 if(TRICK_ENABLE_JAVA)
-    find_package(Java 11 REQUIRED COMPONENTS Development)
-    set_package_properties(Java PROPERTIES PURPOSE "Java applications")
-    if(NOT TRICK_JAVA_OFFLINE_DIR)
+    if(TRICK_JAVA_OFFLINE_DIR)
+        # Offline builds install prebuilt jars, so they only need a Java
+        # runtime, not a JDK or Maven.
+        if(NOT IS_DIRECTORY "${TRICK_JAVA_OFFLINE_DIR}")
+            message(FATAL_ERROR "TRICK_JAVA_OFFLINE_DIR is not a directory: ${TRICK_JAVA_OFFLINE_DIR}")
+        endif()
+        find_package(Java 11 REQUIRED COMPONENTS Runtime)
+    else()
+        find_package(Java 11 REQUIRED COMPONENTS Development)
         find_program(MAVEN_EXECUTABLE mvn REQUIRED)
         mark_as_advanced(MAVEN_EXECUTABLE)
-    elseif(NOT IS_DIRECTORY "${TRICK_JAVA_OFFLINE_DIR}")
-        message(FATAL_ERROR "TRICK_JAVA_OFFLINE_DIR is not a directory: ${TRICK_JAVA_OFFLINE_DIR}")
     endif()
+    set_package_properties(Java PROPERTIES PURPOSE "Java applications")
 endif()
 
 if(TRICK_ENABLE_DATA_PRODUCTS)
