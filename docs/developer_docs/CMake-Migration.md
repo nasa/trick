@@ -189,8 +189,9 @@ LLVM after the default locations.
 - `trick_headers` (`Trick::headers`): the include paths `include/` and
   `include/trick/compat`, C++17, and the definitions Trick's headers test:
   `TRICK_VER`, `TRICK_MINOR`, `USE_ER7_UTILS_INTEGRATORS`, `_HAVE_GSL`, and
-  `USE_CIVETWEB`. Simulations receive the same set through
-  `TRICK_SYSTEM_CXXFLAGS`.
+  `USE_CIVETWEB`. With er7_utils enabled, it also adds `trick_source`, where
+  the `er7_utils/...` headers that Trick's integrator headers include are
+  found. Simulations receive the same set through `TRICK_SYSTEM_CXXFLAGS`.
 - `trick_build_options`: settings used only to compile Trick itself, currently
   `-fexceptions` for C. It is never exported.
 

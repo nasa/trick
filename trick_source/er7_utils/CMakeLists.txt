@@ -74,8 +74,3 @@ trick_add_library(er7_utils STATIC
         math/src/ratio128.cc
         math/src/uint128.cc
         trick/integration/src/trick_integrator.cc)
-
-# er7_utils sources and headers include each other as "er7_utils/...".
-target_include_directories(er7_utils PUBLIC
-    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/trick_source>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")

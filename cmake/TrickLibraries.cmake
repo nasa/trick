@@ -20,6 +20,14 @@ target_include_directories(trick_headers INTERFACE
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/trick/compat>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/trick/compat>")
+if(TRICK_ENABLE_ER7_UTILS)
+    # With USE_ER7_UTILS_INTEGRATORS, Trick's integrator headers include
+    # "er7_utils/...", which resolves under trick_source in the build tree and
+    # under include/ in an install. Simulations get it from -isystem
+    # trick_source in TRICK_SYSTEM_CXXFLAGS.
+    target_include_directories(trick_headers INTERFACE
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/trick_source>")
+endif()
 target_compile_features(trick_headers INTERFACE cxx_std_17)
 target_compile_definitions(trick_headers INTERFACE
     TRICK_VER=${PROJECT_VERSION_MAJOR}
