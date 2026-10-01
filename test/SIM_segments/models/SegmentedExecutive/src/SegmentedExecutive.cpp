@@ -133,7 +133,12 @@ int Trick::SegmentedExecutive::segment_set_jobs_onoff() {
         job = *it ;
         // Test to see if the next segment is present in the job tags.
         // Set the disabled flag to the negation of the tag's presence
-        job->disabled = !(job->tags.count(next_segment_str)) ;
+        if(!(job->tags.count(next_segment_str))) {
+            job->disable() ;
+        } else 
+        {
+            job->enable();
+        }
         message_publish(MSG_NORMAL, "segment set job %s to %s\n" , job->name.c_str() , job->disabled ? "disabled" : "enabled" ) ;
     }
 

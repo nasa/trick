@@ -15,14 +15,22 @@ int Trick::Executive::set_job_onoff(std::string job_name, int instance_num , int
 
     if ( job != NULL ) {
         // set disabled flag accordingly for one job (the given job_name)
-        job->disabled = !on ;
+        if(on) {        
+           job->enable();
+        } else {
+           job->disable();
+        }
     } else {
         // job_name may be a tag name: find all jobs that have the given tag name and hold them in a list
         range = all_tagged_jobs.equal_range(job_name) ;
         if (range.first != range.second) {
             // set disabled flag accordingly for all jobs with this tag
-            for ( it = range.first; it != range.second ; ++it ) {
-                it->second->disabled = !on ;
+            for ( it = range.first; it != range.second ; ++it ) {                
+                if(on) {        
+                    it->second->enable();
+                } else {
+                    it->second->disable();
+                }
             }
         } else {
             message_publish(MSG_WARNING, "Warning: Job %s not found in Executive::set_job_onoff\n" , job_name.c_str()) ;
