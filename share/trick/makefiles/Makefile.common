@@ -146,15 +146,6 @@ ifeq ($(IS_CC_CLANG), 1)
 else
    GCC_MAJOR := $(shell $(TRICK_CC) -dumpversion | cut -f1 -d.)
    GCC_MINOR := $(shell $(TRICK_CC) -dumpversion | cut -f2 -d.)
-   # libstdc++ 8 ships std::filesystem in a separate archive, so anything that
-   # links libtrick on GCC 8 (RHEL 8) needs it. Only add it when the archive is
-   # present: on RHEL 8 it comes from libstdc++-static, and a sim that does not
-   # touch std::filesystem must still link on a machine without that package.
-   ifeq ($(shell test $(GCC_MAJOR) -lt 9 && echo 1),1)
-      ifneq ($(wildcard $(shell $(TRICK_CXX) -print-file-name=libstdc++fs.a)),)
-         TRICK_EXEC_LINK_LIBS += -lstdc++fs
-      endif
-   endif
 endif
 
 ifneq ($(HDF5),)
