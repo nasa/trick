@@ -5,7 +5,7 @@ labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
-      value: |
+      value: >
         Please read
         [CONTRIBUTING.md](https://github.com/nasa/trick/blob/master/CONTRIBUTING.md)
         first. Feature requests must describe a concrete problem encountered
