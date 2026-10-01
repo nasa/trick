@@ -11,12 +11,14 @@
 Trick::FrameDataRecordGroup::FrameDataRecordGroup( int in_thread_id , std::string in_name )
  : Trick::DRBinary(in_name, false, Trick::DR_Type::DR_Type_FrameLogDataRecord ), thread_id(in_thread_id ) { 
     if ( thread_id > 0 ) {
-        add_job(thread_id, 1000, (char *)"top_of_frame", NULL, 1.0, (char *)"start_timer", (char *)"TRK", 1) ;
+        add_job(thread_id, START_TIMER_JOB_ID, (char*)"top_of_frame", NULL, 1.0, (char*)"start_timer", (char*)"TRK", 1);
         // Frame logging uses phase 65533 in FrameLog.ccp. Stop the timer just before that.
-        add_job(thread_id, 1001, (char *)"end_of_frame", NULL, 1.0, (char *)"stop_timer", (char *)"TRK", 65532) ;
+        add_job(thread_id, STOP_TIMER_JOB_ID, (char*)"end_of_frame", NULL, 1.0, (char*)"stop_timer", (char*)"TRK",
+                65532);
     }
-    add_job(thread_id, 1003, (char *)"end_of_frame", NULL, 1.0, (char *)"adjust_time", (char *)"TRK", 65532) ;
-    add_job(thread_id, 1002, (char *)"end_of_frame", NULL, 1.0, (char *)"frame_log_clear", (char *)"TRK", 65535) ;
+    add_job(thread_id, ADJUST_TIME_JOB_ID, (char*)"end_of_frame", NULL, 1.0, (char*)"adjust_time", (char*)"TRK", 65532);
+    add_job(thread_id, FRAME_LOG_CLEAR_JOB_ID, (char*)"end_of_frame", NULL, 1.0, (char*)"frame_log_clear", (char*)"TRK",
+            65535);
 
     // The DataRecordGroup class establishes a sim_time variable.  All of the frame logging data recording groups
     // record at end_of_frame.  At this point the sim_time has already advanced.  We need to back up time when
@@ -64,19 +66,19 @@ void Trick::FrameDataRecordGroup::add_rec_job( Trick::JobData * new_job ) {
 int Trick::FrameDataRecordGroup::call_function( Trick::JobData * curr_job ) {
 
     switch (curr_job->id ) {
-        case 1000:
-            start_timer() ;
-            break ;
-        case 1001:
-            stop_timer() ;
-            break ;
-        case 1002:
-            return frame_log_clear() ;
-        case 1003:
-            adjust_time() ;
-            break ;
-        default:
-            return DataRecordGroup::call_function(curr_job) ;
+    case START_TIMER_JOB_ID:
+        start_timer();
+        break;
+    case STOP_TIMER_JOB_ID:
+        stop_timer();
+        break;
+    case FRAME_LOG_CLEAR_JOB_ID:
+        return frame_log_clear();
+    case ADJUST_TIME_JOB_ID:
+        adjust_time();
+        break;
+    default:
+        return DataRecordGroup::call_function(curr_job);
     }
 
     return 0 ;
