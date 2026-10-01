@@ -4,11 +4,12 @@ REFERENCES:                  ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) ) ( (Jackie Deans) (CACI) (11-30-2022) )
 ********************************************************************************/
-#include <wchar.h>
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
+
 #include <string.h>
 #include <string>
-#include "trick_utils/comm/include/tc.h"
-#include "trick_utils/comm/include/tc_proto.h"
+#include <wchar.h>
 
 #ifndef VS_HH
 #define VS_HH

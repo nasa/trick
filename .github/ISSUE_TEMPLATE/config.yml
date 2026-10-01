@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation, Install Guide, Tutorial, and FAQ
+    url: https://nasa.github.io/trick
+    about: Please read the documentation before opening an issue. Questions answered by the documentation will be closed with a link.
+  - name: Contributing guidelines
+    url: https://github.com/nasa/trick/blob/master/CONTRIBUTING.md
+    about: What the Trick team accepts, how to submit it, and how submissions that do not follow the guidelines are handled.
+

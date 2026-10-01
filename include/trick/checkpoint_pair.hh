@@ -6,22 +6,21 @@
 #ifndef CHECKPOINT_PAIR_HH
 #define CHECKPOINT_PAIR_HH
 
-#include <utility>
-#include <sstream>
-#include <algorithm>
-#include <typeinfo>
-#include <functional>
-#include <string>
-#include <type_traits>
-#ifdef __GNUC__
-#include <cxxabi.h>
-#endif
-
+#include "checkpoint_fwd_declare.hh"
 #include "checkpoint_is_stl_container.hh"
 #include "checkpoint_stl_protos.hh"
-#include "checkpoint_fwd_declare.hh"
+
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+
+#include <algorithm>
+#include <cxxabi.h>
+#include <functional>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <typeinfo>
+#include <utility>
 
 // intrinsic first , intrinsic second
 template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
@@ -32,8 +31,7 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     std::string temp_str;
 
     FIRST * first = nullptr ;
-    SECOND * second = nullptr ;
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    SECOND* second = nullptr;
 
     std::string type_string ;
     try {
@@ -83,8 +81,7 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
 
     std::string temp_str;
     FIRST * first = nullptr ;
-    std::string * second = nullptr ;
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    std::string* second = nullptr;
     std::string type_string;
     try {
     type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status )) ;
@@ -129,8 +126,7 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     std::string  temp_str ;
 
     std::string * first = nullptr ;
-    SECOND * second = nullptr ;
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    SECOND* second      = nullptr;
 
     var_declare << "std::string "
      << object_name << "_" << var_name << "_first[1]" ;
@@ -173,8 +169,6 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
 
     std::string temp_str;
 
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
-
     var_declare << "std::string "
      << object_name << "_" << var_name << "_first[1]" ;
     temp_str = var_declare.str();
@@ -201,8 +195,8 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
 /* =================================================================================================*/
 
 template <class FIRST, class SECOND>
-int delete_stl(std::pair<FIRST, SECOND> & in_stl __attribute__ ((unused)) , std::string object_name , std::string var_name ) {
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+int delete_stl(std::pair<FIRST, SECOND>& in_stl __attribute__((unused)), std::string object_name, std::string var_name)
+{
     REF2 * items_ref ;
     std::string temp_str = object_name + "_" + var_name + "_first";
     items_ref = ref_attributes(temp_str.c_str()) ;
@@ -229,8 +223,7 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
     FIRST * first ;
     SECOND * second ;
 
-    std::string temp_str; 
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    std::string temp_str;
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + "_" + var_name + "_first";
     first_ref = ref_attributes((char *)temp_str.c_str()) ;
@@ -263,7 +256,6 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
 
     std::string temp_str;
 
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + "_" + var_name + "_first";
     first_ref = ref_attributes((char *)temp_str.c_str()) ;
@@ -294,8 +286,7 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
     std::string * first_inner ;
     SECOND * second ;
 
-    std::string temp_str; 
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+    std::string temp_str;
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + "_" + var_name + "_first";
     first_ref = ref_attributes((char *)temp_str.c_str()) ;
@@ -327,7 +318,6 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
 
     std::string temp_str;
 
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + "_" + var_name + "_first";
     first_ref = ref_attributes((char *)temp_str.c_str()) ;

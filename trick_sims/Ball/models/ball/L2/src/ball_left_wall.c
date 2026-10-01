@@ -18,10 +18,12 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 */
 
-#include <stdio.h>
-#include "sim_services/Integrator/include/regula_falsi.h"
-#include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/ball_state.h"
+
+#include "trick/integrator_c_intf.h"
+#include "trick/regula_falsi.h"
+
+#include <stdio.h>
 
 /* ENTRY POINT: */
 double ball_left_wall( /* RETURN: s  Time to go to event */

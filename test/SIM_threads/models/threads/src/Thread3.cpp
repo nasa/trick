@@ -3,9 +3,11 @@ PURPOSE:
     (Multi-Threading)
 *****************************************************************************/
 
-#include <iostream>
 #include "../include/Thread3.h"
-#include "sim_services/Clock/include/GetTimeOfDayClock.hh"
+
+#include "trick/GetTimeOfDayClock.hh"
+
+#include <iostream>
 
 Thread3::Thread3()
 {

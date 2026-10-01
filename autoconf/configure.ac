@@ -94,14 +94,14 @@ AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CXX
 
-dnl do not test gcc version on mac.  clang as gcc will return version and it's not >= 4.8
+dnl do not test gcc version on mac.  clang as gcc will return version and it's not >= 8.5
 AS_IF([test "$ON_MAC" = "no"],[TR_GCC_VERSION],[])
-dnl if the compiler is gcc, test for gcc >= 4.8
+dnl if the compiler is gcc, test for gcc >= 8.5
 AS_IF([test "x$GCC_VERSION" = "x"],[],
- [AC_MSG_CHECKING([gcc version >= 4.8])
-  AX_COMPARE_VERSION([$GCC_VERSION],[ge],[4.8], [AC_MSG_RESULT([yes])],
+ [AC_MSG_CHECKING([gcc version >= 8.5])
+  AX_COMPARE_VERSION([$GCC_VERSION],[ge],[8.5], [AC_MSG_RESULT([yes])],
    [AC_MSG_RESULT([no])
-    AC_MSG_ERROR([Trick requires gcc version >= 4.8])
+    AC_MSG_ERROR([Trick requires gcc version >= 8.5])
    ])
 ])
 dnl Save the full path of the compiler
@@ -210,21 +210,39 @@ AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]
 AC_SUBST([LLVM_HOME])
 
 TR_CLANG_VERSION
-dnl if llvm/clang, test for version >= 3.4.2
+dnl if llvm/clang, test for version >= 14
 AS_IF([test "x$CLANG_VERSION" = "x"],[],
- [AC_MSG_CHECKING([clang version >= 3.4.2])
-  AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[3.4.2], [AC_MSG_RESULT([yes])],
+ [AC_MSG_CHECKING([clang version >= 14])
+  AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[14], [AC_MSG_RESULT([yes])],
    [AC_MSG_RESULT([no])
-    AC_MSG_ERROR([Trick requires llvm/clang version >= 3.4.2])
+    AC_MSG_ERROR([Trick requires llvm/clang version >= 14])
    ])
 ])
 
-AS_IF([test "x$CLANG_VERSION" = "x"],[],
-  [AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[18.0.0],
-   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangASTMatchers -lclangAPINotes -lclangLex -lclangBasic"],
-   [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"]
-   )]
-)
+dnl Static Clang archives require explicit transitive dependencies:
+dnl clangAnalysis uses clangASTMatchers; clangFrontend uses clangAPINotes.
+dnl Shared components carry these dependencies themselves. Detect the extra
+dnl archives by presence and place them after their users but before clangAST,
+dnl clangLex, and clangBasic, which provide symbols needed by these archives.
+
+OLD_CLANG_LIBS_EXTRA=""
+
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangASTMatchers.a],
+  [OLD_CLANG_LIBS_EXTRA="$OLD_CLANG_LIBS_EXTRA -lclangASTMatchers"])
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangAPINotes.a],
+  [OLD_CLANG_LIBS_EXTRA="$OLD_CLANG_LIBS_EXTRA -lclangAPINotes"])
+
+OLD_CLANG_LIBS="-lclangFrontend \
+-lclangDriver \
+-lclangSerialization \
+-lclangParse \
+-lclangSema \
+-lclangAnalysis \
+-lclangEdit \
+$OLD_CLANG_LIBS_EXTRA \
+-lclangAST \
+-lclangLex \
+-lclangBasic"
 
 NEW_CLANG_LIBS="-lclang-cpp"
 AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],

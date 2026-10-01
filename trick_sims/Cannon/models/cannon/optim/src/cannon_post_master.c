@@ -3,12 +3,14 @@ PURPOSE:                     (Read slave's sim evaluation)
 LIBRARY DEPENDENCY:          ((amoeba.o))
 PROGRAMMER:                  ((keith))
 ***************************************************************************/
-#include <stdio.h>
-#include "cannon/aero/include/cannon_aero.h"
 #include "../include/amoeba.h"
 #include "../include/amoeba_proto.h"
-#include "sim_services/MonteCarlo/include/montecarlo_c_intf.h"
-#include "trick_utils/comm/include/tc_proto.h"
+#include "cannon/aero/include/cannon_aero.h"
+
+#include "trick/montecarlo_c_intf.h"
+#include "trick/tc_proto.h"
+
+#include <stdio.h>
 
 int cannon_post_master(
   CANNON_AERO* C,

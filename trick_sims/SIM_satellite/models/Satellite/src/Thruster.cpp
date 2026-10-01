@@ -1,5 +1,6 @@
 #include "Thruster.hh"
-#include "trick_utils/math/include/vector_macros.h"
+
+#include "trick/vector_macros.h"
 
 Thruster::Thruster() {
     for (int ii=0; ii<3;ii++) { position[ii]  = 0.0; }

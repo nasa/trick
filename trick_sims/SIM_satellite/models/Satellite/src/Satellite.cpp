@@ -1,8 +1,10 @@
 #include "Satellite.hh"
-#include "trick_utils/math/include/quat_macros.h"
-#include "trick_utils/math/include/matrix_macros.h"
-#include "trick_utils/math/include/trick_math_proto.h"
-#include "sim_services/Integrator/include/integrator_c_intf.h"
+
+#include "trick/integrator_c_intf.h"
+#include "trick/matrix_macros.h"
+#include "trick/quat_macros.h"
+#include "trick/trick_math_proto.h"
+
 #include <iostream>
 
 #define EARTH_MASS 5.9721986e24

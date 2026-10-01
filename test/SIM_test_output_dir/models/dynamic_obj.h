@@ -5,7 +5,7 @@ LIBRARY DEPENDENCY:
     )
 **************************************************************************/
 
-#include "sim_services/SimObject/include/SimObject.hh"
+#include "trick/SimObject.hh"
 
 class DynamicObj : public Trick::SimObject {
     // This class should be allocated dynamically

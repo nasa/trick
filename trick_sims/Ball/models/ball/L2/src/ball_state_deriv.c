@@ -26,9 +26,9 @@ PROGRAMMERS:
 #include "../include/ball_state.h"
 
      /* EXTERNAL MACRO DECLARATIONS */
-#include "sim_services/include/collect_macros.h"
+#include "trick/collect_macros.h"
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_state_deriv(
               /* RETURN: -- Always return zero */
   BSTATE *S ) /* INOUT:  -- Ball EOM state parameters */

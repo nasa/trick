@@ -55,7 +55,6 @@ TEST_F(MM_ref_name_from_address, test4) {
 
 }
 
-#if __GNUC__ > 4
 TEST_F(MM_ref_name_from_address, test5) {
   int i;
   double d;
@@ -111,9 +110,7 @@ TEST_F(MM_ref_name_from_address, test8) {
   memmgr->declare_extern_var(udt4_p1, "UDT4 udt4_st");
   std::string ref_name = memmgr->ref_name_from_address(&(udt4_p1->dbl));
   EXPECT_EQ("&udt4_st.dbl", ref_name);
-
 }
-#endif
 
 TEST_F(MM_ref_name_from_address, test9) {
 

@@ -22,6 +22,8 @@ class HeaderSearchDirs ;
 class CommentSaver ;
 class PrintFileContentsBase ;
 
+extern std::string trick_build_dir;
+
 /**
 
   This class creates a PrintFileContentsBase class for each include file that we
@@ -44,7 +46,7 @@ class PrintAttributes {
 
         /** Prints all of the processed classes and enumerations */
         virtual void createMapFiles() ;
-        virtual void closeMapFiles() ;
+        virtual void closeMapFiles();
 
         /** Create makefile for IO files */
         virtual void printIOMakefile() ;

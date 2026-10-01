@@ -19,7 +19,7 @@ CLASS:     (integration)
 ...
 */
 #include "ip_state.h"
-#include "sim_services/Integrator/include/integrator_c_intf.h"
+#include "trick/integrator_c_intf.h"
 
 int integration_test( IP_STATE* s)
 {

@@ -9,7 +9,7 @@ LIBRARY DEPENDENCIES:
 
 #ifndef _parachutist_hh_
 #define _parachutist_hh_
-#include "sim_services/Integrator/include/regula_falsi.h"
+#include "trick/regula_falsi.h"
 
 class Parachutist {
 

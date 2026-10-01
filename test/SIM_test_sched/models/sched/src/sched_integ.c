@@ -7,10 +7,11 @@ LIBRARY DEPENDENCY:          ( sched_integ.o )
 PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) (Trick tutorial) )
 *******************************************************************************/
 
-#include <stdio.h>
-
-#include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/sched.h"
+
+#include "trick/integrator_c_intf.h"
+
+#include <stdio.h>
 
 int sched_integ(  /* RETURN: -- Always return zero */
   SCHEDULE *S )   /* INOUT:  -- Schedule struct */

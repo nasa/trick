@@ -1,0 +1,22 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "changelog-sections": [
+        { "type": "feat", "section": "Added" },
+        { "type": "fix", "section": "Fixed" },
+        { "type": "perf", "section": "Changed" },
+        { "type": "revert", "section": "Removed" },
+        { "type": "refactor", "section": "Changed" },
+        { "type": "security", "section": "Security" },
+        { "type": "deprecated", "section": "Deprecated" },
+        { "type": "chore", "hidden": true },
+        { "type": "docs", "hidden": true },
+        { "type": "test", "hidden": true },
+        { "type": "ci", "hidden": true },
+        { "type": "style", "hidden": true },
+        { "type": "build", "hidden": true }
+      ]
+    }
+  }
+}

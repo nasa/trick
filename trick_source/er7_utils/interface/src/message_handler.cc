@@ -27,9 +27,9 @@ Purpose: ()
 #include <string>
 
 #ifdef TRICK_VER
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
-#include "sim_services/Executive/include/exec_proto.h"
+#include "trick/exec_proto.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 #endif
 
 #include "../include/message_handler.hh"

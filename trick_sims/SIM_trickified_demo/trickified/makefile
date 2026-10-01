@@ -16,6 +16,7 @@ clean_trickify:
 	-rm -f *.a
 	-rm -f *.o
 	-rm -f *.so
+	-rm -rf tmp_build
 
 nuke_trickify: clean_trickify
 	-rm -f S_overrides_trickify.mk

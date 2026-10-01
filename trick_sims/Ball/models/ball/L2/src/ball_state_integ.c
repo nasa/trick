@@ -26,8 +26,9 @@ PROGRAMMERS:
 #include <stdio.h>
 
 /* GLOBAL DATA STRUCTURE DECLARATIONS */
-#include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/ball_state.h"
+
+#include "trick/integrator_c_intf.h"
 
 /* ENTRY POINT */
 int ball_state_integ( /* RETURN: -- Integration multi-step id */

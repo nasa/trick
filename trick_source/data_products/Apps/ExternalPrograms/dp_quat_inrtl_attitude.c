@@ -16,12 +16,12 @@ PROGRAMMERS:
        (Dorci L. Smith) (TSC-AEU) (May 2002) (Reduce ext program size))
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "trick/trick_math.h"
+
 #include <float.h>
 #include <math.h>
-
-#include "trick_utils/math/include/trick_math.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define ROLL  1
 #define PITCH 2

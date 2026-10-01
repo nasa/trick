@@ -83,8 +83,8 @@ jobs:
               llvm-devel
               llvm-static
               ncurses-devel
-              openmotif
-              openmotif-devel
+              motif
+              motif-devel
               perl
               perl-Digest-MD5
               udunits2

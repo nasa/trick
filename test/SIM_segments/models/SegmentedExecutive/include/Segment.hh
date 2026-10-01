@@ -9,9 +9,10 @@ LIBRARY_DEPENDENCIES:
 #ifndef SEGMENT_HH
 #define SEGMENT_HH
 
-#include <string>
+#include "trick/ScheduledJobQueue.hh"
+
 #include <map>
-#include "sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh"
+#include <string>
 
 namespace Trick {
 

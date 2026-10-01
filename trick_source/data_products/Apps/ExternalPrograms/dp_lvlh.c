@@ -14,13 +14,13 @@ PROGRAMMERS:
         (Dorci L. Smith) (TSC-AEU) (May 2002) (Reduce ext program size))
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "trick/matrix_macros.h"
+#include "trick/vector_macros.h"
+
 #include <float.h>
 #include <math.h>
-
-#include "trick_utils/math/include/matrix_macros.h"
-#include "trick_utils/math/include/vector_macros.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 void mat_lvlh_inertial(double lvlh_inrtl[3][3], double pos[3], double vel[3]);
 

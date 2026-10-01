@@ -8,7 +8,7 @@ LIBRARY DEPENDENCIES:
 
 #include "sim_objects/default_trick_sys.sm"
 
-##include "sim_services/Integrator/include/integrator_c_intf.h"
+##include "trick/integrator_c_intf.h"
 
 class ballSimObject : public Trick::SimObject {
 

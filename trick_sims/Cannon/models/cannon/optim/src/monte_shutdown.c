@@ -2,9 +2,10 @@
 PURPOSE:          ( Monte Master Shutdown Job )
 ***************************************************************************/
 
-#include "sim_services/UnitTest/include/trick_tests.h"
-#include "sim_services/MonteCarlo/include/montecarlo_c_intf.h"
 #include "../include/optim_proto.h"
+
+#include "trick/montecarlo_c_intf.h"
+#include "trick/trick_tests.h"
 
 int cannon_master_shutdown()
 {

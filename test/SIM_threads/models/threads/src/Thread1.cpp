@@ -3,9 +3,11 @@ PURPOSE:
     (Multi-Threading)
 *****************************************************************************/
 
-#include <iostream>
 #include "../include/Thread1.h"
-#include "sim_services/Clock/include/clock_proto.h"
+
+#include "trick/clock_proto.h"
+
+#include <iostream>
 
 Thread1::Thread1(int in_usec) : m_iBusyUSecs(in_usec)
 {
