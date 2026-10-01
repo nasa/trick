@@ -1,4 +1,4 @@
-package trick.rtperf;
+package trick.rtjperf;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import trick.common.utils.VariableServerConnection;
  * and processes incoming real-time job execution telemetry.
  * Uses binary format for efficient data transmission.
  */
-public class TrickVariableServerClient implements Runnable {
+public class RTJPerfVarServerClient implements Runnable {
 
     private VariableServerConnection vsConnection;
     private RealTimeJobPieChart gui;
@@ -43,7 +43,7 @@ public class TrickVariableServerClient implements Runnable {
     // Synchronized guard to avoid race conditions during thread switching
     private final List<JobMeta> activeThreadJobs = new ArrayList<>();
 
-    public TrickVariableServerClient(VariableServerConnection vsConnection, RealTimeJobPieChart gui) {
+    public RTJPerfVarServerClient(VariableServerConnection vsConnection, RealTimeJobPieChart gui) {
         this.vsConnection = vsConnection;
         this.gui = gui;
     }

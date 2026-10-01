@@ -117,7 +117,7 @@
         <version>3.2.1</version>
         <executions>
           <execution>
-            <id>rtperf</id>
+            <id>rtjperf</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
@@ -125,10 +125,10 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>trick.rtperf.RealTimeJobPieChart</mainClass>
+                  <mainClass>trick.rtjperf.RealTimeJobPieChart</mainClass>
                 </transformer>
               </transformers>
-              <finalName>RTPerf</finalName>
+              <finalName>RTJPerf</finalName>
             </configuration>
           </execution>
           <execution>
