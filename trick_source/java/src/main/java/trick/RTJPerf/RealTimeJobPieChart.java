@@ -1,4 +1,4 @@
-package trick.rtperf;
+package trick.rtjperf;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,7 +17,7 @@ import trick.common.ui.panels.ConnectionStatusBar;
 import trick.common.utils.VariableServerConnection;
 
 /**
- * The main GUI class for RTPerf. It renders a real-time pie chart of job execution
+ * The main GUI class for RTJPerf. It renders a real-time pie chart of job execution
  * durations alongside a sorted list of jobs and their frame percentages.
  *
  * A single rate field configures both the Variable Server data push frequency
@@ -95,7 +95,7 @@ public class RealTimeJobPieChart extends JPanel {
     private JTextField cycleRateField;
     private JTextField thresholdField;
     private Timer refreshTimer;
-    private TrickVariableServerClient vsClient;
+    private RTJPerfVarServerClient vsClient;
     private boolean isInitializingCombo = false;
 
     private JPanel pieChartPanel;
@@ -735,7 +735,7 @@ public class RealTimeJobPieChart extends JPanel {
         });
     }
 
-    public void initializeThreads(int numThreads, TrickVariableServerClient client) {
+    public void initializeThreads(int numThreads, RTJPerfVarServerClient client) {
         SwingUtilities.invokeLater(() -> {
             this.vsClient = client;
             isInitializingCombo = true;
@@ -1050,7 +1050,7 @@ public class RealTimeJobPieChart extends JPanel {
 
         // Holds the currently connected client so the Disconnect/Connect actions,
         // which are constructed before the ConnectionStatusBar exists, can reach it.
-        final TrickVariableServerClient[] activeClient = new TrickVariableServerClient[1];
+        final RTJPerfVarServerClient[] activeClient = new RTJPerfVarServerClient[1];
         final ConnectionStatusBar[] statusBarHolder = new ConnectionStatusBar[1];
 
         AbstractAction connectAction = new AbstractAction("Connect") {
@@ -1074,8 +1074,8 @@ public class RealTimeJobPieChart extends JPanel {
                 new Thread(() -> {
                             try {
                                 VariableServerConnection vsConnection = new VariableServerConnection(host, port);
-                                TrickVariableServerClient client =
-                                        new TrickVariableServerClient(vsConnection, pieChart);
+                                RTJPerfVarServerClient client =
+                                        new RTJPerfVarServerClient(vsConnection, pieChart);
                                 activeClient[0] = client;
                                 pieChart.reset();
                                 new Thread(client).start();
@@ -1119,7 +1119,7 @@ public class RealTimeJobPieChart extends JPanel {
         statusBarHolder[0] = connectionStatusBar;
 
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("RTPerf - Real-Time Job Performance");
+            JFrame frame = new JFrame("RTJPerf - Real-Time Job Performance");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.add(pieChart, BorderLayout.CENTER);
             frame.add(connectionStatusBar, BorderLayout.SOUTH);
