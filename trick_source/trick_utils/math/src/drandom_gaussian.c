@@ -28,7 +28,7 @@ double drandom_gaussian(        /* Return: Random number consistent with Gaussia
 
         /* Normalize output of rand to the range of [-0.5,0.5] */
 #if defined(__linux__) || defined(__APPLE__)
-        out = (((double) rand()) / RAND_MAX) - 0.5;
+        out = (((double)rand()) / RAND_MAX) - 0.5;
 #else
         out = (((double) rand()) / MAX_VALUE) - 0.5;
 #endif
