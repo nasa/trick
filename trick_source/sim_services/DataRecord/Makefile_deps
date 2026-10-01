@@ -105,3 +105,21 @@ object_${TRICK_HOST_CPU}/DRHDF5.o: DRHDF5.cpp ${TRICK_HOME}/include/trick/DRHDF5
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/message_proto.h \
  ${TRICK_HOME}/include/trick/message_type.h 
+ object_${TRICK_HOST_CPU}/IntegJobDRGroup.o: IntegJobDRGroup.cpp ${TRICK_HOME}/include/trick/IntegrationJobDataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/DRBinary.hh \
+ ${TRICK_HOME}/include/trick/DRAscii.hh \
+ ${TRICK_HOME}/include/trick/DRHDF5.hh \
+ ${TRICK_HOME}/include/trick/DataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/bitfield_proto.h
