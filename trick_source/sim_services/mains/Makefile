@@ -26,3 +26,5 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 #	@ $(RM) $(DEPTEMPFILE)
 #	@ echo "Created dependency file $(DEPFILE)"
 #
+#
+#-include Makefile_deps
