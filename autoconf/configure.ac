@@ -114,8 +114,22 @@ AC_PATH_PROG(LD, ld, nold)
 AS_IF([test "$ac_cv_path_LD" = "nold"],AC_MSG_ERROR([could not find ld]),[])
 AC_PROG_LEX([noyywrap])
 AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
-AC_PATH_PROG(BISON, bison, nobison)
+dnl macOS ships bison 2.3 in /usr/bin. Homebrew's bison is keg-only, so search its prefix first.
+BISON_SEARCH_PATH="$PATH"
+AS_IF([test "$ON_MAC" = "yes"],
+ [BREW_BISON_PREFIX=`brew --prefix bison 2>/dev/null`
+  AS_IF([test "x$BREW_BISON_PREFIX" != "x"],[BISON_SEARCH_PATH="$BREW_BISON_PREFIX/bin$PATH_SEPARATOR$PATH"],[])
+ ],[])
+AC_PATH_PROG(BISON, bison, nobison, [$BISON_SEARCH_PATH])
 AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])
+AC_MSG_CHECKING([bison version >= 3.0])
+BISON_VERSION=`$BISON --version | sed -n '1s/^.* \([[0-9]][[0-9.]]*\)$/\1/p'`
+AX_COMPARE_VERSION([$BISON_VERSION],[ge],[3.0], [AC_MSG_RESULT([yes ($BISON_VERSION)])],
+ [AC_MSG_RESULT([no ($BISON_VERSION)])
+  AS_IF([test "$ON_MAC" = "yes"],
+   [AC_MSG_ERROR([Trick requires bison >= 3.0. Run "brew install bison".])],
+   [AC_MSG_ERROR([Trick requires bison >= 3.0])])
+ ])
 AC_PATH_PROG(CURL, curl, nocurl)
 AS_IF([test "$ac_cv_path_CURL" = "nocurl"],AC_MSG_ERROR([could not find curl]),[])
 AC_PATH_PROG(PERL, perl)
