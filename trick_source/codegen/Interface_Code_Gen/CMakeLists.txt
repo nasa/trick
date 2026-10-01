@@ -40,10 +40,18 @@ target_compile_definitions(trick-ICG PRIVATE
     LIBCLANG_PATCHLEVEL=${LLVM_VERSION_PATCH}
     LLVM_HOME="${LLVM_INSTALL_PREFIX}"
     TRICK_VERSION="${TRICK_VERSION_FULL}")
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # The GCC version whose extensions ICG tells Clang to accept.
+# The GCC version ICG tells Clang to emulate, which decides how headers that
+# test __GNUC__ are parsed. Match configure: on Linux, ask the C compiler, if
+# it is GNU-compatible (Clang included), with the same command. Elsewhere ICG
+# falls back to 8.5.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang|IntelLLVM)$")
+    execute_process(
+        COMMAND "${CMAKE_C_COMPILER}" -dumpfullversion -dumpversion
+        OUTPUT_VARIABLE _icg_gcc_version
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
     target_compile_definitions(trick-ICG PRIVATE
-        TRICK_GCC_VERSION="${CMAKE_CXX_COMPILER_VERSION}")
+        TRICK_GCC_VERSION="${_icg_gcc_version}")
 endif()
 # LLVM and Clang are built without RTTI.
 target_compile_options(trick-ICG PRIVATE -fno-rtti)

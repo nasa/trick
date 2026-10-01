@@ -247,7 +247,7 @@ The values the makefile passes as `-D` flags come from CMake's LLVM package:
 | `LIBCLANG_MAJOR`, `LIBCLANG_MINOR`, `LIBCLANG_PATCHLEVEL` | `LLVM_VERSION_MAJOR`, `_MINOR`, `_PATCH` |
 | `LLVM_HOME` | `LLVM_INSTALL_PREFIX` |
 | `TRICK_VERSION` | the full version from `trick_ver.txt` |
-| `TRICK_GCC_VERSION` | the C++ compiler's version, when it is GCC |
+| `TRICK_GCC_VERSION` | on Linux, what a GNU-compatible C compiler reports for `-dumpfullversion -dumpversion`, as `configure` records it |
 
 ICG links Clang's `clangFrontend`, `clangParse`, `clangSema`, `clangLex`,
 `clangAST`, and `clangBasic` targets. Clang's CMake package records the
