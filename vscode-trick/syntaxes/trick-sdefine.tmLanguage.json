@@ -1,0 +1,96 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Trick",
+  "scopeName": "source.trick-sdefine",
+  "patterns": [
+    { "include": "#model-header-block" },
+    { "include": "#user-code-block" },
+    { "include": "#model-include" },
+    { "include": "#sdefine-include" },
+    { "include": "#trick-header-fields" },
+    { "include": "#job-tag" },
+    { "include": "#job-thread-spec" },
+    { "include": "#job-phase-spec" },
+    { "include": "#job-class-name" },
+    { "include": "#trick-keywords" },
+    { "include": "source.cpp" }
+  ],
+  "repository": {
+    "model-header-block": {
+      "begin": "(%header)(\\{)",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.directive.trick" },
+        "2": { "name": "punctuation.section.block.begin.trick" }
+      },
+      "end": "(%\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.block.end.trick" }
+      },
+      "name": "meta.block.header.trick",
+      "contentName": "meta.embedded.block.cpp",
+      "patterns": [
+        { "include": "source.cpp" }
+      ]
+    },
+    "user-code-block": {
+      "begin": "(%)(\\{)",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.directive.trick" },
+        "2": { "name": "punctuation.section.block.begin.trick" }
+      },
+      "end": "(%\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.block.end.trick" }
+      },
+      "name": "meta.block.code.trick",
+      "contentName": "meta.embedded.block.cpp",
+      "patterns": [
+        { "include": "source.cpp" }
+      ]
+    },
+    "model-include": {
+      "match": "^(\\s*)(##)(include)\\s+(\")([^\"]+)(\")",
+      "captures": {
+        "2": { "name": "keyword.control.directive.include.model.trick" },
+        "3": { "name": "keyword.control.directive.include.model.trick" },
+        "4": { "name": "punctuation.definition.string.begin.trick" },
+        "5": { "name": "string.quoted.double.include.model.trick" },
+        "6": { "name": "punctuation.definition.string.end.trick" }
+      }
+    },
+    "sdefine-include": {
+      "match": "^(\\s*)(#)(include)\\s+(\")([^\"]+)(\")",
+      "captures": {
+        "2": { "name": "keyword.control.directive.include.trick" },
+        "3": { "name": "keyword.control.directive.include.trick" },
+        "4": { "name": "punctuation.definition.string.begin.trick" },
+        "5": { "name": "string.quoted.double.include.trick" },
+        "6": { "name": "punctuation.definition.string.end.trick" }
+      }
+    },
+    "trick-header-fields": {
+      "match": "^\\s*(PURPOSE|LIBRARY DEPENDENCIES|DEFAULT DATA|ASSUMPTIONS AND LIMITATIONS|PROGRAMMERS|REFERENCE)\\s*:",
+      "name": "keyword.other.header-field.trick"
+    },
+    "job-tag": {
+      "match": "\\{[A-Za-z_][A-Za-z0-9_]*\\}",
+      "name": "entity.name.tag.trick"
+    },
+    "job-thread-spec": {
+      "match": "\\b(C[0-9]+)(?=\\s*(\\{|P[0-9]+|\\())",
+      "name": "storage.modifier.thread.trick"
+    },
+    "job-phase-spec": {
+      "match": "\\b(P[0-9]+)(?=\\s*\\()",
+      "name": "storage.modifier.phase.trick"
+    },
+    "job-class-name": {
+      "match": "\"(default_data|initialization|top_of_frame|pre_integration|derivative|integration|post_integration|dynamic_event|automatic_last|automatic|environment|sensor_emitter|sensor_reflector|sensor_receiver|sensor|scheduled|effector_emitter|effector_receiver|effector|logging|end_of_frame|freeze_init|freeze_scheduled|freeze|unfreeze|checkpoint|post_checkpoint|preload_checkpoint|restart|shutdown|monte_master_init|monte_master_pre|monte_master_post|monte_master_shutdown|monte_slave_pre|monte_slave_post)\"(?=\\s*\\))",
+      "name": "support.constant.job-class.trick"
+    },
+    "trick-keywords": {
+      "match": "\\b(integrate|IntegLoop|collect|job_class_order|create_connections)\\b",
+      "name": "keyword.other.trick"
+    }
+  }
+}

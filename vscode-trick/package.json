@@ -1,0 +1,116 @@
+{
+  "name": "vscode-trick",
+  "displayName": "Trick Simulation Toolkit",
+  "description": "S_define/.sm language support and per-sim IntelliSense include paths for the Trick Simulation Toolkit",
+  "version": "0.1.0",
+  "publisher": "trick-sim",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nasa/trick"
+  },
+  "bugs": {
+    "url": "https://github.com/nasa/trick/issues"
+  },
+  "homepage": "https://github.com/nasa/trick",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onLanguage:trick-sdefine",
+    "workspaceContains:**/S_overrides.mk"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "trick-sdefine",
+        "aliases": [
+          "Trick",
+          "trick-sdefine"
+        ],
+        "filenames": [
+          "S_define"
+        ],
+        "extensions": [
+          ".sm"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "trick-sdefine",
+        "scopeName": "source.trick-sdefine",
+        "path": "./syntaxes/trick-sdefine.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "trick-sdefine",
+        "path": "./snippets/trick-sdefine.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "trick.refreshSimConfiguration",
+        "title": "Trick: Refresh Sim Configuration"
+      },
+      {
+        "command": "trick.showResolvedIncludePaths",
+        "title": "Trick: Show Resolved Include Paths"
+      }
+    ],
+    "configuration": {
+      "title": "Trick",
+      "properties": {
+        "trick.home": {
+          "type": "string",
+          "default": "",
+          "description": "Path to TRICK_HOME. Leave empty to use the TRICK_HOME environment variable or auto-detect from PATH."
+        },
+        "trick.useMakeForFlags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Resolve each sim's TRICK_CFLAGS/TRICK_CXXFLAGS/TRICK_SFLAGS by invoking make against Trick's own makefiles (exact). Disable to use a best-effort regex parse of S_overrides.mk only."
+        },
+        "trick.cppStandard": {
+          "type": "string",
+          "default": "",
+          "enum": [
+            "",
+            "c++11",
+            "c++14",
+            "c++17",
+            "c++20"
+          ],
+          "description": "Override the C++ standard reported to the C/C++ extension. Leave empty to infer from -std= flags (default c++14)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./ && node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "pretest": "npm run compile",
+    "test": "mocha",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
+    "esbuild": "^0.20.0",
+    "mocha": "^10.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "vscode-cpptools": "^6.1.0"
+  }
+}
