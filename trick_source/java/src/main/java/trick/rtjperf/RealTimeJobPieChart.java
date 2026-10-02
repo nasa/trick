@@ -1074,8 +1074,7 @@ public class RealTimeJobPieChart extends JPanel {
                 new Thread(() -> {
                             try {
                                 VariableServerConnection vsConnection = new VariableServerConnection(host, port);
-                                RTJPerfVarServerClient client =
-                                        new RTJPerfVarServerClient(vsConnection, pieChart);
+                                RTJPerfVarServerClient client = new RTJPerfVarServerClient(vsConnection, pieChart);
                                 activeClient[0] = client;
                                 pieChart.reset();
                                 new Thread(client).start();
