@@ -13,13 +13,14 @@
 static void *getFirstInstanceOfType(const std::type_info &type) {
     std::vector<Trick::ExternalApplication *> &externalApplications =
       Trick::get_external_applications();
-    for (std::vector<Trick::ExternalApplication *>::iterator i = externalApplications.begin();
-      i < externalApplications.end(); ++i) {
-        if (typeid(**i) == type) {
-            return (void *)*i;
+    for (Trick::ExternalApplication* app : externalApplications)
+    {
+        if (typeid(*app) == type)
+        {
+            return static_cast<void*>(app);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /*static void printDeprecationMessage(const char *file, int line, const char *function) {
@@ -108,27 +109,27 @@ extern "C" void stripchart_set_enabled(int enabled) {
 
 extern "C" int sim_control_panel_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
-    return getFirstInstanceOfType(typeid(Trick::SimControlPanel)) != NULL;
+    return getFirstInstanceOfType(typeid(Trick::SimControlPanel)) != nullptr;
 }
 
 extern "C" int trick_view_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
-    return getFirstInstanceOfType(typeid(Trick::TrickView)) != NULL;
+    return getFirstInstanceOfType(typeid(Trick::TrickView)) != nullptr;
 }
 
 extern "C" int malfunctions_trick_view_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
-    return getFirstInstanceOfType(typeid(Trick::MalfunctionsTrickView)) != NULL;
+    return getFirstInstanceOfType(typeid(Trick::MalfunctionsTrickView)) != nullptr;
 }
 
 extern "C" int monte_monitor_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
-    return getFirstInstanceOfType(typeid(Trick::MonteMonitor)) != NULL;
+    return getFirstInstanceOfType(typeid(Trick::MonteMonitor)) != nullptr;
 }
 
 extern "C" int stripchart_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
-    return getFirstInstanceOfType(typeid(Trick::StripChart)) != NULL;
+    return getFirstInstanceOfType(typeid(Trick::StripChart)) != nullptr;
 }
 
 extern "C" void sim_control_panel_set_startup_command(const char *startup_command) {

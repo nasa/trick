@@ -96,10 +96,7 @@ namespace Trick {
             pthread_cond_t _connection_status_cv;         /**<  trick_io(**) */
 
             bool _saved_pause_cmd;
-    } ;
-
-    std::ostream& operator<< (std::ostream& s, VariableServerSessionThread& vst);
-
+    };
 }
 
 #endif
