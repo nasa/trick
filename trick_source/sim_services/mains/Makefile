@@ -20,11 +20,3 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 #
 #real_clean: clean
 #
-#depend:
-#	@ $(TRICK_CXX) -MM $(TRICK_CXXFLAGS) master.cpp >> $(DEPTEMPFILE)
-#	@ $(PERL) ${TRICK_HOME}/bin/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
-#	@ $(RM) $(DEPTEMPFILE)
-#	@ echo "Created dependency file $(DEPFILE)"
-#
-#
-#-include Makefile_deps

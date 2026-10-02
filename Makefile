@@ -64,12 +64,6 @@ ifeq ($(USE_ER7_UTILS), 0)
 SIM_SERV_DIRS += ${TRICK_HOME}/trick_source/sim_services/Integrator/trick_algorithms
 endif
 
-#-------------------------------------------------------------------------------
-# Generate the list of dirs to build Makefile_deps for. Skip any include dirs.
-#-------------------------------------------------------------------------------
-TRICK_MAKEFILE_DEPS_DIRS = $(foreach dir,$(SIM_SERV_DIRS),$(if $(findstring include,$(dir)),,$(dir)))
-TRICK_MAKEFILE_DEPS = $(addsuffix /Makefile_deps,$(TRICK_MAKEFILE_DEPS_DIRS))
-
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
 SIM_SERV_OBJS := $(filter-out ${TRICK_HOME}/trick_source/sim_services/MemoryManager/%, $(SIM_SERV_OBJS))
 
@@ -171,7 +165,7 @@ endif
 
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
-no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB) $(TRICK_MAKEFILE_DEPS)
+no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
 	@ echo ; echo "Trick libs compiled:" ; date
 
 # 1.1.1 Build libTrick.a
@@ -225,10 +219,6 @@ $(TRICK_SWIG_LIB): $(SWIG_DIRS) | $(TRICK_LIB_DIR)
 .PHONY: $(SWIG_DIRS)
 $(SWIG_DIRS): icg_sim_serv $(TRICK_LIB_DIR)
 	@ $(MAKE) -C $@ trick
-
-# 1.1.3 Create Makefile_deps for Trick source
-%/Makefile_deps:
-	make -C $(@D) depend
 
 #-------------------------------------------------------------------------------
 # 1.2 Build Trick's Data-products Applications.
@@ -428,11 +418,6 @@ clean_gui: clean_java
 
 spotless: clean clean_test
 	rm -f config.log config.status share/trick/makefiles/config_user.mk
-	@for i in $(TRICK_MAKEFILE_DEPS_DIRS) ; do \
-		cd $$i ; \
-		rm -f Makefile_deps ; \
-		cd - ; \
-	done
 
 apocalypse: spotless
 	@echo "[31mI love the smell of napalm in the morning[0m"

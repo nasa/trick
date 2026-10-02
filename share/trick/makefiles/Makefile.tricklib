@@ -2,11 +2,9 @@
 ifeq ($(wildcard src),src)
 SRC_DIR := src/
 CD_CMD := cd ./src ;
-UP_DIR := ../
 else
 SRC_DIR :=
 CD_CMD :=
-UP_DIR :=
 endif
 
 # This allows directories to override the default TRICK_LIB variable
@@ -14,11 +12,10 @@ ifndef TRICK_LIB
 TRICK_LIB := $(TRICK_LIB_DIR)/libtrick.a
 endif
 
-#
-# Make information
-#
-DEPFILE = $(PWD)/Makefile_deps
-DEPTEMPFILE = $(PWD)/Makefile_temp_depends
+# Track headers during compilation, including Trick headers passed with -isystem.
+# All compilation runs from make's working directory, including src/ sources.
+# Relative compiler flags and generated dependency paths use that same directory.
+TRICK_DEPFLAGS = -MD -MP -MF $(@:.o=.d) -MQ $@
 
 #############################################################################
 ##                        FILE NAME DEFINITIONS                            ##
@@ -71,6 +68,9 @@ endif
 
 default: objects $(TRICK_LIB)
 
+# Do not retain incomplete targets after a failed recipe.
+.DELETE_ON_ERROR:
+
 trick: objects
 
 premade: $(L_C_PREMADE) $(Y_C_PREMADE)
@@ -92,7 +92,7 @@ $(TRICK_LIB_DIR):
 #
 
 $(IO_C_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.c | $(OBJ_DIR)
-	$(TRICK_CC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c $< -o $@
+	$(TRICK_CC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 $(IO_CPP_OBJS): TRICK_SYSTEM_CXXFLAGS += -Wno-invalid-offsetof
 ifeq ($(IS_CC_CLANG), 0)
@@ -100,7 +100,7 @@ ifeq ($(IS_CC_CLANG), 0)
 endif
 
 $(IO_CPP_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.cpp | $(OBJ_DIR)
-	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 #
 #
@@ -108,26 +108,26 @@ $(IO_CPP_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.cpp | $(OBJ_DIR)
 #
 
 $(C_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 #
 # CPP_OBJS
 #
 
 $(CPP_C_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.C | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CXX) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CXX) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 $(CPP_CC_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cc | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 $(CPP_CPP_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cpp | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 $(CPP_CXX_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cxx | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 $(CPP_CPLUS_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c++ | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 #
 # LEX/YACC SOURCE
@@ -148,22 +148,25 @@ $(Y_C_PREMADE) : $(SRC_DIR)%.tab.c_premade : $(SRC_DIR)%.y
 	$(YACC) -d -o $@ $<
 
 $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.cpp  | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
+
+# Load dependencies after the default target has been defined. Rebuild objects
+# lacking a .d file (including objects built before dependency tracking existed).
+TRICK_DEPFILES = $(OBJECT_FILES:.o=.d)
+-include $(wildcard $(TRICK_DEPFILES))
+
+.PHONY: trick_missing_dependencies
+trick_missing_dependencies:
+
+$(patsubst %.d,%.o,$(filter-out $(wildcard $(TRICK_DEPFILES)),$(TRICK_DEPFILES))): trick_missing_dependencies
 
 #
 # OTHER RULES
 #
-
-depend: TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
-depend:
-	@ $(TRICK_CXX) -MM $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(C_SRC) $(CPP_SRC) >> $(DEPTEMPFILE)
-	@ $(PERL) ${TRICK_HOME}/$(LIBEXEC)/trick/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
-	@ $(RM) $(DEPTEMPFILE)
-	@ echo "Created dependency file $(DEPFILE)"
 
 io_clean: 
 	$(RM) -rf io_src
@@ -179,8 +182,6 @@ help :
 	@ echo -e "\n\
 Source Directory Make Options:\n\
     make               - Compiles are source files\n\
-\n\
-    make depend        - Adds file dependencies to Makefile\n\
 \n\
     make io_clean      - Deletes the local io_src directory\n\
 \n\
