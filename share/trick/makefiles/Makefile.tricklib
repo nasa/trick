@@ -139,13 +139,29 @@ $(L_C) : $(SRC_DIR)%.lex.c : $(SRC_DIR)%.l
 $(L_C_PREMADE) : $(SRC_DIR)%.lex.c_premade : $(SRC_DIR)%.l
 	$(LEX) -o $@ $<
 
+# Our .y files still use the old %pure-parser directive so that they keep
+# working with old bison (e.g. the /usr/bin/bison 2.3 that macOS ships).
+# %pure-parser was deprecated in favor of %define api.pure back in bison
+# 2.3b (2008), but bison only started warning about it in 3.4 (2019);
+# %define api.pure itself isn't understood by old bison. Silence the
+# deprecated-directive warning via -Wno-deprecated, but only when the
+# local bison actually understands that flag -- older bison (pre-3.x)
+# doesn't have the deprecation-warning feature at all and errors out on
+# -Wno-deprecated as an unrecognized option.
+YACC_SUPPORTS_WNO := $(shell $(YACC) -Wno-deprecated --version >/dev/null 2>&1 && echo -Wno-deprecated)
+
+# Per-.y-file flags (e.g. -p PREFIX in place of a %name-prefix directive).
+# Individual project Makefiles set this with a target-specific assignment,
+# e.g. `foo.tab.cpp : YACC_FLAGS += -p FOO_`.
+YACC_FLAGS =
+
 $(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
 
 $(Y_C) : $(SRC_DIR)%.tab.cpp : $(SRC_DIR)%.y
-	$(YACC) -d -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} ; ln -s ${@F:.c=.h}_premade ${@F:.c=.h}) 
+	$(YACC) $(YACC_SUPPORTS_WNO) $(YACC_FLAGS) -d -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} ; ln -s ${@F:.c=.h}_premade ${@F:.c=.h})
 
 $(Y_C_PREMADE) : $(SRC_DIR)%.tab.c_premade : $(SRC_DIR)%.y
-	$(YACC) -d -o $@ $<
+	$(YACC) $(YACC_SUPPORTS_WNO) $(YACC_FLAGS) -d -o $@ $<
 
 $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
