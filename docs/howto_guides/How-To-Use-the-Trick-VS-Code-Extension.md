@@ -33,6 +33,10 @@ The `vscode-trick` extension, included in Trick's source tree under
 * IntelliSense for model `.c`/`.cpp`/`.h` files (via the Microsoft C/C++ extension),
   using each sim's actual `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/`TRICK_SFLAGS` instead of
   guessing, so Go to Definition/Implementation works across header/source pairs.
+* Python support for `input.py`/`.dr` files: `.dr` files recognized as Python,
+  snippets for common `trick.*` call patterns, and a generated `trick.*` stub (via
+  the Microsoft Python extension/Pylance) for completions, hover, and to stop
+  flagging `trick`/sim objects as undefined.
 
 It is not currently published to the VS Code Marketplace, so it's installed from a
 locally-built `.vsix` package.
@@ -48,8 +52,12 @@ One should:
   extension package.
 * Install the
   [C/C++ extension (`ms-vscode.cpptools`)](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
-  in VS Code to get the IntelliSense integration. Syntax highlighting, snippets, and
-  include navigation work without it.
+  in VS Code to get the C/C++ IntelliSense integration. Syntax highlighting, snippets,
+  and include navigation work without it.
+* Install the
+  [Python extension (`ms-python.python`)](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+  (with Pylance) to get `trick.*` completions and hover in `input.py`/`.dr` files.
+  Full `trick.*` coverage requires a built Trick.
 
 ---
 

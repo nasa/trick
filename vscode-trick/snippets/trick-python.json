@@ -1,0 +1,89 @@
+{
+  "Trick real-time trio": {
+    "prefix": "trick-realtime",
+    "body": [
+      "trick.real_time_enable()",
+      "trick.exec_set_software_frame(${1:0.1})",
+      "trick.itimer_enable()"
+    ],
+    "description": "Standard real-time (wall-clock-paced) execution setup"
+  },
+
+  "Trick variable server setup": {
+    "prefix": "trick-varserver",
+    "body": [
+      "trick.var_allow_connections()",
+      "trick.var_resolve_hostname()"
+    ],
+    "description": "Allow Trick View / external variable-server clients to connect"
+  },
+
+  "Trick terminate time": {
+    "prefix": "trick-terminate",
+    "body": "trick.exec_set_terminate_time(${1:20.0})",
+    "description": "Stop the sim at the given simulation time, in seconds"
+  },
+
+  "Trick add_read event": {
+    "prefix": "trick-add_read",
+    "body": [
+      "trick.add_read(${1:0.0}, \"\"\"",
+      "$0",
+      "\"\"\")"
+    ],
+    "description": "Run a Python snippet once, at a given simulation time"
+  },
+
+  "Trick data record group (DRAscii)": {
+    "prefix": "trick-drgroup",
+    "body": [
+      "global DR_GROUP_ID",
+      "global drg",
+      "try:",
+      "    if DR_GROUP_ID >= 0:",
+      "        DR_GROUP_ID += 1",
+      "except NameError:",
+      "    DR_GROUP_ID = 0",
+      "    drg = []",
+      "",
+      "drg.append(trick.${1|DRAscii,DRBinary|}(\"${2:GroupName}\"))",
+      "drg[DR_GROUP_ID].set_freq(trick.${3:DR_Always})",
+      "drg[DR_GROUP_ID].set_cycle(${4:0.01})",
+      "drg[DR_GROUP_ID].set_single_prec_only(False)",
+      "drg[DR_GROUP_ID].add_variable(\"${5:sim_object.variable}\")",
+      "trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)",
+      "drg[DR_GROUP_ID].enable()"
+    ],
+    "description": "Full DR_GROUP_ID/drg data record group pattern (as used in Modified_data/*.dr)"
+  },
+
+  "Trick exec .dr file": {
+    "prefix": "trick-exec-dr",
+    "body": "exec(open(\"Modified_data/${1:Group}.dr\").read())",
+    "description": "Pull in a data record group definition from Modified_data/"
+  },
+
+  "Trick Sim Control Panel": {
+    "prefix": "trick-simcontrol",
+    "body": [
+      "simControlPanel = trick.SimControlPanel()",
+      "trick.add_external_application(simControlPanel)"
+    ],
+    "description": "Launch the Simulation Control GUI"
+  },
+
+  "Trick View": {
+    "prefix": "trick-trickview",
+    "body": [
+      "trickView = trick.TrickView()",
+      "trick.add_external_application(trickView)"
+    ],
+    "description": "Launch the Trick View live variable-watch GUI"
+  },
+
+  "Trick integrator selection": {
+    "prefix": "trick-integrator",
+    "body": "${1:dyn}.getIntegrator(trick.${2|Runge_Kutta_4,Euler,Euler_Cromer,Runge_Kutta_2,Runge_Kutta_4_Last_Step_Derivative_Reset|}, ${3:state_size})",
+    "description": "Select an integration algorithm for a sim object's IntegLoop"
+  }
+}

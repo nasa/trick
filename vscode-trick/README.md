@@ -22,12 +22,25 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   for the Microsoft C/C++ extension, so each sim's own include paths are used instead
   of guessing — no more false "cannot open source file" squiggles, and Go to
   Definition/Implementation works across header/source pairs.
+- **Python support for `input.py`/`.dr` files**: `.dr` files (plain Python, pulled in
+  via `exec(open(...).read())`) are recognized as Python; snippets for common
+  `trick.*` call patterns (real-time setup, data record groups, `add_read`, Sim
+  Control Panel/Trick View, ...); and a generated `trick.*` stub (scraped from a
+  built Trick's `sim_services.py`/`shortcuts.py`, curated for the most common calls)
+  plus a generated `__builtins__.pyi` declaring `trick` and each sim's object names,
+  so the Python extension's IntelliSense (Pylance) offers completions/hover for
+  `trick.*` and stops flagging `trick`/sim objects as undefined.
 
 ## Requirements
 
 - [C/C++ extension (`ms-vscode.cpptools`)](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
-  for the IntelliSense integration. Syntax highlighting, snippets, and include
+  for the C/C++ IntelliSense integration. Syntax highlighting, snippets, and include
   navigation work without it.
+- [Python extension (`ms-python.python`)](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+  with Pylance for `trick.*` completions/hover in `input.py`/`.dr` files. `.dr` file
+  association and snippets work without it. Full `trick.*` coverage (beyond the ~25
+  curated calls) requires a built Trick, since the stub is scraped from
+  `share/trick/swig/sim_services.py`.
 - `TRICK_HOME` discoverable one of these ways (checked in order):
   1. the `trick.home` setting
   2. the `TRICK_HOME` environment variable VS Code was launched with
@@ -42,6 +55,7 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
 | `trick.home` | `""` | Explicit path to `TRICK_HOME`. Leave empty to auto-detect. |
 | `trick.useMakeForFlags` | `true` | Resolve flags by invoking `make` against Trick's own makefiles (exact). Disable for a best-effort regex parse of `S_overrides.mk` only. |
 | `trick.cppStandard` | `""` | Override the C++ standard reported to the C/C++ extension. Leave empty to infer from `-std=` flags. |
+| `trick.python.generateStubs` | `true` | Generate a `trick.*` stub and `__builtins__.pyi` per workspace folder for Pylance. Disable if you don't want files written into the workspace. |
 
 ## Commands
 
@@ -51,6 +65,9 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
 - **Trick: Show Resolved Include Paths** — opens a JSON view of the include paths,
   defines, and standard resolved for the sim containing the active file, and whether
   they came from `make` or the regex fallback.
+- **Trick: Regenerate Python Stubs** — re-scrapes `trick.*` and sim object names and
+  rewrites the generated stub files (use after building Trick for the first time, or
+  after adding a new sim object, if it isn't picked up automatically).
 
 ## Installing
 

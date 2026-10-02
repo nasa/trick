@@ -3,6 +3,7 @@ import { SimConfigProvider } from './simConfig';
 import { TrickCppConfigurationProvider } from './cpptoolsProvider';
 import { TrickIncludeLinkProvider, TrickIncludeDiagnostics } from './sdefineLinks';
 import { TrickSdefineDefinitionProvider } from './sdefineDefinitions';
+import { PythonStubManager } from './pythonStubs';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const output = vscode.window.createOutputChannel('Trick');
@@ -23,6 +24,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     cppProvider.notifyBrowseConfigurationChanged();
     output.appendLine(`Warmed ${simConfigs.getAllCached().length} sim configuration(s) for IntelliSense browsing.`);
   });
+
+  const pythonStubs = new PythonStubManager(simConfigs, output);
+  context.subscriptions.push(pythonStubs);
+  void pythonStubs.refreshAll();
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('trick.regeneratePythonStubs', () => {
+      void pythonStubs.refreshAll().then(() => {
+        output.appendLine('Regenerated Python stubs for trick.* and sim object builtins.');
+        output.show(true);
+      });
+    })
+  );
 
   const linkProvider = new TrickIncludeLinkProvider(simConfigs);
   context.subscriptions.push(

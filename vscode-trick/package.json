@@ -22,7 +22,8 @@
   ],
   "activationEvents": [
     "onLanguage:trick-sdefine",
-    "workspaceContains:**/S_overrides.mk"
+    "workspaceContains:**/S_overrides.mk",
+    "workspaceContains:**/S_define"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -40,6 +41,12 @@
           ".sm"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "python",
+        "extensions": [
+          ".dr"
+        ]
       }
     ],
     "grammars": [
@@ -53,6 +60,10 @@
       {
         "language": "trick-sdefine",
         "path": "./snippets/trick-sdefine.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/trick-python.json"
       }
     ],
     "commands": [
@@ -63,6 +74,10 @@
       {
         "command": "trick.showResolvedIncludePaths",
         "title": "Trick: Show Resolved Include Paths"
+      },
+      {
+        "command": "trick.regeneratePythonStubs",
+        "title": "Trick: Regenerate Python Stubs"
       }
     ],
     "configuration": {
@@ -89,6 +104,11 @@
             "c++20"
           ],
           "description": "Override the C++ standard reported to the C/C++ extension. Leave empty to infer from -std= flags (default c++14)."
+        },
+        "trick.python.generateStubs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate a trick.* Python stub and __builtins__.pyi per workspace folder (for Pylance completions/hover and to stop flagging trick/sim objects as undefined in input.py and .dr files). Writes into .vscode/trick-python/ and __builtins__.pyi, excluded from git via .git/info/exclude."
         }
       }
     }
