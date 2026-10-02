@@ -39,7 +39,8 @@ Trick::MonteVarRandom::MonteVarRandom(std::string in_name, Distribution in_distr
         // note: in practice, these will have to be changed by calling set_mu, etc,
         // in the input file after construction.
 
-        switch (distribution) {
+        switch (distribution)
+        {
         case GAUSSIAN:
             stlGenPtr = StlRandomGeneratorFactory::newGenerator(randist.mu, randist.sigma,
                         seed, stlDist, stlEngine);
@@ -221,8 +222,8 @@ void
 Trick::MonteVarRandom::updateStlRandom() {
 
     if (stlGenPtr) {
-
-        switch (distribution) {
+        switch (distribution)
+        {
         case GAUSSIAN:
             stlGenPtr->set_param(randist.mu, randist.sigma);
             break;
