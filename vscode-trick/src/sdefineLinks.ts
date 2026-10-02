@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { SimConfig, SimConfigProvider } from './simConfig';
 
-const INCLUDE_RE = /^(\s*)(##?)include\s+"([^"]+)"/;
+export const INCLUDE_RE = /^(\s*)(##?)include\s+"([^"]+)"/;
 
 interface ParsedInclude {
   line: number;

@@ -15,6 +15,9 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   resolved against the owning sim's `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/`TRICK_SFLAGS`
   (from that sim's `S_overrides.mk`) as well as Trick's own system include paths.
 - **Unresolved-include diagnostics** when a target can't be found in any of the above.
+- **Ctrl+click / Go to Definition** on sim object types and job target methods in
+  `S_define`/`.sm` files (e.g. `IHM::SimObject ihm;` or `ihm.update()`), resolved via
+  the C/C++ extension's own workspace symbol index.
 - **IntelliSense for model `.c`/`.cpp`/`.h` files** via a Custom Configuration Provider
   for the Microsoft C/C++ extension, so each sim's own include paths are used instead
   of guessing — no more false "cannot open source file" squiggles, and Go to

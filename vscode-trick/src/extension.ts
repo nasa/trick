@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { SimConfigProvider } from './simConfig';
 import { TrickCppConfigurationProvider } from './cpptoolsProvider';
 import { TrickIncludeLinkProvider, TrickIncludeDiagnostics } from './sdefineLinks';
+import { TrickSdefineDefinitionProvider } from './sdefineDefinitions';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const output = vscode.window.createOutputChannel('Trick');
@@ -26,6 +27,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const linkProvider = new TrickIncludeLinkProvider(simConfigs);
   context.subscriptions.push(
     vscode.languages.registerDocumentLinkProvider({ language: 'trick-sdefine' }, linkProvider)
+  );
+
+  context.subscriptions.push(
+    vscode.languages.registerDefinitionProvider(
+      { language: 'trick-sdefine' },
+      new TrickSdefineDefinitionProvider()
+    )
   );
 
   const diagnostics = new TrickIncludeDiagnostics(simConfigs);
