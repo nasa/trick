@@ -1,0 +1,99 @@
+# libtrick_math: vector, matrix, quaternion, and random number routines.
+trick_add_library(trick_math STATIC
+    EXPORT_NAME math
+    SOURCES
+        src/deuler_123.c
+        src/deuler_123_quat.c
+        src/deuler_132.c
+        src/deuler_132_quat.c
+        src/deuler_213.c
+        src/deuler_213_quat.c
+        src/deuler_231.c
+        src/deuler_231_quat.c
+        src/deuler_312.c
+        src/deuler_312_quat.c
+        src/deuler_321.c
+        src/deuler_321_quat.c
+        src/dLDLt_solver.c
+        src/dLU_Choleski.c
+        src/dLU_solver.c
+        src/dm_add.c
+        src/dm_copy.c
+        src/dm_ident.c
+        src/dm_init.c
+        src/dm_invert.c
+        src/dm_invert_symm.c
+        src/dm_orthonormal.c
+        src/dm_print.c
+        src/dm_scale.c
+        src/dm_sub.c
+        src/dm_trans.c
+        src/dmtxm.c
+        src/dmtxmt.c
+        src/dmtxv.c
+        src/dmxm.c
+        src/dmxmt.c
+        src/dmxv.c
+        src/drandom_gaussian.c
+        src/dS_function.c
+        src/dsingle_axis_rot.c
+        src/dv_add.c
+        src/dv_copy.c
+        src/dv_cross.c
+        src/dv_dot.c
+        src/dv_init.c
+        src/dv_mag.c
+        src/dv_norm.c
+        src/dv_print.c
+        src/dv_scale.c
+        src/dv_skew.c
+        src/dv_store.c
+        src/dv_sub.c
+        src/dvxm.c
+        src/dvxv_add.c
+        src/dvxv_sub.c
+        src/eigen_hh_red.c
+        src/eigen_jacobi.c
+        src/eigen_jacobi_4.c
+        src/eigen_ql.c
+        src/euler_matrix.c
+        src/euler_quat.c
+        src/gauss_rnd_bell.c
+        src/gauss_rnd_pseudo.c
+        src/LU_bksb.c
+        src/LU_dcmp.c
+        src/LUD_inv.c
+        src/LUT_inv.c
+        src/mat_copy.c
+        src/mat_permute.c
+        src/mat_print.c
+        src/mat_to_quat.c
+        src/mat_trans.c
+        src/matxmat.c
+        src/matxtrans.c
+        src/matxvec.c
+        src/quat_mult.c
+        src/quat_norm.c
+        src/quat_norm_integ.c
+        src/quat_to_mat.c
+        src/rand_num.c
+        src/RodriguesRotation.c
+        src/roundoff.c
+        src/tm_print_error.c
+        src/transxmat.c
+        src/transxtrans.c
+        src/transxvec.c
+        src/trick_gsl_rand.c
+        src/trns_fnct_1o.c
+        src/trns_fnct_2o.c
+        src/uniform_rnd_1.c
+        src/uniform_rnd_triple.c
+        src/vec_print.c
+        src/wave_form.c
+)
+
+target_link_libraries(trick_math PRIVATE m)
+if(TRICK_ENABLE_GSL)
+    target_link_libraries(trick_math PUBLIC GSL::gsl)
+endif()
+# Also calls message_publish() from libtrick; that link is added with libtrick.

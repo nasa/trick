@@ -5,6 +5,8 @@
 #
 # Usage:
 #   tools/build-parity.sh capture <trick_install_dir> <out_dir>
+#   tools/build-parity.sh archives <build_dir> <out_dir>
+#   tools/build-parity.sh check-cmake <make_lib_dir> <cmake_build_dir> <out_dir>
 #   tools/build-parity.sh sim-test <trick_source_dir> <out_dir>
 #   tools/build-parity.sh compare <baseline_dir> <candidate_dir>
 #
@@ -16,6 +18,17 @@
 #             config_user.mk      the installed configuration file, verbatim
 #           Absolute occurrences of the install dir are rewritten to
 #           ${TRICK_HOME} so captures from different prefixes compare equal.
+#
+# archives  Records symbols/<lib>.txt, as capture does, for every lib*.a found
+#           under a build directory. Use it to check libraries before an
+#           install tree exists; compare its output with a capture's symbols/.
+#
+# check-cmake
+#           Compares the archives the CMake build produces so far
+#           (CMAKE_ARCHIVES below) with the same archives from a Make build in
+#           the same tree. Both builds must use the same compiler and no
+#           optimization; configure CMake with the parity preset. Exits
+#           non-zero on any difference. Used by CI during the migration.
 #
 # sim-test  Runs trickops against test_sims.yml. Records one line per job in
 #           sim-results.txt and make's exit status in sim-test-status.txt, so
@@ -41,11 +54,37 @@ MAKE_VARS=(
     SHARED_LIB_OPT RPATH PLATFORM_LIBS
 )
 
+# Archives the CMake build produces so far. Add each archive as the migration
+# builds it.
+CMAKE_ARCHIVES=(
+    liber7_utils
+    libtrick_comm
+    libtrick_connection_handlers
+    libtrick_math
+    libtrick_optimization
+    libtrick_units
+    libtrick_var_binary_parser
+)
+# Archive members the CMake build does not produce yet: ICG's generated io_*
+# code. Remove once the CMake build runs ICG.
+CMAKE_EXCLUDE_MEMBERS='^io_'
+
 # Defined external symbols of one archive. Member names are omitted on
-# purpose: object file names differ between build systems.
+# purpose: object file names differ between build systems. If
+# PARITY_EXCLUDE_MEMBERS is set, symbols from members whose name matches that
+# regular expression are left out.
 archive_symbols() {
     nm -g -P "$1" 2>/dev/null \
-        | awk 'NF >= 2 && $2 != "U" && $2 != "w" && $2 != "v" { print $2, $1 }' \
+        | awk -v exclude="${PARITY_EXCLUDE_MEMBERS:-}" '
+            # Member headers: "lib.a[member.o]:" or "member.o:".
+            NF == 1 && /:$/ {
+                member = $1
+                sub(/^.*\[/, "", member)
+                sub(/\]?:$/, "", member)
+                skip = (exclude != "" && member ~ exclude)
+                next
+            }
+            !skip && NF >= 2 && $2 != "U" && $2 != "w" && $2 != "v" { print $2, $1 }' \
         | LC_ALL=C sort -u
 }
 
@@ -101,6 +140,37 @@ capture() {
     echo "build-parity: captured $home -> $out"
 }
 
+archives() {
+    local dir=$1 out=$2 lib
+    [[ -d $dir ]] || die "$dir is not a directory"
+    rm -rf "$out/symbols"
+    mkdir -p "$out/symbols"
+    while IFS= read -r lib; do
+        archive_symbols "$lib" > "$out/symbols/$(basename "$lib" .a).txt"
+    done < <(find "$dir" -name 'lib*.a' | LC_ALL=C sort)
+    echo "build-parity: recorded $(find "$out/symbols" -type f | wc -l | tr -d ' ') archives from $dir -> $out/symbols"
+}
+
+check_cmake() {
+    local make_dir=$1 cmake_dir=$2 out=$3 name side dir lib rc=0
+    rm -rf "$out"
+    for name in "${CMAKE_ARCHIVES[@]}"; do
+        for side in make cmake; do
+            if [[ $side == make ]]; then dir=$make_dir; else dir=$cmake_dir; fi
+            lib=$(find "$dir" -name "$name.a" | head -n 1)
+            if [[ -z $lib ]]; then
+                echo "build-parity: $name.a not found under $dir"
+                rc=1
+                continue
+            fi
+            mkdir -p "$out/$side"
+            PARITY_EXCLUDE_MEMBERS=$CMAKE_EXCLUDE_MEMBERS archive_symbols "$lib" > "$out/$side/$name.txt"
+        done
+    done
+    compare "$out/make" "$out/cmake" || rc=1
+    return $rc
+}
+
 sim_test() {
     local src out
     src=$(cd "$1" && pwd -P)
@@ -138,9 +208,14 @@ compare() {
     return $rc
 }
 
-[[ $# -eq 3 ]] || die "usage: $0 {capture|sim-test|compare} <dir> <dir>"
+case $1 in
+    check-cmake) [[ $# -eq 4 ]] || die "usage: $0 check-cmake <make_lib_dir> <cmake_build_dir> <out_dir>" ;;
+    *)           [[ $# -eq 3 ]] || die "usage: $0 {capture|archives|sim-test|compare} <dir> <dir>" ;;
+esac
 case $1 in
     capture)  capture "$2" "$3" ;;
+    archives) archives "$2" "$3" ;;
+    check-cmake) check_cmake "$2" "$3" "$4" ;;
     sim-test) sim_test "$2" "$3" ;;
     compare)  compare "$2" "$3" ;;
     *)        die "unknown command: $1" ;;

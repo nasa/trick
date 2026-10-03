@@ -78,6 +78,26 @@ different prefixes can be compared directly. Captures contain host-specific
 paths such as compiler and dependency locations, so they are not committed.
 Regenerate them on each platform you compare.
 
+Until the CMake build installs, compare its libraries with the Make build's
+in the same checkout:
+
+```bash
+./configure && make
+cmake --workflow --preset parity
+tools/build-parity.sh check-cmake lib out/build/parity out/parity-check
+```
+
+`check-cmake` compares the archives the CMake build produces so far, which are
+listed in `CMAKE_ARCHIVES` in the script. Add each archive there as it is
+migrated. It leaves out the Make build's ICG-generated `io_*` members until the
+CMake build runs ICG.
+
+CI runs this check on every Linux and macOS job.
+
+The `parity` preset leaves the build type empty. The Make build passes no
+optimization or debug flags, and an optimized build inlines functions whose
+symbols the Make build's archives contain, so it cannot be compared.
+
 ### Baselines recorded
 
 Baselines were first captured from `master` at `d1ea8cac`:
@@ -114,15 +134,16 @@ they show up as expected differences in `compare`:
 
 ## Configuring with CMake
 
-The CMake build currently configures only: it finds dependencies and reports
-what it found, but builds nothing yet. Presets in `CMakePresets.json` set the
-build and install directories under `out/`:
+The CMake build is incomplete. It builds the libraries listed under
+[Library layout](#library-layout) but does not install anything yet. Presets in
+`CMakePresets.json` set the build and install directories under `out/`:
 
 | Preset | Build type | Tests | Use |
 |---|---|---|---|
 | `dev` | Debug | on | Working on Trick |
 | `release` | Release | off | Installing Trick |
-| `ci` | RelWithDebInfo | on | Continuous integration |
+| `ci` | RelWithDebInfo | on | Continuous integration, after the migration |
+| `parity` | none | on | Comparing with the Make build during the migration |
 
 ```bash
 cmake --workflow --preset dev          # configure, build, and test
@@ -161,6 +182,46 @@ Like `./configure`, the CMake build uses the `python3` (or `python`) on `PATH`
 before any newer versioned interpreter. It also searches Homebrew's keg-only
 LLVM after the default locations.
 
+## Library layout
+
+`cmake/TrickLibraries.cmake` defines two targets every library links:
+
+- `trick_headers` (`Trick::headers`): the include paths `include/` and
+  `include/trick/compat`, C++17, and the definitions Trick's headers test:
+  `TRICK_VER`, `TRICK_MINOR`, `USE_ER7_UTILS_INTEGRATORS`, `_HAVE_GSL`, and
+  `USE_CIVETWEB`. With er7_utils enabled, it also adds `trick_source`, where
+  the `er7_utils/...` headers that Trick's integrator headers include are
+  found. Simulations receive the same set through `TRICK_SYSTEM_CXXFLAGS`.
+- `trick_build_options`: settings used only to compile Trick itself, currently
+  `-fexceptions` for C. It is never exported.
+
+`trick_add_library()` creates a library linked to both. Each archive
+simulations link is a `STATIC` library with the same name, and has a
+`Trick::` alias for use by other targets and, later, other projects:
+
+| Target | Archive | Alias |
+|---|---|---|
+| `trick_comm` | `libtrick_comm.a` | `Trick::comm` |
+| `trick_connection_handlers` | `libtrick_connection_handlers.a` | `Trick::connection_handlers` |
+| `trick_math` | `libtrick_math.a` | `Trick::math` |
+| `trick_optimization` | `libtrick_optimization.a` | `Trick::optimization` |
+| `trick_units` | `libtrick_units.a` | `Trick::units` |
+| `trick_var_binary_parser` | `libtrick_var_binary_parser.a` | `Trick::var_binary_parser` |
+| `er7_utils` | `liber7_utils.a` | `Trick::er7_utils` |
+
+Directories whose code the Make build puts into `libtrick.a`
+(`compareFloatingPoint`, `interpolator`, `shm`, `trick_adt`, `unicode`) are
+`OBJECT` libraries. `libtrick` includes them when it is added.
+
+Some dependencies point from these libraries back into libraries that don't
+exist yet. They are added along with those libraries:
+
+- `libtrick_math` calls `message_publish()` in `libtrick`.
+- er7_utils' adapter (`trick/integration`) derives from `Trick::Integrator` and
+  uses the memory manager.
+- ICG generates code for er7_utils headers into er7_utils' own directories. It
+  is compiled into `liber7_utils.a` along with ICG's other output.
+
 ## Existing bugs found during the migration
 
 These predate the migration. The CMake build reproduces them, so parity checks
@@ -168,6 +229,8 @@ still pass, and each should be fixed separately.
 
 - `test/SIM_rti RUN_test` fails its `char bitfield` checks on aarch64 Linux,
   where plain `char` is unsigned.
+- `MulticastGroup.cpp` has a non-void function that does not return a value
+  (`-Wreturn-type`).
 
 ## Phases
 
@@ -179,6 +242,9 @@ still pass, and each should be fixed separately.
 4. ICG code generation, parsers, `libtrick`, and `libtrick_mm`.
 5. SWIG and `libtrick_pyip`.
 6. The install tree, `config_user.mk`, and an exported CMake package.
-7. Data products, Java, CivetWeb, and documentation.
+7. Data products, Java, CivetWeb, and documentation. The Make build compiles
+   data products without `-std`, so they use the compiler's default C++
+   dialect (gnu++14 with GCC 8.5, gnu++17 with GCC 11 and later). Match it for
+   parity, or decide to move them to C++17.
 8. Unit tests and sim tests through CTest.
 9. Switch CI and packaging to CMake, then remove the autotools build.
