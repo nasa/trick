@@ -85,6 +85,7 @@ in the same checkout:
 ./configure && make
 cmake --workflow --preset parity
 tools/build-parity.sh check-cmake lib out/build/parity out/parity-check
+tools/build-parity.sh check-icg bin/trick-ICG out/build/parity out/icg-check
 ```
 
 `check-cmake` compares the archives the CMake build produces so far, which are
@@ -92,7 +93,16 @@ listed in `CMAKE_ARCHIVES` in the script. Add each archive there as it is
 migrated. It leaves out the Make build's ICG-generated `io_*` members until the
 CMake build runs ICG.
 
-CI runs this check on every Linux and macOS job.
+`check-icg` runs both builds' `trick-ICG` on `include/trick/files_to_ICG.hh`
+with the flags the Make build uses, and compares everything they generate: the
+`io_*.cpp` files, the class and enum maps, and the XML class resource. `-o`
+redirects only the `io_*.cpp` files. ICG still writes its maps into
+`trick_source/sim_services/include/io_src` and appends to
+`share/trick/xml/sim_services_classes.resource`, so `check-icg` starts each run
+from the same state, collects what it wrote, and restores the originals. It
+fails if anything else in the tree changed.
+
+CI runs both checks on every Linux and macOS job.
 
 The `parity` preset leaves the build type empty. The Make build passes no
 optimization or debug flags, and an optimized build inlines functions whose
@@ -222,6 +232,31 @@ exist yet. They are added along with those libraries:
 - ICG generates code for er7_utils headers into er7_utils' own directories. It
   is compiled into `liber7_utils.a` along with ICG's other output.
 
+## trick-ICG
+
+`trick_source/codegen/Interface_Code_Gen/CMakeLists.txt` builds `trick-ICG`.
+The values the makefile passes as `-D` flags come from CMake's LLVM package:
+
+| Definition | Value |
+|---|---|
+| `LIBCLANG_MAJOR`, `LIBCLANG_MINOR`, `LIBCLANG_PATCHLEVEL` | `LLVM_VERSION_MAJOR`, `_MINOR`, `_PATCH` |
+| `LLVM_HOME` | `LLVM_INSTALL_PREFIX` |
+| `TRICK_VERSION` | the full version from `trick_ver.txt` |
+| `TRICK_GCC_VERSION` | on Linux, what a GNU-compatible C compiler reports for `-dumpfullversion -dumpversion`, as `configure` records it |
+
+ICG links Clang's `clangFrontend`, `clangParse`, `clangSema`, `clangLex`,
+`clangAST`, and `clangBasic` targets. Clang's CMake package records the
+dependencies among them, so the link order problems that `configure` works
+around do not arise. If a distribution installs only the combined library, ICG
+links `clang-cpp` instead.
+
+ICG also calls LLVM directly, so it links LLVM itself: the `LLVM` shared
+library where LLVM is built as one (`LLVM_LINK_LLVM_DYLIB`), otherwise the
+`Support` and, from LLVM 16, `TargetParser` components. Relying on Clang's
+targets to bring LLVM in fails on Enterprise Linux: LLVM reaches the link only
+as a dependency of a shared library, and GNU ld will not use it to resolve
+ICG's own references.
+
 ## Existing bugs found during the migration
 
 These predate the migration. The CMake build reproduces them, so parity checks
@@ -231,6 +266,16 @@ still pass, and each should be fixed separately.
   where plain `char` is unsigned.
 - `MulticastGroup.cpp` has a non-void function that does not return a value
   (`-Wreturn-type`).
+- On Linux, ICG looks for Clang's builtin headers in
+  `<LLVM_HOME>/lib/clang/<major>.<minor>.<patch>/include`. LLVM 16 and later
+  install them in `lib/clang/<major>/include`, so ICG silently skips the
+  directory.
+- Without `EXTERNAL_BUILD`, ICG writes enum entries for the XML class resource
+  to `share/trick/xml/include/sim_services_classes.resource`, a directory that
+  does not exist, so they are dropped. Classes go to
+  `share/trick/xml/sim_services_classes.resource`.
+- ICG appends to `sim_services_classes.resource` and nothing truncates it, so
+  any run that regenerates Trick's `io_src` adds a second copy of every class.
 
 ## Phases
 
