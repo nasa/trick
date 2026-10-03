@@ -1,7 +1,6 @@
-
-//========================================
+// ========================================
 //  Package
-//========================================
+// ========================================
 package trick.dataproducts.trickqp.utils;
 
 import java.awt.BasicStroke;
@@ -11,14 +10,12 @@ import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-
 import org.jfree.util.ShapeUtilities;
-
 import trick.common.ui.UIUtils;
 
-//========================================
+// ========================================
 //  Imports
-//========================================
+// ========================================
 
 /**
  * Defines var data for Trick QP GUI.
@@ -29,258 +26,281 @@ import trick.common.ui.UIUtils;
  */
 public class ProductVar {
 
-    //========================================
+    // ========================================
     //  Public data
-    //========================================
-	public static enum LineStyle {	
-		PLAIN("Plain") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f);
-			}
-		},
-		DASH("Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {3.0f, 6.0f}, 0.0f);
-			}			
-		},
-		NO_LINE("No_Line") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(0.0f);
-			}
-		},
-		X_THICK_LINE("X_Thick_Line") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(5.0f);
-			}
-		},
-		FINE_DASH("Fine_Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {2.0f, 2.0f}, 0.0f);
-			}
-		},
-		MED_FINE_DASH("Med_Fine_Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {2.0f, 5.0f}, 0.0f);
-			}
-		},
-		LONG_DASH("Long_Dash") {
-			@Override
-			public Stroke getStroke() {				
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {5.0f, 5.0f}, 0.0f);
-			}
-		},
-		X_LONG_DASH("X_Ling_Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {10.0f, 5.0f}, 0.0f);
-			}
-		},
-		DOT_DASH("Dot_Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {10.0f, 5.0f, 1.0f, 5.0f}, 0.0f);
-			}
-		},
-		TWO_DOT_DASH("2_Dot_Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {10.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f}, 0.0f);
-			}
-		},
-		THREE_DOT_DASH("3_Dot_Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {10.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f}, 0.0f);
-			}
-		},
-		FOUR_DOT_DASH("4_Dot_Dash") {
-			@Override
-			public Stroke getStroke() {
-				return new BasicStroke(1.0f,
-		                BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f,
-		                new float[] {10.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f}, 0.0f);
-			}
-		};
-		
-		private final String styleText;
-		private LineStyle(String s) {
-			styleText = s;
-		}
-		
-		public abstract Stroke getStroke();
-		@Override
-		public String toString() {
-			return styleText;
-		}
-	}
-	
-	public static enum SymbolSize {
-		SYMBOL_TINY("Tiny") {
-			@Override
-			public double getDouble() {
-				return 2.0;
-			}
-		},
-		SYMBOL_SMALL("Small") {
-			@Override
-			public double getDouble() {
-				return 4.0;
-			}	
-		},
-		SYMBOL_MEDIUM("Medium") {
-			@Override
-			public double getDouble() {
-				return 6.0;
-			}	
-		},
-		SYMBOL_LARGE("Large") {
-			@Override
-			public double getDouble() {
-				return 8.0;
-			}
-		};
-		
-		private final String sizeText;
-		private SymbolSize(String s) {
-			sizeText = s;
-		}
-		
-		public abstract double getDouble();
-		
-		@Override
-		public String toString() {
-			return sizeText;
-		}
-	}
-	
-	public static enum SymbolStyle {
-		SYMBOL_NONE("None"),
-		SYMBOL_SQUARE("Square"),
-		SYMBOL_CIRCLE("Circle"),
-		SYMBOL_STAR("Star") {
-			@Override
-			public boolean isFilled() {				
-				return true;
-			}
-		} ,
-		SYMBOL_XX("XX") {
-			@Override
-			public boolean isFilled() {				
-				return true;
-			}
-		},
-		SYMBOL_TRANGLE("Triangle"),
-		SYMBOL_SOLID_SQUARE("Solid_Square") {
-			@Override
-			public boolean isFilled() {				
-				return true;
-			}
-		},
-		SYMBOL_SOLID_CIRCLE("Solid_Circle") {
-			@Override
-			public boolean isFilled() {				
-				return true;
-			}
-		},
-		SYMBOL_THICK_SQUARE("Thick_Square"),
-		SYMBOL_THICK_CIRCLE("Thick_Circle");
-		
-		private final String styleText;
-		
-		private SymbolStyle(String s) {
-			styleText = s;
-		}
-		
-		@Override
-		public String toString() {
-			return styleText;
-		}
-		
-		/**
-		 * Returns if the shape needs filling.
-		 * 
-		 * @return true if it needs filling, false otherwise.
-		 */
-		public boolean isFilled() {
-			return false;
-		}
-	}
-	
-	public static enum GNUPlotLineStyle {
-		LINES("lines"),
-		POINTS("points"),
-		LINE_POINTS("linepoints"),
-		IMPULSES("impulses"),
-		DOTS("dots"),
-		STEPS("steps"),
-		FSTEPS("fsteps"),
-		HISTEPS("histeps"),
-		BOXES("boxes");
-		
-		private final String styleText;
-		
-		private GNUPlotLineStyle(String s) {
-			styleText = s;
-		}
-		
-		@Override
-		public String toString() {
-			return styleText;
-		}
-	}
-    public static String[] GUI_FIELD_LABELS_FULL    = new String[] {"Label", "From Units", "Units", "Bias",
-                                                                    "Scale", "Max", "Symbol Style",
-                                                                    "Symbol Size", "Line Style", "Line Color",
-                                                                    "GNUPlot Line Sytle"};
+    // ========================================
+    public static enum LineStyle {
+        PLAIN("Plain") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(1.0f);
+            }
+        },
+        DASH("Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[] {3.0f, 6.0f}, 0.0f);
+            }
+        },
+        NO_LINE("No_Line") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(0.0f);
+            }
+        },
+        X_THICK_LINE("X_Thick_Line") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(5.0f);
+            }
+        },
+        FINE_DASH("Fine_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[] {2.0f, 2.0f}, 0.0f);
+            }
+        },
+        MED_FINE_DASH("Med_Fine_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[] {2.0f, 5.0f}, 0.0f);
+            }
+        },
+        LONG_DASH("Long_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[] {5.0f, 5.0f}, 0.0f);
+            }
+        },
+        X_LONG_DASH("X_Ling_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[] {10.0f, 5.0f}, 0.0f);
+            }
+        },
+        DOT_DASH("Dot_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f,
+                        BasicStroke.CAP_SQUARE,
+                        BasicStroke.JOIN_MITER,
+                        10.0f,
+                        new float[] {10.0f, 5.0f, 1.0f, 5.0f},
+                        0.0f);
+            }
+        },
+        TWO_DOT_DASH("2_Dot_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f,
+                        BasicStroke.CAP_SQUARE,
+                        BasicStroke.JOIN_MITER,
+                        10.0f,
+                        new float[] {10.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f},
+                        0.0f);
+            }
+        },
+        THREE_DOT_DASH("3_Dot_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f,
+                        BasicStroke.CAP_SQUARE,
+                        BasicStroke.JOIN_MITER,
+                        10.0f,
+                        new float[] {10.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f},
+                        0.0f);
+            }
+        },
+        FOUR_DOT_DASH("4_Dot_Dash") {
+            @Override
+            public Stroke getStroke() {
+                return new BasicStroke(
+                        1.0f,
+                        BasicStroke.CAP_SQUARE,
+                        BasicStroke.JOIN_MITER,
+                        10.0f,
+                        new float[] {10.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f, 1.0f, 5.0f},
+                        0.0f);
+            }
+        };
+
+        private final String styleText;
+
+        private LineStyle(String s) {
+            styleText = s;
+        }
+
+        public abstract Stroke getStroke();
+
+        @Override
+        public String toString() {
+            return styleText;
+        }
+    }
+
+    public static enum SymbolSize {
+        SYMBOL_TINY("Tiny") {
+            @Override
+            public double getDouble() {
+                return 2.0;
+            }
+        },
+        SYMBOL_SMALL("Small") {
+            @Override
+            public double getDouble() {
+                return 4.0;
+            }
+        },
+        SYMBOL_MEDIUM("Medium") {
+            @Override
+            public double getDouble() {
+                return 6.0;
+            }
+        },
+        SYMBOL_LARGE("Large") {
+            @Override
+            public double getDouble() {
+                return 8.0;
+            }
+        };
+
+        private final String sizeText;
+
+        private SymbolSize(String s) {
+            sizeText = s;
+        }
+
+        public abstract double getDouble();
+
+        @Override
+        public String toString() {
+            return sizeText;
+        }
+    }
+
+    public static enum SymbolStyle {
+        SYMBOL_NONE("None"),
+        SYMBOL_SQUARE("Square"),
+        SYMBOL_CIRCLE("Circle"),
+        SYMBOL_STAR("Star") {
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        },
+        SYMBOL_XX("XX") {
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        },
+        SYMBOL_TRANGLE("Triangle"),
+        SYMBOL_SOLID_SQUARE("Solid_Square") {
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        },
+        SYMBOL_SOLID_CIRCLE("Solid_Circle") {
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        },
+        SYMBOL_THICK_SQUARE("Thick_Square"),
+        SYMBOL_THICK_CIRCLE("Thick_Circle");
+
+        private final String styleText;
+
+        private SymbolStyle(String s) {
+            styleText = s;
+        }
+
+        @Override
+        public String toString() {
+            return styleText;
+        }
+
+        /**
+         * Returns if the shape needs filling.
+         *
+         * @return true if it needs filling, false otherwise.
+         */
+        public boolean isFilled() {
+            return false;
+        }
+    }
+
+    public static enum GNUPlotLineStyle {
+        LINES("lines"),
+        POINTS("points"),
+        LINE_POINTS("linepoints"),
+        IMPULSES("impulses"),
+        DOTS("dots"),
+        STEPS("steps"),
+        FSTEPS("fsteps"),
+        HISTEPS("histeps"),
+        BOXES("boxes");
+
+        private final String styleText;
+
+        private GNUPlotLineStyle(String s) {
+            styleText = s;
+        }
+
+        @Override
+        public String toString() {
+            return styleText;
+        }
+    }
+
+    public static String[] GUI_FIELD_LABELS_FULL = new String[] {
+        "Label",
+        "From Units",
+        "Units",
+        "Bias",
+        "Scale",
+        "Max",
+        "Symbol Style",
+        "Symbol Size",
+        "Line Style",
+        "Line Color",
+        "GNUPlot Line Sytle"
+    };
 
     // all field labels for vars in a Table or X-var
-    public static String[] GUI_FIELD_LABELS_TABLE   = new String[] {"Label", "From Units", "Units", "Bias", "Scale", "Max"};
-    
+    public static String[] GUI_FIELD_LABELS_TABLE =
+            new String[] {"Label", "From Units", "Units", "Bias", "Scale", "Max"};
+
     // all field labels for vars in a Program
     public static String[] GUI_FIELD_LABELS_PROGRAM = new String[] {"Units"};
-    
-    //========================================
+
+    // ========================================
     //  Protected data
-    //========================================
+    // ========================================
 
-
-    //========================================
+    // ========================================
     //  Private Data
-    //========================================
-    private static final int LABEL_INDEX                = 0;
-    private static final int FROM_UNITS_INDEX           = 1;
-    public static final int UNITS_INDEX                 = 2;
-    private static final int BIAS_INDEX                 = 3;
-    private static final int SCALE_INDEX                = 4;
-    private static final int MAX_INDEX                  = 5;
-    private static final int SYMBOL_STYLE_INDEX         = 6;
-    private static final int SYMBOL_SIZE_INDEX          = 7;
-    private static final int LINE_STYLE_INDEX           = 8;
-    private static final int LINE_COLOR_INDEX           = 9;
-    private static final int GNUPLOT_LINE_STYLE_INDEX   = 10;
-
+    // ========================================
+    private static final int LABEL_INDEX = 0;
+    private static final int FROM_UNITS_INDEX = 1;
+    public static final int UNITS_INDEX = 2;
+    private static final int BIAS_INDEX = 3;
+    private static final int SCALE_INDEX = 4;
+    private static final int MAX_INDEX = 5;
+    private static final int SYMBOL_STYLE_INDEX = 6;
+    private static final int SYMBOL_SIZE_INDEX = 7;
+    private static final int LINE_STYLE_INDEX = 8;
+    private static final int LINE_COLOR_INDEX = 9;
+    private static final int GNUPLOT_LINE_STYLE_INDEX = 10;
 
     // The name of the variable
     private String name;
@@ -300,7 +320,7 @@ public class ProductVar {
     // The max value for the variable
     private Double max;
     // The symbol style text for the variable
-    private String symbolStyleText;    
+    private String symbolStyleText;
     // The symbol size for the variable
     private String symbolSizeText;
     // The line style string for the variable
@@ -309,10 +329,10 @@ public class ProductVar {
     private String lineColorCode;
     // The line style for the gnu plot
     private String gnuplotLineStyle;
-    
-    //========================================
+
+    // ========================================
     //  Constructors
-    //========================================
+    // ========================================
     /**
      * Constructor with variable name.
      *
@@ -323,10 +343,9 @@ public class ProductVar {
         this.name = name;
         // Leave the label blank initially in order for the default label shown.
         // If the label is entered by a user from GUI, that entered text
-        // will be displayed and fxplot will not show the default label.
-        //this.setLabel( name );
+        // will be displayed and the plotting utility will not show the default label.
+        // this.setLabel( name );
         setUnits(null);
-        
     }
 
     /**
@@ -339,15 +358,15 @@ public class ProductVar {
         this.name = name;
         // Leave the label blank initially in order for the default label shown.
         // If the label is entered by a user from GUI, that entered text
-        // will be displayed and fxplot will not show the default label.
-        //this.setLabel( name );
-        //this.setLabel( name );
+        // will be displayed and the plotting utility will not show the default label.
+        // this.setLabel( name );
+        // this.setLabel( name );
         setUnits(units);
     }
 
-    //========================================
+    // ========================================
     //  Set/Get methods
-    //========================================
+    // ========================================
     /**
      * Gets the data field representation type {@link ProductDataPanel.DataRepresentationType}
      * for the specified label. A desired GUI component will be created based on the type.
@@ -358,35 +377,35 @@ public class ProductVar {
      *
      */
     public static ProductDataPanel.DataRepresentationType getDataFieldType(String label) {
-    	ProductDataPanel.DataRepresentationType type = ProductDataPanel.DataRepresentationType.PLAIN_TEXT_FIELD;
-    	
-    	if (label.equals(GUI_FIELD_LABELS_FULL[UNITS_INDEX])) {
+        ProductDataPanel.DataRepresentationType type = ProductDataPanel.DataRepresentationType.PLAIN_TEXT_FIELD;
+
+        if (label.equals(GUI_FIELD_LABELS_FULL[UNITS_INDEX])) {
             type = ProductDataPanel.DataRepresentationType.UNITS_FIELD;
         } else if (label.equals(GUI_FIELD_LABELS_FULL[FROM_UNITS_INDEX])) {
-        	type = ProductDataPanel.DataRepresentationType.FROM_UNITS_FIELD;
+            type = ProductDataPanel.DataRepresentationType.FROM_UNITS_FIELD;
         } else if (label.equals(GUI_FIELD_LABELS_FULL[SYMBOL_STYLE_INDEX])) {
-        	type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
-        	type.setComboBoxItems(SymbolStyle.values());       	
+            type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
+            type.setComboBoxItems(SymbolStyle.values());
         } else if (label.equals(GUI_FIELD_LABELS_FULL[SYMBOL_SIZE_INDEX])) {
-        	type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
-        	type.setComboBoxItems(SymbolSize.values());           
+            type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
+            type.setComboBoxItems(SymbolSize.values());
         } else if (label.equals(GUI_FIELD_LABELS_FULL[LINE_STYLE_INDEX])) {
-        	type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
-        	type.setComboBoxItems(LineStyle.values());       	
-        } else if (label.equals(GUI_FIELD_LABELS_FULL[GNUPLOT_LINE_STYLE_INDEX])) {           
-        	type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
-        	type.setComboBoxItems(GNUPlotLineStyle.values());
+            type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
+            type.setComboBoxItems(LineStyle.values());
+        } else if (label.equals(GUI_FIELD_LABELS_FULL[GNUPLOT_LINE_STYLE_INDEX])) {
+            type = ProductDataPanel.DataRepresentationType.COMBO_BOX;
+            type.setComboBoxItems(GNUPlotLineStyle.values());
         } else if (label.equals(GUI_FIELD_LABELS_FULL[LINE_COLOR_INDEX])) {
-        	type = ProductDataPanel.DataRepresentationType.COLOR_LABEL;       	           
-        } else if (label.equals(GUI_FIELD_LABELS_FULL[BIAS_INDEX]) ||
-                   label.equals(GUI_FIELD_LABELS_FULL[SCALE_INDEX])||
-                   label.equals(GUI_FIELD_LABELS_FULL[MAX_INDEX])) {
-        	type = ProductDataPanel.DataRepresentationType.NUMBER_FIELD;           
+            type = ProductDataPanel.DataRepresentationType.COLOR_LABEL;
+        } else if (label.equals(GUI_FIELD_LABELS_FULL[BIAS_INDEX])
+                || label.equals(GUI_FIELD_LABELS_FULL[SCALE_INDEX])
+                || label.equals(GUI_FIELD_LABELS_FULL[MAX_INDEX])) {
+            type = ProductDataPanel.DataRepresentationType.NUMBER_FIELD;
         }
-    	
-    	return type;
+
+        return type;
     }
-    
+
     /**
      * Sets data attribute for the specified order number for GUI display.
      *
@@ -406,8 +425,8 @@ public class ProductVar {
                 setLabel(valueStr);
                 break;
             case FROM_UNITS_INDEX:
-            	setFromUnits(valueStr);
-            	break;
+                setFromUnits(valueStr);
+                break;
             case UNITS_INDEX:
                 setUnits(valueStr);
                 break;
@@ -450,8 +469,8 @@ public class ProductVar {
                 ret = getLabel();
                 break;
             case FROM_UNITS_INDEX:
-            	ret = getFromUnits();
-            	break;
+                ret = getFromUnits();
+                break;
             case UNITS_INDEX:
                 ret = getUnits();
                 break;
@@ -501,7 +520,7 @@ public class ProductVar {
     public void setUnits(String units) {
         this.units = units;
     }
-    
+
     /**
      * Sets the var from units. Only used when recorded data doesn't have units specified.
      *
@@ -641,16 +660,16 @@ public class ProductVar {
      * @return name
      */
     public String getShortName() {
-    	String shortName = name;
-    	if (name != null) {
-    		int lastDot = name.lastIndexOf(".");
-    		if (lastDot != -1) {
-    			shortName = name.substring(lastDot+1);
-    		}
-    	}
+        String shortName = name;
+        if (name != null) {
+            int lastDot = name.lastIndexOf(".");
+            if (lastDot != -1) {
+                shortName = name.substring(lastDot + 1);
+            }
+        }
         return shortName;
     }
-    
+
     /**
      * Gets the var label.
      *
@@ -668,7 +687,7 @@ public class ProductVar {
     public String getUnits() {
         return units;
     }
-    
+
     /**
      * Gets the var from units. Only used when recorded data doesn't have units specified.
      *
@@ -721,7 +740,7 @@ public class ProductVar {
     public String getSymbolSize() {
         return symbolSizeText;
     }
-    
+
     /**
      * Gets the var symbol shape based on the symbol style and size.
      * If symbol style is not specified, it size is ignored.
@@ -730,59 +749,59 @@ public class ProductVar {
      * @return The var symbol shape instance {@link Shape}.
      */
     public Shape getSymbolShape(SymbolStyle symbolStyle) {
-    	Shape symbolShape = null;
-    	if (symbolStyle == null) {
-    		return symbolShape;
-    	}
-    	
-    	SymbolSize symbolSize = null;
-    	if (symbolSizeText != null && !symbolSizeText.isEmpty()) {
-    		for (SymbolSize theSize : SymbolSize.values()) {
-    			if (symbolSizeText.equals(theSize.toString())) {
-    				symbolSize = theSize;
-    			}
-    		}
-    	}
-    	
-    	double size = SymbolSize.SYMBOL_MEDIUM.getDouble();
-    	if (symbolSize != null) {
-    		size = symbolSize.getDouble();
-    	}
-    	double delta = size/ 2;
-    	Stroke stroke = null;
-    	if (symbolStyle != null) {
-    		switch (symbolStyle) {
-    			case SYMBOL_NONE:
-    				break;
-    			case SYMBOL_SQUARE:
-    			case SYMBOL_SOLID_SQUARE:    			
-    				symbolShape = new Rectangle2D.Double(-delta, -delta, size, size);
-    				break;
-    			case SYMBOL_CIRCLE:
-    			case SYMBOL_SOLID_CIRCLE:    			
-    				symbolShape = new Ellipse2D.Double(-delta, -delta, size, size);
-    				break;
-    			case SYMBOL_STAR:
-    				symbolShape = createStar((float)delta, 0.1f);
-    				break;
-    			case SYMBOL_XX:
-    				symbolShape = ShapeUtilities.createDiagonalCross((float)delta, 0.1f);
-    				break;
-    			case SYMBOL_TRANGLE:    				
-    				symbolShape = ShapeUtilities.createUpTriangle((float)delta);
-    				break;
-    			case SYMBOL_THICK_SQUARE:
-    				stroke = new BasicStroke(1.0f);
-    				symbolShape = stroke.createStrokedShape(new Rectangle2D.Double(-delta, -delta, size, size));
-    				break;
-    			case SYMBOL_THICK_CIRCLE:
-    				stroke = new BasicStroke(1.0f);
-    				symbolShape = stroke.createStrokedShape(new Ellipse2D.Double(-delta, -delta, size, size));
-    				break;
-    		}
-    	}
-    	
-    	return symbolShape;
+        Shape symbolShape = null;
+        if (symbolStyle == null) {
+            return symbolShape;
+        }
+
+        SymbolSize symbolSize = null;
+        if (symbolSizeText != null && !symbolSizeText.isEmpty()) {
+            for (SymbolSize theSize : SymbolSize.values()) {
+                if (symbolSizeText.equals(theSize.toString())) {
+                    symbolSize = theSize;
+                }
+            }
+        }
+
+        double size = SymbolSize.SYMBOL_MEDIUM.getDouble();
+        if (symbolSize != null) {
+            size = symbolSize.getDouble();
+        }
+        double delta = size / 2;
+        Stroke stroke = null;
+        if (symbolStyle != null) {
+            switch (symbolStyle) {
+                case SYMBOL_NONE:
+                    break;
+                case SYMBOL_SQUARE:
+                case SYMBOL_SOLID_SQUARE:
+                    symbolShape = new Rectangle2D.Double(-delta, -delta, size, size);
+                    break;
+                case SYMBOL_CIRCLE:
+                case SYMBOL_SOLID_CIRCLE:
+                    symbolShape = new Ellipse2D.Double(-delta, -delta, size, size);
+                    break;
+                case SYMBOL_STAR:
+                    symbolShape = createStar((float) delta, 0.1f);
+                    break;
+                case SYMBOL_XX:
+                    symbolShape = ShapeUtilities.createDiagonalCross((float) delta, 0.1f);
+                    break;
+                case SYMBOL_TRANGLE:
+                    symbolShape = ShapeUtilities.createUpTriangle((float) delta);
+                    break;
+                case SYMBOL_THICK_SQUARE:
+                    stroke = new BasicStroke(1.0f);
+                    symbolShape = stroke.createStrokedShape(new Rectangle2D.Double(-delta, -delta, size, size));
+                    break;
+                case SYMBOL_THICK_CIRCLE:
+                    stroke = new BasicStroke(1.0f);
+                    symbolShape = stroke.createStrokedShape(new Ellipse2D.Double(-delta, -delta, size, size));
+                    break;
+            }
+        }
+
+        return symbolShape;
     }
 
     /**
@@ -790,17 +809,17 @@ public class ProductVar {
      *
      * @return The var symbol style.
      */
-	public SymbolStyle getSymbolStyle() {
-		SymbolStyle symbolStyle = null;
-		if (symbolStyleText != null && !symbolStyleText.isEmpty()) {
-    		for (SymbolStyle theStyle : SymbolStyle.values()) {
-    			if (symbolStyleText.equals(theStyle.toString())) {
-    				symbolStyle = theStyle;
-    			}
-    		}
-    	}
-		return symbolStyle;
-	}
+    public SymbolStyle getSymbolStyle() {
+        SymbolStyle symbolStyle = null;
+        if (symbolStyleText != null && !symbolStyleText.isEmpty()) {
+            for (SymbolStyle theStyle : SymbolStyle.values()) {
+                if (symbolStyleText.equals(theStyle.toString())) {
+                    symbolStyle = theStyle;
+                }
+            }
+        }
+        return symbolStyle;
+    }
 
     /**
      * Gets the var line style text.
@@ -810,23 +829,23 @@ public class ProductVar {
     public String getLineStyleText() {
         return lineStyleText;
     }
-    
+
     /**
      * Gets the var line style.
      *
      * @return The var line style as a {@link LineStyle}.
      */
     public LineStyle getLineStyle() {
-    	LineStyle lineStyle = null;    
-    	if (lineStyleText != null && !lineStyleText.isEmpty()) {    		
-    		for (LineStyle theStyle : LineStyle.values()) {	        			
-    			if (lineStyleText.equals(theStyle.toString())) {        				
-    				lineStyle = theStyle;
-    				break;
-    			}
-    		}
-    	}
-    	return lineStyle;
+        LineStyle lineStyle = null;
+        if (lineStyleText != null && !lineStyleText.isEmpty()) {
+            for (LineStyle theStyle : LineStyle.values()) {
+                if (lineStyleText.equals(theStyle.toString())) {
+                    lineStyle = theStyle;
+                    break;
+                }
+            }
+        }
+        return lineStyle;
     }
 
     /**
@@ -835,20 +854,20 @@ public class ProductVar {
      * @return The var line color Hex code.
      */
     public String getLineColorCode() {
-    	// no need to return the "Default" color text
-    	if (lineColorCode != null && lineColorCode.equals(CommonProduct.DEFAULT_COLOR_TEXT)) {
-    		return null;
-    	}   	
+        // no need to return the "Default" color text
+        if (lineColorCode != null && lineColorCode.equals(CommonProduct.DEFAULT_COLOR_TEXT)) {
+            return null;
+        }
         return lineColorCode;
     }
-    
+
     /**
      * Gets the var line color.
      *
      * @return The var line {@link Color} instance.
      */
     public Color getLineColor() {
-    	return UIUtils.getColorFromHTMLHex(lineColorCode);
+        return UIUtils.getColorFromHTMLHex(lineColorCode);
     }
 
     /**
@@ -860,17 +879,17 @@ public class ProductVar {
         return gnuplotLineStyle;
     }
 
-    //========================================
+    // ========================================
     //  Methods
-    //========================================
+    // ========================================
     /**
      * Returns the name of this var. This is for GUI displaying.
      */
     @Override
-	public String toString() {
+    public String toString() {
         return name;
     }
-    
+
     /**
      * Creates a star that actually combines diagonal & regular cross shapes.
      *
@@ -880,7 +899,7 @@ public class ProductVar {
      * @return A star (*) shape.
      */
     private Shape createStar(final float l, final float t) {
-    	final float SQRT2 = (float) Math.pow(2.0, 0.5);
+        final float SQRT2 = (float) Math.pow(2.0, 0.5);
         final GeneralPath p0 = new GeneralPath();
         p0.moveTo(-l - t, -l + t);
         p0.lineTo(-l + t, -l - t);
@@ -894,7 +913,7 @@ public class ProductVar {
         p0.lineTo(-l + t, l + t);
         p0.lineTo(-l - t, l - t);
         p0.lineTo(-t * SQRT2, 0.0f);
-        
+
         p0.moveTo(-l, t);
         p0.lineTo(-t, t);
         p0.lineTo(-t, l);
@@ -909,5 +928,5 @@ public class ProductVar {
         p0.lineTo(-l, -t);
         p0.closePath();
         return p0;
-    }   
+    }
 }

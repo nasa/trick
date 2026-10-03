@@ -13,11 +13,6 @@ LIBDIRS = Var \
     EQParse \
     units
 
-ifeq ($(USE_X_WINDOWS),1)
-ifneq ("$(wildcard fermi-ware)","")
-LIBDIRS += fermi-ware
-endif
-endif
 
 APPDIRS = DPX \
     Apps/Trk2csv \
@@ -30,9 +25,9 @@ all: $(LIBDIRS) $(APPDIRS)
 
 $(LIBDIRS):
 	@ echo ; echo "==: Compile data_products/$@"
-	@ $(MAKE) -C $@ 
+	@ $(MAKE) -C $@
 
-$(APPDIRS): $(LIBDIRS) 
+$(APPDIRS): $(LIBDIRS)
 	@ echo ; echo "==: Compile data_products/$@"
 	@ $(MAKE) -C $@
 
@@ -46,4 +41,3 @@ clean:
 	       $(MAKE) -C $$i real_clean ; \
           done
 	@ rm -rf $(LIB_DIR)
-

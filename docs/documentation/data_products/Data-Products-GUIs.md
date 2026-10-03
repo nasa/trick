@@ -83,7 +83,7 @@ as shown in the above image. The interface is explained with further details in 
         - File
 - <b>Plot Utility</b>
     - This option sets which plotting utility to use. 2 available options:
-        - Fermi
+        - Java (by default)
         - Gnuplot
 
 #### Trick DP Actions Menu
@@ -432,7 +432,7 @@ This table shows all of the menus along with their menu items and functionalitie
 ![trick_qp_settings_menu](images/trick_qp_settings_menu.jpg)
 
 - <b>Plot Utility</b>
-    - Selects either Fermi or Gnuplot for plotting.
+    - Selects either Java (the default) or Gnuplot for plotting. Only the Java utility displays tables.
 
 #### Trick QP Programs Menu
 
@@ -818,12 +818,12 @@ mouse button. Notice that there is a tiny circle on each x-y point recorded.
 
 
 ### Plotting from the Command Line
-Once you a DP session file created, you can view the data the way as you specified using "fxplot" or "gxplot" command.
+Once you a DP session file created, you can view the data the way as you specified using "trick-jxplot" or "trick-gxplot" command.
 - Go to the SIM directory you have your session file saved.
-    - <b>UNIX Prompt></b> fxplot <session_file>
+    - <b>UNIX Prompt></b> trick-jxplot <session_file>
     - Or
-    - <b>UNIX Prompt></b> gxplot <session_file>
-- You should see plots as you specified in the file.
+    - <b>UNIX Prompt></b> trick-gxplot <session_file>
+- You should see plots as you specified in the file. Note that "trick-gxplot" displays plots only; use "trick-jxplot" if your DP file specifies tables.
 
 
 ### Using Tables

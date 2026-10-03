@@ -30,7 +30,6 @@ autom4te.cache
 
 # Generated binaries
 bin/trick-ICG
-bin/trick-fxplot
 bin/trick-gxplot
 bin/trick-trk2ascii
 bin/trick-trk2csv

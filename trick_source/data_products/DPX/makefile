@@ -12,9 +12,6 @@ LIBDIRS = DPM \
 
 ifeq ($(USE_X_WINDOWS),1)
 APPDIRS = APPS/GXPLOT
-ifneq ("$(wildcard ${TRICK_HOME}/trick_source/data_products/fermi-ware)","")
-APPDIRS += APPS/FXPLOT
-endif
 endif
 
 all: $(LIBDIRS) $(APPDIRS)
@@ -57,4 +54,3 @@ clean:
 	${RM} *.o
 
 real_clean: clean
-
