@@ -88,13 +88,15 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
 ## Installing
 
 This extension isn't currently published to the VS Code Marketplace. Install it from
-a `.vsix` package instead:
+a `.vsix` package instead — either download the one attached to the corresponding
+[GitHub release](https://github.com/nasa/trick/releases) (built and tested by CI), or
+build it yourself:
 
 ```sh
 cd vscode-trick
 npm install
-npm run package          # produces trick-vscode-trick-<version>.vsix
-code --install-extension trick-vscode-trick-<version>.vsix
+npm run package          # produces vscode-trick-<version>.vsix
+code --install-extension vscode-trick-<version>.vsix
 ```
 
 Or, from VS Code's UI: Extensions view → `...` menu → **Install from VSIX...**, and

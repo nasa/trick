@@ -159,6 +159,7 @@
     "watch": "node esbuild.js --watch",
     "pretest": "npm run compile",
     "test": "mocha",
+    "prepackage": "npm run compile",
     "package": "vsce package"
   },
   "devDependencies": {

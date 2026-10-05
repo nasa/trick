@@ -4,6 +4,7 @@
 
 * [Purpose](#purpose)<br>
 * [Introduction](#introduction)<br>
+* [Features](#features)<br>
 * [Prerequisite Knowledge](#prerequisite-knowledge)<br>
 * [Building the Extension](#building-the-extension)<br>
 * [Installing the Extension](#installing-the-extension)<br>
@@ -28,29 +29,43 @@ Simulation Toolkit extension for Visual Studio Code.
 ## Introduction
 
 The `vscode-trick` extension, included in Trick's source tree under
-[`vscode-trick/`](https://github.com/nasa/trick/tree/master/vscode-trick), adds:
+[`vscode-trick/`](https://github.com/nasa/trick/tree/master/vscode-trick), brings
+Trick-aware editing, IntelliSense, and build support to Visual Studio Code, so working
+on a sim doesn't mean bouncing between an editor that treats `S_define`/`input.py` as
+opaque text and a separate terminal for everything else.
 
-* Syntax highlighting and snippets for `S_define`/`.sm` simulation definition files,
-  distinguishing CP-parsed includes (`#include`) from model header includes
+It is not currently published to the VS Code Marketplace, so it's installed from a
+`.vsix` package — either built locally or downloaded from this repo's
+[Releases page](https://github.com/nasa/trick/releases) (see
+[Installing the Extension](#installing-the-extension)).
+
+---
+
+<a id=features></a>
+## Features
+
+* **Syntax highlighting and snippets** for `S_define`/`.sm` simulation definition
+  files, distinguishing CP-parsed includes (`#include`) from model header includes
   (`##include`).
-* Ctrl+click navigation and unresolved-include diagnostics on those `#include`/
+* **Ctrl+click navigation and unresolved-include diagnostics** on those `#include`/
   `##include` lines, resolved against each sim's `S_overrides.mk` and Trick's own
   system include paths.
-* Ctrl+click / Go to Definition on sim object types and job target methods in
+* **Ctrl+click / Go to Definition** on sim object types and job target methods in
   `S_define`/`.sm` files.
-* IntelliSense for model `.c`/`.cpp`/`.h` files (via the Microsoft C/C++ extension),
-  using each sim's actual `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/`TRICK_SFLAGS` instead of
-  guessing, so Go to Definition/Implementation works across header/source pairs.
-* Python support for `input.py`/`.dr` files: `.dr` files recognized as Python,
+* **IntelliSense for model `.c`/`.cpp`/`.h` files** (via the Microsoft C/C++
+  extension), using each sim's actual `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/
+  `TRICK_SFLAGS` instead of guessing, so Go to Definition/Implementation works across
+  header/source pairs.
+* **Python support for `input.py`/`.dr` files**: `.dr` files recognized as Python,
   snippets for common `trick.*` call patterns, a generated `trick.*` stub (via the
   Microsoft Python extension/Pylance) for completions and hover, and Ctrl+click
   navigation on `open("...")` targets.
-* A build task that runs `trick-CP` for the sim containing the active file, with a
-  problem matcher that sends `trick-ICG` parse errors and compiler errors/warnings to
-  the Problems panel.
+* **A build task for `trick-CP`**, runnable for the sim containing the active file,
+  with a problem matcher that sends `trick-ICG` parse errors and compiler
+  errors/warnings to the Problems panel.
 
-It is not currently published to the VS Code Marketplace, so it's installed from a
-locally-built `.vsix` package.
+Each of these is covered in more detail, with usage examples, in its own section
+below.
 
 ---
 
@@ -75,7 +90,13 @@ One should:
 <a id=building-the-extension></a>
 ## Building the Extension
 
-From a Trick source checkout:
+Every [Trick release](https://github.com/nasa/trick/releases) has a prebuilt
+`vscode-trick-<version>.vsix` attached as a release asset, built and tested by CI — if
+you just want to install the extension, grab that and skip straight to
+[Installing the Extension](#installing-the-extension).
+
+To build it yourself instead (for example, to try local changes), from a Trick source
+checkout:
 
 ```sh
 cd vscode-trick
@@ -83,7 +104,7 @@ npm install
 npm run package
 ```
 
-This produces `trick-vscode-trick-<version>.vsix` in that directory.
+This produces `vscode-trick-<version>.vsix` in that directory.
 
 ---
 
@@ -93,7 +114,7 @@ This produces `trick-vscode-trick-<version>.vsix` in that directory.
 From a terminal:
 
 ```sh
-code --install-extension trick-vscode-trick-<version>.vsix
+code --install-extension vscode-trick-<version>.vsix
 ```
 
 Or from VS Code's UI: open the Extensions view, click the `...` menu in its top
