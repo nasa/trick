@@ -5,6 +5,7 @@ import { TrickIncludeLinkProvider, TrickIncludeDiagnostics } from './sdefineLink
 import { TrickSdefineDefinitionProvider } from './sdefineDefinitions';
 import { PythonStubManager } from './pythonStubs';
 import { TrickPythonLinkProvider } from './pythonLinks';
+import { TRICK_TASK_TYPE, TrickTaskProvider, createTrickBuildTask } from './buildTasks';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const output = vscode.window.createOutputChannel('Trick');
@@ -85,6 +86,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       return;
     }
     const simRoot = simConfigs.findSimRoot(editor.document.uri.fsPath);
+    void vscode.commands.executeCommand('setContext', 'trick.inSimRoot', !!simRoot);
     if (!simRoot) {
       statusBar.hide();
       return;
@@ -128,6 +130,33 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         content: JSON.stringify(config, null, 2),
       });
       await vscode.window.showTextDocument(doc, { preview: true });
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.tasks.registerTaskProvider(TRICK_TASK_TYPE, new TrickTaskProvider(simConfigs))
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('trick.buildCurrentSim', async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage('Open a file inside a Trick sim directory first.');
+        return;
+      }
+      const simRoot = simConfigs.findSimRoot(editor.document.uri.fsPath);
+      if (!simRoot) {
+        vscode.window.showWarningMessage('No S_define found in any parent directory of the active file.');
+        return;
+      }
+      const folder =
+        vscode.workspace.getWorkspaceFolder(editor.document.uri) ?? vscode.workspace.workspaceFolders?.[0];
+      if (!folder) {
+        vscode.window.showWarningMessage('No workspace folder open.');
+        return;
+      }
+      const task = createTrickBuildTask(folder, simRoot, simConfigs.resolveTrickHome(simRoot));
+      await vscode.tasks.executeTask(task);
     })
   );
 }

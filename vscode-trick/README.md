@@ -35,6 +35,11 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
 - **Ctrl+click navigation** on `open("...")` targets in `input.py`/`.dr` files (e.g.
   `exec(open("Modified_data/Rocket.dr").read())`), resolved against the sim root
   (where Trick's own working directory is) first, then the file's own directory.
+- **Build task** (`trick-CP`) for each sim, discoverable via **Tasks: Run Task** or the
+  **Trick: Build Current Sim** command, with a problem matcher that sends `trick-ICG`
+  parse errors and compiler errors/warnings to the Problems panel (both are plain Clang/
+  GCC-style diagnostics, since neither `trick-CP` nor `trick-ICG` offer a machine-readable
+  output mode).
 
 ## Requirements
 
@@ -73,6 +78,12 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
 - **Trick: Regenerate Python Stubs** — re-scrapes `trick.*` and sim object names and
   rewrites the generated stub files (use after building Trick for the first time, or
   after adding a new sim object, if it isn't picked up automatically).
+- **Trick: Build Current Sim** — runs `trick-CP` for the sim containing the active file
+  (equivalent to `cd` into that `SIM_*` directory and running `trick-CP` by hand), with
+  errors/warnings reported to the Problems panel. Requires `TRICK_HOME` to be resolvable
+  (see Requirements above). Bound to `Ctrl+Shift+B` (`Cmd+Shift+B` on macOS) while a file
+  inside a sim is focused, so it doesn't require the Command Palette; outside a sim, that
+  shortcut falls back to VS Code's normal "Run Build Task" behavior.
 
 ## Installing
 

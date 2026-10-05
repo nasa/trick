@@ -78,6 +78,47 @@
       {
         "command": "trick.regeneratePythonStubs",
         "title": "Trick: Regenerate Python Stubs"
+      },
+      {
+        "command": "trick.buildCurrentSim",
+        "title": "Trick: Build Current Sim"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "trick.buildCurrentSim",
+        "key": "ctrl+shift+b",
+        "mac": "cmd+shift+b",
+        "when": "trick.inSimRoot"
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "trick",
+        "required": [
+          "simRoot"
+        ],
+        "properties": {
+          "simRoot": {
+            "type": "string",
+            "description": "Path to the sim directory (containing S_define) to build."
+          }
+        }
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "trick",
+        "owner": "trick",
+        "fileLocation": "autoDetect",
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning|note):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
       }
     ],
     "configuration": {
