@@ -128,6 +128,11 @@ export class SimConfigProvider implements vscode.Disposable {
     return [...this.cache.values()];
   }
 
+  /** Sim roots whose config has been resolved (eagerly or lazily) so far. */
+  getAllCachedRoots(): string[] {
+    return [...this.cache.keys()];
+  }
+
   /**
    * Eagerly resolves and caches every *primary* sim in the workspace - every
    * directory containing an S_define that isn't inside a nested git repo

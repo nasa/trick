@@ -69,7 +69,9 @@ It is not currently published to the VS Code Marketplace, so it's installed from
   once — completion/hover/diagnostics for the sim's own variables (e.g.
   `ball.state.input.mass`), generated from that sim's `S_sie.resource`. Ctrl+click
   on a sim variable or a `trick.*` name goes to the C++ declaration it was
-  generated from, not the stub.
+  generated from, not the stub. Generated for sims not inside a git submodule or
+  other nested clone up front, same as the C/C++ IntelliSense above; a nested
+  sim's own variables join once a file inside it is opened.
 * **A build task for `trick-CP`**, runnable for the sim containing the active file,
   with a problem matcher that sends `trick-ICG` parse errors and compiler
   errors/warnings to the Problems panel.

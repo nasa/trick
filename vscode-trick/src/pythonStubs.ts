@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { SimConfigProvider } from './simConfig';
+import { SimConfigProvider, isInNestedRepo } from './simConfig';
 import { parseSieResource, generateSieStub } from './sieResource';
 
 const TOP_LEVEL_DEF_RE = /^def\s+(\w+)\(([^)]*)\):\s*$/;
@@ -374,6 +374,19 @@ export class PythonStubManager implements vscode.Disposable {
   ) {
     this.disposables.push(simConfigs.onDidInvalidate(() => void this.refreshAll()));
 
+    // Sims inside a nested git repo aren't scanned by refreshFolder up front
+    // (see the isInNestedRepo filter there), so if the user opens a file
+    // inside one, its object names need to join __builtins__.pyi the same
+    // way they join cpptools' browse path - see SimConfigProvider.onDidResolve.
+    // Debounced for the same reason as TrickCppConfigurationProvider's.
+    const scheduleRefresh = () => {
+      if (this.sieRefreshTimer) {
+        clearTimeout(this.sieRefreshTimer);
+      }
+      this.sieRefreshTimer = setTimeout(() => void this.refreshAll(), 1000);
+    };
+    this.disposables.push(simConfigs.onDidResolve(scheduleRefresh));
+
     // A separate watcher from SimConfigProvider's: S_sie.resource changes on
     // every build (and is rewritten again whenever a variable-server client
     // queries it at runtime), so re-running SimConfigProvider's make-based
@@ -381,12 +394,6 @@ export class PythonStubManager implements vscode.Disposable {
     // re-parse the (cheap, already-on-disk) XML. Debounced since a build can
     // touch the file more than once in quick succession.
     const sieWatcher = vscode.workspace.createFileSystemWatcher('**/S_sie.resource');
-    const scheduleRefresh = () => {
-      if (this.sieRefreshTimer) {
-        clearTimeout(this.sieRefreshTimer);
-      }
-      this.sieRefreshTimer = setTimeout(() => void this.refreshAll(), 1000);
-    };
     sieWatcher.onDidChange(scheduleRefresh);
     sieWatcher.onDidCreate(scheduleRefresh);
     sieWatcher.onDidDelete(scheduleRefresh);
@@ -415,10 +422,28 @@ export class PythonStubManager implements vscode.Disposable {
 
   private async refreshFolder(folder: vscode.WorkspaceFolder): Promise<void> {
     const folderPath = folder.uri.fsPath;
-    const sDefineFiles = await vscode.workspace.findFiles(
+    const allSDefineFiles = await vscode.workspace.findFiles(
       new vscode.RelativePattern(folder, '**/S_define'),
       '**/{node_modules,.git}/**'
     );
+    // Same scoping as SimConfigProvider.warmPrimarySimRoots: scanning every
+    // S_define in a large multi-package repo (hundreds of them, most in
+    // submodules nobody touches) is what made this "insanely slow" to begin
+    // with, and most of those sims' object names only bloat __builtins__.pyi
+    // for sims the user isn't even looking at. Sims already resolved (opened
+    // at least once - see the onDidResolve subscription above) are kept even
+    // if nested, so their own object names don't disappear once seen.
+    const resolvedRoots = new Set(this.simConfigs.getAllCachedRoots());
+    const sDefineFiles = allSDefineFiles.filter((f) => {
+      const simRoot = path.dirname(f.fsPath);
+      return resolvedRoots.has(simRoot) || !isInNestedRepo(simRoot, folderPath);
+    });
+    const skipped = allSDefineFiles.length - sDefineFiles.length;
+    if (skipped > 0) {
+      this.output.appendLine(
+        `[python-stubs] ${folderPath}: ${sDefineFiles.length} sim(s) scanned, ${skipped} inside nested git repos skipped (will join when opened).`
+      );
+    }
     if (sDefineFiles.length === 0) {
       return;
     }
