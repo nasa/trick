@@ -105,7 +105,7 @@ pick the `.vsix` file.
 ```sh
 npm install
 npm run compile   # type-check + bundle to dist/extension.js
-npm test          # unit tests for sim config resolution
+npm test          # unit tests for sim config resolution, Python stubs/links, and build tasks
 ```
 
 Press F5 in this directory to launch an Extension Development Host for manual testing.
