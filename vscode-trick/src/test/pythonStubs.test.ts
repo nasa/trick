@@ -139,7 +139,7 @@ describe('pythonStubs', () => {
 
   describe('generateBuiltinsStub', () => {
     it('re-exports the modules Trick pre-imports, plus each sim object name, deduplicated and sorted', () => {
-      const stub = generateBuiltinsStub(['dyn', 'ihm', 'dyn']);
+      const stub = generateBuiltinsStub([{ name: 'dyn' }, { name: 'ihm' }, { name: 'dyn' }]);
       // trick/os/sys/struct/binascii are bound by IPPython's bootstrap before
       // input.py runs - re-exported (not `: Any`) so Pylance keeps real
       // completions/hover for e.g. os.path.isfile without an explicit import.
@@ -151,6 +151,17 @@ describe('pythonStubs', () => {
       assert.ok(stub.includes('dyn: Any'));
       assert.ok(stub.includes('ihm: Any'));
       assert.strictEqual((stub.match(/^dyn: Any$/gm) ?? []).length, 1);
+      assertValidPython(stub);
+    });
+
+    it('declares a typed sim object with an import of its generated trick_sie module', () => {
+      const stub = generateBuiltinsStub([
+        { name: 'ball', typeRef: { moduleName: 'trick_sie.SIM_ball_L1', className: 'ballSimObject' } },
+        { name: 'untyped' },
+      ]);
+      assert.ok(stub.includes('import trick_sie.SIM_ball_L1 as _sie_0'));
+      assert.ok(stub.includes('ball: _sie_0.ballSimObject'));
+      assert.ok(stub.includes('untyped: Any'));
       assertValidPython(stub);
     });
   });

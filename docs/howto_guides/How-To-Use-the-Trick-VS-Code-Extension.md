@@ -58,8 +58,12 @@ It is not currently published to the VS Code Marketplace, so it's installed from
   header/source pairs.
 * **Python support for `input.py`/`.dr` files**: `.dr` files recognized as Python,
   snippets for common `trick.*` call patterns, a generated `trick.*` stub (via the
-  Microsoft Python extension/Pylance) for completions and hover, and Ctrl+click
-  navigation on `open("...")` targets.
+  Microsoft Python extension/Pylance) for completions and hover, Ctrl+click
+  navigation on `open("...")` targets, and — once a sim has been built at least
+  once — completion/hover/diagnostics for the sim's own variables (e.g.
+  `ball.state.input.mass`), generated from that sim's `S_sie.resource`. Ctrl+click
+  on a sim variable or a `trick.*` name goes to the C++ declaration it was
+  generated from, not the stub.
 * **A build task for `trick-CP`**, runnable for the sim containing the active file,
   with a problem matcher that sends `trick-ICG` parse errors and compiler
   errors/warnings to the Problems panel.
@@ -210,6 +214,36 @@ regenerated automatically when a sim's `S_define` changes. Use **Trick: Regenera
 Python Stubs** (see [Commands](#commands)) to force a refresh — most commonly after
 building Trick for the first time, since that's when `sim_services.py` becomes
 available to scrape for full `trick.*` coverage.
+
+**Sim variable completion and hover** (e.g. `ball.state.input.mass`) work the same
+way, but need a built *sim*, not just a built Trick: every `trick-CP`/`make` build
+regenerates `<sim>/S_sie.resource`, an XML description of that sim's entire
+object/variable tree (classes, members, units, descriptions, enumerations). The
+extension parses it and generates one typed Python class per reachable class, so
+each sim object in `__builtins__.pyi` points at a real type instead of a bare `Any`
+— giving completions, hover text (member units/description), and unknown-attribute
+diagnostics at every nesting depth, not just on the top-level object name. This
+refreshes automatically a moment after each build (watching `S_sie.resource`
+directly, separately from the `S_define` watcher above); an unbuilt sim still gets
+a plain, untyped object — no false "undefined" warnings, just no completions past
+the top level until it's built. If two sims in the same workspace folder declare
+the same object name with different types, that name falls back to `Any` and the
+conflict is logged to the "Trick" output channel rather than guessed at.
+
+**Ctrl+click on a sim variable or a `trick.*` name** goes to the C++ declaration it
+was generated from, not the generated stub those names actually resolve to under the
+hood — the stub just re-declares the name with no body, so landing there isn't useful.
+For example, Ctrl+click on `mass` in `ball.state.input.mass` jumps to `double mass ;`
+in the model header that declares it, Ctrl+click on `ball` jumps to its declaration in
+`S_define`, and Ctrl+click on `exec_set_terminate_time` in `trick.exec_set_terminate_time(...)`
+jumps to its prototype in `include/trick/exec_proto.h`. This also works inside `.dr`
+files' variable-path strings (e.g. `drg0.add_variable("ball.state.output.position[0]")`),
+which Pylance can't resolve at all since to the Python parser that's just a string
+literal. Since VS Code can't suppress Pylance's own stub-pointing result, the extension
+also writes a one-time `[python]`-scoped `editor.gotoLocation.multipleDefinitions:
+"goto"` to the workspace folder's settings (only if nothing there already set a value)
+so Ctrl+click jumps straight to the C++ source instead of opening a picker between the
+two; the stub is still one click away via **Go to Declaration**/Peek Definition.
 
 **Ctrl+click** on an `open("...")` target (e.g.
 `exec(open("Modified_data/Rocket.dr").read())`) jumps to that file, resolved against

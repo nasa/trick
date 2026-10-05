@@ -3,6 +3,7 @@ import { SimConfigProvider } from './simConfig';
 import { TrickCppConfigurationProvider } from './cpptoolsProvider';
 import { TrickIncludeLinkProvider, TrickIncludeDiagnostics } from './sdefineLinks';
 import { TrickSdefineDefinitionProvider } from './sdefineDefinitions';
+import { TrickPythonDefinitionProvider } from './pythonDefinitions';
 import { PythonStubManager } from './pythonStubs';
 import { TrickPythonLinkProvider } from './pythonLinks';
 import { TRICK_TASK_TYPE, TrickTaskProvider, createTrickBuildTask } from './buildTasks';
@@ -48,6 +49,34 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const pythonLinkProvider = new TrickPythonLinkProvider(simConfigs);
   context.subscriptions.push(
     vscode.languages.registerDocumentLinkProvider({ language: 'python' }, pythonLinkProvider)
+  );
+
+  // When both providers return a result for the same symbol, same-selector-score
+  // providers tie-break by registration time, newest first (VS Code's
+  // languageFeatureRegistry._compareByScoreAndTime). Awaiting Pylance's own
+  // activate() isn't enough to guarantee ours registers last: activate() can
+  // resolve before Pylance's language server has finished starting, and
+  // Pylance only registers its DefinitionProvider once that client connects -
+  // which can happen afterward. So instead of registering once, re-register
+  // (dispose + register) on every Python document open, which keeps ours the
+  // most-recently-registered provider no matter when Pylance's shows up.
+  const definitionProvider = new TrickPythonDefinitionProvider(simConfigs);
+  let pythonDefinitionRegistration: vscode.Disposable | undefined;
+  const refreshPythonDefinitionProvider = () => {
+    pythonDefinitionRegistration?.dispose();
+    pythonDefinitionRegistration = vscode.languages.registerDefinitionProvider(
+      { language: 'python', scheme: 'file' },
+      definitionProvider
+    );
+  };
+  refreshPythonDefinitionProvider();
+  context.subscriptions.push(
+    { dispose: () => pythonDefinitionRegistration?.dispose() },
+    vscode.workspace.onDidOpenTextDocument((document) => {
+      if (document.languageId === 'python') {
+        refreshPythonDefinitionProvider();
+      }
+    })
   );
 
   context.subscriptions.push(

@@ -61,7 +61,7 @@ export class TrickSdefineDefinitionProvider implements vscode.DefinitionProvider
 // cpptools' workspace symbol names are sometimes qualified ("Class::member")
 // or carry a parameter list ("update(double)"); strip both before comparing
 // so a plain identifier still matches.
-function symbolMatchesWord(symbolName: string, word: string): boolean {
+export function symbolMatchesWord(symbolName: string, word: string): boolean {
   const baseName = symbolName.split('(')[0].trim();
   return baseName === word || baseName.endsWith(`::${word}`);
 }
