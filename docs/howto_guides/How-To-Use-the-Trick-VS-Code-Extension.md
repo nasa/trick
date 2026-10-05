@@ -50,12 +50,18 @@ It is not currently published to the VS Code Marketplace, so it's installed from
 * **Ctrl+click navigation and unresolved-include diagnostics** on those `#include`/
   `##include` lines, resolved against each sim's `S_overrides.mk` and Trick's own
   system include paths.
-* **Ctrl+click / Go to Definition** on sim object types and job target methods in
-  `S_define`/`.sm` files.
+* **Ctrl+click / Go to Definition** on sim object types in `S_define`/`.sm` files
+  jumps straight to the real `class` definition (the open file, `S_define`, or a
+  `.sm` file under the sim root/`TRICK_SFLAGS`), not the C/C++ extension's generated
+  `S_source.hh`/`S_source_py.i`. Job target methods still resolve via that extension's
+  workspace symbol index.
 * **IntelliSense for model `.c`/`.cpp`/`.h` files** (via the Microsoft C/C++
   extension), using each sim's actual `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/
   `TRICK_SFLAGS` instead of guessing, so Go to Definition/Implementation works across
-  header/source pairs.
+  header/source pairs. Sims are resolved as soon as the workspace loads, except sims
+  that live inside a git submodule or other nested clone — those are indexed the
+  first time a file inside one is opened, so large multi-package workspaces still
+  activate quickly.
 * **Python support for `input.py`/`.dr` files**: `.dr` files recognized as Python,
   snippets for common `trick.*` call patterns, a generated `trick.*` stub (via the
   Microsoft Python extension/Pylance) for completions and hover, Ctrl+click
@@ -151,10 +157,17 @@ that header, resolved against the owning sim's `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/
 target can't be resolved anywhere, it's underlined as an **unresolved-include
 diagnostic** instead of silently failing.
 
-**Ctrl+click / Go to Definition** also works on sim object types and job target
-methods (e.g. `IHM::SimObject ihm;` or `ihm.update();`), using the C/C++ extension's
-own workspace symbol index — so this requires the C/C++ extension to have indexed the
-relevant header/source files first.
+**Ctrl+click / Go to Definition** also works on sim object types (e.g.
+`IHM::SimObject ihm;`). A SimObject class can only be defined in `S_define` itself or
+a `.sm` file, so it's resolved directly: the currently open file first, then
+`S_define`, then `.sm` files under the sim root and its `TRICK_SFLAGS` include paths
+(from `S_overrides.mk`, including anything a makefile it `include`s adds). This finds
+the real class definition even when the C/C++ extension's own index would only see
+the generated `S_source.hh`/`S_source_py.i` (it doesn't parse `.sm` files at all).
+
+Job target methods (e.g. `ihm.update();`) aren't confined to `S_define`/`.sm`, so
+those still use the C/C++ extension's own workspace symbol index — which requires it
+to have indexed the relevant header/source files first.
 
 ---
 

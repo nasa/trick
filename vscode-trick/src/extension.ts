@@ -19,14 +19,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(cppProvider);
   await cppProvider.activate();
 
-  // Warm every sim's config up front so cpptools' Tag Parser has a complete
-  // browse path from the start, letting it resolve cross-file navigation
-  // (e.g. header method declaration -> .cpp implementation) without first
-  // requiring every file to be opened manually.
-  void simConfigs.warmAllSimRoots().then(() => {
-    cppProvider.notifyBrowseConfigurationChanged();
-    output.appendLine(`Warmed ${simConfigs.getAllCached().length} sim configuration(s) for IntelliSense browsing.`);
-  });
+  // Warm every *primary* sim's config up front (sims not inside a nested git
+  // repo - see warmPrimarySimRoots) so cpptools' Tag Parser has a complete
+  // browse path from the start for those, letting it resolve cross-file
+  // navigation (e.g. header method declaration -> .cpp implementation)
+  // without first requiring every file to be opened manually. Sims inside a
+  // nested repo join the browse path lazily instead, via onDidResolve.
+  void simConfigs.warmPrimarySimRoots();
 
   const pythonStubs = new PythonStubManager(simConfigs, output);
   context.subscriptions.push(pythonStubs);
@@ -79,11 +78,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     })
   );
 
+  const sdefineDefinitionProvider = new TrickSdefineDefinitionProvider(simConfigs);
   context.subscriptions.push(
-    vscode.languages.registerDefinitionProvider(
-      { language: 'trick-sdefine' },
-      new TrickSdefineDefinitionProvider()
-    )
+    sdefineDefinitionProvider,
+    vscode.languages.registerDefinitionProvider({ language: 'trick-sdefine' }, sdefineDefinitionProvider)
   );
 
   const diagnostics = new TrickIncludeDiagnostics(simConfigs);

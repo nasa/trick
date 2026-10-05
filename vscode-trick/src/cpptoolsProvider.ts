@@ -20,6 +20,7 @@ export class TrickCppConfigurationProvider implements CustomConfigurationProvide
   readonly extensionId = 'trick-sim.vscode-trick';
 
   private api: CppToolsApi | undefined;
+  private browseRefreshTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(private readonly simConfigs: SimConfigProvider, private readonly output: vscode.OutputChannel) {
     this.simConfigs.onDidInvalidate((simRoot) => {
@@ -27,10 +28,21 @@ export class TrickCppConfigurationProvider implements CustomConfigurationProvide
       this.api?.didChangeCustomBrowseConfiguration(this);
       this.output.appendLine(`[${simRoot}] configuration invalidated, notified cpptools`);
     });
-  }
-
-  notifyBrowseConfigurationChanged(): void {
-    this.api?.didChangeCustomBrowseConfiguration(this);
+    // Sims inside a nested git repo (see SimConfigProvider.warmPrimarySimRoots)
+    // aren't warmed at startup, so they join the cache - and need to join the
+    // browse path - the first time a file inside one is opened. Debounced
+    // since opening several files in a newly-touched sim at once (e.g. VS
+    // Code restoring a previous session's open tabs) would otherwise fire one
+    // re-crawl per file.
+    this.simConfigs.onDidResolve((simRoot) => {
+      if (this.browseRefreshTimer) {
+        clearTimeout(this.browseRefreshTimer);
+      }
+      this.browseRefreshTimer = setTimeout(() => {
+        this.api?.didChangeCustomBrowseConfiguration(this);
+      }, 500);
+      this.output.appendLine(`[${simRoot}] configuration resolved, scheduled cpptools browse path refresh`);
+    });
   }
 
   async activate(): Promise<void> {
@@ -50,6 +62,9 @@ export class TrickCppConfigurationProvider implements CustomConfigurationProvide
   }
 
   dispose(): void {
+    if (this.browseRefreshTimer) {
+      clearTimeout(this.browseRefreshTimer);
+    }
     this.api?.dispose();
   }
 

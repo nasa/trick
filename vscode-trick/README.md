@@ -15,13 +15,21 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   resolved against the owning sim's `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/`TRICK_SFLAGS`
   (from that sim's `S_overrides.mk`) as well as Trick's own system include paths.
 - **Unresolved-include diagnostics** when a target can't be found in any of the above.
-- **Ctrl+click / Go to Definition** on sim object types and job target methods in
-  `S_define`/`.sm` files (e.g. `IHM::SimObject ihm;` or `ihm.update()`), resolved via
-  the C/C++ extension's own workspace symbol index.
+- **Ctrl+click / Go to Definition** on sim object types in `S_define`/`.sm` files
+  (e.g. `IHM::SimObject ihm;`) jumps straight to the real `class IHM::SimObject`
+  definition - checking the open file first, then `S_define`, then `.sm` files under
+  the sim root and its `TRICK_SFLAGS` include paths - instead of the C/C++
+  extension's generated `S_source.hh`/`S_source_py.i`, which is all its workspace
+  symbol index can see (`.sm` isn't a C/C++ extension it indexes at all). Job target
+  methods (`ihm.update()`) aren't confined to those file types, so they still resolve
+  through that workspace symbol index.
 - **IntelliSense for model `.c`/`.cpp`/`.h` files** via a Custom Configuration Provider
   for the Microsoft C/C++ extension, so each sim's own include paths are used instead
   of guessing — no more false "cannot open source file" squiggles, and Go to
-  Definition/Implementation works across header/source pairs.
+  Definition/Implementation works across header/source pairs. Sims are resolved up
+  front so this works as soon as the workspace loads — except sims that live inside a
+  git submodule or other nested clone, which are indexed the first time a file inside
+  one is opened instead, so large multi-package workspaces still activate quickly.
 - **Python support for `input.py`/`.dr` files**: `.dr` files (plain Python, pulled in
   via `exec(open(...).read())`) are recognized as Python; snippets for common
   `trick.*` call patterns (real-time setup, data record groups, `add_read`, Sim

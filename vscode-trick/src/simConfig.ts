@@ -34,6 +34,9 @@ export class SimConfigProvider implements vscode.Disposable {
   private readonly watcher: vscode.FileSystemWatcher;
   private readonly onDidInvalidateEmitter = new vscode.EventEmitter<string>();
   readonly onDidInvalidate = this.onDidInvalidateEmitter.event;
+  private readonly onDidResolveEmitter = new vscode.EventEmitter<string>();
+  /** Fires when a sim's config is resolved for the first time (not on cache hits). */
+  readonly onDidResolve = this.onDidResolveEmitter.event;
 
   constructor(output: vscode.OutputChannel) {
     this.output = output;
@@ -52,10 +55,15 @@ export class SimConfigProvider implements vscode.Disposable {
       // A brand-new S_define means a brand-new sim that was never cached, so
       // `invalidate` above is a no-op for it - warm it explicitly so it joins
       // the cpptools browse path without requiring a file inside it to be
-      // opened first.
+      // opened first. Skipped for sims inside a nested git repo (submodule or
+      // nested clone), same as warmPrimarySimRoots, so a `git submodule
+      // update` that adds sims doesn't trigger a burst of `make` calls.
       if (path.basename(uri.fsPath) === 'S_define') {
         const simRoot = path.dirname(uri.fsPath);
-        void this.getConfig(simRoot).then(() => this.onDidInvalidateEmitter.fire(simRoot));
+        const workspaceRoot = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+        if (!isInNestedRepo(simRoot, workspaceRoot)) {
+          void this.getConfig(simRoot).then(() => this.onDidInvalidateEmitter.fire(simRoot));
+        }
       }
     });
     this.watcher.onDidDelete(invalidate);
@@ -64,6 +72,7 @@ export class SimConfigProvider implements vscode.Disposable {
   dispose(): void {
     this.watcher.dispose();
     this.onDidInvalidateEmitter.dispose();
+    this.onDidResolveEmitter.dispose();
   }
 
   /** Walks up from fsPath looking for a directory containing S_define. */
@@ -120,19 +129,37 @@ export class SimConfigProvider implements vscode.Disposable {
   }
 
   /**
-   * Eagerly resolves and caches every sim in the workspace (every directory
-   * containing an S_define). cpptools' Tag Parser uses provideBrowseConfiguration's
-   * browsePath to resolve cross-file navigation (e.g. jumping from a method
-   * declared in a header to its out-of-line definition in a .cpp), and that
-   * path is built from getAllCached() - without this warm-up it would stay
-   * empty until a file in each sim happened to be opened individually.
+   * Eagerly resolves and caches every *primary* sim in the workspace - every
+   * directory containing an S_define that isn't inside a nested git repo
+   * (a submodule, where `.git` is a file, or any other nested clone). cpptools'
+   * Tag Parser uses provideBrowseConfiguration's browsePath to resolve
+   * cross-file navigation (e.g. jumping from a method declared in a header to
+   * its out-of-line definition in a .cpp), and that path is built from
+   * getAllCached() - without this warm-up it would stay empty until a file in
+   * each sim happened to be opened individually.
+   *
+   * Sims inside a nested repo are skipped here on purpose: a multi-package
+   * workspace (e.g. a top-level repo with a dozen vendored libraries as git
+   * submodules, each shipping its own demo/verification sims) can have
+   * hundreds of those, and resolving all of them up front - one `make`
+   * subprocess per sim - makes activation slow and floods cpptools' browse
+   * path with directories from packages nobody's actually working in. Those
+   * sims are still fully supported - they're just resolved lazily, the first
+   * time a file inside one is opened (via getConfigForFile), same as any sim
+   * that isn't warmed. getConfig() firing onDidResolve on that first
+   * resolution is what adds them to the browse path at that point.
    */
-  async warmAllSimRoots(): Promise<void> {
+  async warmPrimarySimRoots(): Promise<void> {
     const sDefineFiles = await vscode.workspace.findFiles(
       '**/S_define',
       '**/{node_modules,.git}/**'
     );
-    const roots = new Set(sDefineFiles.map((f) => path.dirname(f.fsPath)));
+    const roots = new Set(
+      sDefineFiles
+        .filter((f) => !isInNestedRepo(path.dirname(f.fsPath), vscode.workspace.getWorkspaceFolder(f)?.uri.fsPath))
+        .map((f) => path.dirname(f.fsPath))
+    );
+    const skipped = sDefineFiles.length - roots.size;
     await Promise.all(
       [...roots].map((root) =>
         this.getConfig(root).catch((err) => {
@@ -140,6 +167,13 @@ export class SimConfigProvider implements vscode.Disposable {
         })
       )
     );
+    if (skipped > 0) {
+      this.output.appendLine(
+        `Warmed ${roots.size} sim configuration(s); ${skipped} sim(s) inside nested git repos will be resolved on first use.`
+      );
+    } else {
+      this.output.appendLine(`Warmed ${roots.size} sim configuration(s) for IntelliSense browsing.`);
+    }
   }
 
   async getConfig(simRoot: string): Promise<SimConfig> {
@@ -149,6 +183,7 @@ export class SimConfigProvider implements vscode.Disposable {
     }
     const config = await this.resolveConfig(simRoot);
     this.cache.set(simRoot, config);
+    this.onDidResolveEmitter.fire(simRoot);
     return config;
   }
 
@@ -370,4 +405,34 @@ export class SimConfigProvider implements vscode.Disposable {
       raw,
     };
   }
+}
+
+/**
+ * True if `simRoot` sits inside a nested git repo relative to `workspaceRoot` -
+ * a submodule (whose root has a `.git` *file* pointing at the parent repo's
+ * `.git/modules/...`) or any other nested clone (`.git` as a directory). The
+ * workspace root's own `.git` doesn't count: only directories strictly
+ * between it and simRoot are checked. If simRoot isn't under workspaceRoot
+ * (or workspaceRoot is unknown), this returns false - treat it as primary.
+ */
+export function isInNestedRepo(simRoot: string, workspaceRoot: string | undefined): boolean {
+  if (!workspaceRoot) {
+    return false;
+  }
+  const relative = path.relative(workspaceRoot, simRoot);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    return false;
+  }
+  let dir = simRoot;
+  while (dir !== workspaceRoot) {
+    if (fs.existsSync(path.join(dir, '.git'))) {
+      return true;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      return false;
+    }
+    dir = parent;
+  }
+  return false;
 }

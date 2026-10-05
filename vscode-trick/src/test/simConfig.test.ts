@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 
 // Minimal stand-in for the `vscode` module so simConfig.ts can be loaded under
@@ -34,7 +35,7 @@ Module._load = function (request: string, ...rest: unknown[]) {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { SimConfigProvider } = require('../simConfig');
+const { SimConfigProvider, isInNestedRepo } = require('../simConfig');
 
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const TRICK_HOME = REPO_ROOT;
@@ -114,5 +115,70 @@ describe('SimConfigProvider regex fallback', () => {
         process.env.TRICK_HOME = savedHome;
       }
     }
+  });
+});
+
+describe('isInNestedRepo', () => {
+  let workspaceRoot: string;
+
+  beforeEach(() => {
+    workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-nested-repo-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(workspaceRoot, { recursive: true, force: true });
+  });
+
+  it('is false for a sim directly under the workspace root\'s own .git', () => {
+    fs.mkdirSync(path.join(workspaceRoot, '.git'));
+    const simRoot = path.join(workspaceRoot, 'sims', 'SIM_a');
+    fs.mkdirSync(simRoot, { recursive: true });
+    assert.strictEqual(isInNestedRepo(simRoot, workspaceRoot), false);
+  });
+
+  it('is true for a sim inside a submodule (.git as a file)', () => {
+    const submoduleRoot = path.join(workspaceRoot, 'sub');
+    fs.mkdirSync(submoduleRoot, { recursive: true });
+    fs.writeFileSync(path.join(submoduleRoot, '.git'), 'gitdir: ../.git/modules/sub\n');
+    const simRoot = path.join(submoduleRoot, 'sims', 'SIM_b');
+    fs.mkdirSync(simRoot, { recursive: true });
+    assert.strictEqual(isInNestedRepo(simRoot, workspaceRoot), true);
+  });
+
+  it('is true for a sim inside any other nested clone (.git as a directory)', () => {
+    const cloneRoot = path.join(workspaceRoot, 'clone');
+    fs.mkdirSync(path.join(cloneRoot, '.git'), { recursive: true });
+    const simRoot = path.join(cloneRoot, 'SIM_c');
+    fs.mkdirSync(simRoot, { recursive: true });
+    assert.strictEqual(isInNestedRepo(simRoot, workspaceRoot), true);
+  });
+
+  it('is true when the sim root is itself the nested repo root', () => {
+    const submoduleRoot = path.join(workspaceRoot, 'sub');
+    fs.mkdirSync(submoduleRoot, { recursive: true });
+    fs.writeFileSync(path.join(submoduleRoot, '.git'), 'gitdir: ../.git/modules/sub\n');
+    assert.strictEqual(isInNestedRepo(submoduleRoot, workspaceRoot), true);
+  });
+
+  it('is false when the sim root equals the workspace root', () => {
+    assert.strictEqual(isInNestedRepo(workspaceRoot, workspaceRoot), false);
+  });
+
+  it('is false when the sim root is outside the workspace root', () => {
+    const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-outside-'));
+    try {
+      assert.strictEqual(isInNestedRepo(outside, workspaceRoot), false);
+    } finally {
+      fs.rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  it('is false when the workspace root is unknown', () => {
+    assert.strictEqual(isInNestedRepo(path.join(workspaceRoot, 'sims', 'SIM_a'), undefined), false);
+  });
+
+  it('is false for a real sim in the Trick repo itself (no nested .git)', () => {
+    const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_robot');
+    assert.strictEqual(isInNestedRepo(simRoot, REPO_ROOT), false);
   });
 });
