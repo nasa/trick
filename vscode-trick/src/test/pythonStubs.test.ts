@@ -98,20 +98,26 @@ describe('pythonStubs', () => {
   });
 
   describe('parseSimObjectNames', () => {
-    it('finds the single sim object in SIM_rocket/S_define', () => {
+    it('finds the sim object and its IntegLoop in SIM_rocket/S_define', () => {
       const text = fs.readFileSync(path.join(REPO_ROOT, 'trick_sims/SIM_rocket/S_define'), 'utf8');
-      assert.deepStrictEqual(parseSimObjectNames(text), ['dyn']);
+      assert.deepStrictEqual(parseSimObjectNames(text), ['dyn', 'dyn_integloop']);
     });
 
-    it('finds the sim object in Cannon/SIM_cannon_aero/S_define', () => {
+    it('finds the sim object and its IntegLoop in Cannon/SIM_cannon_aero/S_define', () => {
       const text = fs.readFileSync(
         path.join(REPO_ROOT, 'trick_sims/Cannon/SIM_cannon_aero/S_define'),
         'utf8'
       );
-      assert.deepStrictEqual(parseSimObjectNames(text), ['dyn']);
+      assert.deepStrictEqual(parseSimObjectNames(text), ['dyn', 'dyn_integloop']);
     });
 
-    it('ignores IntegLoop declarations, job_class_order, and class bodies', () => {
+    it('finds an IntegLoop whose integrand trails the cycle-time parens, as in SIM_robot/S_define', () => {
+      const text = fs.readFileSync(path.join(REPO_ROOT, 'trick_sims/SIM_robot/S_define'), 'utf8');
+      assert.ok(text.includes('IntegLoop armIntegLoop(0.050) Manip2D;'));
+      assert.ok(parseSimObjectNames(text).includes('armIntegLoop'));
+    });
+
+    it('captures IntegLoop names but ignores job_class_order and class bodies', () => {
       const text = [
         'class Foo {',
         '  public:',
@@ -127,14 +133,21 @@ describe('pythonStubs', () => {
         '  int x;',
         '}',
       ].join('\n');
-      assert.deepStrictEqual(parseSimObjectNames(text), ['ihm']);
+      assert.deepStrictEqual(parseSimObjectNames(text), ['ihm', 'dyn_integloop']);
     });
   });
 
   describe('generateBuiltinsStub', () => {
-    it('declares trick plus each sim object name, deduplicated and sorted', () => {
+    it('re-exports the modules Trick pre-imports, plus each sim object name, deduplicated and sorted', () => {
       const stub = generateBuiltinsStub(['dyn', 'ihm', 'dyn']);
-      assert.ok(stub.includes('trick: Any'));
+      // trick/os/sys/struct/binascii are bound by IPPython's bootstrap before
+      // input.py runs - re-exported (not `: Any`) so Pylance keeps real
+      // completions/hover for e.g. os.path.isfile without an explicit import.
+      assert.ok(stub.includes('import trick as trick'));
+      assert.ok(stub.includes('import os as os'));
+      assert.ok(stub.includes('import sys as sys'));
+      assert.ok(stub.includes('import struct as struct'));
+      assert.ok(stub.includes('import binascii as binascii'));
       assert.ok(stub.includes('dyn: Any'));
       assert.ok(stub.includes('ihm: Any'));
       assert.strictEqual((stub.match(/^dyn: Any$/gm) ?? []).length, 1);

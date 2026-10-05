@@ -27,9 +27,14 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   `trick.*` call patterns (real-time setup, data record groups, `add_read`, Sim
   Control Panel/Trick View, ...); and a generated `trick.*` stub (scraped from a
   built Trick's `sim_services.py`/`shortcuts.py`, curated for the most common calls)
-  plus a generated `__builtins__.pyi` declaring `trick` and each sim's object names,
+  plus a generated `__builtins__.pyi` re-exporting `trick`/`os`/`sys`/`struct`/
+  `binascii` (pre-imported by Trick's input processor before input.py runs) and
+  declaring each sim's object names (including `IntegLoop`s, e.g. `armIntegLoop`),
   so the Python extension's IntelliSense (Pylance) offers completions/hover for
-  `trick.*` and stops flagging `trick`/sim objects as undefined.
+  `trick.*` and stops flagging `trick`/sim objects/those modules as undefined.
+- **Ctrl+click navigation** on `open("...")` targets in `input.py`/`.dr` files (e.g.
+  `exec(open("Modified_data/Rocket.dr").read())`), resolved against the sim root
+  (where Trick's own working directory is) first, then the file's own directory.
 
 ## Requirements
 

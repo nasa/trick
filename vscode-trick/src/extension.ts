@@ -4,6 +4,7 @@ import { TrickCppConfigurationProvider } from './cpptoolsProvider';
 import { TrickIncludeLinkProvider, TrickIncludeDiagnostics } from './sdefineLinks';
 import { TrickSdefineDefinitionProvider } from './sdefineDefinitions';
 import { PythonStubManager } from './pythonStubs';
+import { TrickPythonLinkProvider } from './pythonLinks';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const output = vscode.window.createOutputChannel('Trick');
@@ -41,6 +42,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const linkProvider = new TrickIncludeLinkProvider(simConfigs);
   context.subscriptions.push(
     vscode.languages.registerDocumentLinkProvider({ language: 'trick-sdefine' }, linkProvider)
+  );
+
+  const pythonLinkProvider = new TrickPythonLinkProvider(simConfigs);
+  context.subscriptions.push(
+    vscode.languages.registerDocumentLinkProvider({ language: 'python' }, pythonLinkProvider)
   );
 
   context.subscriptions.push(
