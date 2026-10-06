@@ -214,9 +214,10 @@ describe('buildPythonPaths', () => {
     fs.rmSync(trickHome, { recursive: true, force: true });
   });
 
-  it('always includes the sim root and TRICK_HOME pymods, in that order', () => {
+  it('always includes TRICK_HOME pymods, but not the sim root itself', () => {
     const dirs = buildPythonPaths(simRoot, trickHome, '');
-    assert.deepStrictEqual(dirs, [simRoot, path.join(trickHome, 'share', 'trick', 'pymods')]);
+    assert.deepStrictEqual(dirs, [path.join(trickHome, 'share', 'trick', 'pymods')]);
+    assert.ok(!dirs.includes(simRoot));
   });
 
   it('includes <simRoot>/Modified_data only if it exists', () => {
@@ -255,6 +256,6 @@ describe('buildPythonPaths', () => {
 
   it('works with no TRICK_HOME', () => {
     const dirs = buildPythonPaths(simRoot, undefined, '');
-    assert.deepStrictEqual(dirs, [simRoot]);
+    assert.deepStrictEqual(dirs, []);
   });
 });

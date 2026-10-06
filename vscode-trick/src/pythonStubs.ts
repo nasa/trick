@@ -588,15 +588,15 @@ export class PythonStubManager implements vscode.Disposable {
   }
 
   // Keeps python.analysis.extraPaths in sync with the stub dir and each
-  // scoped sim's TRICK_PYTHON_PATH (see SimConfig.pythonPaths) - the sim root
-  // itself, TRICK_HOME's pymods, <simRoot>/Modified_data, and whatever
-  // S_overrides.mk sets - so `import ParseJson` / `from Modified_data.x
-  // import y`-style imports resolve the same way Trick's input processor
-  // resolves them at runtime (IPPython.cpp), not just the generated stub.
-  // Entries this method added last time (tracked in workspace state, keyed
-  // per folder) are replaced wholesale on each refresh - e.g. a sim dropped
-  // from S_overrides.mk stops being suggested - while anything the user
-  // added themselves is left alone.
+  // scoped sim's TRICK_PYTHON_PATH (see SimConfig.pythonPaths) - TRICK_HOME's
+  // pymods, <simRoot>/Modified_data, and whatever S_overrides.mk sets - so
+  // e.g. `import ParseJson` resolves the same way Trick's input processor
+  // resolves it at runtime (IPPython.cpp), not just the generated stub. The
+  // sim root itself is deliberately not included here - see the
+  // SimConfig.pythonPaths doc comment. Entries this method added last time
+  // (tracked in workspace state, keyed per folder) are replaced wholesale on
+  // each refresh - e.g. a sim dropped from S_overrides.mk stops being
+  // suggested - while anything the user added themselves is left alone.
   private async ensureExtraPaths(folder: vscode.WorkspaceFolder, pythonPaths: string[]): Promise<void> {
     const stateKey = `trick.managedExtraPaths:${folder.uri.fsPath}`;
     const previouslyManaged = new Set(this.state.get<string[]>(stateKey, []));

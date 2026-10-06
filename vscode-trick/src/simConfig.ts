@@ -15,10 +15,17 @@ export interface SimConfig {
   compilerPath?: string;
   cCompilerPath?: string;
   /**
-   * Directories Trick's input processor adds to sys.path before running
-   * input.py (see IPPython.cpp): the sim root itself (its cwd at runtime),
-   * TRICK_HOME's pymods, <simRoot>/Modified_data, and TRICK_PYTHON_PATH
-   * (set in S_overrides.mk), in that order.
+   * A subset of the directories Trick's input processor adds to sys.path
+   * before running input.py (see IPPython.cpp): TRICK_HOME's pymods,
+   * <simRoot>/Modified_data, and TRICK_PYTHON_PATH (set in S_overrides.mk).
+   * Deliberately excludes the sim root itself - unlike these, which are
+   * narrow, bounded directories, a sim root can contain build output, every
+   * RUN_* directory, and other large generated trees that Pylance's
+   * extraPaths-driven indexer (which doesn't honor .gitignore the way normal
+   * workspace indexing does) will try to crawl in full, hanging indefinitely
+   * on a large sim. Imports written relative to the sim root itself (e.g.
+   * `from Modified_data.utils.x import y` from a RUN directory) are not
+   * supported as a result - only imports reachable via one of these.
    */
   pythonPaths: string[];
   raw: Record<string, string>;
@@ -427,13 +434,13 @@ export class SimConfigProvider implements vscode.Disposable {
 }
 
 /**
- * Builds the sys.path entries Trick's input processor adds at runtime (see
- * IPPython.cpp): the sim root (its cwd when running), TRICK_HOME's pymods,
- * <simRoot>/Modified_data, then each TRICK_PYTHON_PATH entry - in that order,
- * since that's the order `from Modified_data.x import y`-style imports need
- * (sim root first). Relative entries are resolved against simRoot, and
- * entries that don't exist on disk (e.g. an unexpanded `$(DOUG_HOME)` when
- * that env var isn't set) are dropped rather than guessed at.
+ * Builds a narrow subset of the sys.path entries Trick's input processor adds
+ * at runtime (see IPPython.cpp): TRICK_HOME's pymods, <simRoot>/Modified_data,
+ * then each TRICK_PYTHON_PATH entry. The sim root itself is deliberately left
+ * out - see the SimConfig.pythonPaths doc comment for why. Relative
+ * TRICK_PYTHON_PATH entries are resolved against simRoot, and entries that
+ * don't exist on disk (e.g. an unexpanded `$(DOUG_HOME)` when that env var
+ * isn't set) are dropped rather than guessed at.
  */
 export function buildPythonPaths(
   simRoot: string,
@@ -441,7 +448,6 @@ export function buildPythonPaths(
   rawPythonPath: string
 ): string[] {
   const candidates = [
-    simRoot,
     ...(trickHome ? [path.join(trickHome, 'share', 'trick', 'pymods')] : []),
     path.join(simRoot, 'Modified_data'),
     ...rawPythonPath.split(':').map((p) => p.trim()),

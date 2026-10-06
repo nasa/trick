@@ -61,12 +61,19 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   that Pylance can't resolve at all. The stub stays one click away via **Go to
   Declaration**/Peek.
 - **`TRICK_PYTHON_PATH` support**: each sim's `TRICK_PYTHON_PATH` (set in
-  `S_overrides.mk`) plus the sim root itself, `<simRoot>/Modified_data`, and
-  `$TRICK_HOME/share/trick/pymods` — the same directories Trick's input processor
-  adds to `sys.path` before running `input.py` — are kept in sync with
-  `python.analysis.extraPaths`, so a real `import` that only resolves through one of
-  those paths (e.g. `import ParseJson as pj`, or `from Modified_data.utils.logger
-  import ...`) works the same in Pylance as it does at runtime. Entries this
+  `S_overrides.mk`) plus `<simRoot>/Modified_data` and `$TRICK_HOME/share/trick/pymods`
+  — a subset of the directories Trick's input processor adds to `sys.path` before
+  running `input.py` — are kept in sync with `python.analysis.extraPaths`, so a real
+  `import` that only resolves through one of those paths (e.g. `import ParseJson as
+  pj`) works the same in Pylance as it does at runtime. The sim root itself is
+  deliberately left out, even though Trick's input processor adds it too: unlike
+  these, a sim root can contain build output, every `RUN_*` directory, and other
+  large generated trees that Pylance's `extraPaths` indexer will try to crawl in
+  full (it doesn't respect `.gitignore` the way normal workspace indexing does),
+  which can hang Pylance indefinitely on a large sim. As a result, an import
+  written relative to the sim root itself (e.g. `from Modified_data.utils.logger
+  import ...` from a `RUN_*` directory) isn't supported — only imports reachable via
+  `TRICK_PYTHON_PATH`, a sim's own `Modified_data`, or `pymods`. Entries this
   extension added are replaced on each refresh as sims change; anything you add
   yourself to `extraPaths` is left alone. Since `extraPaths` is one flat list per
   workspace folder, two sims that both have a same-named module under

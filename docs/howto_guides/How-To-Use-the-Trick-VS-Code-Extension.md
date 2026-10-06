@@ -271,14 +271,23 @@ processor (`IPPython.cpp`) puts the sim root, `<simRoot>/Modified_data`,
 `$TRICK_HOME/share/trick/pymods`, and each directory in `S_overrides.mk`'s
 `TRICK_PYTHON_PATH` onto `sys.path` before running `input.py`. Pylance doesn't know
 about any of that on its own, so a real `import` that only resolves through one of
-those paths (e.g. `import ParseJson as pj`, or `from Modified_data.utils.logger
-import ...`) shows up as unresolved. The extension resolves the same directories and
+those paths (e.g. `import ParseJson as pj`) shows up as unresolved. The extension
+resolves `<simRoot>/Modified_data`, `pymods`, and `TRICK_PYTHON_PATH`'s entries, and
 keeps them in `python.analysis.extraPaths` for each workspace folder, added
 alongside the generated stub path and refreshed whenever a sim's `S_overrides.mk`
-changes; anything you've added to `extraPaths` yourself is left alone. Because
-`extraPaths` is one flat list per workspace folder rather than per sim, two sims in
-the same folder that both have a same-named module under `Modified_data` will
-collide — Pylance resolves against whichever sim's path happens to come first.
+changes; anything you've added to `extraPaths` yourself is left alone. The sim root
+itself is deliberately **not** added, even though Trick puts it on `sys.path` too:
+unlike those other directories, a sim root can contain build output, every `RUN_*`
+directory, and other large generated trees, and Pylance's `extraPaths` indexer tries
+to crawl everything under an entry in full (it doesn't honor `.gitignore` the way
+normal workspace indexing does) — adding a whole sim root this way can hang Pylance
+indexing indefinitely on a large sim. The practical effect is that an import written
+relative to the sim root itself (e.g. `from Modified_data.utils.logger import ...`
+from a `RUN_*` directory, rather than from `Modified_data` reached via
+`TRICK_PYTHON_PATH`) still shows up as unresolved. Because `extraPaths` is one flat
+list per workspace folder rather than per sim, two sims in the same folder that both
+have a same-named module under `Modified_data` will also collide — Pylance resolves
+against whichever sim's path happens to come first.
 
 ---
 
