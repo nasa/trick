@@ -56,9 +56,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // activate() isn't enough to guarantee ours registers last: activate() can
   // resolve before Pylance's language server has finished starting, and
   // Pylance only registers its DefinitionProvider once that client connects -
-  // which can happen afterward. So instead of registering once, re-register
-  // (dispose + register) on every Python document open, which keeps ours the
-  // most-recently-registered provider no matter when Pylance's shows up.
+  // which can happen well after a document is opened (its LSP server is a
+  // separate process that can take several seconds to spin up, especially on
+  // a cold start). Re-registering just once per document open isn't enough
+  // either: if Pylance's registration lands after that one re-registration,
+  // Pylance stays "newest" - and therefore wins every Ctrl+click - until some
+  // other Python document happens to be opened (e.g. the very stub file
+  // Pylance's own result just navigated to, which is what made the bug look
+  // like only ever the *second* click onward resolved correctly). So instead
+  // of a single re-register, re-assert ourselves repeatedly for a few seconds
+  // after each open, which re-wins the tie-break once Pylance does show up
+  // without needing a "Pylance is ready" signal (none is publicly exposed).
   const definitionProvider = new TrickPythonDefinitionProvider(simConfigs);
   let pythonDefinitionRegistration: vscode.Disposable | undefined;
   const refreshPythonDefinitionProvider = () => {
@@ -68,12 +76,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       definitionProvider
     );
   };
+  let outrunPylanceTimers: ReturnType<typeof setTimeout>[] = [];
+  const outrunPylanceRegistration = () => {
+    outrunPylanceTimers.forEach(clearTimeout);
+    outrunPylanceTimers = [300, 1000, 3000, 8000].map((delay) =>
+      setTimeout(refreshPythonDefinitionProvider, delay)
+    );
+  };
   refreshPythonDefinitionProvider();
+  outrunPylanceRegistration();
   context.subscriptions.push(
-    { dispose: () => pythonDefinitionRegistration?.dispose() },
+    {
+      dispose: () => {
+        pythonDefinitionRegistration?.dispose();
+        outrunPylanceTimers.forEach(clearTimeout);
+      },
+    },
     vscode.workspace.onDidOpenTextDocument((document) => {
       if (document.languageId === 'python') {
         refreshPythonDefinitionProvider();
+        outrunPylanceRegistration();
       }
     })
   );
