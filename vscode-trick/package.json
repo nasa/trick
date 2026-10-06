@@ -40,7 +40,11 @@
         "extensions": [
           ".sm"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/trick-flag.png",
+          "dark": "./icons/trick-flag.png"
+        }
       },
       {
         "id": "python",

@@ -5,6 +5,10 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
 
 ## Features
 
+- **File icon** (the Trick checkered flag) for `S_define` and `.sm` files in the
+  Explorer and editor tabs. Only shown if your active file icon theme doesn't
+  already have a specific icon for them — most do fall back to this, but a few
+  (e.g. Minimal) opt out of showing any extension-contributed icons.
 - **Syntax highlighting** for `S_define` and `.sm` files: model header includes
   (`##include`) vs. CP-parsed includes (`#include`), `%header{ }` / `%{ }` raw code
   blocks, job declarations (`C1 {tag} P2 (0.01, "scheduled") obj.method();`), and the
