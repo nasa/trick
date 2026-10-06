@@ -370,7 +370,8 @@ export class PythonStubManager implements vscode.Disposable {
 
   constructor(
     private readonly simConfigs: SimConfigProvider,
-    private readonly output: vscode.OutputChannel
+    private readonly output: vscode.OutputChannel,
+    private readonly state: vscode.Memento
   ) {
     this.disposables.push(simConfigs.onDidInvalidate(() => void this.refreshAll()));
 
@@ -474,12 +475,26 @@ export class PythonStubManager implements vscode.Disposable {
 
     const objectNames = new Set<string>();
     const typeRefsByName = new Map<string, { moduleName: string; className: string }[]>();
+    const pythonPathDirs = new Set<string>();
     let wroteAnySieStub = false;
     for (const sdefineFile of sDefineFiles) {
       const simRoot = path.dirname(sdefineFile.fsPath);
       const text = fs.readFileSync(sdefineFile.fsPath, 'utf8');
       for (const name of parseSimObjectNames(text)) {
         objectNames.add(name);
+      }
+
+      // Sim roots here are already resolved (or cheap cache hits) by
+      // warmPrimarySimRoots/onDidResolve - see the scoping filter above - so
+      // this doesn't reintroduce the per-sim `make` cost that filter exists
+      // to avoid, except for the same one-time race at activation.
+      try {
+        const config = await this.simConfigs.getConfig(simRoot);
+        for (const dir of config.pythonPaths) {
+          pythonPathDirs.add(dir);
+        }
+      } catch (err) {
+        this.output.appendLine(`[python-stubs] ${simRoot}: failed to resolve TRICK_PYTHON_PATH: ${err}`);
       }
 
       const siePath = path.join(simRoot, 'S_sie.resource');
@@ -530,7 +545,7 @@ export class PythonStubManager implements vscode.Disposable {
     this.writeIfChanged(path.join(folderPath, '__builtins__.pyi'), builtinsStub);
 
     this.excludeFromGit(folderPath);
-    await this.ensureExtraPath(folder);
+    await this.ensureExtraPaths(folder, [...pythonPathDirs]);
     await this.ensureGotoSetting(folder);
   }
 
@@ -572,17 +587,30 @@ export class PythonStubManager implements vscode.Disposable {
     fs.writeFileSync(excludePath, existing + prefix + toAdd.join('\n') + '\n', 'utf8');
   }
 
-  private async ensureExtraPath(folder: vscode.WorkspaceFolder): Promise<void> {
+  // Keeps python.analysis.extraPaths in sync with the stub dir and each
+  // scoped sim's TRICK_PYTHON_PATH (see SimConfig.pythonPaths) - the sim root
+  // itself, TRICK_HOME's pymods, <simRoot>/Modified_data, and whatever
+  // S_overrides.mk sets - so `import ParseJson` / `from Modified_data.x
+  // import y`-style imports resolve the same way Trick's input processor
+  // resolves them at runtime (IPPython.cpp), not just the generated stub.
+  // Entries this method added last time (tracked in workspace state, keyed
+  // per folder) are replaced wholesale on each refresh - e.g. a sim dropped
+  // from S_overrides.mk stops being suggested - while anything the user
+  // added themselves is left alone.
+  private async ensureExtraPaths(folder: vscode.WorkspaceFolder, pythonPaths: string[]): Promise<void> {
+    const stateKey = `trick.managedExtraPaths:${folder.uri.fsPath}`;
+    const previouslyManaged = new Set(this.state.get<string[]>(stateKey, []));
+    const wantedManaged = [STUB_SUBDIR, ...pythonPaths];
+
     const config = vscode.workspace.getConfiguration('python', folder);
-    const extraPaths = config.get<string[]>('analysis.extraPaths', []);
-    if (extraPaths.includes(STUB_SUBDIR)) {
-      return;
+    const current = config.get<string[]>('analysis.extraPaths', []);
+    const userEntries = current.filter((p) => !previouslyManaged.has(p));
+    const merged = [...new Set([...userEntries, ...wantedManaged])];
+
+    if (merged.length !== current.length || merged.some((p, i) => p !== current[i])) {
+      await config.update('analysis.extraPaths', merged, vscode.ConfigurationTarget.WorkspaceFolder);
     }
-    await config.update(
-      'analysis.extraPaths',
-      [...extraPaths, STUB_SUBDIR],
-      vscode.ConfigurationTarget.WorkspaceFolder
-    );
+    await this.state.update(stateKey, wantedManaged);
   }
 
   // Pylance's own Go to Definition result (pointing at the generated .pyi

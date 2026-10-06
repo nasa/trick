@@ -278,6 +278,7 @@ export class TrickPythonDefinitionProvider implements vscode.DefinitionProvider 
     if (!simRoot || token.isCancellationRequested) {
       return undefined;
     }
+
     return this.resolveSimTarget(simRoot, chain);
   }
 

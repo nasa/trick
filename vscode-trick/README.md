@@ -60,6 +60,18 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   variable-path strings in `.dr` files (e.g. `add_variable("ball.state.output.position[0]")`)
   that Pylance can't resolve at all. The stub stays one click away via **Go to
   Declaration**/Peek.
+- **`TRICK_PYTHON_PATH` support**: each sim's `TRICK_PYTHON_PATH` (set in
+  `S_overrides.mk`) plus the sim root itself, `<simRoot>/Modified_data`, and
+  `$TRICK_HOME/share/trick/pymods` — the same directories Trick's input processor
+  adds to `sys.path` before running `input.py` — are kept in sync with
+  `python.analysis.extraPaths`, so a real `import` that only resolves through one of
+  those paths (e.g. `import ParseJson as pj`, or `from Modified_data.utils.logger
+  import ...`) works the same in Pylance as it does at runtime. Entries this
+  extension added are replaced on each refresh as sims change; anything you add
+  yourself to `extraPaths` is left alone. Since `extraPaths` is one flat list per
+  workspace folder, two sims that both have a same-named module under
+  `Modified_data` will collide — Pylance resolves against whichever sim's path
+  comes first.
 - **Build task** (`trick-CP`) for each sim, discoverable via **Tasks: Run Task** or the
   **Trick: Build Current Sim** command, with a problem matcher that sends `trick-ICG`
   parse errors and compiler errors/warnings to the Problems panel (both are plain Clang/

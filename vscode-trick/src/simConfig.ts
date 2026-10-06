@@ -14,6 +14,13 @@ export interface SimConfig {
   cxxStandard: string;
   compilerPath?: string;
   cCompilerPath?: string;
+  /**
+   * Directories Trick's input processor adds to sys.path before running
+   * input.py (see IPPython.cpp): the sim root itself (its cwd at runtime),
+   * TRICK_HOME's pymods, <simRoot>/Modified_data, and TRICK_PYTHON_PATH
+   * (set in S_overrides.mk), in that order.
+   */
+  pythonPaths: string[];
   raw: Record<string, string>;
 }
 
@@ -26,6 +33,7 @@ const FLAG_VARS = [
   'TRICK_SYSTEM_SFLAGS',
   'TRICK_CXX',
   'TRICK_CC',
+  'TRICK_PYTHON_PATH',
 ];
 
 export class SimConfigProvider implements vscode.Disposable {
@@ -271,7 +279,11 @@ export class SimConfigProvider implements vscode.Disposable {
       cp.execFile(
         'make',
         args,
-        { env: { ...process.env, TRICK_HOME: trickHome }, timeout: 10000 },
+        // PWD is set explicitly because `make -C` changes make's own cwd
+        // without updating $PWD, and some sims (e.g. S_overrides.mk's
+        // `TRICK_PYTHON_PATH += :${PWD}/Modified_data`) rely on it expanding
+        // to the sim root, matching trick-CP's actual invocation.
+        { cwd: simRoot, env: { ...process.env, TRICK_HOME: trickHome, PWD: simRoot }, timeout: 10000 },
         (error, stdout, stderr) => {
           if (error) {
             this.output.appendLine(`[${simRoot}] make stderr: ${stderr}`);
@@ -300,6 +312,7 @@ export class SimConfigProvider implements vscode.Disposable {
       TRICK_SYSTEM_SFLAGS: '',
       TRICK_CXX: '',
       TRICK_CC: '',
+      TRICK_PYTHON_PATH: '',
     };
 
     if (trickHome) {
@@ -313,7 +326,7 @@ export class SimConfigProvider implements vscode.Disposable {
       const values: Record<string, string> = {};
       // Join line-continuations, then scan assignment lines for the three flag vars.
       const joined = text.replace(/\\\r?\n/g, ' ');
-      const assignRe = /^\s*(TRICK_C(?:XX)?FLAGS|TRICK_SFLAGS)\s*(\+?=|:=)\s*(.*)$/gm;
+      const assignRe = /^\s*(TRICK_C(?:XX)?FLAGS|TRICK_SFLAGS|TRICK_PYTHON_PATH)\s*(\+?=|:=)\s*(.*)$/gm;
       let m: RegExpExecArray | null;
       while ((m = assignRe.exec(joined))) {
         const [, varName, op, rawValue] = m;
@@ -324,7 +337,7 @@ export class SimConfigProvider implements vscode.Disposable {
           values[varName] = expanded;
         }
       }
-      for (const key of ['TRICK_CFLAGS', 'TRICK_CXXFLAGS', 'TRICK_SFLAGS']) {
+      for (const key of ['TRICK_CFLAGS', 'TRICK_CXXFLAGS', 'TRICK_SFLAGS', 'TRICK_PYTHON_PATH']) {
         if (values[key] !== undefined) {
           raw[key] = values[key];
         }
@@ -344,7 +357,7 @@ export class SimConfigProvider implements vscode.Disposable {
       if (name === 'TRICK_HOME' && trickHome) {
         return trickHome;
       }
-      if (name === 'CURDIR') {
+      if (name === 'CURDIR' || name === 'PWD') {
         return simRoot;
       }
       if (alreadyParsed[name] !== undefined) {
@@ -407,9 +420,48 @@ export class SimConfigProvider implements vscode.Disposable {
         'c++14',
       compilerPath: raw.TRICK_CXX || undefined,
       cCompilerPath: raw.TRICK_CC || undefined,
+      pythonPaths: buildPythonPaths(simRoot, trickHome, raw.TRICK_PYTHON_PATH ?? ''),
       raw,
     };
   }
+}
+
+/**
+ * Builds the sys.path entries Trick's input processor adds at runtime (see
+ * IPPython.cpp): the sim root (its cwd when running), TRICK_HOME's pymods,
+ * <simRoot>/Modified_data, then each TRICK_PYTHON_PATH entry - in that order,
+ * since that's the order `from Modified_data.x import y`-style imports need
+ * (sim root first). Relative entries are resolved against simRoot, and
+ * entries that don't exist on disk (e.g. an unexpanded `$(DOUG_HOME)` when
+ * that env var isn't set) are dropped rather than guessed at.
+ */
+export function buildPythonPaths(
+  simRoot: string,
+  trickHome: string | undefined,
+  rawPythonPath: string
+): string[] {
+  const candidates = [
+    simRoot,
+    ...(trickHome ? [path.join(trickHome, 'share', 'trick', 'pymods')] : []),
+    path.join(simRoot, 'Modified_data'),
+    ...rawPythonPath.split(':').map((p) => p.trim()),
+  ];
+  const dirs: string[] = [];
+  const seen = new Set<string>();
+  for (const candidate of candidates) {
+    if (!candidate) {
+      continue;
+    }
+    const resolved = path.isAbsolute(candidate) ? candidate : path.resolve(simRoot, candidate);
+    if (seen.has(resolved)) {
+      continue;
+    }
+    seen.add(resolved);
+    if (fs.existsSync(resolved) && fs.statSync(resolved).isDirectory()) {
+      dirs.push(resolved);
+    }
+  }
+  return dirs;
 }
 
 /**

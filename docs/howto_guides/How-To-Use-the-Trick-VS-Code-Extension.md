@@ -266,6 +266,20 @@ the sim root first — because that's where Trick's own working directory is whe
 runs a sim, not the `RUN_*` directory `input.py` lives in — then against the file's
 own directory as a fallback.
 
+**`import` statements that only resolve via `TRICK_PYTHON_PATH`**: Trick's input
+processor (`IPPython.cpp`) puts the sim root, `<simRoot>/Modified_data`,
+`$TRICK_HOME/share/trick/pymods`, and each directory in `S_overrides.mk`'s
+`TRICK_PYTHON_PATH` onto `sys.path` before running `input.py`. Pylance doesn't know
+about any of that on its own, so a real `import` that only resolves through one of
+those paths (e.g. `import ParseJson as pj`, or `from Modified_data.utils.logger
+import ...`) shows up as unresolved. The extension resolves the same directories and
+keeps them in `python.analysis.extraPaths` for each workspace folder, added
+alongside the generated stub path and refreshed whenever a sim's `S_overrides.mk`
+changes; anything you've added to `extraPaths` yourself is left alone. Because
+`extraPaths` is one flat list per workspace folder rather than per sim, two sims in
+the same folder that both have a same-named module under `Modified_data` will
+collide — Pylance resolves against whichever sim's path happens to come first.
+
 ---
 
 <a id=building-a-sim></a>

@@ -35,7 +35,7 @@ Module._load = function (request: string, ...rest: unknown[]) {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { SimConfigProvider, isInNestedRepo } = require('../simConfig');
+const { SimConfigProvider, isInNestedRepo, buildPythonPaths } = require('../simConfig');
 
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const TRICK_HOME = REPO_ROOT;
@@ -96,6 +96,22 @@ describe('SimConfigProvider regex fallback', () => {
     assert.ok(config!.cxxIncludes.some((d: string) => fs.existsSync(path.join(d, 'trick', 'SimObject.hh'))));
     // #include "sim_objects/..." style targets must resolve via TRICK_SYSTEM_SFLAGS (-I$TRICK_HOME/share)
     assert.ok(config!.sIncludes.includes(path.join(TRICK_HOME, 'share')));
+  });
+
+  it('parses TRICK_PYTHON_PATH from S_overrides.mk, expanding ${PWD} to simRoot', async () => {
+    const provider = makeProvider();
+    const simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-pythonpath-'));
+    try {
+      fs.mkdirSync(path.join(simRoot, 'Modified_data'));
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        'TRICK_PYTHON_PATH += :${PWD}/Modified_data\n'
+      );
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.ok(config.pythonPaths.includes(path.join(simRoot, 'Modified_data')));
+    } finally {
+      fs.rmSync(simRoot, { recursive: true, force: true });
+    }
   });
 
   it('falls back to a trick/bin directory on PATH when walk-up and env fail', () => {
@@ -180,5 +196,65 @@ describe('isInNestedRepo', () => {
   it('is false for a real sim in the Trick repo itself (no nested .git)', () => {
     const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_robot');
     assert.strictEqual(isInNestedRepo(simRoot, REPO_ROOT), false);
+  });
+});
+
+describe('buildPythonPaths', () => {
+  let simRoot: string;
+  let trickHome: string;
+
+  beforeEach(() => {
+    simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-sim-'));
+    trickHome = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-home-'));
+    fs.mkdirSync(path.join(trickHome, 'share', 'trick', 'pymods'), { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(simRoot, { recursive: true, force: true });
+    fs.rmSync(trickHome, { recursive: true, force: true });
+  });
+
+  it('always includes the sim root and TRICK_HOME pymods, in that order', () => {
+    const dirs = buildPythonPaths(simRoot, trickHome, '');
+    assert.deepStrictEqual(dirs, [simRoot, path.join(trickHome, 'share', 'trick', 'pymods')]);
+  });
+
+  it('includes <simRoot>/Modified_data only if it exists', () => {
+    assert.ok(!buildPythonPaths(simRoot, trickHome, '').includes(path.join(simRoot, 'Modified_data')));
+    fs.mkdirSync(path.join(simRoot, 'Modified_data'));
+    assert.ok(buildPythonPaths(simRoot, trickHome, '').includes(path.join(simRoot, 'Modified_data')));
+  });
+
+  it('splits TRICK_PYTHON_PATH on ":", tolerating a leading colon and surrounding whitespace', () => {
+    const a = path.join(simRoot, 'a');
+    const b = path.join(simRoot, 'b');
+    fs.mkdirSync(a);
+    fs.mkdirSync(b);
+    const dirs = buildPythonPaths(simRoot, trickHome, ` :${a}: ${b} `);
+    assert.ok(dirs.includes(a));
+    assert.ok(dirs.includes(b));
+  });
+
+  it('resolves relative TRICK_PYTHON_PATH entries against simRoot', () => {
+    fs.mkdirSync(path.join(simRoot, 'shared'));
+    const dirs = buildPythonPaths(simRoot, trickHome, 'shared');
+    assert.ok(dirs.includes(path.join(simRoot, 'shared')));
+  });
+
+  it('drops entries that do not exist on disk (e.g. an unexpanded $(DOUG_HOME))', () => {
+    const dirs = buildPythonPaths(simRoot, trickHome, '$(DOUG_HOME)');
+    assert.ok(!dirs.some((d: string) => d.includes('DOUG_HOME')));
+  });
+
+  it('dedupes repeated entries', () => {
+    const extra = path.join(simRoot, 'extra');
+    fs.mkdirSync(extra);
+    const dirs = buildPythonPaths(simRoot, trickHome, `${extra}:${extra}`);
+    assert.strictEqual(dirs.filter((d: string) => d === extra).length, 1);
+  });
+
+  it('works with no TRICK_HOME', () => {
+    const dirs = buildPythonPaths(simRoot, undefined, '');
+    assert.deepStrictEqual(dirs, [simRoot]);
   });
 });

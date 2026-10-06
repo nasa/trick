@@ -27,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // nested repo join the browse path lazily instead, via onDidResolve.
   void simConfigs.warmPrimarySimRoots();
 
-  const pythonStubs = new PythonStubManager(simConfigs, output);
+  const pythonStubs = new PythonStubManager(simConfigs, output, context.workspaceState);
   context.subscriptions.push(pythonStubs);
   void pythonStubs.refreshAll();
 
