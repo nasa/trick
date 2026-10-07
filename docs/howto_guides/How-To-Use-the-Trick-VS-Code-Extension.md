@@ -402,7 +402,8 @@ that button matters most.
 variable. If the sim's `S_sie.resource` is reachable on your filesystem (true for any
 sim running locally), you get a step-by-step picker through its sim objects, drilling
 into each one's members — otherwise you can type a path directly. Watched variables
-show up as children of the sim in **Connected**, with their live value (and units,
+show up as children of the sim in **Connected** (which expands automatically when you
+add one), with their live value (and units,
 where Trick reports any) updating a few times a second; an unknown or mistyped path
 shows `BAD_REF`. Remove a watch with the **x** button next to it. Watch lists are
 remembered per sim directory, so they come back if you reconnect later.

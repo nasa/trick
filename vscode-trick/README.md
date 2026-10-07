@@ -93,7 +93,7 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   input file. If the active file is itself a `RUN_*/*.py`, that one runs with no prompt;
   otherwise it offers a picker over every `RUN_*/*.py` under the sim, remembering the last
   one you ran. Offers to build first if the sim hasn't been built yet. The launched sim
-  shows up automatically in the Trick Sims view below.
+  shows up automatically in the **Sims** view below.
 - **Trick activity bar icon**, with two panes: discovers running sims automatically (via
   the same UDP broadcast Sim Sniffer uses), watches variables with live, updating values
   (replacing Trick View), and runs/freezes/stops a sim (replacing Sim Control Panel).
