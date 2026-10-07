@@ -76,6 +76,27 @@ export function parseAccessChain(
   return undefined;
 }
 
+/**
+ * Returns the raw chain text containing `column` on `lineText`, indices and
+ * all - e.g. anywhere in `ball.state.output.position[0]` returns that whole
+ * string. Used by the Trick Sims view's "Watch" editor command, which needs a
+ * real `var_add`-ready path (array indices and all); `parseAccessChain`
+ * deliberately drops indices and returns segment names instead, since that's
+ * what resolving a SIE class chain needs.
+ */
+export function chainTextAt(lineText: string, column: number): string | undefined {
+  CHAIN_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = CHAIN_RE.exec(lineText))) {
+    const start = m.index;
+    const end = start + m[0].length;
+    if (column >= start && column <= end) {
+      return m[0].replace(/\s+/g, '');
+    }
+  }
+  return undefined;
+}
+
 /** Maps mangled SIE class name -> absolute header path, from a class_map.cpp. */
 export function parseClassMap(text: string): Map<string, string> {
   const map = new Map<string, string>();

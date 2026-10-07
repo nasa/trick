@@ -12,6 +12,8 @@
 * [C/C++ IntelliSense for Model Code](#cpp-intellisense)<br>
 * [Editing input.py and .dr Files](#editing-python-files)<br>
 * [Building a Sim from VS Code](#building-a-sim)<br>
+* [Running a Sim from VS Code](#running-a-sim)<br>
+* [Trick Sims View](#trick-sims-view)<br>
 * [Commands](#commands)<br>
 * [Settings](#settings)<br>
 * [Configuration](#configuration)<br>
@@ -75,6 +77,13 @@ It is not currently published to the VS Code Marketplace, so it's installed from
 * **A build task for `trick-CP`**, runnable for the sim containing the active file,
   with a problem matcher that sends `trick-ICG` parse errors and compiler
   errors/warnings to the Problems panel.
+* **A run task** for the sim containing the active file, launching its built
+  executable with a chosen `RUN_*/*.py` input file, offering to build first if it
+  hasn't been built yet.
+* A **Trick activity bar icon**, with **Sims** and **Connected** views, that discovers
+  running sims, watches variables with live values, and runs/freezes/stops a sim —
+  all as native trees inside the VS Code window, replacing the separate Sim Sniffer,
+  Trick View, and Sim Control Panel Java tools.
 
 Each of these is covered in more detail, with usage examples, in its own section
 below.
@@ -318,6 +327,92 @@ This requires `TRICK_HOME` to be resolvable; see [Configuration](#configuration)
 
 ---
 
+<a id=running-a-sim></a>
+## Running a Sim from VS Code
+
+Once a sim is built, **Trick: Run Current Sim** (see [Commands](#commands)) launches
+its executable directly — equivalent to `cd`-ing into the `SIM_*` directory and
+running `./S_main_*.exe RUN_<name>/<input>.py` by hand — in a VS Code task terminal,
+with the working directory set to the sim root (same as running it from a shell):
+
+* Press `Ctrl+F5` (`Cmd+F5` on macOS) while a file inside a sim is focused, or click
+  the ▶ button that appears in the editor title bar for a `RUN_*/*.py` file, or run
+  **Trick: Run Current Sim** from the Command Palette.
+* Outside a sim, `Ctrl+F5`/`Cmd+F5` falls back to VS Code's regular "Run Without
+  Debugging" behavior, the same way `Ctrl+Shift+B` falls back for build.
+
+**Picking an input file.** A sim can have more than one `RUN_*` directory, and a
+`RUN_*` directory can itself hold more than one `.py` file (for example a
+`RUN_test/unit_test.py` alongside its `input.py`). The input file is chosen like this:
+
+* If the file you're currently looking at is itself a `RUN_*/*.py` file, that one runs
+  immediately, with no prompt.
+* Otherwise (for example, you're looking at `S_define` or a model file), a picker
+  lists every `RUN_*/*.py` under the sim, with whichever one you ran last sorted to
+  the top so pressing Enter repeats it. If there's only one candidate, it runs
+  directly without showing the picker.
+
+**Building first.** If the sim hasn't been built yet (no `S_main_*.exe` present), a
+prompt offers **Build and Run** — this runs the same build as **Trick: Build Current
+Sim**, and only launches the sim if that build succeeds.
+
+A sim launched this way shows up automatically in the [Trick Sims
+View](#trick-sims-view) below, like any other running sim, since that view discovers
+sims the same way regardless of how they were started.
+
+---
+
+<a id=trick-sims-view></a>
+## Trick Sims View
+
+Click the Trick icon in the activity bar to open two stacked views, **Sims** and
+**Connected**. Together they replace three separate Java tools — Sim Sniffer, Trick
+View, and Sim Control Panel — with trees embedded in the VS Code window rather than
+separate pop-up windows. The two views share a resizable divider — drag it to give
+more room to whichever one you're using, or collapse either one entirely.
+
+**Discovery.** A running sim's variable server broadcasts its host, port, and run
+directory over UDP multicast every couple of seconds, and the **Sims** view picks
+those up automatically — a sim should appear within a few seconds of launch, and
+disappear a few seconds after it exits (unless it's connected — see below). This is
+on by default everywhere except **macOS**, where it's commonly blocked; a firewall or
+VPN can also block it elsewhere. If a sim doesn't show up on its own, use **Connect to
+Sim (host:port)…** (the **+** button in either view's title bar) instead — the port is
+printed to the sim's console at startup, or can be read from
+`trick.var_server_get_port()` in its input file.
+
+**Connecting.** Click the plug icon next to a discovered-but-disconnected sim in
+**Sims** to connect. Connecting doesn't change what the sim is doing — it just opens a
+variable server connection so the view can show live status and run the control
+buttons. The moment you connect, the sim moves out of **Sims** and into **Connected**,
+and stays there — even if it stops broadcasting, or other sims come and go in
+**Sims** — so you don't have to chase it around a re-sorting list. If the sim process
+ends while you're connected, it stays in **Connected** showing **Ended** until you
+click **Disconnect**.
+
+**Running, freezing, stopping.** In **Connected**, a sim shows its current mode (e.g.
+`Frozen`, `Running`) and simulation time, with inline buttons for whichever actions
+make sense for that mode: **Run** (sends `exec_run()`), **Freeze** (sends
+`exec_freeze()`), and **Stop** (sends `trick.stop()`, after a confirmation, since it
+ends the run). A sim that calls `trick.exec_set_freeze_command(True)` in its input
+file starts out frozen and waits for **Run** before it does anything — this is where
+that button matters most.
+
+**Watching variables.** Click **Add Watch** on a sim in **Connected** to pick a
+variable. If the sim's `S_sie.resource` is reachable on your filesystem (true for any
+sim running locally), you get a step-by-step picker through its sim objects, drilling
+into each one's members — otherwise you can type a path directly. Watched variables
+show up as children of the sim in **Connected**, with their live value (and units,
+where Trick reports any) updating a few times a second; an unknown or mistyped path
+shows `BAD_REF`. Remove a watch with the **x** button next to it. Watch lists are
+remembered per sim directory, so they come back if you reconnect later.
+
+You can also right-click a variable reference in `input.py`/`.dr` (e.g.
+`ball.state.output.position[0]`) and choose **Watch in Trick Sims View** to add it
+without retyping it, as long as you're connected to the sim it belongs to.
+
+---
+
 <a id=commands></a>
 ## Commands
 
@@ -332,6 +427,17 @@ This requires `TRICK_HOME` to be resolvable; see [Configuration](#configuration)
   after adding a new sim object, if it isn't picked up automatically).
 * **Trick: Build Current Sim** — runs `trick-CP` for the sim containing the active
   file. See [Building a Sim from VS Code](#building-a-sim).
+* **Trick: Run Current Sim** — launches the built executable for the sim containing
+  the active file, with a chosen input file. See [Running a Sim from VS
+  Code](#running-a-sim).
+* **Trick: Connect to Sim (host:port)…** — connects directly to a variable server, for
+  sims discovery can't see. See [Trick Sims View](#trick-sims-view).
+* **Trick: Watch in Trick Sims View** — from an editor's right-click menu, adds the
+  variable path under the cursor as a watch on a connected sim.
+
+The rest of the Sims/Connected views' actions (Connect, Run, Freeze, Stop, Add Watch,
+Remove Watch, Disconnect) are inline buttons and context-menu items on each sim or
+watched variable in the view itself, rather than Command Palette entries.
 
 ---
 

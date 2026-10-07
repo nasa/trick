@@ -19,6 +19,7 @@ Module._load = function (request: string, ...rest: unknown[]) {
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const {
   parseAccessChain,
+  chainTextAt,
   parseClassMap,
   resolveSimChain,
   findDeclarationLine,
@@ -88,6 +89,30 @@ describe('pythonDefinitions', () => {
       const word = 'trick';
       const start = line.indexOf(word);
       assert.deepStrictEqual(parseAccessChain(line, start, start + word.length), ['trick']);
+    });
+  });
+
+  describe('chainTextAt', () => {
+    it('keeps the array index, unlike parseAccessChain', () => {
+      const line = 'ball.state.output.position[0] = 1.0';
+      const word = 'position';
+      const start = line.indexOf(word);
+      assert.strictEqual(chainTextAt(line, start), 'ball.state.output.position[0]');
+    });
+
+    it('works from any column within the chain, not just its start', () => {
+      const line = 'ball.state.output.position[0] = 1.0';
+      assert.strictEqual(chainTextAt(line, line.indexOf('output')), 'ball.state.output.position[0]');
+    });
+
+    it('strips internal whitespace around dots/brackets', () => {
+      const line = 'ball . state .position[ 0 ]';
+      assert.strictEqual(chainTextAt(line, 0), 'ball.state.position[0]');
+    });
+
+    it('returns undefined outside any chain', () => {
+      const line = '# just a comment';
+      assert.strictEqual(chainTextAt(line, 0), undefined);
     });
   });
 

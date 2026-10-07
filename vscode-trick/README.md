@@ -88,6 +88,31 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   parse errors and compiler errors/warnings to the Problems panel (both are plain Clang/
   GCC-style diagnostics, since neither `trick-CP` nor `trick-ICG` offer a machine-readable
   output mode).
+- **Run task**, via the **Trick: Run Current Sim** command (`Ctrl+F5`/`Cmd+F5`, or the ▶
+  button on an open `RUN_*/*.py` file): launches the sim's built executable with a chosen
+  input file. If the active file is itself a `RUN_*/*.py`, that one runs with no prompt;
+  otherwise it offers a picker over every `RUN_*/*.py` under the sim, remembering the last
+  one you ran. Offers to build first if the sim hasn't been built yet. The launched sim
+  shows up automatically in the Trick Sims view below.
+- **Trick activity bar icon**, with two panes: discovers running sims automatically (via
+  the same UDP broadcast Sim Sniffer uses), watches variables with live, updating values
+  (replacing Trick View), and runs/freezes/stops a sim (replacing Sim Control Panel).
+  Connecting to a sim moves it out of the **Sims** list into the **Connected** pane below,
+  so it doesn't move around as other sims come and go on the network; it stays there
+  (shown as "Ended") until you disconnect it, even after the sim process exits. Drag the
+  divider between the two panes to resize them. See [Commands](#commands) below and the
+  how-to guide for details.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `Trick: Connect to Sim (host:port)…` | Connects to a variable server directly, for sims discovery can't see (e.g. multicast blocked, or a different host). Also available as the **+** button in the Sims and Connected views' title bars. |
+| `Trick: Watch in Trick Sims View` | Right-click a variable in `input.py`/`.dr` and add it as a watch on a connected sim, keeping its array index (e.g. `ball.state.output.position[0]`) if there is one. |
+
+The rest of the Sims/Connected views' actions (Connect, Run, Freeze, Stop, Add Watch,
+Remove Watch, Disconnect) are inline buttons/context-menu items on each sim or
+watched variable, rather than entries in the Command Palette.
 
 ## Requirements
 
@@ -137,6 +162,12 @@ above instead of opening a picker between it and the stub.
   (see Requirements above). Bound to `Ctrl+Shift+B` (`Cmd+Shift+B` on macOS) while a file
   inside a sim is focused, so it doesn't require the Command Palette; outside a sim, that
   shortcut falls back to VS Code's normal "Run Build Task" behavior.
+- **Trick: Run Current Sim** — runs the sim containing the active file (equivalent to
+  `cd` into that `SIM_*` directory and running `./S_main_*.exe RUN_<name>/<input>.py` by
+  hand), picking an input file as described above. Offers to build the sim first if it
+  hasn't been built. Bound to `Ctrl+F5` (`Cmd+F5` on macOS) while a file inside a sim is
+  focused; outside a sim, that shortcut falls back to VS Code's normal "Run Without
+  Debugging" behavior.
 
 ## Installing
 

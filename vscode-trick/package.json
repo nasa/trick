@@ -27,6 +27,37 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "trick",
+          "title": "Trick",
+          "icon": "./icons/trick-activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "trick": [
+        {
+          "id": "trickSims",
+          "name": "Sims"
+        },
+        {
+          "id": "trickSimsConnected",
+          "name": "Connected"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "trickSims",
+        "contents": "No sims found.\nRunning sims broadcast over UDP multicast every couple of seconds and should appear here automatically. This is off by default on macOS, and may be blocked by a firewall or VPN elsewhere.\n[Connect to host:port…](command:trick.sims.connectManual)\n\nThe variable server port a running sim is using is printed to its console, or can be read with `trick.var_server_get_port()` in its input file."
+      },
+      {
+        "view": "trickSimsConnected",
+        "contents": "Not connected to a sim.\nClick the plug button on a sim in the Sims view above, or [Connect to host:port…](command:trick.sims.connectManual)."
+      }
+    ],
     "languages": [
       {
         "id": "trick-sdefine",
@@ -86,13 +117,137 @@
       {
         "command": "trick.buildCurrentSim",
         "title": "Trick: Build Current Sim"
+      },
+      {
+        "command": "trick.runCurrentSim",
+        "title": "Trick: Run Current Sim",
+        "icon": "$(play)"
+      },
+      {
+        "command": "trick.sims.connect",
+        "title": "Connect",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "trick.sims.disconnect",
+        "title": "Disconnect"
+      },
+      {
+        "command": "trick.sims.connectManual",
+        "title": "Trick: Connect to Sim (host:port)…",
+        "icon": "$(add)"
+      },
+      {
+        "command": "trick.sims.run",
+        "title": "Run",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "trick.sims.freeze",
+        "title": "Freeze",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "trick.sims.stop",
+        "title": "Stop",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "trick.sims.addWatch",
+        "title": "Add Watch…",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "trick.sims.removeWatch",
+        "title": "Remove Watch",
+        "icon": "$(close)"
+      },
+      {
+        "command": "trick.sims.watchFromEditor",
+        "title": "Trick: Watch in Trick Sims View"
       }
     ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "trick.sims.connectManual",
+          "when": "view == trickSims",
+          "group": "navigation"
+        },
+        {
+          "command": "trick.sims.connectManual",
+          "when": "view == trickSimsConnected",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "trick.sims.connect",
+          "when": "view == trickSims && viewItem == sim.disconnected",
+          "group": "inline"
+        },
+        {
+          "command": "trick.sims.run",
+          "when": "view == trickSimsConnected && viewItem == sim.frozen",
+          "group": "inline@1"
+        },
+        {
+          "command": "trick.sims.freeze",
+          "when": "view == trickSimsConnected && viewItem == sim.running",
+          "group": "inline@1"
+        },
+        {
+          "command": "trick.sims.stop",
+          "when": "view == trickSimsConnected && viewItem =~ /^sim\\.(running|frozen)$/",
+          "group": "inline@2"
+        },
+        {
+          "command": "trick.sims.addWatch",
+          "when": "view == trickSimsConnected && viewItem =~ /^sim\\.(running|frozen)$/",
+          "group": "inline@3"
+        },
+        {
+          "command": "trick.sims.disconnect",
+          "when": "view == trickSimsConnected && viewItem =~ /^sim\\.(running|frozen|ended)$/",
+          "group": "inline@9"
+        },
+        {
+          "command": "trick.sims.removeWatch",
+          "when": "view == trickSimsConnected && viewItem == watch",
+          "group": "inline"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "trick.sims.watchFromEditor",
+          "when": "editorLangId == python",
+          "group": "9_trick"
+        },
+        {
+          "command": "trick.runCurrentSim",
+          "when": "trick.inSimRoot",
+          "group": "9_trick"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "trick.runCurrentSim",
+          "when": "trick.inSimRoot && resourceLangId == python && resourcePath =~ /\\/RUN_[^/]+\\/[^/]+\\.py$/",
+          "group": "navigation"
+        }
+      ]
+    },
     "keybindings": [
       {
         "command": "trick.buildCurrentSim",
         "key": "ctrl+shift+b",
         "mac": "cmd+shift+b",
+        "when": "trick.inSimRoot"
+      },
+      {
+        "command": "trick.runCurrentSim",
+        "key": "ctrl+f5",
+        "mac": "cmd+f5",
         "when": "trick.inSimRoot"
       }
     ],
@@ -106,6 +261,10 @@
           "simRoot": {
             "type": "string",
             "description": "Path to the sim directory (containing S_define) to build."
+          },
+          "inputFile": {
+            "type": "string",
+            "description": "RUN_*/*.py input file (relative to simRoot) to run. Only present on a run task."
           }
         }
       }
