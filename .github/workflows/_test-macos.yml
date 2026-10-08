@@ -48,6 +48,7 @@ jobs:
       - name: Compare CMake and Make builds
         run: |
           bash tools/build-parity.sh check-cmake "$(ls -d lib64 lib 2>/dev/null | head -n 1)" out/build/parity out/parity-check
+          bash tools/build-parity.sh check-icg bin/trick-ICG out/build/parity out/icg-check
       - name: Test
         run: |
           python3 -m venv share/trick/trickops/.venv
