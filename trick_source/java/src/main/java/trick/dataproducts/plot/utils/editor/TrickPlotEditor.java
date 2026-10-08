@@ -1,4 +1,3 @@
-
 package trick.dataproducts.plot.utils.editor;
 
 import java.awt.BasicStroke;
@@ -9,7 +8,6 @@ import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -19,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.Plot;
@@ -43,12 +40,13 @@ import org.jfree.util.BooleanUtilities;
  * A panel for editing the properties of a {@link Plot}.
  */
 public class TrickPlotEditor extends JPanel implements ActionListener {
-    
-	private static final long serialVersionUID = -6751169039890765522L;
-	/** Orientation constants. */
-    private final static String[] orientationNames = {"Vertical", "Horizontal"};
-    private final static int ORIENTATION_VERTICAL = 0;
-    private final static int ORIENTATION_HORIZONTAL = 1;
+
+    private static final long serialVersionUID = -6751169039890765522L;
+    /** Orientation constants. */
+    private static final String[] orientationNames = {"Vertical", "Horizontal"};
+
+    private static final int ORIENTATION_VERTICAL = 0;
+    private static final int ORIENTATION_HORIZONTAL = 1;
 
     /** The paint (color) used to fill the background of the plot. */
     private PaintSample backgroundPaintSample;
@@ -76,19 +74,19 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
     private RectangleInsets plotInsets;
 
     /**
-     * The orientation for the plot (for <tt>CategoryPlot</tt>s and
-     * <tt>XYPlot</tt>s).
+     * The orientation for the plot (for <code>CategoryPlot</code>s and
+     * <code>XYPlot</code>s).
      */
     private PlotOrientation plotOrientation;
 
     /**
-     * The orientation combo box (for <tt>CategoryPlot</tt>s and
-     * <tt>XYPlot</tt>s).
+     * The orientation combo box (for <code>CategoryPlot</code>s and
+     * <code>XYPlot</code>s).
      */
     private JComboBox orientationCombo;
 
     /** Whether or not to draw lines between each data point (for
-     * <tt>LineAndShapeRenderer</tt>s and <tt>StandardXYItemRenderer</tt>s).
+     * <code>LineAndShapeRenderer</code>s and <code>StandardXYItemRenderer</code>s).
      */
     private Boolean drawLines;
 
@@ -98,7 +96,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
     private JCheckBox drawLinesCheckBox;
 
     /** Whether or not to draw shapes at each data point (for
-     * <tt>LineAndShapeRenderer</tt>s and <tt>StandardXYItemRenderer</tt>s).
+     * <code>LineAndShapeRenderer</code>s and <code>StandardXYItemRenderer</code>s).
      */
     private Boolean drawShapes;
 
@@ -108,9 +106,8 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
     private JCheckBox drawShapesCheckBox;
 
     /** The resourceBundle for the localization. */
-    protected static ResourceBundle localizationResources
-            = ResourceBundleWrapper.getBundle(
-                    "org.jfree.chart.editor.LocalizationBundle");
+    protected static ResourceBundle localizationResources =
+            ResourceBundleWrapper.getBundle("org.jfree.chart.editor.LocalizationBundle");
 
     /**
      * Standard constructor - constructs a panel for editing the properties of
@@ -127,38 +124,34 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
         JPanel panel = createPlotPanel(plot);
         add(panel);
     }
-    
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	protected JPanel createPlotPanel(Plot plot) {
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected JPanel createPlotPanel(Plot plot) {
         this.plotInsets = plot.getInsets();
         this.backgroundPaintSample = new PaintSample(plot.getBackgroundPaint());
         this.outlineStrokeSample = new StrokeSample(plot.getOutlineStroke());
         this.outlinePaintSample = new PaintSample(plot.getOutlinePaint());
         if (plot instanceof CategoryPlot) {
             this.plotOrientation = ((CategoryPlot) plot).getOrientation();
-        }
-        else if (plot instanceof XYPlot) {
+        } else if (plot instanceof XYPlot) {
             this.plotOrientation = ((XYPlot) plot).getOrientation();
         }
         if (plot instanceof CategoryPlot) {
             CategoryItemRenderer renderer = ((CategoryPlot) plot).getRenderer();
             if (renderer instanceof LineAndShapeRenderer) {
                 LineAndShapeRenderer r = (LineAndShapeRenderer) renderer;
-                this.drawLines = BooleanUtilities.valueOf(
-                        r.getBaseLinesVisible());
-                this.drawShapes = BooleanUtilities.valueOf(
-                        r.getBaseShapesVisible());
+                this.drawLines = BooleanUtilities.valueOf(r.getBaseLinesVisible());
+                this.drawShapes = BooleanUtilities.valueOf(r.getBaseShapesVisible());
             }
-        }
-        else if (plot instanceof XYPlot) {
-            XYItemRenderer renderer = ((XYPlot) plot).getRenderer();            
+        } else if (plot instanceof XYPlot) {
+            XYItemRenderer renderer = ((XYPlot) plot).getRenderer();
             if (renderer instanceof StandardXYItemRenderer) {
                 StandardXYItemRenderer r = (StandardXYItemRenderer) renderer;
-                this.drawLines = BooleanUtilities.valueOf(r.getPlotLines());               
+                this.drawLines = BooleanUtilities.valueOf(r.getPlotLines());
                 this.drawShapes = BooleanUtilities.valueOf(r.getBaseShapesVisible());
             } else if (renderer instanceof XYLineAndShapeRenderer) {
-            	XYLineAndShapeRenderer r = (XYLineAndShapeRenderer) renderer;
-            	this.drawLines = BooleanUtilities.valueOf(r.getBaseLinesVisible());               
+                XYLineAndShapeRenderer r = (XYLineAndShapeRenderer) renderer;
+                this.drawLines = BooleanUtilities.valueOf(r.getBaseLinesVisible());
                 this.drawShapes = BooleanUtilities.valueOf(r.getBaseShapesVisible());
             }
         }
@@ -167,57 +160,48 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
 
         this.availableStrokeSamples = new StrokeSample[4];
         this.availableStrokeSamples[0] = new StrokeSample(null);
-        this.availableStrokeSamples[1] = new StrokeSample(
-                new BasicStroke(1.0f));
-        this.availableStrokeSamples[2] = new StrokeSample(
-                new BasicStroke(2.0f));
-        this.availableStrokeSamples[3] = new StrokeSample(
-                new BasicStroke(3.0f));
+        this.availableStrokeSamples[1] = new StrokeSample(new BasicStroke(1.0f));
+        this.availableStrokeSamples[2] = new StrokeSample(new BasicStroke(2.0f));
+        this.availableStrokeSamples[3] = new StrokeSample(new BasicStroke(3.0f));
 
         // create a panel for the settings...
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), plot.getPlotType()
-                + localizationResources.getString(":")));
+                BorderFactory.createEtchedBorder(), plot.getPlotType() + localizationResources.getString(":")));
 
         JPanel general = new JPanel(new BorderLayout());
-        general.setBorder(BorderFactory.createTitledBorder(
-                localizationResources.getString("General")));
+        general.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("General")));
 
         JPanel interior = new JPanel(new LCBLayout(7));
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-//        interior.add(new JLabel(localizationResources.getString("Insets")));
-//        JButton button = new JButton(
-//            localizationResources.getString("Edit...")
-//        );
-//        button.setActionCommand("Insets");
-//        button.addActionListener(this);
-//
-//        this.insetsTextField = new InsetsTextField(this.plotInsets);
-//        this.insetsTextField.setEnabled(false);
-//        interior.add(this.insetsTextField);
-//        interior.add(button);
+        //        interior.add(new JLabel(localizationResources.getString("Insets")));
+        //        JButton button = new JButton(
+        //            localizationResources.getString("Edit...")
+        //        );
+        //        button.setActionCommand("Insets");
+        //        button.addActionListener(this);
+        //
+        //        this.insetsTextField = new InsetsTextField(this.plotInsets);
+        //        this.insetsTextField.setEnabled(false);
+        //        interior.add(this.insetsTextField);
+        //        interior.add(button);
 
-        interior.add(new JLabel(localizationResources.getString(
-                "Outline_stroke")));
-        JButton button = new JButton(localizationResources.getString(
-                "Select..."));
+        interior.add(new JLabel(localizationResources.getString("Outline_stroke")));
+        JButton button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("OutlineStroke");
         button.addActionListener(this);
         interior.add(this.outlineStrokeSample);
         interior.add(button);
 
-        interior.add(new JLabel(localizationResources.getString(
-                "Outline_Paint")));
+        interior.add(new JLabel(localizationResources.getString("Outline_Paint")));
         button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("OutlinePaint");
         button.addActionListener(this);
         interior.add(this.outlinePaintSample);
         interior.add(button);
 
-        interior.add(new JLabel(localizationResources.getString(
-                "Background_paint")));
+        interior.add(new JLabel(localizationResources.getString("Background_paint")));
         button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("BackgroundPaint");
         button.addActionListener(this);
@@ -225,12 +209,9 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
         interior.add(button);
 
         if (this.plotOrientation != null) {
-            boolean isVertical = this.plotOrientation.equals(
-                    PlotOrientation.VERTICAL);
-            int index = isVertical ? ORIENTATION_VERTICAL
-                    : ORIENTATION_HORIZONTAL;
-            interior.add(new JLabel(localizationResources.getString(
-                    "Orientation")));
+            boolean isVertical = this.plotOrientation.equals(PlotOrientation.VERTICAL);
+            int index = isVertical ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL;
+            interior.add(new JLabel(localizationResources.getString("Orientation")));
             this.orientationCombo = new JComboBox(orientationNames);
             this.orientationCombo.setSelectedIndex(index);
             this.orientationCombo.setActionCommand("Orientation");
@@ -240,8 +221,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
         }
 
         if (this.drawLines != null) {
-            interior.add(new JLabel(localizationResources.getString(
-                    "Draw_lines")));
+            interior.add(new JLabel(localizationResources.getString("Draw_lines")));
             this.drawLinesCheckBox = new JCheckBox();
             this.drawLinesCheckBox.setSelected(this.drawLines.booleanValue());
             this.drawLinesCheckBox.setActionCommand("DrawLines");
@@ -251,8 +231,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
         }
 
         if (this.drawShapes != null) {
-            interior.add(new JLabel(localizationResources.getString(
-                    "Draw_shapes")));
+            interior.add(new JLabel(localizationResources.getString("Draw_shapes")));
             this.drawShapesCheckBox = new JCheckBox();
             this.drawShapesCheckBox.setSelected(this.drawShapes.booleanValue());
             this.drawShapesCheckBox.setActionCommand("DrawShapes");
@@ -270,66 +249,57 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
         JTabbedPane tabs = createPlotTabs(plot);
         tabs.add(localizationResources.getString("Appearance"), appearance);
         panel.add(tabs);
-        
+
         return panel;
     }
 
-    protected JTabbedPane createPlotTabs(Plot plot)
-    {
+    protected JTabbedPane createPlotTabs(Plot plot) {
         JTabbedPane tabs = new JTabbedPane();
         tabs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
         Axis domainAxis = null;
         if (plot instanceof CategoryPlot) {
             domainAxis = ((CategoryPlot) plot).getDomainAxis();
-        }
-        else if (plot instanceof XYPlot) {
+        } else if (plot instanceof XYPlot) {
             domainAxis = ((XYPlot) plot).getDomainAxis();
         }
-        this.domainAxisPropertyPanel = TrickAxisEditor.getInstance(
-                domainAxis);
+        this.domainAxisPropertyPanel = TrickAxisEditor.getInstance(domainAxis);
         if (this.domainAxisPropertyPanel != null) {
-            this.domainAxisPropertyPanel.setBorder(
-                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
-            tabs.add(localizationResources.getString("Domain_Axis"),
-                    this.domainAxisPropertyPanel);
+            this.domainAxisPropertyPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+            tabs.add(localizationResources.getString("Domain_Axis"), this.domainAxisPropertyPanel);
         }
 
         Axis rangeAxis = null;
         if (plot instanceof CategoryPlot) {
             rangeAxis = ((CategoryPlot) plot).getRangeAxis();
-        }
-        else if (plot instanceof XYPlot) {
+        } else if (plot instanceof XYPlot) {
             rangeAxis = ((XYPlot) plot).getRangeAxis();
-        }
-        else if (plot instanceof PolarPlot) {
+        } else if (plot instanceof PolarPlot) {
             rangeAxis = ((PolarPlot) plot).getAxis();
         }
 
         this.rangeAxisPropertyPanel = TrickAxisEditor.getInstance(rangeAxis);
         if (this.rangeAxisPropertyPanel != null) {
-            this.rangeAxisPropertyPanel.setBorder(
-                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
-            tabs.add(localizationResources.getString("Range_Axis"),
-                    this.rangeAxisPropertyPanel);
+            this.rangeAxisPropertyPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+            tabs.add(localizationResources.getString("Range_Axis"), this.rangeAxisPropertyPanel);
         }
 
-//dmo: added this panel for colorbar control. (start dmo additions)
+        // dmo: added this panel for colorbar control. (start dmo additions)
         /*ColorBar colorBar = null;
-        if (plot instanceof ContourPlot) {
-            colorBar = ((ContourPlot) plot).getColorBar();
-        }
+                if (plot instanceof ContourPlot) {
+                    colorBar = ((ContourPlot) plot).getColorBar();
+                }
 
-        this.colorBarAxisPropertyPanel = TrickColorBarEditor.getInstance(
-                colorBar);
-        if (this.colorBarAxisPropertyPanel != null) {
-            this.colorBarAxisPropertyPanel.setBorder(
-                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
-            tabs.add(localizationResources.getString("Color_Bar"),
-                    this.colorBarAxisPropertyPanel);
-        }
-//dmo: (end dmo additions)
-*/
+                this.colorBarAxisPropertyPanel = TrickColorBarEditor.getInstance(
+                        colorBar);
+                if (this.colorBarAxisPropertyPanel != null) {
+                    this.colorBarAxisPropertyPanel.setBorder(
+                            BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                    tabs.add(localizationResources.getString("Color_Bar"),
+                            this.colorBarAxisPropertyPanel);
+                }
+        //dmo: (end dmo additions)
+        */
         return tabs;
     }
 
@@ -400,23 +370,19 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
         String command = event.getActionCommand();
         if (command.equals("BackgroundPaint")) {
             attemptBackgroundPaintSelection();
-        }
-        else if (command.equals("OutlineStroke")) {
+        } else if (command.equals("OutlineStroke")) {
             attemptOutlineStrokeSelection();
-        }
-        else if (command.equals("OutlinePaint")) {
+        } else if (command.equals("OutlinePaint")) {
             attemptOutlinePaintSelection();
         }
-//        else if (command.equals("Insets")) {
-//            editInsets();
-//        }
+        //        else if (command.equals("Insets")) {
+        //            editInsets();
+        //        }
         else if (command.equals("Orientation")) {
             attemptOrientationSelection();
-        }
-        else if (command.equals("DrawLines")) {
+        } else if (command.equals("DrawLines")) {
             attemptDrawLinesSelection();
-        }
-        else if (command.equals("DrawShapes")) {
+        } else if (command.equals("DrawShapes")) {
             attemptDrawShapesSelection();
         }
     }
@@ -425,7 +391,9 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
      * Allow the user to change the background paint.
      */
     private void attemptBackgroundPaintSelection() {
-    	Color initialColor = (backgroundPaintSample.getPaint() instanceof Color ? (Color)backgroundPaintSample.getPaint() : Color.blue);
+        Color initialColor = (backgroundPaintSample.getPaint() instanceof Color
+                ? (Color) backgroundPaintSample.getPaint()
+                : Color.blue);
         Color c = JColorChooser.showDialog(this, localizationResources.getString("Background_Color"), initialColor);
         if (c != null) {
             this.backgroundPaintSample.setPaint(c);
@@ -436,11 +404,13 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
      * Allow the user to change the outline stroke.
      */
     private void attemptOutlineStrokeSelection() {
-        StrokeChooserPanel panel = new StrokeChooserPanel(
-                this.outlineStrokeSample, this.availableStrokeSamples);
-        int result = JOptionPane.showConfirmDialog(this, panel,
+        StrokeChooserPanel panel = new StrokeChooserPanel(this.outlineStrokeSample, this.availableStrokeSamples);
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                panel,
                 localizationResources.getString("Stroke_Selection"),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             this.outlineStrokeSample.setStroke(panel.getSelectedStroke());
@@ -452,33 +422,34 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
      * the user can only choose colors (a subset of all possible paints).
      */
     private void attemptOutlinePaintSelection() {
-    	Color initialColor = (outlinePaintSample.getPaint() instanceof Color ? (Color)outlinePaintSample.getPaint() : Color.blue);
-        Color c= JColorChooser.showDialog(this, localizationResources.getString("Outline_Color"), initialColor);
+        Color initialColor =
+                (outlinePaintSample.getPaint() instanceof Color ? (Color) outlinePaintSample.getPaint() : Color.blue);
+        Color c = JColorChooser.showDialog(this, localizationResources.getString("Outline_Color"), initialColor);
         if (c != null) {
             this.outlinePaintSample.setPaint(c);
         }
     }
 
-//    /**
-//     * Allow the user to edit the individual insets' values.
-//     */
-//    private void editInsets() {
-//        InsetsChooserPanel panel = new InsetsChooserPanel(this.plotInsets);
-//        int result = JOptionPane.showConfirmDialog(
-//            this, panel, localizationResources.getString("Edit_Insets"),
-//            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
-//        );
-//
-//        if (result == JOptionPane.OK_OPTION) {
-//            this.plotInsets = panel.getInsets();
-//            this.insetsTextField.setInsets(this.plotInsets);
-//        }
-//
-//    }
-//
+    //    /**
+    //     * Allow the user to edit the individual insets' values.
+    //     */
+    //    private void editInsets() {
+    //        InsetsChooserPanel panel = new InsetsChooserPanel(this.plotInsets);
+    //        int result = JOptionPane.showConfirmDialog(
+    //            this, panel, localizationResources.getString("Edit_Insets"),
+    //            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+    //        );
+    //
+    //        if (result == JOptionPane.OK_OPTION) {
+    //            this.plotInsets = panel.getInsets();
+    //            this.insetsTextField.setInsets(this.plotInsets);
+    //        }
+    //
+    //    }
+    //
     /**
      * Allow the user to modify the plot orientation if this is an editor for a
-     * <tt>CategoryPlot</tt> or a <tt>XYPlot</tt>.
+     * <code>CategoryPlot</code> or a <code>XYPlot</code>.
      */
     private void attemptOrientationSelection() {
 
@@ -486,29 +457,26 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
 
         if (index == ORIENTATION_VERTICAL) {
             this.plotOrientation = PlotOrientation.VERTICAL;
-        }
-        else {
+        } else {
             this.plotOrientation = PlotOrientation.HORIZONTAL;
         }
     }
 
     /**
      * Allow the user to modify whether or not lines are drawn between data
-     * points by <tt>LineAndShapeRenderer</tt>s and
-     * <tt>StandardXYItemRenderer</tt>s.
+     * points by <code>LineAndShapeRenderer</code>s and
+     * <code>StandardXYItemRenderer</code>s.
      */
     private void attemptDrawLinesSelection() {
-        this.drawLines = BooleanUtilities.valueOf(
-                this.drawLinesCheckBox.isSelected());
+        this.drawLines = BooleanUtilities.valueOf(this.drawLinesCheckBox.isSelected());
     }
 
     /**
      * Allow the user to modify whether or not shapes are drawn at data points
-     * by <tt>LineAndShapeRenderer</tt>s and <tt>StandardXYItemRenderer</tt>s.
+     * by <code>LineAndShapeRenderer</code>s and <code>StandardXYItemRenderer</code>s.
      */
     private void attemptDrawShapesSelection() {
-        this.drawShapes = BooleanUtilities.valueOf(
-                this.drawShapesCheckBox.isSelected());
+        this.drawShapes = BooleanUtilities.valueOf(this.drawShapesCheckBox.isSelected());
     }
 
     /**
@@ -530,8 +498,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
             if (plot instanceof CategoryPlot) {
                 CategoryPlot p = (CategoryPlot) plot;
                 domainAxis = p.getDomainAxis();
-            }
-            else if (plot instanceof XYPlot) {
+            } else if (plot instanceof XYPlot) {
                 XYPlot p = (XYPlot) plot;
                 domainAxis = p.getDomainAxis();
             }
@@ -545,12 +512,10 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
             if (plot instanceof CategoryPlot) {
                 CategoryPlot p = (CategoryPlot) plot;
                 rangeAxis = p.getRangeAxis();
-            }
-            else if (plot instanceof XYPlot) {
+            } else if (plot instanceof XYPlot) {
                 XYPlot p = (XYPlot) plot;
                 rangeAxis = p.getRangeAxis();
-            }
-            else if (plot instanceof PolarPlot) {
+            } else if (plot instanceof PolarPlot) {
                 PolarPlot p = (PolarPlot) plot;
                 rangeAxis = p.getAxis();
             }
@@ -563,8 +528,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
             if (plot instanceof CategoryPlot) {
                 CategoryPlot p = (CategoryPlot) plot;
                 p.setOrientation(this.plotOrientation);
-            }
-            else if (plot instanceof XYPlot) {
+            } else if (plot instanceof XYPlot) {
                 XYPlot p = (XYPlot) plot;
                 p.setOrientation(this.plotOrientation);
             }
@@ -574,17 +538,16 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
             if (plot instanceof CategoryPlot) {
                 CategoryPlot p = (CategoryPlot) plot;
                 CategoryItemRenderer r = p.getRenderer();
-                if (r instanceof LineAndShapeRenderer) {                	
+                if (r instanceof LineAndShapeRenderer) {
                     ((LineAndShapeRenderer) r).setBaseLinesVisible(this.drawLines.booleanValue());
                 }
-            }
-            else if (plot instanceof XYPlot) {
+            } else if (plot instanceof XYPlot) {
                 XYPlot p = (XYPlot) plot;
                 XYItemRenderer r = p.getRenderer();
                 if (r instanceof StandardXYItemRenderer) {
                     ((StandardXYItemRenderer) r).setPlotLines(this.drawLines.booleanValue());
                 } else if (r instanceof XYLineAndShapeRenderer) {
-                	((XYLineAndShapeRenderer) r).setBaseLinesVisible(this.drawLines.booleanValue());
+                    ((XYLineAndShapeRenderer) r).setBaseLinesVisible(this.drawLines.booleanValue());
                 }
             }
         }
@@ -594,33 +557,31 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
                 CategoryPlot p = (CategoryPlot) plot;
                 CategoryItemRenderer r = p.getRenderer();
                 if (r instanceof LineAndShapeRenderer) {
-                    ((LineAndShapeRenderer) r).setBaseShapesVisible(this.drawShapes.booleanValue());                  
+                    ((LineAndShapeRenderer) r).setBaseShapesVisible(this.drawShapes.booleanValue());
                 }
-            }
-            else if (plot instanceof XYPlot) {
+            } else if (plot instanceof XYPlot) {
                 XYPlot p = (XYPlot) plot;
                 XYItemRenderer r = p.getRenderer();
                 if (r instanceof StandardXYItemRenderer) {
                     ((StandardXYItemRenderer) r).setBaseShapesVisible(this.drawShapes.booleanValue());
                 } else if (r instanceof XYLineAndShapeRenderer) {
-                	((XYLineAndShapeRenderer) r).setBaseShapesVisible(this.drawShapes.booleanValue());
+                    ((XYLineAndShapeRenderer) r).setBaseShapesVisible(this.drawShapes.booleanValue());
                 }
             }
         }
-/*
-//dmo: added this panel for colorbar control. (start dmo additions)
-        if (this.colorBarAxisPropertyPanel != null) {
-            ColorBar colorBar = null;
-            if (plot instanceof  ContourPlot) {
-                ContourPlot p = (ContourPlot) plot;
-                colorBar = p.getColorBar();
-            }
-            if (colorBar != null) {
-                this.colorBarAxisPropertyPanel.setAxisProperties(colorBar);
-            }
-        }
-//dmo: (end dmo additions)
-*/
+        /*
+        //dmo: added this panel for colorbar control. (start dmo additions)
+                if (this.colorBarAxisPropertyPanel != null) {
+                    ColorBar colorBar = null;
+                    if (plot instanceof  ContourPlot) {
+                        ContourPlot p = (ContourPlot) plot;
+                        colorBar = p.getColorBar();
+                    }
+                    if (colorBar != null) {
+                        this.colorBarAxisPropertyPanel.setAxisProperties(colorBar);
+                    }
+                }
+        //dmo: (end dmo additions)
+        */
     }
-
 }

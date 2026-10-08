@@ -11,6 +11,91 @@
 # 'doxygen' - Generate HTML User's Guide.
 # 'test'    - Run Unit-tests and Simulation Tests.
 
+# -----------------------------------------------------------------------------
+# Build-result banner
+#
+# With -j, a failed job's error can be buried under output from other jobs that
+# keep running, leaving no clear sign at the end that the build failed.
+#
+# The top-level make (MAKELEVEL 0) therefore runs the real build as a child via
+# '_trick_build_wrapper' for the requested goals, tees the output to a temp log
+# (deleted on exit), and then prints:
+#   success:     green banner and date as usual
+#   interrupted: yellow line (Ctrl-C, TERM, HUP)
+#   failure:     red banner plus a de-duplicated summary of error lines
+#                (see ERR_PATTERN and ERR_MAX)
+# The wrapper exits with the child's status, so the trailing
+# "*** [_trick_build_wrapper] Error N" is just Make reporting that status.
+# Nested $(MAKE) calls are unaffected and -j still works.
+#
+# Skipped for NO_WRAP_GOALS (tests print expected errors, so their output stays
+# untouched) and for -n, -q and -t.
+# -----------------------------------------------------------------------------
+
+# Targets that run real tests, some of which print expected errors.
+NO_WRAP_GOALS := test unit_test sim_test test32 sim_test32 pytest code-coverage
+
+# Detect -n, -q and -t in the single-letter flag word of MAKEFLAGS.
+SHORT_FLAGS := $(firstword $(filter-out -% %=%,$(MAKEFLAGS)))
+NO_WRAP_FLAGS := $(findstring n,$(SHORT_FLAGS))$(findstring q,$(SHORT_FLAGS))$(findstring t,$(SHORT_FLAGS))
+
+USE_WRAPPER := $(if $(filter 0,$(MAKELEVEL)),$(if $(or $(NO_WRAP_FLAGS),$(filter $(NO_WRAP_GOALS),$(MAKECMDGOALS))),,yes))
+
+ifneq ($(USE_WRAPPER),)
+SHELL := /bin/bash
+
+ifneq ($(filter _trick_build_wrapper,$(MAKECMDGOALS)),)
+$(error _trick_build_wrapper is internal. Run 'make' or 'make <target>' instead)
+endif
+
+GOALS := $(or $(MAKECMDGOALS),all)
+.DEFAULT_GOAL := _trick_build_wrapper
+.PHONY: _trick_build_wrapper $(GOALS)
+
+# Lines in the build output that indicate a real failure, and how many to show.
+# [Ee]rror: covers GCC/Clang "error:" (including "fatal error:" and
+#   "collect2: error: ld returned ...") and SWIG/tool "Error:".
+# [Uu]ndefined covers GNU ld ("undefined reference") and Apple ld ("Undefined symbols").
+# \*\*\* matches Make's own "*** [target] Error N" and "*** No rule to make target" lines.
+# Bare "not found" and case-insensitive matching are avoided on purpose, since
+# they match benign lines such as "checking for X... not found".
+ERR_PATTERN := [Ee]rror:|[Uu]ndefined (reference|symbols)|symbol\(s\) not found|multiple definition|cannot find -l|library not found|No such file|command not found|Permission denied|Segmentation fault|Killed|Traceback|\*\*\*
+ERR_MAX ?= 60
+
+_trick_build_wrapper:
+	@tmp=$${TMPDIR:-/tmp} ; \
+	log=$$(mktemp "$${tmp%/}/trick_build.XXXXXX") ; \
+	intr=0 ; \
+	trap 'rm -f "$$log"' EXIT ; \
+	trap 'intr=1' INT TERM HUP ; \
+	$(MAKE) $(GOALS) 2>&1 | tee -i "$$log" ; \
+	ec=$${PIPESTATUS[0]} ; \
+	if [ $$ec -eq 0 ] ; then \
+	    if [ "$(GOALS)" = "all" ] ; then \
+	        printf '\n\033[32mTrick compilation complete:\033[00m\n' ; date ; \
+	    else \
+	        printf '\n\033[32mTrick build (%s) complete:\033[0m\n' '$(GOALS)' ; date ; \
+	    fi ; \
+	elif [ $$intr -eq 1 ] ; then \
+	    printf '\n\033[33mTrick build (%s) interrupted (exit %s)\033[0m\n' '$(GOALS)' "$$ec" ; \
+	else \
+	    printf '\n\033[31mTrick build (%s) FAILED (exit %s)\033[0m\n' '$(GOALS)' "$$ec" ; \
+		errs=$$(grep -E '$(ERR_PATTERN)' "$$log" | awk '!seen[$$0]++') ; \
+		total=$$(printf '%s\n' "$$errs" | grep -c .) ; \
+		if [ "$$total" -gt 0 ] ; then \
+			printf '\033[31m--- Error summary (up to %s unique matches) ---\033[0m\n' '$(ERR_MAX)' ; \
+			printf '%s\n' "$$errs" | head -n $(ERR_MAX) ; \
+			if [ "$$total" -gt $(ERR_MAX) ] ; then \
+				printf '\033[31m... and %s more matching lines (scroll up or raise ERR_MAX)\033[0m\n' $$((total - $(ERR_MAX))) ; \
+			fi ; \
+		fi ; \
+	fi ; \
+	exit $$ec
+
+$(GOALS): _trick_build_wrapper ;
+
+else
+
 export TRICK_HOME = $(CURDIR)
 
 TRICK_CXXFLAGS += -std=c++17
@@ -153,7 +238,6 @@ ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 # DEFAULT TARGET
 # 1 Build Trick-core and Trick Data-products.
 all: no_dp dp
-	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
 
 ifeq ($(USE_JAVA), 1)
 all: java
@@ -511,3 +595,5 @@ trick_lib: $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
 
 # For NASA/JSC developers include optional rules
 -include Makefile_jsc_dirs
+
+endif
