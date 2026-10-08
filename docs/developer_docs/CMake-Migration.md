@@ -20,7 +20,7 @@ reaches parity with it. The final phase removes it.
   build and stage an install with `cmake --workflow --preset dev`, then point
   `TRICK_HOME` at the staged install (`out/install/dev`). Sims are always
   tested against what actually gets installed.
-- **flex and bison are required.** The `_premade` parser fallback and the
+- **flex and bison >= 3.0 are required.** The `_premade` parser fallback and the
   `make premade` target are removed.
 - **Optional dependencies are explicit.** Each optional component has a
   `TRICK_ENABLE_*` option. When the option is `ON` and the dependency is
@@ -159,7 +159,9 @@ instead of a `--with-<package>=DIR` flag:
 
 Like `./configure`, the CMake build uses the `python3` (or `python`) on `PATH`
 before any newer versioned interpreter. It also searches Homebrew's keg-only
-LLVM after the default locations.
+LLVM after the default locations. On macOS, it prefers Homebrew's keg-only
+Bison over the system's older version. Set `-DBISON_EXECUTABLE=/path/to/bison`
+to select a specific Bison installation; it must be version 3.0 or newer.
 
 ## Existing bugs found during the migration
 

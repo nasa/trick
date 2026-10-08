@@ -47,7 +47,22 @@ set_package_properties(SWIG PROPERTIES
     PURPOSE "Generates Trick's Python interface")
 
 find_package(FLEX REQUIRED)
-find_package(BISON REQUIRED)
+# macOS ships Bison 2.3. Prefer Homebrew's keg-only Bison, as ./configure
+# does, but preserve an explicit BISON_EXECUTABLE (including a cached choice).
+if(APPLE AND NOT BISON_EXECUTABLE)
+    execute_process(COMMAND brew --prefix bison
+        RESULT_VARIABLE _trick_bison_prefix_result
+        OUTPUT_VARIABLE _trick_bison_prefix
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+    if(_trick_bison_prefix_result STREQUAL "0" AND _trick_bison_prefix)
+        find_program(BISON_EXECUTABLE NAMES bison
+            HINTS "${_trick_bison_prefix}/bin" NO_DEFAULT_PATH)
+    endif()
+    unset(_trick_bison_prefix_result)
+    unset(_trick_bison_prefix)
+endif()
+find_package(BISON 3.0 REQUIRED)
 set_package_properties(FLEX PROPERTIES PURPOSE "Memory manager and checkpoint parsers")
 set_package_properties(BISON PROPERTIES PURPOSE "Memory manager and checkpoint parsers")
 
