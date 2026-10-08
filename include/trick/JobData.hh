@@ -141,7 +141,7 @@ namespace Trick {
             static long long time_tic_value ;      /**< trick_io(**) */
 
             /** The total execution time of the job from the PREVIOUS frame (Stable for Variable Server) */
-            double prev_frame_time_seconds {0}; /**< trick_units(s) */
+            double prev_frame_time_seconds { 0 }; /**< trick_units(s) */
 
             /** Constructor for new blank JobData instance */
             JobData() ;
