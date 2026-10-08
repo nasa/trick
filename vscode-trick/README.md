@@ -1,9 +1,13 @@
 # Trick Simulation Toolkit for VS Code
 
-Editor support for [Trick](https://github.com/nasa/trick)'s `S_define`/`.sm` simulation
-definition files, plus per-sim IntelliSense for the C/C++ model code they reference.
+Editor support for [Trick](https://github.com/nasa/trick) simulations: `S_define`/`.sm`
+language support, per-sim IntelliSense for the C/C++ model code and `input.py`/`.dr`
+files, build and run tasks, and live views of running sims (replacing Sim Sniffer,
+Trick View, and Sim Control Panel).
 
 ## Features
+
+### S_define and .sm files
 
 - **File icon** (the Trick checkered flag) for `S_define` and `.sm` files in the
   Explorer and editor tabs. Only shown if your active file icon theme doesn't
@@ -27,6 +31,9 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   symbol index can see (`.sm` isn't a C/C++ extension it indexes at all). Job target
   methods (`ihm.update()`) aren't confined to those file types, so they still resolve
   through that workspace symbol index.
+
+### C/C++ model code
+
 - **IntelliSense for model `.c`/`.cpp`/`.h` files** via a Custom Configuration Provider
   for the Microsoft C/C++ extension, so each sim's own include paths are used instead
   of guessing — no more false "cannot open source file" squiggles, and Go to
@@ -34,6 +41,9 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   front so this works as soon as the workspace loads — except sims that live inside a
   git submodule or other nested clone, which are indexed the first time a file inside
   one is opened instead, so large multi-package workspaces still activate quickly.
+
+### input.py and .dr files
+
 - **Python support for `input.py`/`.dr` files**: `.dr` files (plain Python, pulled in
   via `exec(open(...).read())`) are recognized as Python; snippets for common
   `trick.*` call patterns (real-time setup, data record groups, `add_read`, Sim
@@ -83,6 +93,9 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
   workspace folder, two sims that both have a same-named module under
   `Modified_data` will collide — Pylance resolves against whichever sim's path
   comes first.
+
+### Building, running, and live sims
+
 - **Build task** (`trick-CP`) for each sim, discoverable via **Tasks: Run Task** or the
   **Trick: Build Current Sim** command, with a problem matcher that sends `trick-ICG`
   parse errors and compiler errors/warnings to the Problems panel (both are plain Clang/
@@ -97,11 +110,18 @@ definition files, plus per-sim IntelliSense for the C/C++ model code they refere
 - **Trick activity bar icon**, with two panes: discovers running sims automatically (via
   the same UDP broadcast Sim Sniffer uses), watches variables with live, updating values
   (replacing Trick View), and runs/freezes/stops a sim (replacing Sim Control Panel).
-  Connecting to a sim moves it out of the **Sims** list into the **Connected** pane below,
-  so it doesn't move around as other sims come and go on the network; it stays there
-  (shown as "Ended") until you disconnect it, even after the sim process exits. Drag the
-  divider between the two panes to resize them. See [Commands](#commands) below and the
-  how-to guide for details.
+  - Connecting to a sim moves it out of the **Sims** list into the **Connected** pane
+    below, so it doesn't move around as other sims come and go on the network. It stays
+    there (shown as "Ended") until you disconnect it, even after the sim process exits.
+    Drag the divider between the two panes to resize them.
+  - **Add Watch** on a connected sim walks you through its sim objects and their members
+    (from the sim's `S_sie.resource`, when it's on your filesystem), or lets you type a
+    path. The sim expands to show the new watch, and invalid paths are rejected up front.
+  - Right-click a variable in `input.py`/`.dr` and choose **Watch in Trick Sims View**
+    to add it without retyping it.
+  - Watch lists are remembered per sim directory, so they come back when you reconnect.
+
+  See [Commands](#commands) below and the how-to guide for details.
 
 ## Commands
 

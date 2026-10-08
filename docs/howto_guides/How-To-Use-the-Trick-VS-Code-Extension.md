@@ -32,9 +32,10 @@ Simulation Toolkit extension for Visual Studio Code.
 
 The `vscode-trick` extension, included in Trick's source tree under
 [`vscode-trick/`](https://github.com/nasa/trick/tree/master/vscode-trick), brings
-Trick-aware editing, IntelliSense, and build support to Visual Studio Code, so working
-on a sim doesn't mean bouncing between an editor that treats `S_define`/`input.py` as
-opaque text and a separate terminal for everything else.
+Trick-aware editing, IntelliSense, build and run support, and live views of running
+sims to Visual Studio Code, so working on a sim doesn't mean bouncing between an editor
+that treats `S_define`/`input.py` as opaque text, a separate terminal, and the Java
+Sim Sniffer, Trick View, and Sim Control Panel tools.
 
 It is not currently published to the VS Code Marketplace, so it's installed from a
 `.vsix` package — either built locally or downloaded from this repo's
