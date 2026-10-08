@@ -2,6 +2,7 @@ package trick.common.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -447,13 +448,11 @@ public class VariableServerConnection implements AutoCloseable {
             num_vars_processed = 0;
             bytes_read = 0;
             results = "";
+            DataInputStream binaryInput = new DataInputStream(socket.getInputStream());
             while ((num_vars_processed < num_variables) && (bytes_read != -1)) {
                 vals[packet_count] = "";
                 // read binary header
-                bytes_read = socket.getInputStream().read(buffer, 0, 12);
-                if (bytes_read == -1) { // eof
-                    throw new IOException("Connection closed");
-                }
+                binaryInput.readFully(buffer, 0, 12);
                 if ((int) buffer[0] == 3) { // message indicator for send_event_data
                     // simply a message header where msg_size=0 and num_vars_in_msg = number of event variables
                     results += (int) convertBinaryData(buffer, 8, 4);
@@ -463,6 +462,9 @@ public class VariableServerConnection implements AutoCloseable {
                     return "";
                 }
                 msg_size = (int) convertBinaryData(buffer, 4, 4);
+                if (msg_size < 8 || msg_size > maximumPacketSize + 8) {
+                    throw new IOException("Invalid binary message size: " + msg_size);
+                }
                 // System.out.println("msg size=" + msg_size);
                 num_vars_in_msg = (int) convertBinaryData(buffer, 8, 4);
                 // System.out.println("numvars=" + num_vars_in_msg);
@@ -472,7 +474,8 @@ public class VariableServerConnection implements AutoCloseable {
                 }
 
                 // read binary data
-                bytes_read = socket.getInputStream().read(buffer, 0, msg_size - 8);
+                bytes_read = msg_size - 8;
+                binaryInput.readFully(buffer, 0, bytes_read);
                 // System.out.println("bytes_read=" + bytes_read);
                 index = 0;
                 while (index < bytes_read) {
@@ -507,12 +510,14 @@ public class VariableServerConnection implements AutoCloseable {
                             vals[packet_count] += new String(buffer, index, size - 1); // do not include null terminator
                             break;
                         case 6: // INT
-                        case 7: // UNSIGNED INT
                         case 21: // ENUMERATED
                         case 24: // BAD REF
                             // typename = "INT";
                             ival = (int) convertBinaryData(buffer, index, 4);
                             vals[packet_count] += ival;
+                            break;
+                        case 7: // UNSIGNED INT
+                            vals[packet_count] += convertBinaryData(buffer, index, 4);
                             break;
                         case 11: // DOUBLE
                             // typename = "DOUBLE";
@@ -520,9 +525,10 @@ public class VariableServerConnection implements AutoCloseable {
                             vals[packet_count] += dval;
                             break;
                         case 14: // LONGLONG
-                            // typename = "LONGLONG";
-                            dval = (double) convertBinaryData(buffer, index, 8);
-                            vals[packet_count] += dval;
+                            vals[packet_count] += convertBinaryData(buffer, index, 8);
+                            break;
+                        case 15: // UNSIGNED LONGLONG
+                            vals[packet_count] += Long.toUnsignedString(convertBinaryData(buffer, index, 8));
                             break;
                         default:
                             // typename = "???";

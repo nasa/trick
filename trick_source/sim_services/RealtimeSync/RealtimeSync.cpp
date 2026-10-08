@@ -31,6 +31,9 @@ Trick::RealtimeSync::RealtimeSync( Trick::Clock * in_clock , Trick::Timer * in_t
 
     active = false ;
 
+    completed_frame_count = 0 ;
+    peak_frame_overrun = 0.0 ;
+
     rt_max_overrun_cnt = 100000000;
     rt_max_overrun_time = 1.0e37;
     rt_overrun_freeze = false ;
@@ -350,6 +353,7 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
         }
         /* calculate run ratio in non-realtime mode */
         actual_run_ratio = run_ratio(curr_clock_time, 1.0);
+        completed_frame_count++;
         return(0) ;
     }
     if ( enable_flag ) {
@@ -363,6 +367,11 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
     frame_overrun_time = curr_clock_time - sim_time_tics ;
 
     frame_overrun = frame_overrun_time * (1.0/tics_per_sec);
+
+    /* Retain deadline lateness even if the overrun action freezes or terminates. */
+    if ( frame_overrun > peak_frame_overrun ) {
+        peak_frame_overrun = frame_overrun ;
+    }
 
     /* If the wall clock time is greater than the sim time an overrun occurred. */
     if (curr_clock_time > sim_time_tics) {
@@ -420,6 +429,7 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
         actual_run_ratio = run_ratio(curr_clock_time, rt_clock->get_rt_clock_ratio());
     }
 
+    completed_frame_count++;
     return(0) ;
 }
 

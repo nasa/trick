@@ -1,0 +1,4 @@
+# Generated simulation output; keep the repeatable live input profile.
+*
+!.gitignore
+!input.py

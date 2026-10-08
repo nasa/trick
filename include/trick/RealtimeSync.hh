@@ -52,6 +52,14 @@ namespace Trick {
             /** Total number of overrun frames.\n */
             unsigned int total_overrun ;          /**< trick_units(--) */
 
+            /** Number of successfully completed run-frame monitors, including non-real-time frames.
+                Retained across real-time enable/disable and restart; restored by checkpoints.\n */
+            unsigned long long completed_frame_count ; /**< trick_units(--) */
+
+            /** Maximum positive active real-time frame deadline lateness.
+                Retained across frames, enable/disable and restart; restored by checkpoints.\n */
+            double peak_frame_overrun ;           /**< trick_units(s) */
+
             /** Maximum number of consecutive overrun conditions before shutdown.\n */
             unsigned int rt_max_overrun_cnt;      /**< trick_units(--) */
 

@@ -24,7 +24,7 @@ import trick.common.utils.VariableServerConnection;
  * and the local Swing redraw timer. A threshold field filters jobs below a minimum
  * percentage to reduce visual noise and improve list stability.
  *
- * A rolling total of job execution times over the last 100 frames is maintained
+ * A rolling total of job execution times over the last 100 received samples is maintained
  * and displayed on the left. A tabbed interface allows switching between the current
  * frame job list and a searchable list of all jobs with pinning capability.
  */
@@ -44,7 +44,7 @@ public class RealTimeJobPieChart extends JPanel {
     private List<JobDuration> currentFrameData = new ArrayList<>();
     private final Map<String, Color> jobColorMap = new HashMap<>();
 
-    // Rolling total of job durations over last 100 frames
+    // Rolling total of job durations over the last 100 received samples.
     private final Map<String, RollingTotal> jobTotals = new HashMap<>();
     private static final int ROLLING_WINDOW_SIZE = 100;
 
@@ -72,12 +72,16 @@ public class RealTimeJobPieChart extends JPanel {
         }
 
         public void incrementFramesSinceLastSeen() {
+            frameDurations.add(0.0);
+            if (frameDurations.size() > maxSize) {
+                frameDurations.remove(0);
+            }
             framesSinceLastSeen++;
         }
 
         public boolean isStale() {
-            // Pinned jobs should never be considered stale
-            return framesSinceLastSeen > ROLLING_WINDOW_SIZE;
+            // The caller retains pinned jobs even after their history expires.
+            return framesSinceLastSeen >= maxSize;
         }
 
         public double getTotal() {
@@ -113,10 +117,28 @@ public class RealTimeJobPieChart extends JPanel {
     private JButton clearSearchButton;
     private JTabbedPane rightTabbedPane;
 
-    // Latest data snapshot written by Variable Server network thread and read by Swing timer
-    private volatile double pendingSimTime = 0.0;
-    private volatile String pendingModeString = "Connecting...";
-    private volatile List<JobDuration> pendingFrameData = null;
+    // Latest snapshot and rolling history are owned by the EDT.
+    private double pendingSimTime = 0.0;
+    private String pendingModeString = "Connecting...";
+    private List<JobDuration> pendingFrameData = null;
+    // Invalidates samples already queued when the EDT resets or switches threads.
+    private volatile long sampleGeneration = 0;
+    private double recordedJobTime;
+    private final JLabel realtimeHealthLabel = new JLabel("Realtime health: No samples");
+    private final JLabel deadlineLabel = new JLabel("Deadline: No samples");
+    private final JLabel telemetryLabel = new JLabel("Telemetry: No samples");
+    private boolean healthConnected = true;
+    private boolean hasHealthSample;
+    private boolean realtimeActive;
+    private double healthSoftwareFrame;
+    private double deadlineLateness;
+    private long totalOverruns;
+    private long consecutiveOverruns;
+    private double peakLateness;
+    private long completedFrameSequence;
+    private long lastTelemetryNanos;
+    private long lastFrameProgressNanos;
+    private String healthUnavailableReason;
 
     // Threshold for filtering jobs (percentage of frame)
     private volatile double percentageThreshold = 0.1; // Default: 0.1%
@@ -142,8 +164,8 @@ public class RealTimeJobPieChart extends JPanel {
         threadComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED && !isInitializingCombo && vsClient != null) {
                 int threadId = threadComboBox.getSelectedIndex();
+                vsClient.subscribeToThread(threadId);
                 clearRollingTotals();
-                new Thread(() -> vsClient.subscribeToThread(threadId)).start();
             }
         });
 
@@ -162,6 +184,8 @@ public class RealTimeJobPieChart extends JPanel {
 
         thresholdPanel.add(new JLabel("Min %:"));
         thresholdField = new JTextField("0.1", 5);
+        thresholdField.setToolTipText(
+                "Filters current-frame jobs and pie slices; rolling totals retain all received samples.");
         thresholdField.addActionListener(e -> applyThreshold());
         thresholdPanel.add(thresholdField);
 
@@ -175,6 +199,14 @@ public class RealTimeJobPieChart extends JPanel {
         eastPanel.add(threadComboBox);
 
         controlPanel.add(eastPanel, BorderLayout.EAST);
+
+        JPanel healthPanel = new JPanel(new GridLayout(3, 1, 0, 2));
+        healthPanel.setOpaque(false);
+        healthPanel.setBorder(BorderFactory.createTitledBorder("Realtime health (main thread)"));
+        healthPanel.add(realtimeHealthLabel);
+        healthPanel.add(deadlineLabel);
+        healthPanel.add(telemetryLabel);
+        controlPanel.add(healthPanel, BorderLayout.SOUTH);
 
         add(controlPanel, BorderLayout.NORTH);
 
@@ -707,7 +739,8 @@ public class RealTimeJobPieChart extends JPanel {
      * and rolling totals are only meaningful for the previously connected sim.
      */
     public void reset() {
-        SwingUtilities.invokeLater(() -> {
+        Runnable clearState = () -> {
+            sampleGeneration++;
             vsClient = null;
             allJobNames.clear();
             pinnedJobs.clear();
@@ -716,6 +749,8 @@ public class RealTimeJobPieChart extends JPanel {
             pendingFrameData = null;
             pendingSimTime = 0.0;
             pendingModeString = "Connecting...";
+            recordedJobTime = 0.0;
+            clearRealtimeHealth(false);
 
             isInitializingCombo = true;
             threadComboBox.removeAllItems();
@@ -732,12 +767,19 @@ public class RealTimeJobPieChart extends JPanel {
             timeLabel.setText("Time: 0.000");
             modeLabel.setText("Mode: Connecting...");
             pieChartPanel.repaint();
-        });
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            clearState.run();
+        } else {
+            SwingUtilities.invokeLater(clearState);
+        }
     }
 
     public void initializeThreads(int numThreads, RTJPerfVarServerClient client) {
         SwingUtilities.invokeLater(() -> {
             this.vsClient = client;
+            healthConnected = true;
+            renderRealtimeHealth(System.nanoTime());
             isInitializingCombo = true;
             threadComboBox.removeAllItems();
             for (int i = 0; i < numThreads; i++) {
@@ -774,42 +816,179 @@ public class RealTimeJobPieChart extends JPanel {
      * Clears the rolling totals when switching threads.
      */
     private void clearRollingTotals() {
+        sampleGeneration++;
         jobTotals.clear();
+        pendingFrameData = null;
+        currentFrameData.clear();
+        recordedJobTime = 0.0;
+        currentFrameListModel.clear();
+        pinnedJobsListModel.clear();
         unpinnedTotalListModel.clear();
         pinnedTotalListModel.clear();
+        pieChartPanel.repaint();
     }
 
     /**
      * Called from the Variable Server network thread whenever a new cyclic
-     * data update arrives. Computes percentages and sort order, then stashes
-     * the result for the refresh timer to pick up.
+     * data update arrives. Copies the sample, then records its history on the
+     * EDT independently of the redraw timer.
      */
     public void updateFrameData(double simTime, String modeString, List<JobDuration> newFrameData) {
-        if (newFrameData.isEmpty()) {
-            return;
-        }
-
+        long generation = sampleGeneration;
+        List<JobDuration> snapshot = new ArrayList<>();
         double totalDuration = 0;
         for (JobDuration job : newFrameData) {
+            snapshot.add(new JobDuration(job.jobId, job.duration));
             totalDuration += job.duration;
         }
-        for (JobDuration job : newFrameData) {
-            job.percentage = (job.duration / totalDuration) * 100.0;
+        for (JobDuration job : snapshot) {
+            job.percentage = totalDuration > 0.0 ? (job.duration / totalDuration) * 100.0 : 0.0;
         }
 
-        Collections.sort(newFrameData, (j1, j2) -> Double.compare(j2.duration, j1.duration));
+        Collections.sort(snapshot, (j1, j2) -> Double.compare(j2.duration, j1.duration));
+        final double snapshotTotal = totalDuration;
+        SwingUtilities.invokeLater(() -> {
+            if (generation != sampleGeneration) {
+                return;
+            }
+            // Threshold is presentation-only; history retains every received job.
+            // Advance every job once per received sample, including absent jobs.
+            Map<String, Double> durations = new HashMap<>();
+            for (JobDuration job : snapshot) {
+                durations.merge(job.jobId, job.duration, Double::sum);
+            }
+            for (Map.Entry<String, RollingTotal> entry : jobTotals.entrySet()) {
+                Double duration = durations.remove(entry.getKey());
+                if (duration == null) {
+                    entry.getValue().incrementFramesSinceLastSeen();
+                } else {
+                    entry.getValue().add(duration);
+                }
+            }
+            for (Map.Entry<String, Double> entry : durations.entrySet()) {
+                RollingTotal total = new RollingTotal(ROLLING_WINDOW_SIZE);
+                total.add(entry.getValue());
+                jobTotals.put(entry.getKey(), total);
+            }
+            jobTotals.entrySet().removeIf(entry ->
+                    entry.getValue().isStale() && !pinnedJobs.contains(entry.getKey()));
+            pendingSimTime = simTime;
+            pendingModeString = modeString;
+            pendingFrameData = snapshot;
+            recordedJobTime = snapshotTotal;
+        });
+    }
 
-        pendingSimTime = simTime;
-        pendingModeString = modeString;
-        pendingFrameData = newFrameData;
+    /**
+     * Receives main-thread realtime metrics on every telemetry response, including
+     * duplicate completed-frame sequences. Durations are seconds; positive lateness
+     * means a missed deadline and negative lateness is remaining headroom.
+     * Safe to call from the Variable Server network thread.
+     */
+    public void updateRealtimeHealth(boolean active, double softwareFrame, double lateness,
+            long totalOverruns, long consecutiveOverruns, double peakLateness, long frameSequence) {
+        long generation = sampleGeneration;
+        long receivedNanos = System.nanoTime();
+        SwingUtilities.invokeLater(() -> {
+            if (generation != sampleGeneration) {
+                return;
+            }
+            if (!hasHealthSample || completedFrameSequence != frameSequence) {
+                lastFrameProgressNanos = receivedNanos;
+            }
+            hasHealthSample = true;
+            healthUnavailableReason = null;
+            healthConnected = true;
+            realtimeActive = active;
+            healthSoftwareFrame = softwareFrame;
+            deadlineLateness = lateness;
+            this.totalOverruns = totalOverruns;
+            this.consecutiveOverruns = consecutiveOverruns;
+            this.peakLateness = peakLateness;
+            completedFrameSequence = frameSequence;
+            lastTelemetryNanos = receivedNanos;
+            renderRealtimeHealth(System.nanoTime());
+        });
+    }
+
+    /** Reports a telemetry response from a simulation without realtime metrics. */
+    public void updateRealtimeHealthUnavailable(String reason) {
+        long generation = sampleGeneration;
+        long receivedNanos = System.nanoTime();
+        SwingUtilities.invokeLater(() -> {
+            if (generation != sampleGeneration) {
+                return;
+            }
+            hasHealthSample = false;
+            healthConnected = true;
+            healthUnavailableReason = reason == null || reason.trim().isEmpty()
+                    ? "Required metrics are unavailable" : reason;
+            lastTelemetryNanos = receivedNanos;
+            renderRealtimeHealth(System.nanoTime());
+        });
+    }
+
+    private void clearRealtimeHealth(boolean connected) {
+        healthConnected = connected;
+        hasHealthSample = false;
+        healthUnavailableReason = null;
+        realtimeActive = false;
+        healthSoftwareFrame = 0.0;
+        deadlineLateness = 0.0;
+        totalOverruns = 0;
+        consecutiveOverruns = 0;
+        peakLateness = 0.0;
+        completedFrameSequence = 0;
+        lastTelemetryNanos = 0;
+        lastFrameProgressNanos = 0;
+        renderRealtimeHealth(System.nanoTime());
+    }
+
+    private void renderRealtimeHealth(long nowNanos) {
+        if (healthUnavailableReason != null) {
+            realtimeHealthLabel.setText("Realtime health: Unavailable — " + healthUnavailableReason);
+            deadlineLabel.setText("Deadline / overruns / completed-frame progress: Unavailable");
+            telemetryLabel.setText(String.format("Telemetry age: %.3f s",
+                    Math.max(0.0, (nowNanos - lastTelemetryNanos) / 1.0e9)));
+            return;
+        }
+        if (!hasHealthSample) {
+            String status = healthConnected ? "No samples" : "Disconnected — no samples";
+            realtimeHealthLabel.setText("Realtime health: " + status);
+            deadlineLabel.setText("Deadline: No samples");
+            telemetryLabel.setText("Telemetry: " + status);
+            return;
+        }
+        realtimeHealthLabel.setText(String.format(
+                "Realtime: %s | Software frame budget: %.6f s | Overruns: %d total / %d consecutive",
+                realtimeActive ? "active" : "inactive", healthSoftwareFrame,
+                totalOverruns, consecutiveOverruns));
+        String deadline = realtimeActive
+                ? String.format("Last running-frame deadline: %+.6f s (%s)",
+                        deadlineLateness, deadlineLateness > 0.0 ? "late" : "headroom")
+                : "Deadline: not applicable (realtime inactive)";
+        deadlineLabel.setText(String.format("%s | Retained peak lateness: %.6f s", deadline, peakLateness));
+        double telemetryAge = Math.max(0.0, (nowNanos - lastTelemetryNanos) / 1.0e9);
+        double progressAge = Math.max(0.0, (nowNanos - lastFrameProgressNanos) / 1.0e9);
+        double warningAge = Math.max(1.0,
+                3.0 * Math.max(healthSoftwareFrame, refreshTimer.getDelay() / 1000.0));
+        boolean progressExpected = realtimeActive && "Run".equalsIgnoreCase(pendingModeString);
+        String progress = progressExpected
+                ? (progressAge > warningAge ? "STALLED" : "advancing")
+                : "not expected (inactive or not running)";
+        telemetryLabel.setText(String.format(
+                "Telemetry age: %.3f s%s | Completed frame: %d | Progress age: %.3f s — %s",
+                telemetryAge, telemetryAge > warningAge ? " (stale)" : "",
+                completedFrameSequence, progressAge, progress));
     }
 
     /**
      * Runs on the EDT via refreshTimer. Paints whatever the most recently
      * received frame snapshot is at the configured rate. Filters jobs below
-     * the percentage threshold. Updates rolling totals.
+     * the percentage threshold without advancing rolling history.
      */
     private void renderLatestFrame() {
+        renderRealtimeHealth(System.nanoTime());
         List<JobDuration> frameData = pendingFrameData;
         if (frameData == null) {
             return;
@@ -840,6 +1019,7 @@ public class RealTimeJobPieChart extends JPanel {
                 for (JobDuration job : frameData) {
                     if (job.jobId.equals(pinnedJob)) {
                         filteredData.add(job);
+                        found = true;
                         break;
                     }
                 }
@@ -851,25 +1031,6 @@ public class RealTimeJobPieChart extends JPanel {
         }
 
         this.currentFrameData = filteredData;
-
-        // Mark all existing jobs as not seen this frame
-        for (RollingTotal total : jobTotals.values()) {
-            total.incrementFramesSinceLastSeen();
-        }
-
-        // Update rolling totals for all jobs that meet the threshold or are pinned
-        for (JobDuration job : filteredData) {
-            jobTotals
-                    .computeIfAbsent(job.jobId, k -> new RollingTotal(ROLLING_WINDOW_SIZE))
-                    .add(job.duration);
-        }
-
-        // Remove stale jobs (not seen in more than ROLLING_WINDOW_SIZE frames)
-        // BUT keep pinned jobs even if stale
-        jobTotals.entrySet().removeIf(entry -> {
-            String jobName = entry.getKey();
-            return entry.getValue().isStale() && !pinnedJobs.contains(jobName);
-        });
 
         // Update current frame list (unpinned jobs only, sorted by duration)
         Vector<String> currentFrameUpdate = new Vector<>();
@@ -884,7 +1045,10 @@ public class RealTimeJobPieChart extends JPanel {
         for (JobDuration job : unpinnedJobs) {
             currentFrameUpdate.add(String.format("%s (%.1f%%, %.6fs)", job.jobId, job.percentage, job.duration));
         }
-        currentFrameList.setListData(currentFrameUpdate);
+        currentFrameListModel.clear();
+        for (String value : currentFrameUpdate) {
+            currentFrameListModel.addElement(value);
+        }
 
         // Update pinned jobs list (maintain insertion order, don't sort)
         Vector<String> pinnedUpdate = new Vector<>();
@@ -897,7 +1061,10 @@ public class RealTimeJobPieChart extends JPanel {
                 }
             }
         }
-        pinnedJobsList.setListData(pinnedUpdate);
+        pinnedJobsListModel.clear();
+        for (String value : pinnedUpdate) {
+            pinnedJobsListModel.addElement(value);
+        }
 
         // Update rolling total list (unpinned jobs sorted by total)
         List<Map.Entry<String, RollingTotal>> totalEntries = new ArrayList<>(jobTotals.entrySet());
@@ -921,7 +1088,10 @@ public class RealTimeJobPieChart extends JPanel {
             double total = entry.getValue().getTotal();
             unpinnedTotalUpdate.add(String.format("%s (%.6fs)", entry.getKey(), total));
         }
-        unpinnedTotalList.setListData(unpinnedTotalUpdate);
+        unpinnedTotalListModel.clear();
+        for (String value : unpinnedTotalUpdate) {
+            unpinnedTotalListModel.addElement(value);
+        }
 
         // Add pinned jobs (maintain insertion order from pinnedJobs LinkedHashSet)
         Vector<String> pinnedTotalUpdate = new Vector<>();
@@ -931,7 +1101,10 @@ public class RealTimeJobPieChart extends JPanel {
                 pinnedTotalUpdate.add(String.format("%s (%.6fs)", pinnedJobName, total));
             }
         }
-        pinnedTotalList.setListData(pinnedTotalUpdate);
+        pinnedTotalListModel.clear();
+        for (String value : pinnedTotalUpdate) {
+            pinnedTotalListModel.addElement(value);
+        }
 
         pieChartPanel.repaint();
     }
@@ -950,8 +1123,8 @@ public class RealTimeJobPieChart extends JPanel {
                 throw new NumberFormatException("out of range");
             }
 
-            // 1. Send update to Variable Server via background thread
-            new Thread(() -> vsClient.setCycleRate(seconds)).start();
+            // 1. Queue the update for the Variable Server worker.
+            vsClient.setCycleRate(seconds);
 
             // 2. Adjust local Swing timer rate (convert seconds to milliseconds)
             int millis = (int) Math.round(seconds * 1000.0);
@@ -991,9 +1164,12 @@ public class RealTimeJobPieChart extends JPanel {
     }
 
     private void drawPieChart(Graphics g) {
-        if (currentFrameData == null || currentFrameData.isEmpty()) return;
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(g2d.getFont().deriveFont(Font.BOLD));
+        g2d.drawString(String.format("Recorded job time: %.6f s", recordedJobTime), 10, 20);
+        if (currentFrameData == null || currentFrameData.isEmpty()) return;
         int padding = 20;
         int pieSize = Math.min(pieChartPanel.getWidth(), pieChartPanel.getHeight()) - (padding * 2);
         int pieX = (pieChartPanel.getWidth() - pieSize) / 2;
@@ -1003,7 +1179,7 @@ public class RealTimeJobPieChart extends JPanel {
             totalDuration += job.duration;
         }
         if (totalDuration == 0) {
-            g2d.drawString("No job data available", 10, 20);
+            g2d.drawString("No job data available", 10, 40);
             return;
         }
         for (JobDuration job : currentFrameData) {
@@ -1014,9 +1190,6 @@ public class RealTimeJobPieChart extends JPanel {
             g2d.drawArc(pieX, pieY, pieSize, pieSize, (int) Math.round(currentAngle), (int) Math.round(extentAngle));
             currentAngle += extentAngle;
         }
-        g2d.setColor(Color.BLACK);
-        g2d.setFont(g2d.getFont().deriveFont(Font.BOLD));
-        g2d.drawString(String.format("Total Frame Time: %.6f s", totalDuration), 10, 20);
     }
 
     private String getPieSliceToolTip(MouseEvent e) {
@@ -1074,13 +1247,23 @@ public class RealTimeJobPieChart extends JPanel {
                 new Thread(() -> {
                             try {
                                 VariableServerConnection vsConnection = new VariableServerConnection(host, port);
-                                RTJPerfVarServerClient client = new RTJPerfVarServerClient(vsConnection, pieChart);
-                                activeClient[0] = client;
-                                pieChart.reset();
-                                new Thread(client).start();
                                 SwingUtilities.invokeLater(() -> {
+                                    final RTJPerfVarServerClient[] clientHolder = new RTJPerfVarServerClient[1];
+                                    RTJPerfVarServerClient client = new RTJPerfVarServerClient(
+                                            vsConnection, pieChart, () -> SwingUtilities.invokeLater(() -> {
+                                                // A retiring client must not reset a newer connection.
+                                                if (activeClient[0] == clientHolder[0]) {
+                                                    activeClient[0] = null;
+                                                    connectionStatusBar.setConnectionState(false);
+                                                    pieChart.reset();
+                                                }
+                                            }));
+                                    clientHolder[0] = client;
+                                    activeClient[0] = client;
+                                    pieChart.reset();
                                     connectionStatusBar.setConnectionState(true);
                                     setEnabled(true);
+                                    new Thread(client, "RTJPerf variable server").start();
                                 });
                             } catch (Exception exception) {
                                 SwingUtilities.invokeLater(() -> {

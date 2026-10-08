@@ -17,14 +17,29 @@ public class RTJPerfVarServerClient implements Runnable {
 
     private VariableServerConnection vsConnection;
     private RealTimeJobPieChart gui;
-    private boolean running = true;
+    private volatile boolean running = true;
+    private final Runnable onDisconnected;
+    private int requestedThread = 0;
     private int numThreads = 1;
 
     // Single source of truth for cycle rate (seconds). Default: 0.02s (50 Hz)
-    private double currentCycleRate = 0.02;
+    private volatile double currentCycleRate = 0.02;
 
     // Batch size for job metadata auto-discovery (50 jobs per round-trip)
     private static final int BATCH_SIZE = 50;
+    private static final int STATE_VARIABLE_COUNT = 3;
+    // Order is the wire format consumed by processFrameData.
+    private static final String[] HEALTH_VARIABLES = {
+        "trick_real_time.rt_sync.active",
+        "trick_sys.sched.software_frame",
+        "trick_real_time.rt_sync.frame_overrun",
+        "trick_real_time.rt_sync.total_overrun",
+        "trick_real_time.rt_sync.frame_overrun_cnt",
+        "trick_real_time.rt_sync.peak_frame_overrun",
+        "trick_real_time.rt_sync.completed_frame_count"
+    };
+    private boolean healthAvailable;
+    private String healthUnavailableReason;
 
     // Metadata structure to track job properties
     private static class JobMeta {
@@ -40,12 +55,18 @@ public class RTJPerfVarServerClient implements Runnable {
     }
 
     private List<JobMeta> allJobs = new ArrayList<>();
-    // Synchronized guard to avoid race conditions during thread switching
+    // Only the network worker changes the subscription and its decoding map.
     private final List<JobMeta> activeThreadJobs = new ArrayList<>();
 
     public RTJPerfVarServerClient(VariableServerConnection vsConnection, RealTimeJobPieChart gui) {
+        this(vsConnection, gui, () -> {});
+    }
+
+    public RTJPerfVarServerClient(
+            VariableServerConnection vsConnection, RealTimeJobPieChart gui, Runnable onDisconnected) {
         this.vsConnection = vsConnection;
         this.gui = gui;
+        this.onDisconnected = onDisconnected;
     }
 
     /**
@@ -54,6 +75,9 @@ public class RTJPerfVarServerClient implements Runnable {
      */
     public void stop() {
         running = false;
+        synchronized (this) {
+            notifyAll();
+        }
         try {
             vsConnection.close();
         } catch (IOException e) {
@@ -66,11 +90,10 @@ public class RTJPerfVarServerClient implements Runnable {
         try {
             // 1. Ensure frame logging is turned on so prev_frame_time_seconds is populated
             vsConnection.put("trick.frame_log_on()\n");
-            vsConnection.put("trick.var_debug(1)\n"); // Enable debug for troubleshooting
 
             // 2. Retrieve the software frame and set it as the default cycle rate
             vsConnection.put("trick.var_send_once(\"trick_sys.sched.software_frame\")\n");
-            String frameResponse = vsConnection.get();
+            String frameResponse = readResponse(1);
             if (frameResponse != null && frameResponse.split("\t").length >= 2) {
                 try {
                     double softwareFrame = Double.parseDouble(frameResponse.split("\t")[1].trim());
@@ -90,7 +113,7 @@ public class RTJPerfVarServerClient implements Runnable {
 
             // 4. Get Thread Count from the simulation
             vsConnection.put("trick.var_send_once(\"trick_frame_log.frame_log.num_threads\")\n");
-            String threadResponse = vsConnection.get();
+            String threadResponse = readResponse(1);
             if (threadResponse != null && threadResponse.split("\t").length >= 2) {
                 try {
                     numThreads = Integer.parseInt(threadResponse.split("\t")[1].trim());
@@ -102,7 +125,7 @@ public class RTJPerfVarServerClient implements Runnable {
             // 5. Get Job Count from the scheduler's job vector
             int numberOfJobs = 0;
             vsConnection.put("trick.var_get_stl_size(\"trick_sys.sched.all_jobs_vector\")\n");
-            String sizeResponse = vsConnection.get();
+            String sizeResponse = readResponse(1);
             if (sizeResponse != null && sizeResponse.split("\t").length >= 2) {
                 try {
                     numberOfJobs = Integer.parseInt(sizeResponse.split("\t")[1].trim());
@@ -130,7 +153,7 @@ public class RTJPerfVarServerClient implements Runnable {
                 String cmd = "trick.var_send_once(\"" + varList.toString() + "\", " + (expectedCount * 2) + ")\n";
 
                 vsConnection.put(cmd);
-                String batchResponse = vsConnection.get();
+                String batchResponse = readResponse(1);
 
                 if (batchResponse != null && batchResponse.split("\t").length > 0) {
                     String[] tokens = batchResponse.split("\t");
@@ -168,35 +191,85 @@ public class RTJPerfVarServerClient implements Runnable {
 
             // Initialize GUI thread selection and subscribe to Thread 0
             gui.initializeThreads(numThreads, this);
-            subscribeToThread(0);
+            healthAvailable = discoverRealtimeHealth();
+            int subscribedThread = -1;
+            double configuredCycleRate = Double.NaN;
 
-            // 7. Data Reading Loop (Binary format)
+            // Keep cyclic sending paused. Each request is fully consumed before
+            // reconfiguration, so buffered data can never use another thread's map.
             while (running) {
-                try {
-                    // Get data from Variable Server in binary format
-                    // The get() method handles binary parsing and returns tab-delimited values
-                    String line = vsConnection.get(3 + activeThreadJobs.size());
-
-                    if (line == null || line.isEmpty()) {
-                        continue;
-                    }
-
-                    String[] tokens = line.split("\t");
-                    if (tokens.length >= 4) {
+                int thread;
+                synchronized (this) {
+                    thread = requestedThread;
+                }
+                if (thread != subscribedThread) {
+                    configureSubscription(thread);
+                    subscribedThread = thread;
+                }
+                double cycleRate = currentCycleRate;
+                if (cycleRate != configuredCycleRate) {
+                    // The server's command-processing loop uses this interval even
+                    // while cyclic sending is paused.
+                    vsConnection.put("trick.var_cycle(" + cycleRate + ")\n");
+                    configuredCycleRate = cycleRate;
+                }
+                long start = System.nanoTime();
+                vsConnection.put("trick.var_send()\n");
+                String line = readResponse(jobDataOffset() + activeThreadJobs.size());
+                String[] tokens = line.split("\t");
+                synchronized (this) {
+                    // A selection made during the read invalidates this sample.
+                    if (running && thread == requestedThread && tokens.length >= 3) {
                         processFrameData(tokens);
                     }
-                } catch (Exception e) {
-                    System.err.println("Error reading data: " + e.getMessage());
+                    long remaining = (long) (currentCycleRate * 1_000_000_000L)
+                            - (System.nanoTime() - start);
+                    if (running && thread == requestedThread && remaining > 0) {
+                        wait(remaining / 1_000_000L, (int) (remaining % 1_000_000L));
+                    }
                 }
             }
         } catch (IOException e) {
-            System.err.println("Variable Server connection lost: " + e.getMessage());
+            if (running) {
+                System.err.println("Variable Server connection lost: " + e.getMessage());
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            stop();
+            onDisconnected.run();
         }
+    }
+
+    private String readResponse(int variableCount) throws IOException {
+        String response = vsConnection.get(variableCount);
+        if (response == null) {
+            throw new IOException("Connection closed");
+        }
+        return response;
+    }
+
+    private boolean discoverRealtimeHealth() throws IOException {
+        for (String variable : HEALTH_VARIABLES) {
+            vsConnection.put("trick.var_exists(\"" + variable + "\")\n");
+            String[] response = readResponse(1).split("\t");
+            if (response.length != 2 || !"1".equals(response[1].trim())) {
+                healthUnavailableReason =
+                        "Missing " + variable + "; rebuild the simulation with RTJPerf health support.";
+                gui.updateRealtimeHealthUnavailable(healthUnavailableReason);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int jobDataOffset() {
+        return STATE_VARIABLE_COUNT + (healthAvailable ? HEALTH_VARIABLES.length : 0);
     }
 
     /**
      * Processes frame data from the Variable Server.
-     * Expected format: [time_tics, time_tic_value, mode, job_duration_1, job_duration_2, ...]
+     * Format: time_tics, time_tic_value, mode, optional HEALTH_VARIABLES, job durations.
      */
     private void processFrameData(String[] tokens) {
         double simTime = 0.0;
@@ -215,26 +288,42 @@ public class RTJPerfVarServerClient implements Runnable {
         }
 
         String modeStr = getModeString(mode);
+        if (healthAvailable) {
+            try {
+                if (tokens.length < jobDataOffset()) {
+                    throw new IllegalArgumentException("Incomplete health sample");
+                }
+                boolean active = Integer.parseInt(tokens[3].trim()) != 0;
+                double softwareFrame = Double.parseDouble(tokens[4].trim());
+                double lateness = Double.parseDouble(tokens[5].trim());
+                long totalOverruns = Long.parseLong(tokens[6].trim());
+                long consecutiveOverruns = Long.parseLong(tokens[7].trim());
+                double peakLateness = Double.parseDouble(tokens[8].trim());
+                long frameSequence = Long.parseLong(tokens[9].trim());
+                if (!Double.isFinite(softwareFrame) || softwareFrame <= 0
+                        || !Double.isFinite(lateness) || !Double.isFinite(peakLateness)
+                        || totalOverruns < 0 || consecutiveOverruns < 0 || frameSequence < 0) {
+                    throw new IllegalArgumentException("Invalid health sample");
+                }
+                gui.updateRealtimeHealth(active, softwareFrame, lateness, totalOverruns,
+                        consecutiveOverruns, peakLateness, frameSequence);
+            } catch (RuntimeException e) {
+                gui.updateRealtimeHealthUnavailable("Invalid real-time health sample: " + e.getMessage());
+            }
+        } else {
+            gui.updateRealtimeHealthUnavailable(healthUnavailableReason);
+        }
         List<RealTimeJobPieChart.JobDuration> frameData = new ArrayList<>();
         Map<String, Double> aggregatedDurations = new HashMap<>();
 
-        // Snapshot active jobs to prevent data race during thread switches
-        List<JobMeta> currentJobsSnapshot;
-        synchronized (this) {
-            currentJobsSnapshot = new ArrayList<>(activeThreadJobs);
-        }
-
         // Parse job durations
-        for (int i = 0; i < currentJobsSnapshot.size(); i++) {
-            int tokenIdx = i + 3;
+        for (int i = 0; i < activeThreadJobs.size(); i++) {
+            int tokenIdx = i + jobDataOffset();
             if (tokenIdx < tokens.length) {
                 try {
                     double duration = Double.parseDouble(tokens[tokenIdx].trim());
-                    if (duration > 0.0 && duration < 100.0) {
-                        if (duration < 0.000001) {
-                            duration = 0.000001; // Floor value for UI rendering
-                        }
-                        JobMeta meta = currentJobsSnapshot.get(i);
+                    if (Double.isFinite(duration) && duration > 0.0) {
+                        JobMeta meta = activeThreadJobs.get(i);
                         aggregatedDurations.put(meta.name, aggregatedDurations.getOrDefault(meta.name, 0.0) + duration);
                     }
                 } catch (Exception e) {
@@ -257,77 +346,70 @@ public class RTJPerfVarServerClient implements Runnable {
      * @param threadId The ID of the execution thread to monitor.
      */
     public synchronized void subscribeToThread(int threadId) {
-        try {
-            // Step 1: Pause and clear the old subscription
-            vsConnection.put("trick.var_pause()\n");
-            vsConnection.put("trick.var_clear()\n");
-            vsConnection.put("trick.var_set_copy_mode(1)\n");
-            vsConnection.put("trick.var_cycle(" + currentCycleRate + ")\n");
+        requestedThread = threadId;
+        notifyAll();
+    }
 
-            // Step 2: Switch to binary format (no names to reduce packet size)
-            vsConnection.setBinaryNoNames();
+    private void configureSubscription(int threadId) throws IOException, InterruptedException {
+        // Step 1: Pause and clear the old subscription
+        vsConnection.put("trick.var_pause()\n");
+        vsConnection.put("trick.var_clear()\n");
+        // Keep copies on the variable-server thread, not the sim thread.
+        vsConnection.put("trick.var_set_copy_mode(0)\n");
 
-            // Step 3: Add the core simulation state variables
-            vsConnection.put("trick.var_add(\"trick_sys.sched.time_tics\")\n");
-            vsConnection.put("trick.var_add(\"trick_sys.sched.time_tic_value\")\n");
-            vsConnection.put("trick.var_add(\"trick_sys.sched.mode\")\n");
+        // Step 2: Switch to binary format (no names to reduce packet size)
+        vsConnection.setBinaryNoNames();
 
-            // Step 4: Build the list of active jobs for this thread
-            activeThreadJobs.clear();
-            for (JobMeta job : allJobs) {
-                if (job.thread == threadId) {
-                    activeThreadJobs.add(job);
-                }
+        // Step 3: Add the core simulation state variables
+        vsConnection.put("trick.var_add(\"trick_sys.sched.time_tics\")\n");
+        vsConnection.put("trick.var_add(\"trick_sys.sched.time_tic_value\")\n");
+        vsConnection.put("trick.var_add(\"trick_sys.sched.mode\")\n");
+        if (healthAvailable) {
+            for (String variable : HEALTH_VARIABLES) {
+                vsConnection.put("trick.var_add(\"" + variable + "\")\n");
+            }
+        }
+
+        // Step 4: Build the list of active jobs for this thread
+        activeThreadJobs.clear();
+        for (JobMeta job : allJobs) {
+            if (job.thread == threadId) {
+                activeThreadJobs.add(job);
+            }
+        }
+
+        // Step 5: Batch var_add commands to avoid exceeding 8192-byte message limit
+        // Each var_add line is roughly 70-80 bytes. Use batch size of 30 to stay well under limit.
+        final int VAR_ADD_BATCH_SIZE = 30;
+        for (int i = 0; i < activeThreadJobs.size(); i += VAR_ADD_BATCH_SIZE) {
+            int batchEnd = Math.min(i + VAR_ADD_BATCH_SIZE, activeThreadJobs.size());
+
+            StringBuilder batchCommands = new StringBuilder();
+            for (int j = i; j < batchEnd; j++) {
+                JobMeta job = activeThreadJobs.get(j);
+                batchCommands
+                        .append("trick.var_add(\"trick_sys.sched.all_jobs_vector[")
+                        .append(job.index)
+                        .append("].prev_frame_time_seconds\")\n");
             }
 
-            // Step 5: Batch var_add commands to avoid exceeding 8192-byte message limit
-            // Each var_add line is roughly 70-80 bytes. Use batch size of 30 to stay well under limit.
-            final int VAR_ADD_BATCH_SIZE = 30;
-            for (int i = 0; i < activeThreadJobs.size(); i += VAR_ADD_BATCH_SIZE) {
-                int batchEnd = Math.min(i + VAR_ADD_BATCH_SIZE, activeThreadJobs.size());
-
-                StringBuilder batchCommands = new StringBuilder();
-                for (int j = i; j < batchEnd; j++) {
-                    JobMeta job = activeThreadJobs.get(j);
-                    batchCommands
-                            .append("trick.var_add(\"trick_sys.sched.all_jobs_vector[")
-                            .append(job.index)
-                            .append("].prev_frame_time_seconds\")\n");
-                }
-
-                vsConnection.put(batchCommands.toString());
-                // Small delay to allow Variable Server to process batch
-                Thread.sleep(5);
-            }
-
-            // Step 6: Unpause and start the cyclic stream
-            vsConnection.put("trick.var_unpause()\n");
-            vsConnection.put("trick.var_send()\n");
-
-        } catch (IOException e) {
-            System.err.println("Failed to update thread subscription: " + e.getMessage());
-        } catch (InterruptedException e) {
-            System.err.println("Thread interrupted during subscription: " + e.getMessage());
+            vsConnection.put(batchCommands.toString());
+            // Small delay to allow Variable Server to process batch
+            Thread.sleep(5);
         }
     }
 
     /**
-     * Updates the data cycle rate for both the Variable Server stream and local tracking state.
+     * Updates the interval between snapshot requests and wakes the network worker.
      *
      * @param cycleSeconds The new cycle period in seconds (e.g., 0.02 = 50 Hz).
      */
     public synchronized void setCycleRate(double cycleSeconds) {
-        this.currentCycleRate = cycleSeconds;
-        try {
-            StringBuilder cmd = new StringBuilder();
-            cmd.append("trick.var_pause()\n");
-            cmd.append("trick.var_cycle(").append(cycleSeconds).append(")\n");
-            cmd.append("trick.var_unpause()\n");
-            cmd.append("trick.var_send()\n");
-            vsConnection.put(cmd.toString());
-        } catch (IOException e) {
-            System.err.println("Failed to update cycle rate: " + e.getMessage());
+        if (!Double.isFinite(cycleSeconds) || cycleSeconds <= 0) {
+            throw new IllegalArgumentException("Cycle period must be finite and positive");
         }
+        this.currentCycleRate = cycleSeconds;
+        notifyAll();
     }
 
     private String getModeString(int modeId) {
