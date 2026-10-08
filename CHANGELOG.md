@@ -1,5 +1,37 @@
 # Changelog
 
+## [26.0.0](https://github.com/nasa/trick/compare/25.1.1...v26.0.0) (2026-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* Require bison >= 3.0 and remove premade parser fallback ([#2232](https://github.com/nasa/trick/issues/2232))
+* Param build ([#2034](https://github.com/nasa/trick/issues/2034))
+* Remove dead and deprecated code. ([#2190](https://github.com/nasa/trick/issues/2190))
+
+* Require bison &gt;= 3.0 and remove premade parser fallback ([#2232](https://github.com/nasa/trick/issues/2232)) ([27c44b7](https://github.com/nasa/trick/commit/27c44b7b87c628d281eaca02b1ecc60db5c5ee15))
+
+
+### Added
+
+* Param build ([#2034](https://github.com/nasa/trick/issues/2034)) ([b94fe63](https://github.com/nasa/trick/commit/b94fe633da13d6eb72b1f627ca7f10c523fe0950))
+
+
+### Fixed
+
+* Add makefile rule for target sie in a sim directory. ([#2211](https://github.com/nasa/trick/issues/2211)) ([43a354e](https://github.com/nasa/trick/commit/43a354ee4c6c9ab228995e71f34a18e50c0ad670))
+* **build:** link ICG against clang component libs, not -lclang-cpp ([#2195](https://github.com/nasa/trick/issues/2195)) ([f8ad66c](https://github.com/nasa/trick/commit/f8ad66c0bd90590fd11ef179b01e4396c348ffb4))
+* Interpret send_hs files using latin-1. ([#2213](https://github.com/nasa/trick/issues/2213)) ([8b25adf](https://github.com/nasa/trick/commit/8b25adf131b4886dfc11f1229c1acce621646326))
+* Simplify C++ standard handling in build ([#2223](https://github.com/nasa/trick/issues/2223)) ([04f492d](https://github.com/nasa/trick/commit/04f492da4eb93caa2873d02509353497aa65e4b2))
+* Update STL checkpoint name encoding so _ becomes __, while all other punctuation characters become _. ([#2197](https://github.com/nasa/trick/issues/2197)) ([76b5cf6](https://github.com/nasa/trick/commit/76b5cf65847a36cb1dcf6e00646142dfc1304a76))
+* Use continuous job ids defined in enums instead of hard-coded for framelog. ([#2218](https://github.com/nasa/trick/issues/2218)) ([9512d24](https://github.com/nasa/trick/commit/9512d2495c5cd198478ba559745e6e36a274258b))
+* wrap text in issue templates ([#2222](https://github.com/nasa/trick/issues/2222)) ([6a65162](https://github.com/nasa/trick/commit/6a651622a688cb638844984dcffa3f618ca88cc5))
+
+
+### Changed
+
+* Remove dead and deprecated code. ([#2190](https://github.com/nasa/trick/issues/2190)) ([ec6047b](https://github.com/nasa/trick/commit/ec6047b8bbd811daedab5b377311cf51c3417af0))
+
 ## [25.1.1] - 2026-09-04
 
 ### Changed
