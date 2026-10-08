@@ -363,19 +363,6 @@ endif
 doxygen:
 	@ $(MAKE) -C $@
 
-#-------------------------------------------------------------------------------
-# 1.5 Some Trick source is auto-generated as part of the Trick's build process. When
-# Trick is distributed to the user community, we can't be certain that everyone's
-# machine will have the approriate versions of the code generations tool. So rather
-# than just hope, we go ahead and pre-generate the necessary source files, and
-# include those in the distribution package.
-# This target pre-generates these source files, that are necessary for creating
-# a distribution package.
-premade:
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/sim_services/MemoryManager premade
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent premade
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java
-
 ################################################################################
 #                                   TESTING
 ################################################################################

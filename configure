@@ -6566,6 +6566,16 @@ if test "x$LEX" = "x:"
 then :
   as_fn_error $? "could not find flex" "$LINENO" 5
 fi
+BISON_SEARCH_PATH="$PATH"
+if test "$ON_MAC" = "yes"
+then :
+  BREW_BISON_PREFIX=`brew --prefix bison 2>/dev/null`
+  if test "x$BREW_BISON_PREFIX" != "x"
+then :
+  BISON_SEARCH_PATH="$BREW_BISON_PREFIX/bin$PATH_SEPARATOR$PATH"
+fi
+
+fi
 # Extract the first word of "bison", so it can be a program name with args.
 set dummy bison; ac_word=$2
 { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -6580,7 +6590,7 @@ else case e in #(
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
+for as_dir in $BISON_SEARCH_PATH
 do
   IFS=$as_save_IFS
   case $as_dir in #(((
@@ -6617,6 +6627,55 @@ if test "$ac_cv_path_BISON" = "nobison"
 then :
   as_fn_error $? "could not find bison" "$LINENO" 5
 fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking bison version >= 3.0" >&5
+printf %s "checking bison version >= 3.0... " >&6; }
+BISON_VERSION=`$BISON --version | sed -n '1s/^.* \([0-9][0-9.]*\)$/\1/p'`
+
+
+
+  # Used to indicate true or false condition
+  ax_compare_version=false
+
+  # Convert the two version strings to be compared into a format that
+  # allows a simple string comparison.  The end result is that a version
+  # string of the form 1.12.5-r617 will be converted to the form
+  # 0001001200050617.  In other words, each number is zero padded to four
+  # digits, and non digits are removed.
+
+  ax_compare_version_A=`echo "$BISON_VERSION" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+  ax_compare_version_B=`echo "3.0" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+    ax_compare_version=`echo "x$ax_compare_version_A
+x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version_A}/true/;s/x${ax_compare_version_B}/false/;1q"`
+
+
+
+    if test "$ax_compare_version" = "true" ; then
+    { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: yes ($BISON_VERSION)" >&5
+printf '%s\n' "yes ($BISON_VERSION)" >&6; }
+    else { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: no ($BISON_VERSION)" >&5
+printf '%s\n' "no ($BISON_VERSION)" >&6; }
+  if test "$ON_MAC" = "yes"
+then :
+  as_fn_error $? "Trick requires bison >= 3.0. Run \"brew install bison\"." "$LINENO" 5
+else case e in #(
+  e) as_fn_error $? "Trick requires bison >= 3.0" "$LINENO" 5 ;;
+esac
+fi
+
+  fi
+
 # Extract the first word of "curl", so it can be a program name with args.
 set dummy curl; ac_word=$2
 { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5

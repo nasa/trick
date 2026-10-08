@@ -18,6 +18,7 @@ Trick requires various free third party utilities in order to function. All the 
 |          [java] |   11+   |  Programming Language   |                Necessary for Trick GUIs.                 |                                                                                                                                                                                                         |
 |          [swig] | 3.x-4.x |  Language Interfacing   | Connects the python input processor with Trick's C code. | 3.0+ is now required for Trick. SWIG 4.x is compatible with Trick, but has some [issues](https://github.com/nasa/trick/issues/1288). Please open an issue if you encounter a problem related to SWIG 4. |
 |          [make] |  3.78+  |    Build Automation     |      Automates the building and cleaning of Trick.       |                                                                                                                                                                                                         |
+|         [bison] |  3.0+   |    Parser Generator     |  Generates the Memory Manager and checkpoint parsers.    | macOS ships bison 2.3; install a newer one with Homebrew (`brew install bison`). configure finds Homebrew's keg-only bison automatically.                                                               |
 |         [motif] | 2.2.0+  |       GUI Toolkit       |          Covers Trick GUIs not made with Java.           | The package name varies by platform. See [Motif](#motif-package-names).                                                                                                                                 |
 |       [udunits] |  2.x+   | C Unit Library/Database |    Provides support for units of physical quantities.    |                                                                                                                                                                                                         |
 |         [maven] |   x.x   |  Java package manager   |    Downloads Java dependencies and builds Trick GUIs.    |                                                                                                                                                                                                         |
@@ -30,6 +31,7 @@ Trick requires various free third party utilities in order to function. All the 
 [java]: https://www.java.com/
 [swig]: http://www.swig.org/
 [make]: https://www.gnu.org/software/make/
+[bison]: https://www.gnu.org/software/bison/
 [motif]: https://motif.ics.com/motif
 [udunits]: https://www.unidata.ucar.edu/software/udunits/
 [maven]: https://maven.apache.org/
@@ -277,7 +279,7 @@ xcode-select --install
 4. Install the following dependencies using brew (See step 5 if `brew install llvm` doesn't work for your Trick build).
 
 ```bash
-brew install python java xquartz swig maven udunits openmotif llvm
+brew install python java xquartz swig maven udunits openmotif llvm bison
 
 ```
 
@@ -350,7 +352,7 @@ proceed to [Install Trick](#install) section of the install guide
 
 2. Install Homebrew
    a. Install the Homebrew package manager (https://brew.sh)
-   b. brew install swig maven udunits openmotif llvm
+   b. brew install swig maven udunits openmotif llvm bison
    c. brew install cmake
    d. Optional: brew install gsl hdf5 googletest
 
