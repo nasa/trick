@@ -35,7 +35,7 @@ jobs:
           brew update || true
           brew upgrade || true
           brew install --cask xquartz
-          brew install udunits openmotif maven
+          brew install bison udunits openmotif maven
           brew install swig llvm
       - name: Build Trick
         run: |

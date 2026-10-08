@@ -26,12 +26,10 @@ DEPTEMPFILE = $(PWD)/Makefile_temp_depends
 
 L_SRC  = $(wildcard $(SRC_DIR)*.l)
 L_C    = $(subst .l,.lex.c,$(L_SRC))
-L_C_PREMADE = $(subst .l,.lex.c_premade,$(L_SRC))
 L_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .l,.lex.o,$(L_SRC))))
 
 Y_SRC  = $(wildcard $(SRC_DIR)*.y)
 Y_C    = $(subst .y,.tab.cpp,$(Y_SRC))
-Y_C_PREMADE = $(subst .y,.tab.c_premade,$(Y_SRC))
 Y_H    = $(subst .y,.tab.hpp,$(Y_SRC))
 Y_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .y,.tab.o,$(Y_SRC))))
 
@@ -72,8 +70,6 @@ endif
 default: objects $(TRICK_LIB)
 
 trick: objects
-
-premade: $(L_C_PREMADE) $(Y_C_PREMADE)
 
 objects: $(OBJECT_FILES)
 	@ echo "[32m$(CURDIR) object files up to date[00m"
@@ -134,17 +130,11 @@ $(CPP_CPLUS_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c++ | $(OBJ_DIR)
 #
 
 $(L_C) : $(SRC_DIR)%.lex.c : $(SRC_DIR)%.l
-	$(LEX) -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} )
-
-$(L_C_PREMADE) : $(SRC_DIR)%.lex.c_premade : $(SRC_DIR)%.l
 	$(LEX) -o $@ $<
 
 $(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
 
 $(Y_C) : $(SRC_DIR)%.tab.cpp : $(SRC_DIR)%.y
-	$(YACC) -d -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} ; ln -s ${@F:.c=.h}_premade ${@F:.c=.h}) 
-
-$(Y_C_PREMADE) : $(SRC_DIR)%.tab.c_premade : $(SRC_DIR)%.y
 	$(YACC) -d -o $@ $<
 
 $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
