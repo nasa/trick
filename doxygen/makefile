@@ -6,7 +6,7 @@ export TRICK_MINOR = $(shell echo $(TRICK_RELEASE) | cut -f 2 -d.)
 
 all:
 	doxygen Doxyfile
-	@ cp ${TRICK_HOME}/trick_source/java/src/trick/common/resources/trick_small.gif  ${TRICK_DOCS}/html
+	@ cp ${TRICK_HOME}/trick_source/java/src/main/resources/trick/common/resources/trick_small.gif  ${TRICK_DOCS}/html
 	@ cp ${TRICK_HOME}/doxygen/trick_icon.png  ${TRICK_DOCS}/html
 
 clean:

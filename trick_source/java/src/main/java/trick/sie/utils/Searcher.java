@@ -4,13 +4,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
 import javax.swing.SwingWorker;
 
 /**
@@ -46,8 +45,10 @@ public class Searcher {
      * @param searchListener a listener to notify of search events
      * @param propertyChangeListener a listener to notify of property changes
      */
-    public Searcher(Collection<SieTemplate> rootTemplates, SearchListener searchListener,
-      PropertyChangeListener propertyChangeListener) {
+    public Searcher(
+            Collection<SieTemplate> rootTemplates,
+            SearchListener searchListener,
+            PropertyChangeListener propertyChangeListener) {
         this.rootTemplates = rootTemplates;
         this.searchListener = searchListener;
         this.propertyChangeListener = propertyChangeListener;
@@ -74,8 +75,7 @@ public class Searcher {
         executorService.shutdownNow();
         try {
             executorService.awaitTermination(1, TimeUnit.SECONDS);
-        }
-        catch (InterruptedException ie) {
+        } catch (InterruptedException ie) {
             executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
@@ -89,39 +89,37 @@ public class Searcher {
      * @param targetText the text for which to search
      * @param caseSensitive enables case sensitive searching
      * @param regularExpression enables regular expression searching
-     * @param greedSearch enabled multi-threaded search
+     * @param greedySearch enabled multi-threaded search
      */
-    public void search(final String targetText, final boolean caseSensitive,
-      final boolean regularExpression, final boolean greedySearch) {
+    public void search(
+            final String targetText,
+            final boolean caseSensitive,
+            final boolean regularExpression,
+            final boolean greedySearch) {
 
-        final SearchFunction searchFunction = regularExpression ?
+        final SearchFunction searchFunction = regularExpression
+                ? new SearchFunction() {
 
-            new SearchFunction() {
+                    final Pattern pattern = Pattern.compile(targetText, caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
 
-                final Pattern pattern = Pattern.compile(
-                  targetText, caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
-
-                @Override
-                public boolean search(SieTemplate sieTemplate) {
-                    return pattern.matcher(sieTemplate.toString()).find();
-                }
-
-            } :
-
-            new SearchFunction() {
-
-                String modifiedTargetText = caseSensitive ? targetText : targetText.toLowerCase();
-
-                @Override
-                public boolean search(SieTemplate sieTemplate) {
-                    String text = sieTemplate.toString();
-                    if (!caseSensitive) {
-                        text = text.toLowerCase();
+                    @Override
+                    public boolean search(SieTemplate sieTemplate) {
+                        return pattern.matcher(sieTemplate.toString()).find();
                     }
-                    return text.contains(modifiedTargetText);
                 }
-                
-            };
+                : new SearchFunction() {
+
+                    String modifiedTargetText = caseSensitive ? targetText : targetText.toLowerCase();
+
+                    @Override
+                    public boolean search(SieTemplate sieTemplate) {
+                        String text = sieTemplate.toString();
+                        if (!caseSensitive) {
+                            text = text.toLowerCase();
+                        }
+                        return text.contains(modifiedTargetText);
+                    }
+                };
 
         cancelSearch();
         count = 0;
@@ -141,7 +139,7 @@ public class Searcher {
                 private Exception exception;
 
                 {
-                addPropertyChangeListener(propertyChangeListener);
+                    addPropertyChangeListener(propertyChangeListener);
                 }
 
                 /**
@@ -157,9 +155,8 @@ public class Searcher {
                                 return null;
                             }
                             try {
-                                publish(searchFunction.search(variable) ? variable : (SieTemplate)null);
-                            }
-                            catch (Exception e) {
+                                publish(searchFunction.search(variable) ? variable : (SieTemplate) null);
+                            } catch (Exception e) {
                                 exception = e;
                                 return null;
                             }
@@ -186,10 +183,10 @@ public class Searcher {
                         if (count > elementCount) {
                             long old = elementCount;
                             elementCount = count;
-                            propertyChangeListener.propertyChange(new PropertyChangeEvent(Searcher.this, "count", old, elementCount));
-                        }
-                        else {
-                            setProgress((int)(100 * count / elementCount));
+                            propertyChangeListener.propertyChange(
+                                    new PropertyChangeEvent(Searcher.this, "count", old, elementCount));
+                        } else {
+                            setProgress((int) (100 * count / elementCount));
                         }
                         if (!matches.isEmpty()) {
                             searchListener.matchFound(matches);
@@ -203,15 +200,13 @@ public class Searcher {
                         if (exception != null) {
                             executorService.shutdownNow();
                             searchListener.searchFailed(exception);
-                        }
-                        else if (--threads == 0) {
+                        } else if (--threads == 0) {
                             executorService.shutdownNow();
                             setProgress(100);
                             searchListener.searchComplete();
                         }
                     }
                 }
-
             });
         }
     }
@@ -227,6 +222,6 @@ public class Searcher {
          * @param sieTemplate the variable to search
          */
         public boolean search(SieTemplate sieTemplate);
-    };
-
+    }
+    ;
 }

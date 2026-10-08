@@ -1,4 +1,4 @@
-%pure-parser
+%define api.pure
 %locations
 %parse-param {ChkPtParseContext* IP}
 %lex-param { void* scanner }

@@ -1,9 +1,8 @@
-
-set( TRICK_UNITS_SRC
-  src/UCFn.cpp
-  src/Unit.cpp
-  src/units_conv
+# libtrick_units: Trick's original units conversion, used by data products and ICG.
+trick_add_library(trick_units STATIC
+    EXPORT_NAME units
+    SOURCES
+        src/UCFn.cpp
+        src/Unit.cpp
+        src/units_conv.c
 )
-
-add_library( trick_units STATIC ${TRICK_UNITS_SRC})
-

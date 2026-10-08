@@ -1,4 +1,4 @@
-%pure-parser
+%define api.pure
 %locations
 %parse-param {Trick::ADefParseContext* context}
 %lex-param { void* scanner }

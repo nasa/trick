@@ -26,12 +26,10 @@ DEPTEMPFILE = $(PWD)/Makefile_temp_depends
 
 L_SRC  = $(wildcard $(SRC_DIR)*.l)
 L_C    = $(subst .l,.lex.c,$(L_SRC))
-L_C_PREMADE = $(subst .l,.lex.c_premade,$(L_SRC))
 L_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .l,.lex.o,$(L_SRC))))
 
 Y_SRC  = $(wildcard $(SRC_DIR)*.y)
 Y_C    = $(subst .y,.tab.cpp,$(Y_SRC))
-Y_C_PREMADE = $(subst .y,.tab.c_premade,$(Y_SRC))
 Y_H    = $(subst .y,.tab.hpp,$(Y_SRC))
 Y_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .y,.tab.o,$(Y_SRC))))
 
@@ -72,8 +70,6 @@ endif
 default: objects $(TRICK_LIB)
 
 trick: objects
-
-premade: $(L_C_PREMADE) $(Y_C_PREMADE)
 
 objects: $(OBJECT_FILES)
 	@ echo "[32m$(CURDIR) object files up to date[00m"
@@ -134,23 +130,18 @@ $(CPP_CPLUS_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c++ | $(OBJ_DIR)
 #
 
 $(L_C) : $(SRC_DIR)%.lex.c : $(SRC_DIR)%.l
-	$(LEX) -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} )
-
-$(L_C_PREMADE) : $(SRC_DIR)%.lex.c_premade : $(SRC_DIR)%.l
 	$(LEX) -o $@ $<
 
-# Our .y files still use the old %pure-parser directive so that they keep
-# working with old bison (e.g. the /usr/bin/bison 2.3 that macOS ships).
-# %pure-parser was deprecated in favor of %define api.pure back in bison
-# 2.3b (2008), but bison only started warning about it in 3.4 (2019);
-# %define api.pure itself isn't understood by old bison. Silence the
-# deprecated-directive warning via -Wno-deprecated, but only when the
-# local bison actually understands that flag -- older bison (pre-3.x)
-# doesn't have the deprecation-warning feature at all and errors out on
-# -Wno-deprecated as an unrecognized option.
-YACC_SUPPORTS_WNO := $(shell $(YACC) -Wno-deprecated --version >/dev/null 2>&1 && echo -Wno-deprecated)
-
 # Per-.y-file flags (e.g. -p PREFIX in place of a %name-prefix directive).
+# The %name-prefix directive in GNU Bison was first deprecated in Bison 3.0
+# without issuing a warning, and the deprecation warning was officially
+# introduced in Bison 3.3. Trick started requiring Bison 3.0 on 10/8/26 (PR# 2232).
+# Change to use -p as it is not deprecated and keeps the behavor of %name-prefix.
+# Although the recommendation is to use %define api.prefix instead for newer
+# Bison, %define api.prefix {prefix} does more what %name-prefix="prefix" does.
+# %name-prefix only renames functions and variables
+# %define api.prefix adds on top: types, macros, token, and enum names
+
 # Individual project Makefiles set this with a target-specific assignment,
 # e.g. `foo.tab.cpp : YACC_FLAGS += -p FOO_`.
 YACC_FLAGS =
@@ -158,10 +149,7 @@ YACC_FLAGS =
 $(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
 
 $(Y_C) : $(SRC_DIR)%.tab.cpp : $(SRC_DIR)%.y
-	$(YACC) $(YACC_SUPPORTS_WNO) $(YACC_FLAGS) -d -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} ; ln -s ${@F:.c=.h}_premade ${@F:.c=.h})
-
-$(Y_C_PREMADE) : $(SRC_DIR)%.tab.c_premade : $(SRC_DIR)%.y
-	$(YACC) $(YACC_SUPPORTS_WNO) $(YACC_FLAGS) -d -o $@ $<
+	$(YACC) $(YACC_FLAGS) -d -o $@ $<
 
 $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@

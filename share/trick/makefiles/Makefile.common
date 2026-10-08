@@ -196,7 +196,17 @@ export TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
 TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
 TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
 
-TRICK_TEST_FLAGS += -Wall -Wextra $(GTEST_CXXSTD)
+# Trick does not set a -std= for simulations. The headers in include/trick require
+# C++14 or newer, which every supported compiler (GCC 8.5+, Clang) already uses by
+# default, and a simulation may pass any newer -std= through TRICK_CXXFLAGS.
+# TRICK_MIN_CXX_STD is the header requirement; `make header_compat_test` checks it.
+# Trick's own libraries are built with a newer standard (see TRICK_CXXFLAGS in
+# $(TRICK_HOME)/Makefile); that must not leak into the flags handed to simulations.
+TRICK_MIN_CXX_STD := 14
+
+# Trick's unit tests are built against gtest, which requires C++17 as of 1.17, and
+# Trick itself is built with C++17.
+TRICK_TEST_FLAGS += -Wall -Wextra -std=c++17
 
 TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i and $$i ne "/usr/include")}') \
                  $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
