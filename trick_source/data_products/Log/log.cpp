@@ -441,7 +441,7 @@ int LogData::getNumRecords()
 
         FILE *fpTmp;
         char *file;
-        char extension[4];
+        char extension[12];
 
         int fileOffset;
         int numRecs;
