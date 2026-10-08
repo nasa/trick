@@ -89,7 +89,7 @@ public class Searcher {
      * @param targetText the text for which to search
      * @param caseSensitive enables case sensitive searching
      * @param regularExpression enables regular expression searching
-     * @param greedSearch enabled multi-threaded search
+     * @param greedySearch enabled multi-threaded search
      */
     public void search(final String targetText, final boolean caseSensitive,
       final boolean regularExpression, final boolean greedySearch) {

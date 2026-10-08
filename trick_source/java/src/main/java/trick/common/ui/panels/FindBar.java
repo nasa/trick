@@ -27,7 +27,7 @@ import org.jdesktop.swingx.JXEditorPane;
 
 /**
  * @since Trick 10
- * A {@link JXFindBar} that allows users to input search text.
+ * A {@link org.jdesktop.swingx.JXFindBar} that allows users to input search text.
  * This class extends JXFindBar, a SwingX component providing search bar functionality for a JXEditorPane.
  *
  * Notes for not extending JXFindBar:
@@ -39,7 +39,7 @@ import org.jdesktop.swingx.JXEditorPane;
  * The toMatchResult method is called in the Matcher class and creates a new Matcher, copying the state over.
  * The toMatchResult method returns a {@link MatchResult} object.
  * This works until JDK 9.
- * JDK 9 introduces a new, non-public {@link java.util.regex.Matcher$ImmutableMatchResult} class that is the result of toMatchResult().
+ * JDK 9 introduces a new, non-public {@code java.util.regex.Matcher$ImmutableMatchResult} class that is the result of toMatchResult().
  * Therefore, a Matcher can't be cloned and the state can't be copied over. The following exception would be seen:
  * java.lang.ClassCastException: class java.util.regex.Matcher$ImmutableMatchResult cannot be cast to class java.util.regex.Matcher 
  * (java.util.regex.Matcher$ImmutableMatchResult and java.util.regex.Matcher are in module java.base of loader 'bootstrap')

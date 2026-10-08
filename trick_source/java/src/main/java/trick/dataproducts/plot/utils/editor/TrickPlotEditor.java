@@ -76,19 +76,19 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
     private RectangleInsets plotInsets;
 
     /**
-     * The orientation for the plot (for <tt>CategoryPlot</tt>s and
-     * <tt>XYPlot</tt>s).
+     * The orientation for the plot (for <code>CategoryPlot</code>s and
+     * <code>XYPlot</code>s).
      */
     private PlotOrientation plotOrientation;
 
     /**
-     * The orientation combo box (for <tt>CategoryPlot</tt>s and
-     * <tt>XYPlot</tt>s).
+     * The orientation combo box (for <code>CategoryPlot</code>s and
+     * <code>XYPlot</code>s).
      */
     private JComboBox orientationCombo;
 
     /** Whether or not to draw lines between each data point (for
-     * <tt>LineAndShapeRenderer</tt>s and <tt>StandardXYItemRenderer</tt>s).
+     * <code>LineAndShapeRenderer</code>s and <code>StandardXYItemRenderer</code>s).
      */
     private Boolean drawLines;
 
@@ -98,7 +98,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
     private JCheckBox drawLinesCheckBox;
 
     /** Whether or not to draw shapes at each data point (for
-     * <tt>LineAndShapeRenderer</tt>s and <tt>StandardXYItemRenderer</tt>s).
+     * <code>LineAndShapeRenderer</code>s and <code>StandardXYItemRenderer</code>s).
      */
     private Boolean drawShapes;
 
@@ -478,7 +478,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
 //
     /**
      * Allow the user to modify the plot orientation if this is an editor for a
-     * <tt>CategoryPlot</tt> or a <tt>XYPlot</tt>.
+     * <code>CategoryPlot</code> or a <code>XYPlot</code>.
      */
     private void attemptOrientationSelection() {
 
@@ -494,8 +494,8 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
 
     /**
      * Allow the user to modify whether or not lines are drawn between data
-     * points by <tt>LineAndShapeRenderer</tt>s and
-     * <tt>StandardXYItemRenderer</tt>s.
+     * points by <code>LineAndShapeRenderer</code>s and
+     * <code>StandardXYItemRenderer</code>s.
      */
     private void attemptDrawLinesSelection() {
         this.drawLines = BooleanUtilities.valueOf(
@@ -504,7 +504,7 @@ public class TrickPlotEditor extends JPanel implements ActionListener {
 
     /**
      * Allow the user to modify whether or not shapes are drawn at data points
-     * by <tt>LineAndShapeRenderer</tt>s and <tt>StandardXYItemRenderer</tt>s.
+     * by <code>LineAndShapeRenderer</code>s and <code>StandardXYItemRenderer</code>s.
      */
     private void attemptDrawShapesSelection() {
         this.drawShapes = BooleanUtilities.valueOf(

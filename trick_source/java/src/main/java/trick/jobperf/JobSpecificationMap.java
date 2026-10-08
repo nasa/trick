@@ -45,7 +45,8 @@ public class JobSpecificationMap {
 
     /**
     * Add an identifier, and a JobSpecification to the JobSpecificationMap.
-    * @ param identifier  Specifies the key.
+    * @param identifier  Specifies the key.
+    * @param jobSpec     The JobSpecification to associate with the key.
     */
     public void addKey( String identifier,  JobSpecification jobSpec) {
         if (!jobSpecMap.containsKey(identifier)) {

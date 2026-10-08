@@ -47,7 +47,7 @@ public class KeyedColorMap {
     /**
     * Add an identifier, and a generated Color to the KeyedColorMap.
     * The Color will be generated randomly.
-    * @ param identifier  Specifies the key for which a color will be generated.
+    * @param identifier  Specifies the key for which a color will be generated.
     */
     public void addKey( String identifier ) {
         if (!colorMap.containsKey(identifier)) {
@@ -82,7 +82,6 @@ public class KeyedColorMap {
 
     /**
     * Write the identifier, color key/value pairs of the KeyedColorMap to a file.
-    * @param fileName
     */
     public void writeFile() throws IOException {
         BufferedWriter out = new BufferedWriter( new FileWriter(fileName) );
@@ -100,7 +99,6 @@ public class KeyedColorMap {
 
     /**
     * Read identifier, color key-value pairs into the KeyedColorMap from a file.
-    * @param fileName
     */
     public void readFile() throws IOException {
         try {
