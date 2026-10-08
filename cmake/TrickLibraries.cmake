@@ -28,7 +28,9 @@ if(TRICK_ENABLE_ER7_UTILS)
     target_include_directories(trick_headers INTERFACE
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/trick_source>")
 endif()
-target_compile_features(trick_headers INTERFACE cxx_std_17)
+# Public headers require only C++14; Trick's own C++17 requirement is private.
+# Keep this aligned with TRICK_MIN_CXX_STD in Makefile.common.
+target_compile_features(trick_headers INTERFACE cxx_std_14)
 target_compile_definitions(trick_headers INTERFACE
     TRICK_VER=${PROJECT_VERSION_MAJOR}
     TRICK_MINOR=${PROJECT_VERSION_MINOR}
@@ -40,6 +42,7 @@ target_compile_definitions(trick_headers INTERFACE
 # on to anything that links against Trick. Link it with
 # $<BUILD_INTERFACE:trick_build_options> so it never appears in an export.
 add_library(trick_build_options INTERFACE)
+target_compile_features(trick_build_options INTERFACE cxx_std_17)
 target_compile_options(trick_build_options INTERFACE
     # Let C++ exceptions propagate through Trick's C code.
     $<$<COMPILE_LANGUAGE:C>:-fexceptions>)

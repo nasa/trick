@@ -189,13 +189,16 @@ to select a specific Bison installation; it must be version 3.0 or newer.
 `cmake/TrickLibraries.cmake` defines two targets every library links:
 
 - `trick_headers` (`Trick::headers`): the include paths `include/` and
-  `include/trick/compat`, C++17, and the definitions Trick's headers test:
+  `include/trick/compat`, a C++14 minimum, and the definitions Trick's headers test:
   `TRICK_VER`, `TRICK_MINOR`, `USE_ER7_UTILS_INTEGRATORS`, `_HAVE_GSL`, and
   `USE_CIVETWEB`. With er7_utils enabled, it also adds `trick_source`, where
   the `er7_utils/...` headers that Trick's integrator headers include are
-  found. Simulations receive the same set through `TRICK_SYSTEM_CXXFLAGS`.
-- `trick_build_options`: settings used only to compile Trick itself, currently
-  `-fexceptions` for C. It is never exported.
+  found. Simulation make builds receive the same include paths and definitions
+  through `TRICK_SYSTEM_CXXFLAGS`, but no `-std=` flag; they use the compiler's
+  default or the simulation's chosen standard (C++14 or newer).
+- `trick_build_options`: settings used only to compile Trick itself: C++17 and
+  `-fexceptions` for C. It is never exported. Trick's unit tests also require
+  C++17, independently of the public-header minimum.
 
 `trick_add_library()` creates a library linked to both. Each archive
 simulations link is a `STATIC` library with the same name, and has a
