@@ -136,11 +136,15 @@ jobs:
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
           echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))" >> "$GITHUB_ENV"
           ./configure
-      # CMake migration: configure only until the CMake build reaches parity.
-      - name: Configure Trick (CMake)
-        run: cmake --preset ci
+      # CMake migration: builds what the CMake build has so far, alongside
+      # make, unoptimized like make so the next step can compare them.
+      - name: Build Trick (CMake)
+        run: cmake --workflow --preset parity
       - name: Build Trick
         run: make
+      - name: Compare CMake and Make builds
+        run: |
+          bash tools/build-parity.sh check-cmake "$(ls -d lib64 lib 2>/dev/null | head -n 1)" out/build/parity out/parity-check
       - name: Test Trick
         run: |
           python3 -m venv share/trick/trickops/.venv
