@@ -1,28 +1,25 @@
-//========================================
+// ========================================
 //  Package
-//========================================
+// ========================================
 package trick.common.ui.panels;
 
-//========================================
-//Imports
-//========================================
-
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.*;
+// ========================================
+// Imports
+// ========================================
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.*;
 import org.jdesktop.swingx.JXEditorPane;
 
 /**
@@ -41,7 +38,7 @@ import org.jdesktop.swingx.JXEditorPane;
  * This works until JDK 9.
  * JDK 9 introduces a new, non-public {@code java.util.regex.Matcher$ImmutableMatchResult} class that is the result of toMatchResult().
  * Therefore, a Matcher can't be cloned and the state can't be copied over. The following exception would be seen:
- * java.lang.ClassCastException: class java.util.regex.Matcher$ImmutableMatchResult cannot be cast to class java.util.regex.Matcher 
+ * java.lang.ClassCastException: class java.util.regex.Matcher$ImmutableMatchResult cannot be cast to class java.util.regex.Matcher
  * (java.util.regex.Matcher$ImmutableMatchResult and java.util.regex.Matcher are in module java.base of loader 'bootstrap')
  *
  * @since Trick 19
@@ -112,8 +109,8 @@ public class FindBar extends JPanel {
      * Constructs a new FindBar with the specified JXEditorPane.
      *
      * <p>
-     * The FindBar consists of a JTextField for entering the search text, and two buttons 
-     * for navigating to the next and previous matches. It also highlights the current match 
+     * The FindBar consists of a JTextField for entering the search text, and two buttons
+     * for navigating to the next and previous matches. It also highlights the current match
      * in the editor pane.
      * </p>
      *
@@ -249,8 +246,8 @@ public class FindBar extends JPanel {
                 editorPane.setCaretPosition(pos);
             }
         } catch (PatternSyntaxException e) {
-            JOptionPane.showMessageDialog(this, "Invalid regular expression: " + e.getDescription(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this, "Invalid regular expression: " + e.getDescription(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -258,13 +255,13 @@ public class FindBar extends JPanel {
 
     /**
      * Highlights the current match in the editor pane.
-     * 
+     *
      * This method uses the Highlighter to highlight the text in the editor pane
      * that matches the current search term. It removes any existing highlights
      * before applying the new highlight. If there are positions available in the
      * list, it highlights the text at the current index position and sets the
      * caret position to the start of the highlighted text.
-     * 
+     *
      * @throws BadLocationException if the position is invalid in the document model
      */
     private void highlightCurrentMatch() {
@@ -284,5 +281,4 @@ public class FindBar extends JPanel {
             e.printStackTrace();
         }
     }
-
 }
