@@ -2,7 +2,7 @@
   "name": "vscode-trick",
   "displayName": "Trick Simulation Toolkit",
   "description": "S_define/.sm language support, per-sim IntelliSense, build/run tasks, and live sim views for the Trick Simulation Toolkit",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "trick-sim",
   "license": "SEE LICENSE IN LICENSE.txt",
   "repository": {
