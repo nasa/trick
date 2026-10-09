@@ -28,6 +28,9 @@
 #include "input_parser.tab.hpp"
 #include "trick/TrickConstant.hh"
 
+#define YYSTYPE CCP_STYPE
+#define YYLTYPE CCP_LTYPE
+
 #define YY_EXTRA_TYPE ChkPtParseContext*
 
 #define YY_USER_ACTION yylloc->first_line = yylineno;
@@ -570,4 +573,3 @@ void ChkPtParseContext::destroy_scanner() {
     yylex_destroy(scanner);
 
 }
-

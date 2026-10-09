@@ -1,5 +1,5 @@
-%name-prefix="REF_"
-%pure-parser
+%define api.prefix {REF_}
+%define api.pure
 %locations
 %parse-param {RefParseContext* context}
 %lex-param { void* scanner }
@@ -15,6 +15,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef YYDEBUG
+#undef YYDEBUG
+#endif
+#define YYDEBUG 1
+
 #include "trick/RefParseContext.hh"
 #include "trick/vval.h"
 #include "trick/value.h"
@@ -25,19 +30,17 @@
 
     using namespace std;
 
-    int REF_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );
+    int REF_lex( REF_STYPE* lvalp, REF_LTYPE* llocp, void* scanner );
  
-    void REF_error( YYLTYPE* locp, RefParseContext* context __attribute__ ((unused)) , const char* err) {
+    #undef yyerror
+    #define yyerror REF_report_error
+    void REF_report_error( REF_LTYPE* locp, RefParseContext* context __attribute__ ((unused)) , const char* err) {
         std::stringstream message;
         message << "Syntax error: " << locp->first_line << " : " << err ;
         Trick::MemoryManager::emitError(message.str());
     }
 
 #define scanner context->scanner
-#ifdef YYDEBUG
-#undef YYDEBUG
-#endif
-#define YYDEBUG 1
 %}
 
 %start reference
@@ -199,5 +202,3 @@ v_data:
     ;
 
 %%
-
-

@@ -1,5 +1,5 @@
-%name-prefix="CCP_"
-%pure-parser
+%define api.prefix {CCP_}
+%define api.pure
 %locations
 %parse-param {ChkPtParseContext* IP}
 %lex-param { void* scanner }
@@ -26,9 +26,11 @@
 
     using namespace std;
 
-    int CCP_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );
+    int CCP_lex( CCP_STYPE* lvalp, CCP_LTYPE* llocp, void* scanner );
 
-    void CCP_error( YYLTYPE* locp, ChkPtParseContext* context, const char* err) {
+    #undef yyerror
+    #define yyerror CCP_report_error
+    void CCP_report_error( CCP_LTYPE* locp, ChkPtParseContext* context, const char* err) {
        message_publish(MSG_ERROR, "Checkpoint Agent input_parser PARSE-ERROR %d : %s\n", locp->first_line, err) ;
     }
 

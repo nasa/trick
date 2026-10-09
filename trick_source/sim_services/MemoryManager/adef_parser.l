@@ -18,6 +18,9 @@
 #include "trick/ADefParseContext.hh"
 #include "adef_parser.tab.hpp"
 
+#define YYSTYPE ADEF_STYPE
+#define YYLTYPE ADEF_LTYPE
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-function"
@@ -291,4 +294,3 @@ void Trick::ADefParseContext::destroy_scanner() {
     yylex_destroy(scanner);
 
 }
-
