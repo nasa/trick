@@ -7,12 +7,6 @@ TRICK_LIB := $(TRICK_LIB_DIR)/libtrick_mm.a
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 -include Makefile_deps
 
-# adef_parser.y/ref_parser.y no longer set %name-prefix (deprecated since
-# bison 2.6, warned about since bison 3.3), so pass the prefix on the
-# command line instead.
-adef_parser.tab.cpp : YACC_FLAGS += -p ADEF_
-ref_parser.tab.cpp : YACC_FLAGS += -p REF_
-
 # make the Memory Manager library when called by the master makefile.
 trick: ${TRICK_LIB}
 

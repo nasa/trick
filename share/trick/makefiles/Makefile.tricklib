@@ -132,24 +132,10 @@ $(CPP_CPLUS_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c++ | $(OBJ_DIR)
 $(L_C) : $(SRC_DIR)%.lex.c : $(SRC_DIR)%.l
 	$(LEX) -o $@ $<
 
-# Per-.y-file flags (e.g. -p PREFIX in place of a %name-prefix directive).
-# The %name-prefix directive in GNU Bison was first deprecated in Bison 3.0
-# without issuing a warning, and the deprecation warning was officially
-# introduced in Bison 3.3. Trick started requiring Bison 3.0 on 10/8/26 (PR# 2232).
-# Change to use -p as it is not deprecated and keeps the behavor of %name-prefix.
-# Although the recommendation is to use %define api.prefix instead for newer
-# Bison, %define api.prefix {prefix} does more what %name-prefix="prefix" does.
-# %name-prefix only renames functions and variables
-# %define api.prefix adds on top: types, macros, token, and enum names
-
-# Individual project Makefiles set this with a target-specific assignment,
-# e.g. `foo.tab.cpp : YACC_FLAGS += -p FOO_`.
-YACC_FLAGS =
-
 $(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
 
 $(Y_C) : $(SRC_DIR)%.tab.cpp : $(SRC_DIR)%.y
-	$(YACC) $(YACC_FLAGS) -d -o $@ $<
+	$(YACC) -d -o $@ $<
 
 $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
@@ -191,4 +177,3 @@ Source Directory Make Options:\n\
 \n\
     make real_clean    - Deletes xml/, io_src/,\n\
                          and object_${TRICK_HOST_CPU}/ directories\n"
-

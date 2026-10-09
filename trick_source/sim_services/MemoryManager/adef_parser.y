@@ -1,3 +1,4 @@
+%define api.prefix {ADEF_}
 %define api.pure
 %locations
 %parse-param {Trick::ADefParseContext* context}
@@ -24,9 +25,11 @@
 
     using namespace std;
 
-    int ADEF_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );
+    int ADEF_lex( ADEF_STYPE* lvalp, ADEF_LTYPE* llocp, void* scanner );
 
-    void ADEF_error( YYLTYPE* locp, Trick::ADefParseContext* context, const char* err) {
+    #undef yyerror
+    #define yyerror ADEF_report_error
+    void ADEF_report_error( ADEF_LTYPE* locp, Trick::ADefParseContext* context, const char* err) {
        std::stringstream message;
        message << "adef_parser PARSE-ERROR " << locp->first_line << ": " << err << ".";
        Trick::MemoryManager::emitError(message.str());
