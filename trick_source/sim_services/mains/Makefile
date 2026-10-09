@@ -1,6 +1,5 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../share/trick/makefiles/Makefile.common
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
--include Makefile_deps
 
 #all: $(TRICK_LIB_DIR)/master.o
 #
@@ -15,16 +14,8 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 #$(OBJ_DIR):
 #	mkdir -p $(OBJ_DIR)
 #
-#clean: 
+#clean:
 #	$(RM) -rf $(OBJ_DIR)
 #
 #real_clean: clean
 #
-#depend:
-#	@ $(TRICK_CXX) -MM $(TRICK_CXXFLAGS) master.cpp >> $(DEPTEMPFILE)
-#	@ $(PERL) ${TRICK_HOME}/bin/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
-#	@ $(RM) $(DEPTEMPFILE)
-#	@ echo "Created dependency file $(DEPFILE)"
-#
-#
-#-include Makefile_deps
