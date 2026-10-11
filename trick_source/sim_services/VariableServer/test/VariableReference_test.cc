@@ -512,3 +512,190 @@ TEST_F(VariableReference_test, byteswap_int_multidimensional_arr) {
         }
     }
 }
+
+// ============================================================================
+// Tests for Issue #1849: Address & Value Access APIs in VariableReference
+// ============================================================================
+
+TEST_F(VariableReference_test, resolveAddress_and_getAddress) {
+    // ARRANGE
+    int target_var = 12345;
+    memmgr->declare_extern_var(&target_var, "int target_var");
+    Trick::VariableReference ref("target_var");
+
+    // ACT: resolveAddress without calling stageValue()
+    void* resolved_addr = ref.resolveAddress();
+
+    // ASSERT: address matches target_var address
+    EXPECT_EQ(resolved_addr, (void*)&target_var);
+    EXPECT_EQ(ref.getAddress(), (void*)&target_var);
+    EXPECT_EQ(ref.getAddress<int>(), &target_var);
+}
+
+TEST_F(VariableReference_test, getValue_direct_memory_peek) {
+    // ARRANGE
+    double target_double = 98.765;
+    memmgr->declare_extern_var(&target_double, "double target_double");
+    Trick::VariableReference ref("target_double");
+
+    // ACT & ASSERT: reading directly before staging
+    ref.resolveAddress();
+    EXPECT_DOUBLE_EQ(ref.getValue<double>(), 98.765);
+
+    // Mutate underlying variable directly in memory
+    target_double = 123.456;
+    EXPECT_DOUBLE_EQ(ref.getValue<double>(), 123.456);
+}
+
+TEST_F(VariableReference_test, getStagedValue_and_getStageBuffer) {
+    // ARRANGE
+    int staged_int = 42;
+    memmgr->declare_extern_var(&staged_int, "int staged_int");
+    Trick::VariableReference ref("staged_int");
+
+    // ACT: stage the value
+    ref.stageValue();
+
+    // ASSERT: stage buffer has the value
+    EXPECT_NE(ref.getStageBuffer(), nullptr);
+    EXPECT_EQ(ref.getStagedValue<int>(), 42);
+
+    // Mutating memory directly should not affect the already staged snapshot
+    staged_int = 999;
+    EXPECT_EQ(ref.getStagedValue<int>(), 42);
+    EXPECT_EQ(ref.getValue<int>(), 999);
+}
+
+TEST_F(VariableReference_test, getRefInfo_and_getAttributes) {
+    // ARRANGE
+    int test_attr_var = 10;
+    memmgr->declare_extern_var(&test_attr_var, "int test_attr_var");
+    Trick::VariableReference ref("test_attr_var");
+
+    // ACT
+    const REF2* ref_info = ref.getRefInfo();
+    const ATTRIBUTES* attr = ref.getAttributes();
+
+    // ASSERT
+    ASSERT_NE(ref_info, nullptr);
+    ASSERT_NE(attr, nullptr);
+    EXPECT_EQ(attr->type, TRICK_INTEGER);
+    EXPECT_EQ(attr->size, sizeof(int));
+    EXPECT_STREQ(attr->units, "--");
+}
+
+TEST_F(VariableReference_test, writeDirect_fast_poke) {
+    // ARRANGE
+    int direct_var = 100;
+    memmgr->declare_extern_var(&direct_var, "int direct_var");
+    Trick::VariableReference ref("direct_var");
+
+    // ACT: direct poke into memory
+    int status = ref.writeDirect<int>(200);
+
+    // ASSERT
+    EXPECT_EQ(status, 0);
+    EXPECT_EQ(direct_var, 200);
+    EXPECT_EQ(ref.getValue<int>(), 200);
+}
+
+TEST_F(VariableReference_test, setVariable_int) {
+    // ARRANGE
+    int test_val = 10;
+    memmgr->declare_extern_var(&test_val, "int test_val");
+    Trick::VariableReference ref("test_val");
+
+    // ACT: poke via setVariable
+    int status = ref.setVariable(55);
+
+    // ASSERT
+    EXPECT_EQ(status, 0);
+    EXPECT_EQ(test_val, 55);
+    EXPECT_EQ(ref.getValue<int>(), 55);
+}
+
+TEST_F(VariableReference_test, setVariable_double) {
+    // ARRANGE
+    double test_val = 3.14159;
+    memmgr->declare_extern_var(&test_val, "double test_val");
+    Trick::VariableReference ref("test_val");
+
+    // ACT
+    int status = ref.setVariable(2.71828);
+
+    // ASSERT
+    EXPECT_EQ(status, 0);
+    EXPECT_DOUBLE_EQ(test_val, 2.71828);
+    EXPECT_DOUBLE_EQ(ref.getValue<double>(), 2.71828);
+}
+
+TEST_F(VariableReference_test, setVariable_bool) {
+    // ARRANGE
+    bool test_val = false;
+    memmgr->declare_extern_var(&test_val, "bool test_val");
+    Trick::VariableReference ref("test_val");
+
+    // ACT
+    int status = ref.setVariable(true);
+
+    // ASSERT
+    EXPECT_EQ(status, 0);
+    EXPECT_EQ(test_val, true);
+    EXPECT_EQ(ref.getValue<bool>(), true);
+}
+
+TEST_F(VariableReference_test, setVariable_string) {
+    // ARRANGE
+    char test_str[32] = "Initial";
+    memmgr->declare_extern_var(test_str, "char test_str[32]");
+    Trick::VariableReference ref("test_str");
+
+    // ACT
+    int status = ref.setVariable("UpdatedString");
+
+    // ASSERT
+    EXPECT_EQ(status, 0);
+    EXPECT_STREQ(test_str, "UpdatedString");
+}
+
+TEST_F(VariableReference_test, setVariable_with_unit_conversion) {
+    // ARRANGE: TestObject has "double a; /* s time */" in seconds
+    TestObject obj;
+    obj.a = 60.0; // 60 seconds
+    memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.a");
+
+    // ACT: Poke 2 minutes ("min") into seconds
+    int status = ref.setVariable(2.0, "min");
+
+    // ASSERT: 2 minutes = 120 seconds
+    EXPECT_EQ(status, 0);
+    EXPECT_DOUBLE_EQ(obj.a, 120.0);
+    EXPECT_DOUBLE_EQ(ref.getValue<double>(), 120.0);
+}
+
+TEST_F(VariableReference_test, setVariable_unsigned) {
+    // ARRANGE
+    unsigned int test_val = 100u;
+    memmgr->declare_extern_var(&test_val, "unsigned int test_val");
+    Trick::VariableReference ref("test_val");
+
+    // ACT: Poke unsigned integer
+    int status = ref.setVariable(500u);
+
+    // ASSERT
+    EXPECT_EQ(status, 0);
+    EXPECT_EQ(test_val, 500u);
+    EXPECT_EQ(ref.getValue<unsigned int>(), 500u);
+}
+
+TEST_F(VariableReference_test, setVariable_invalid_ref) {
+    // ARRANGE: Reference to non-existent variable
+    Trick::VariableReference ref("non_existent_var");
+
+    // ACT
+    int status = ref.setVariable(42);
+
+    // ASSERT: Returns error status
+    EXPECT_EQ(status, -1);
+}
