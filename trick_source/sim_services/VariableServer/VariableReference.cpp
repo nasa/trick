@@ -291,13 +291,9 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
     return 0;
 }
 
-int Trick::VariableReference::stageValue(bool validate_address) {
-    _write_ready = false;
-
-    // Copy <size> bytes from <address> to staging_point.
-
+void* Trick::VariableReference::resolveAddress(bool validate_address) {
     // Try to recreate connection if it has been broken
-    if (_var_info->address == &_bad_ref_int) {
+    if (_var_info->address == (char *)&_bad_ref_int) {
         REF2 *new_ref = ref_attributes(_var_info->reference);
         if (new_ref != NULL) {
             _var_info = new_ref;
@@ -318,7 +314,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         } else if ( validate_address ) {
             validate();
         } else {
-            _var_info->address = _address ;
+            _var_info->address = (char *)_address ;
         }
     }
 
@@ -358,12 +354,186 @@ int Trick::VariableReference::stageValue(bool validate_address) {
             _size = (wcslen((wchar_t *)_address) + 1) * sizeof(wchar_t);
         }
     }
-    if(_address != NULL) {
+
+    return _address;
+}
+
+int Trick::VariableReference::stageValue(bool validate_address) {
+    _write_ready = false;
+
+    // Resolve address first
+    resolveAddress(validate_address);
+
+    // Copy <size> bytes from <address> to staging_point.
+    if (_address != NULL) {
         memcpy( _stage_buffer , _address , _size ) ;
     }
 
     _staged = true;
     return 0;
+}
+
+int Trick::VariableReference::assign_vdata(V_DATA& v_data, const char* units) {
+    resolveAddress(false);
+
+    if (_var_info == NULL || _var_info->address == (char *)&_bad_ref_int) {
+        return -1;
+    }
+    if (_var_info->attr == NULL) {
+        return -1;
+    }
+    if (!(_var_info->attr->io & TRICK_VAR_INPUT)) {
+        message_publish(MSG_WARNING, "Cannot assign to %s because io_spec does not allow input\n", _name.c_str());
+        return 1;
+    }
+
+    V_TREE v_tree;
+    memset(&v_tree, 0, sizeof(v_tree));
+    v_tree.v_data = &v_data;
+
+    char* orig_units = _var_info->units;
+    if (units != NULL) {
+        _var_info->units = strdup(map_trick_units_to_udunits(units).c_str());
+    } else {
+        _var_info->units = NULL;
+    }
+
+    int ret = ref_assignment(_var_info, &v_tree);
+
+    if (_var_info->units != NULL) {
+        free(_var_info->units);
+    }
+    _var_info->units = orig_units;
+
+    // Invalidate staging buffer to ensure next read/write reflects the updated value
+    _staged = false;
+    _write_ready = false;
+
+    return ret;
+}
+
+int Trick::VariableReference::setVariable(double value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_DOUBLE;
+    v_data.value.d = value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(float value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_FLOAT;
+    v_data.value.f = value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(long long value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_LONG_LONG;
+    v_data.value.ll = value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(unsigned long long value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_UNSIGNED_LONG_LONG;
+    v_data.value.ll = (long long)value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(long value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_LONG;
+    v_data.value.l = value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(unsigned long value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_UNSIGNED_LONG;
+    v_data.value.l = (long)value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(int value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_INTEGER;
+    v_data.value.i = value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(unsigned int value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_UNSIGNED_INTEGER;
+    v_data.value.i = (int)value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(short value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_SHORT;
+    v_data.value.s = value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(unsigned short value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_UNSIGNED_SHORT;
+    v_data.value.s = (short)value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(char value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_CHARACTER;
+    v_data.value.c = value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(unsigned char value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_UNSIGNED_CHARACTER;
+    v_data.value.c = (char)value;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(bool value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_BOOLEAN;
+    v_data.value.s = value ? 1 : 0;
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(const char* value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_STRING;
+    v_data.value.cp = const_cast<char*>(value);
+    return assign_vdata(v_data, units);
+}
+
+int Trick::VariableReference::setVariable(const std::string& value, const char* units) {
+    return setVariable(value.c_str(), units);
+}
+
+int Trick::VariableReference::setVariable(void* value, const char* units) {
+    V_DATA v_data;
+    memset(&v_data, 0, sizeof(v_data));
+    v_data.type = TRICK_VOID_PTR;
+    v_data.value.vp = value;
+    return assign_vdata(v_data, units);
 }
 
 bool Trick::VariableReference::validate() {
