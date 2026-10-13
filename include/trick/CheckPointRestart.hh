@@ -6,11 +6,12 @@
 #ifndef MMWRAPPER_HH
 #define MMWRAPPER_HH
 
+#include "trick/Scheduler.hh"
+
+#include <map>
+#include <queue>
 #include <string>
 #include <vector>
-#include <queue>
-
-#include "trick/Scheduler.hh"
 
 namespace Trick {
 
@@ -21,6 +22,15 @@ namespace Trick {
      *
      */
     class CheckPointRestart : public Trick::Scheduler {
+        private:
+            /** Flag to track if an automatic freeze has been triggered for loading checkpoint */
+            bool chkpnt_load_auto_freeze = false; /* ** */
+
+            /** Map to track custom named checkpoints based on the scheduled times */
+            std::map<long long, std::string> chkpnt_names; /* ** */
+
+            /** Map to track whether a scheduled checkpoint should resume sim. */
+            std::map<long long, bool> chkpnt_write_auto_resume_by_time; /* ** */
 
         protected:
             /** queue to hold jobs to be called before a checkpoint is dumped. */
@@ -198,15 +208,23 @@ namespace Trick {
             virtual int checkpoint(std::string file_name = "", bool print_status = true , std::string obj_list_str = "") ;
 
             /**
-             @brief @userdesc Command to dump a checkpoint at in_time. (Sets checkpoint_time to the integral time tic value corresponding
-             to the incoming in_time so that checkpoint occurs once at that time at the end of the execution frame.)
-             The checkpointed file name is @e chkpnt_<in_time>.
+             @brief @userdesc Command to dump a checkpoint at in_time. (Sets checkpoint_time to the integral time tic
+             value corresponding to the incoming in_time so that checkpoint occurs once at that time at the end of the
+             execution frame.) The checkpointed file name is @e chkpnt_<in_time> or @e <file_name>.
              @par Python Usage:
              @code trick.checkpoint(<in_time>) @endcode
              @param in_time - desired checkpoint time in seconds.
+             @param file_name - checkpoint file name. Defaults to blank in which case the checkpoint follows the
+             expecteed convention.
              @return always 0
              */
-            virtual int checkpoint(double in_time) ;
+            virtual int checkpoint(double in_time, std::string file_name = "");
+
+            /**
+             * Record that a non-checkpoint freeze was scheduled at a given time.
+             * @param in_time_tics - simulation time in tics
+             */
+            void note_scheduled_freeze(long long in_time_tics);
 
             /**
              * Executes the pre_init_checkpoint

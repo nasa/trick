@@ -1239,6 +1239,14 @@ namespace Trick {
             virtual int freeze(double in_time) ;
 
             /**
+             @brief Internal command to freeze the simulation at a future time.
+             @param in_time - time in simulation seconds to freeze
+             @param user_requested - whether the freeze was requested outside checkpoint scheduling
+             @return always 0
+            */
+            virtual int freeze(double in_time, bool user_requested);
+
+            /**
              @userdesc Command to terminate the simulation now. Set exec_command to ExitCmd.
              @par Python Usage:
              @code trick.stop() @endcode
