@@ -37,14 +37,18 @@ jobs:
           brew install --cask xquartz
           brew install bison udunits openmotif maven
           brew install swig llvm
+      - name: Configure Trick
+        run: ./configure
       # CMake migration: builds what the CMake build has so far, alongside
       # make, unoptimized like make so the next step can compare them.
       - name: Build Trick (CMake)
-        run: cmake --workflow --preset parity
-      - name: Build Trick
         run: |
-          ./configure
-          make
+          python3 tools/test-build-parity.py
+          bash tools/build-parity.sh configure-cmake --preset parity
+          cmake --build --preset parity
+          ctest --preset parity
+      - name: Build Trick
+        run: make
       - name: Compare CMake and Make builds
         run: |
           bash tools/build-parity.sh check-cmake "$(ls -d lib64 lib 2>/dev/null | head -n 1)" out/build/parity out/parity-check
