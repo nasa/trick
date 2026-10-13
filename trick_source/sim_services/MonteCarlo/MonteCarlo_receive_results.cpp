@@ -1,4 +1,5 @@
 #include "trick/MonteCarlo.hh"
+
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/tc_proto.h"
@@ -59,7 +60,8 @@ void Trick::MonteCarlo::handle_initialization(Trick::MonteSlave& slave) {
 
         std::vector<char> name(size + 1);
         name[size] = '\0';
-        if (tc_read(&connection_device, name.data(), size) != size) {
+        if (tc_read(&connection_device, name.data(), size) != size)
+        {
             set_disconnected_state(slave);
             return;
         }

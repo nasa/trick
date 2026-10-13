@@ -471,7 +471,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                     size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
 
                     std::vector<char> temp_buf(len);
-                    wcs_to_ncs((wchar_t *) buf_ptr, temp_buf.data(), len);
+                    wcs_to_ncs((wchar_t*)buf_ptr, temp_buf.data(), len);
                     out << temp_buf.data();
                     bytes_written = _size ;
                 }
@@ -493,7 +493,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                 size_t len = wcs_to_ncs_len( (wchar_t *)buf_ptr) + 1 ;
 
                 std::vector<char> temp_buf(len);
-                wcs_to_ncs(  (wchar_t *) buf_ptr, temp_buf.data(), len);
+                wcs_to_ncs((wchar_t*)buf_ptr, temp_buf.data(), len);
                 out << temp_buf.data();
                 bytes_written = _size ;
             } else {

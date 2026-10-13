@@ -52,7 +52,7 @@ void * Trick::VariableServerSessionThread::thread_body() {
         _connection_status = CONNECTION_FAIL;
         pthread_cond_signal(&_connection_status_cv);
         pthread_mutex_unlock(&_connection_status_mutex);
-        // No return from this, but thread_shutdown() isn't marked noreturn, 
+        // No return from this, but thread_shutdown() isn't marked noreturn,
         // add return NULL to be safe and match the code at end of function.
         thread_shutdown();
         return NULL;

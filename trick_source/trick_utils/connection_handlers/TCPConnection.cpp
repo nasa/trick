@@ -1,8 +1,8 @@
 #include "trick/TCPConnection.hh"
 
-#include <sstream>
-#include <iostream>
 #include <cstring>
+#include <iostream>
+#include <sstream>
 #include <strings.h>
 #include <vector>
 
@@ -61,7 +61,7 @@ int Trick::TCPConnection::read  (std::string& message, int max_len) {
     }
 
     std::vector<char> incoming_msg_buf(max_len + 1);
-    char *incoming_msg = incoming_msg_buf.data();
+    char* incoming_msg = incoming_msg_buf.data();
 
     int max_receive_length = max_len < MAX_CMD_LEN ? max_len : MAX_CMD_LEN;
     int nbytes = _system_interface->recv(_socket, incoming_msg, max_receive_length, MSG_PEEK);
