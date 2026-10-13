@@ -52,6 +52,11 @@ llvm::cl::opt<std::string> standard_version("icg-std", llvm::cl::desc("Set the C
 llvm::cl::opt<int> debug_level("d", llvm::cl::desc("Set debug level"), llvm::cl::init(0), llvm::cl::ZeroOrMore);
 llvm::cl::opt<bool> create_map("m", llvm::cl::desc("Create map files"), llvm::cl::init(false));
 llvm::cl::opt<std::string> output_dir("o", llvm::cl::desc("Output directory"));
+llvm::cl::opt<std::string>
+    output_root("output-root",
+                llvm::cl::desc("Write core outputs under sim_services/io_src, er7 outputs under "
+                               "er7_utils/<dir>/io_src, and sim_services_classes.resource below this "
+                               "directory (requires -sim_services -m; incompatible with -o)"));
 llvm::cl::list<std::string> input_file_names(llvm::cl::Positional, llvm::cl::desc("<input_file>"), llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> sink(llvm::cl::Sink, llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> pre_compiled_headers("include", llvm::cl::Prefix, llvm::cl::desc("pre-compiled headers"), llvm::cl::value_desc("pre_compiled_headers"));
@@ -146,6 +151,12 @@ int main(int argc, char * argv[]) {
     }
 
     llvm::cl::ParseCommandLineOptions(filtered_args.size(), filtered_args.data());
+
+    if (!output_root.empty() && (!sim_services_flag || !create_map || !output_dir.empty()))
+    {
+        std::cerr << "--output-root requires -sim_services -m and cannot be combined with -o" << std::endl;
+        return 1;
+    }
 
     if (input_file_names.empty())
     {
@@ -246,7 +257,7 @@ int main(int argc, char * argv[]) {
     CommentSaver cs(ci, hsd);
     pp.addCommentHandler(&cs);
 
-    PrintAttributes printAttributes(attr_version, hsd, cs, ci, force, sim_services_flag, output_dir);
+    PrintAttributes printAttributes(attr_version, hsd, cs, ci, force, sim_services_flag, output_dir, output_root);
 
     printAttributes.addIgnoreTypes() ;
     // Create new class and enum map files
