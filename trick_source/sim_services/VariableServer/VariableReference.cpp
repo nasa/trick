@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <udunits2.h>
+#include <vector>
 
 // Static variables to be addresses that are known to be the error ref address
 int Trick::VariableReference::_bad_ref_int = 0 ;
@@ -403,7 +404,7 @@ static void write_escaped_string( std::ostream& os, const char* s) {
                 default  : {
                     // Replicating behavior from original vs_format_ascii
                     char temp_s[6];
-                    sprintf(temp_s, "\\x%02x", s[ii]);
+                    snprintf(temp_s, sizeof(temp_s), "\\x%02x", s[ii]);
                     os << temp_s ; 
                     break;
                 }
@@ -469,9 +470,9 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                     // convert wide char string char string
                     size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
 
-                    char temp_buf[len];
-                    wcs_to_ncs((wchar_t *) buf_ptr, temp_buf, len);
-                    out << temp_buf;
+                    std::vector<char> temp_buf(len);
+                    wcs_to_ncs((wchar_t *) buf_ptr, temp_buf.data(), len);
+                    out << temp_buf.data();
                     bytes_written = _size ;
                 }
             }
@@ -491,9 +492,9 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                 // convert wide char string char string
                 size_t len = wcs_to_ncs_len( (wchar_t *)buf_ptr) + 1 ;
 
-                char temp_buf[len];
-                wcs_to_ncs(  (wchar_t *) buf_ptr, temp_buf, len);
-                out << temp_buf;
+                std::vector<char> temp_buf(len);
+                wcs_to_ncs(  (wchar_t *) buf_ptr, temp_buf.data(), len);
+                out << temp_buf.data();
                 bytes_written = _size ;
             } else {
                 out << '\0';

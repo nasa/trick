@@ -52,8 +52,10 @@ void * Trick::VariableServerSessionThread::thread_body() {
         _connection_status = CONNECTION_FAIL;
         pthread_cond_signal(&_connection_status_cv);
         pthread_mutex_unlock(&_connection_status_mutex);
-
+        // No return from this, but thread_shutdown() isn't marked noreturn, 
+        // add return NULL to be safe and match the code at end of function.
         thread_shutdown();
+        return NULL;
     }
 
     // if log is set on for variable server (e.g., in input file), turn log on for each client
@@ -151,6 +153,7 @@ void * Trick::VariableServerSessionThread::thread_body() {
     }
 
     thread_shutdown(exit_var_thread, this);
-    // No return from this.
+    // No return from this, but thread_shutdown() isn't marked noreturn, add return NULL to satisfy the compiler.
+    return NULL;
 }
 

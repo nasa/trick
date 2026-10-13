@@ -5,6 +5,7 @@
 #include <cstring>
 #include <strings.h>
 #include <arpa/inet.h>
+#include <vector>
 
 Trick::UDPConnection::UDPConnection () : UDPConnection(new SystemInterface()) {}
 Trick::UDPConnection::UDPConnection (SystemInterface * system_interface) : _started(false), _initialized(false), _port(0), _hostname(""), _system_interface(system_interface), _socket(0) {}
@@ -110,18 +111,17 @@ int Trick::UDPConnection::write (const std::string& message) {
     if (!_started)
         return -1;
 
-    char send_buf[message.length()+1];
-    strcpy (send_buf, message.c_str());
     socklen_t sock_size = sizeof(_remote_serv_addr);
 
-    return _system_interface->sendto(_socket, send_buf, message.length(), 0, (struct sockaddr *) &_remote_serv_addr, sock_size );
+    return _system_interface->sendto(_socket, message.c_str(), message.length(), 0, (struct sockaddr *) &_remote_serv_addr, sock_size );
 }
 
 int Trick::UDPConnection::read  (std::string& message, int max_len) {
     if (!_started)
         return 0;
 
-    char incoming_msg[max_len];
+    std::vector<char> incoming_msg_buf(MAX_CMD_LEN + 1);
+    char *incoming_msg = incoming_msg_buf.data();
     int nbytes = _system_interface->recvfrom( _socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
     if (nbytes == 0 ) {
         return 0;
