@@ -129,6 +129,11 @@ jobs:
           ${{ matrix.install_cmd }}
           ${{ matrix.deps }}
           ${{ matrix.arch_deps }}
+      - name: Install Python for CMake development tests
+        if: matrix.cfg.arch == 'rhel' && (matrix.cfg.tag == 8 || matrix.cfg.tag == 9)
+        run: |
+          dnf install -y python3.11
+          echo "CMAKE_DEV_PYTHON=python3.11" >> "$GITHUB_ENV"
       - name: Checkout repository
         uses: actions/checkout@v7
       - name: Configure Trick
@@ -139,7 +144,11 @@ jobs:
       # CMake migration: builds what the CMake build has so far, alongside
       # make, unoptimized like make so the next step can compare them.
       - name: Build Trick (CMake)
-        run: cmake --workflow --preset parity
+        run: |
+          "${CMAKE_DEV_PYTHON:-python3}" tools/test-build-parity.py
+          bash tools/build-parity.sh configure-cmake --preset parity
+          cmake --build --preset parity
+          ctest --preset parity
       - name: Build Trick
         run: make
       - name: Compare CMake and Make builds
