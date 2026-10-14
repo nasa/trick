@@ -5,6 +5,7 @@ PURPOSE: (Represent the state of a variable server connection.)
 #ifndef VSSESSION_HH
 #define VSSESSION_HH
 
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -16,6 +17,12 @@ PURPOSE: (Represent the state of a variable server connection.)
 
 
 namespace Trick {
+    class VariableServerSession;
+
+    #ifndef SWIG
+    std::ostream& operator<< (std::ostream& s, const Trick::VariableServerSession& session);
+    #endif
+
     class VariableServerSession {
     public:
         VariableServerSession();

@@ -24,6 +24,15 @@
 
 namespace Trick {
 
+    class VariableServer;
+
+    #ifndef SWIG
+    /**
+      @brief Write a JSON encoded list of Variable Server Connections to the given stream.
+    */
+    std::ostream& operator<<(std::ostream& s, Trick::VariableServer& vs);
+    #endif
+
     /**
       This class provides variable server setup.
       @author Alex Lin
