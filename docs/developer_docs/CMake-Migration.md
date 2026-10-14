@@ -262,6 +262,35 @@ targets to bring LLVM in fails on Enterprise Linux: LLVM reaches the link only
 as a dependency of a shared library, and GNU ld will not use it to resolve
 ICG's own references.
 
+## ICG code generation
+
+`cmake/TrickICG.cmake` defines `trick_generation`. It runs the built ICG on
+`include/trick/files_to_ICG.hh`, with settings derived from CMake targets.
+Consumers attach core or er7 sources with `trick_add_icg_sources(target CORE|ER7)`.
+
+`--output-root` redirects IO, maps, and XML into the build tree; it requires
+`-sim_services -m` and cannot be combined with `-o`. Legacy invocations keep
+their existing paths. Outputs are staged, checked against
+`cmake/TrickICGOutputs.cmake`, then published under `<build>/generated/icg`
+(with a configuration subdirectory for multi-config generators). Unchanged
+files keep their timestamps, obsolete files are removed, and XML is rewritten.
+Adding or removing reflected headers requires updating the explicit inventory.
+
+A completion stamp lets the build tool skip unchanged generation. Ninja
+recovers missing outputs automatically; with Unix Makefiles, manually deleting
+an output also requires removing `<build>/generated/icg.complete` before rebuilding.
+Header dependencies still use a broad local glob; an ICG depfile is follow-up work.
+
+`ctest --preset parity -R icg_output_root` checks deterministic output,
+source-tree cleanliness, publication, and diagnostics. It is labeled `codegen;slow`.
+The presets are single-config; to exercise multi-config:
+
+```bash
+cmake -S . -B out/build/multi -G "Ninja Multi-Config" -DBUILD_TESTING=ON
+cmake --build out/build/multi --config Debug
+ctest --test-dir out/build/multi -C Debug --output-on-failure
+```
+
 ## Existing bugs found during the migration
 
 These predate the migration. The CMake build reproduces them, so parity checks
