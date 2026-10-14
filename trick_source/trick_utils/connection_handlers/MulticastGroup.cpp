@@ -140,7 +140,8 @@ int Trick::MulticastGroup::write (const std::string& message) {
 
     socklen_t sock_size = sizeof(_remote_serv_addr);
 
-    return _system_interface->sendto(_socket, message.c_str(), message.length(), 0, (struct sockaddr *) &_remote_serv_addr, sock_size );
+    return _system_interface->sendto(_socket, message.c_str(), message.length(), 0,
+                                     (struct sockaddr*)&_remote_serv_addr, sock_size);
 }
 
 
@@ -152,7 +153,7 @@ int Trick::MulticastGroup::read  (std::string& message, int max_len) {
     socklen_t sock_size = sizeof(s_in) ;
 
     std::vector<char> incoming_msg_buf(MAX_CMD_LEN + 1);
-    char *incoming_msg = incoming_msg_buf.data();
+    char* incoming_msg = incoming_msg_buf.data();
     int nbytes = _system_interface->recvfrom( _socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK,(struct sockaddr *)&s_in, &sock_size ) ;
 
     if (nbytes == 0 ) {
