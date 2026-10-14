@@ -23,9 +23,9 @@ namespace Trick {
 
     class VariableServerSessionThread;
 
-    #ifndef SWIG
-    std::ostream& operator<< (std::ostream& s, Trick::VariableServerSessionThread& vst);
-    #endif
+#ifndef SWIG
+    std::ostream& operator<<(std::ostream& s, Trick::VariableServerSessionThread& vst);
+#endif
 
     /** Flag to indicate the connection has been made */
     enum ConnectionStatus { CONNECTION_PENDING, CONNECTION_SUCCESS, CONNECTION_FAIL };
