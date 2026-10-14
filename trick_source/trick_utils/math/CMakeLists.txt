@@ -96,4 +96,5 @@ target_link_libraries(trick_math PRIVATE m)
 if(TRICK_ENABLE_GSL)
     target_link_libraries(trick_math PUBLIC GSL::gsl)
 endif()
-# Also calls message_publish() from libtrick; that link is added with libtrick.
+# Random generators call message_publish(); only final consumers need libtrick.
+target_link_libraries(trick_math INTERFACE "$<LINK_ONLY:trick>")
