@@ -366,7 +366,7 @@ int LogData::countNumBinaryFiles(char *pathToBinaryData)
 /*
  * Used privately to open each subsequent binary file on a the lowest level
  */
-int LogData::openCurrBinaryFile()
+int ::openCurrBinaryFile()
 {
 
         char extension[4];
@@ -919,8 +919,8 @@ std::string LogData::getUnit(char *param)
                 }
         }
 
-        // Not found, return NULL
-        return (0);
+        // Not found, return empty string
+        return {};
 }
 
 /** Set scale factor for parameter with given factor */
