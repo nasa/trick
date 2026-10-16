@@ -50,7 +50,7 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     }
 #endif
 
-    fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CXX" , "r") ;
+    fp = popen("\"${TRICK_HOME}/bin/trick-gte\" TRICK_CXX", "r");
     fgets(line , sizeof(line) , fp) ;
     pclose(fp) ;
     std::string trick_cppc = std::string(line) ;

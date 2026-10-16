@@ -5,7 +5,7 @@
 
 Trick's own build (its libraries, `trick-ICG`, the SWIG interface, data
 products, and Java tools) is moving from autoconf and hand-written makefiles to
-CMake 3.25 or newer. Simulation builds are out of scope. `trick-CP` and the
+CMake 3.26 or newer. Simulation builds are out of scope. `trick-CP` and the
 makefiles under `share/trick/makefiles/` keep working as they do today.
 
 The autoconf build stays in place and keeps working until the CMake build
@@ -160,6 +160,15 @@ cmake --workflow --preset dev          # configure, build, and test
 cmake --preset release -DTRICK_ENABLE_HDF5=ON
 ```
 
+For a new development build directory, prefer Ninja if it is installed:
+
+```bash
+CMAKE_GENERATOR=Ninja cmake --workflow --preset dev
+```
+
+This selects the generator only for a new build directory.
+Unix Makefiles users should read the [ICG rebuild and recovery notes](#icg-code-generation).
+
 Put personal presets in `CMakeUserPresets.json`, which git ignores.
 
 Each optional component has an option. When an option is `ON`, its
@@ -279,10 +288,30 @@ Adding or removing reflected headers requires updating the explicit inventory.
 A completion stamp lets the build tool skip unchanged generation. Ninja
 recovers missing outputs automatically; with Unix Makefiles, manually deleting
 an output also requires removing `<build>/generated/icg.complete` before rebuilding.
-Header dependencies still use a broad local glob; an ICG depfile is follow-up work.
+
+ICG writes Make-style header dependencies with `--depfile <path>` and
+`--depfile-target <target>`. CMake uses `<build>/generated/icg.d` (or the
+configuration-specific equivalent) to track the local and system headers Clang
+actually reads, including external libraries. This replaces the broad source-tree
+header glob. The depfile is published with the validated output; it
+does not replace the explicit output inventory.
+
+Two older-CMake limitations remain. With Unix Makefiles and CMake before 4.0,
+removing an included header can leave stale dependencies in CMake's cache,
+causing ICG to run on every build. Reconfigure with `--fresh` and your usual
+preset and options (for example, `cmake --preset dev --fresh`), then rebuild.
+With Ninja and CMake before 4.4, build and header paths must not contain `#` or `$`,
+because CMake loses their escaping when converting depfiles.
 
 `ctest --preset parity -R icg_output_root` checks deterministic output,
 source-tree cleanliness, publication, and diagnostics. It is labeled `codegen;slow`.
+The `icg_depfile_ninja` and `icg_depfile_make` tests exercise actual build-driver
+behavior when those tools are available: local and system header edits, unrelated
+headers, failed generation and retry, and removed-header recovery.
+The separate `icg_depfile_cli` and `icg_depfile_quoting` tests check depfile
+arguments, write failures, and Make target quoting without configuring a nested
+CMake project. Tests that require an unavailable build tool are shown as disabled
+in CTest; CLI argument and write-failure checks still run.
 The presets are single-config; to exercise multi-config:
 
 ```bash

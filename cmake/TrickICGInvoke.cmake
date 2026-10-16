@@ -43,6 +43,12 @@ function(trick_icg_filter_progress output result_var)
 endfunction()
 
 function(trick_icg_invoke output_root trick_home result_var)
+    cmake_parse_arguments(PARSE_ARGV 3 arg "" "DEPFILE;DEPFILE_TARGET" "")
+    set(dependency_flags)
+    if(DEFINED arg_DEPFILE OR DEFINED arg_DEPFILE_TARGET)
+        list(APPEND dependency_flags
+            --depfile "${arg_DEPFILE}" --depfile-target "${arg_DEPFILE_TARGET}")
+    endif()
     execute_process(
         COMMAND "${CMAKE_COMMAND}" -E env
             "TRICK_HOME=${trick_home}" "TRICK_CXX=${icg_compiler}"
@@ -51,7 +57,7 @@ function(trick_icg_invoke output_root trick_home result_var)
             --unset=TRICK_ICG_NOCOMMENT
             --unset=TRICK_EXCLUDE --unset=TRICK_EXT_LIB_DIRS
             --unset=TRICK_EXT_LIB_DIRS_OVERRIDES
-            "${ICG}" -sim_services -m --output-root "${output_root}" ${flags}
+            "${ICG}" -sim_services -m --output-root "${output_root}" ${flags} ${dependency_flags}
             "${icg_source_dir}/include/trick/files_to_ICG.hh"
         WORKING_DIRECTORY "${icg_binary_dir}"
         RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE output)

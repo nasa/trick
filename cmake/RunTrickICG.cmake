@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.26)
 include("${CMAKE_CURRENT_LIST_DIR}/TrickICGInvoke.cmake")
 if(NOT IS_ABSOLUTE "${ICG_OUTPUT_ROOT}")
     message(FATAL_ERROR "ICG_OUTPUT_ROOT must be an absolute build-tree path")
@@ -7,13 +7,20 @@ cmake_path(NORMAL_PATH ICG_OUTPUT_ROOT OUTPUT_VARIABLE root)
 set(expected ${icg_outputs})
 set(stamp "${root}.complete")
 set(stage "${root}.stage")
+set(depfile "${root}.d")
+set(staged_depfile "${stage}.d")
 # file(REMOVE[_RECURSE]) can silently fail; cmake -E rm reports removal errors.
-execute_process(COMMAND "${CMAKE_COMMAND}" -E rm -rf "${stage}"
+execute_process(COMMAND "${CMAKE_COMMAND}" -E rm -rf "${stage}" "${staged_depfile}"
     COMMAND_ERROR_IS_FATAL ANY)
 file(MAKE_DIRECTORY "${stage}")
-trick_icg_invoke("${stage}" "${icg_source_dir}" result)
+trick_icg_invoke("${stage}" "${icg_source_dir}" result
+    DEPFILE "${staged_depfile}" DEPFILE_TARGET "${stamp}")
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "Trick ICG failed: ${result}; published outputs unchanged")
+endif()
+# The depfile is outside the IO inventory; validate it before publishing anything.
+if(NOT EXISTS "${staged_depfile}" OR IS_DIRECTORY "${staged_depfile}")
+    message(FATAL_ERROR "ICG did not produce its depfile; published outputs unchanged")
 endif()
 file(GLOB_RECURSE actual LIST_DIRECTORIES FALSE RELATIVE "${stage}" "${stage}/*")
 list(SORT actual)
@@ -52,6 +59,7 @@ foreach(path IN LISTS previous)
             COMMAND_ERROR_IS_FATAL ANY)
     endif()
 endforeach()
-execute_process(COMMAND "${CMAKE_COMMAND}" -E rm -rf "${stage}"
+file(COPY_FILE "${staged_depfile}" "${depfile}" ONLY_IF_DIFFERENT)
+execute_process(COMMAND "${CMAKE_COMMAND}" -E rm -rf "${stage}" "${staged_depfile}"
     COMMAND_ERROR_IS_FATAL ANY)
 file(TOUCH "${stamp}")

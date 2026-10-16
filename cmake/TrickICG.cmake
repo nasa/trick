@@ -1,6 +1,7 @@
 # Evaluate usage requirements at generation time. HDF5 intentionally remains
 # excluded from ICG's historical parsing environment.
 include_guard(GLOBAL)
+include("${CMAKE_CURRENT_LIST_DIR}/TrickICGCommand.cmake")
 
 # Keep setup state local. Consumers use trick_add_icg_sources(), not variables
 # inherited from the directory that includes this module.
@@ -47,23 +48,8 @@ set(icg_outputs [==[${outputs}]==])
 set(icg_verbose [==[${CMAKE_VERBOSE_MAKEFILE}]==])
 " TARGET trick_icg_usage)
 
-    # TODO: have ICG emit a DEPFILE for the headers Clang actually opens, including
-    # external/system headers. This glob over-triggers on unrelated local edits
-    # and does not directly track external header changes.
-    file(GLOB_RECURSE dependencies CONFIGURE_DEPENDS
-        "${PROJECT_SOURCE_DIR}/include/*.h" "${PROJECT_SOURCE_DIR}/include/*.hh"
-        "${PROJECT_SOURCE_DIR}/include/*.hpp"
-        "${PROJECT_SOURCE_DIR}/trick_source/er7_utils/*.hh")
-    add_custom_command(
-        OUTPUT "${root}.complete"
-        BYPRODUCTS ${byproducts}
-        COMMAND "${CMAKE_COMMAND}" "-DICG=$<TARGET_FILE:trick-ICG>"
-            "-DICG_SETTINGS=${settings}" "-DICG_OUTPUT_ROOT=${root}"
-            -P "${scripts}/RunTrickICG.cmake"
-        DEPENDS trick-ICG ${dependencies} "${settings}"
-            "${scripts}/TrickICGInvoke.cmake" "${scripts}/RunTrickICG.cmake"
-        COMMENT "Generating Trick core IO, maps and XML"
-        VERBATIM)
+    _trick_icg_command("${root}" "${settings}" trick-ICG
+        "${PROJECT_SOURCE_DIR}/include/trick/files_to_ICG.hh" ${byproducts})
     add_custom_target(trick_generation DEPENDS "${root}.complete")
     set_target_properties(trick_generation PROPERTIES
         TRICK_ICG_CORE_SOURCES "${_icg_core_sources}"
@@ -77,6 +63,42 @@ set(icg_verbose [==[${CMAKE_VERBOSE_MAKEFILE}]==])
                 "-DICG_TEST_ROOT=${PROJECT_BINARY_DIR}/tests/$<CONFIG>/icg-output-root"
                 -P "${scripts}/TestTrickICG.cmake")
         set_tests_properties(icg_output_root PROPERTIES LABELS "codegen;slow" TIMEOUT 300)
+
+        find_program(test_ninja NAMES ninja NO_CACHE)
+        find_program(test_make NAMES gmake make NO_CACHE)
+        add_test(NAME icg_depfile_cli
+            COMMAND "${CMAKE_COMMAND}" "-DICG=$<TARGET_FILE:trick-ICG>"
+                "-DICG_SETTINGS=${settings}"
+                "-DICG_TEST_ROOT=${PROJECT_BINARY_DIR}/tests/$<CONFIG>/icg-depfile-cli"
+                -DTEST_MODE=cli
+                -P "${scripts}/TestTrickICGDepfileCLI.cmake")
+        set_tests_properties(icg_depfile_cli PROPERTIES LABELS "codegen" TIMEOUT 300)
+        add_test(NAME icg_depfile_quoting
+            COMMAND "${CMAKE_COMMAND}" "-DICG=$<TARGET_FILE:trick-ICG>"
+                "-DICG_SETTINGS=${settings}"
+                "-DICG_TEST_ROOT=${PROJECT_BINARY_DIR}/tests/$<CONFIG>/icg-depfile-quoting"
+                -DTEST_MODE=quoting "-DTEST_MAKE_PROGRAM=${test_make}"
+                -P "${scripts}/TestTrickICGDepfileCLI.cmake")
+        set_tests_properties(icg_depfile_quoting PROPERTIES LABELS "codegen" TIMEOUT 300)
+        if(NOT test_make)
+            set_tests_properties(icg_depfile_quoting PROPERTIES DISABLED TRUE)
+        endif()
+
+        set(drivers ninja make)
+        set(generators "Ninja" "Unix Makefiles")
+        foreach(driver generator IN ZIP_LISTS drivers generators)
+            add_test(NAME icg_depfile_${driver}
+                COMMAND "${CMAKE_COMMAND}" "-DICG=$<TARGET_FILE:trick-ICG>"
+                    "-DICG_SETTINGS=${settings}"
+                    "-DICG_TEST_ROOT=${PROJECT_BINARY_DIR}/tests/$<CONFIG>/icg-depfile-${driver}"
+                    "-DTEST_GENERATOR=${generator}" "-DTEST_MAKE_PROGRAM=${test_${driver}}"
+                    -P "${scripts}/TestTrickICGDepfile.cmake")
+            set_tests_properties(icg_depfile_${driver}
+                PROPERTIES LABELS "codegen;slow" TIMEOUT 300)
+            if(NOT test_${driver})
+                set_tests_properties(icg_depfile_${driver} PROPERTIES DISABLED TRUE)
+            endif()
+        endforeach()
     endif()
 endfunction()
 
