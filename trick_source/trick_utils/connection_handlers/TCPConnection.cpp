@@ -1,9 +1,10 @@
 #include "trick/TCPConnection.hh"
 
-#include <sstream>
-#include <iostream>
 #include <cstring>
+#include <iostream>
+#include <sstream>
 #include <strings.h>
+#include <vector>
 
 Trick::TCPConnection::TCPConnection () : TCPConnection(0, new SystemInterface()) {}
 
@@ -49,10 +50,7 @@ int Trick::TCPConnection::write (const std::string& message) {
     if (!_connected)
         return -1;
 
-    char send_buf[message.length()+1];
-    strcpy (send_buf, message.c_str());
-
-    return _system_interface->send(_socket, send_buf, message.length(), 0);
+    return _system_interface->send(_socket, message.c_str(), message.length(), 0);
 }
 
 int Trick::TCPConnection::read  (std::string& message, int max_len) {
@@ -62,7 +60,8 @@ int Trick::TCPConnection::read  (std::string& message, int max_len) {
         return 0;
     }
 
-    char incoming_msg[max_len];
+    std::vector<char> incoming_msg_buf(max_len + 1);
+    char* incoming_msg = incoming_msg_buf.data();
 
     int max_receive_length = max_len < MAX_CMD_LEN ? max_len : MAX_CMD_LEN;
     int nbytes = _system_interface->recv(_socket, incoming_msg, max_receive_length, MSG_PEEK);
