@@ -31,5 +31,21 @@ class AllocTestWithMMInterface {
         ~AllocTestWithMMInterface() { std::cout << "AllocTestWithMMInterface destruct" << std::endl ; } ;
 } ;
 
+class BaseClassAllocTest
+{
+public:
+
+   void noop_base() { std::cout << "BaseClassAllocTest noop_base()" << std::endl ; } ;
+
+};
+
+class DerivedClassAllocTest : public BaseClassAllocTest
+{
+public:
+
+   void noop_derived() { std::cout << "DerivedClassAllocTest noop_derived()" << std::endl ; } ;
+
+};
+
 #endif /* _BALL_HH_ */
 

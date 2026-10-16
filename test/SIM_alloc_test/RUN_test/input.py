@@ -32,29 +32,44 @@ def create_tmm_alloc_test_with_mm_interface():
 def create_new_alloc_test_with_mm_interface():
     return trick.AllocTestWithMMInterface(TMMName="my_alloc_test_with_mm_interface")
 
+def create_local_alloc_base_class():
+    return trick.BaseClassAllocTest()
+
+def create_local_alloc_derived_class():
+    return trick.DerivedClassAllocTest()
+
 def main():
 
-    print "\ncreate local python tracked allocation"
+    print("\ncreate local python tracked allocation")
     create_local_alloc_test()
 
-    print "\ncreate through TMM_declare_var"
+    print("\ncreate through TMM_declare_var")
     test = create_tmm_alloc_test()
     trick.TMM_delete_var_a(test)
 
-    print "\ncreate with TMMName"
+    print("\ncreate with TMMName")
     test = create_new_alloc_test()
     trick.TMM_delete_var_a(test)
 
-    print "\ncreate local python tracked allocation.  Class uses TRICK_MM_INTERFACE."
+    print("\ncreate local python tracked allocation.  Class uses TRICK_MM_INTERFACE.")
     create_local_alloc_test_with_mm_interface()
 
-    print "\ncreate through TMM_declare_var"
+    print("\ncreate through TMM_declare_var")
     test = create_tmm_alloc_test_with_mm_interface()
     trick.TMM_delete_var_a(test)
 
-    print "\ncreate through TMMName with TRICK_MM_INTERFACE"
+    print("\ncreate through TMMName with TRICK_MM_INTERFACE")
     test = create_new_alloc_test_with_mm_interface()
     trick.TMM_delete_var_n("my_alloc_test_with_mm_interface")
+
+    print("\ncreate local python tracked alloction of base class.")
+    alloc_test.bcat = create_local_alloc_base_class()
+    alloc_test.bcat.noop_base()
+
+    print("\ncreate local python tracked alloction of derived class and access.")
+    alloc_test.bcat  = create_local_alloc_derived_class()
+    dcat_ref = trick.castAsDerivedClassAllocTest(alloc_test.bcat)
+    dcat_ref.noop_derived()
 
     trick.stop(1.0)
 
