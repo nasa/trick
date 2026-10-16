@@ -360,7 +360,8 @@ int main(int argc, char * argv[]) {
     }
 
     // Tell the compiler to use our ICGASTconsumer
-    ICGASTConsumer* astConsumer = new ICGASTConsumer(ci, hsd, cs, printAttributes);
+    ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
+    ICGASTConsumer* astConsumer = new ICGASTConsumer(ci, hsd, cs, printAttributes, *icgDiagConsumer);
     ci.setASTConsumer(std::move(std::unique_ptr<clang::ASTConsumer>(astConsumer)));
     ci.createASTContext();
     ci.createSema(clang::TU_Complete, NULL);
@@ -393,7 +394,6 @@ int main(int argc, char * argv[]) {
     ci.getSourceManager().setMainFileID(
         ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #endif
-    ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
     ci.getDiagnostics().setClient(icgDiagConsumer);
     ci.getDiagnosticClient().BeginSourceFile(ci.getLangOpts(), &ci.getPreprocessor());
     clang::ParseAST(ci.getSema());

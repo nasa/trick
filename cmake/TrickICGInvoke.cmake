@@ -43,24 +43,47 @@ function(trick_icg_filter_progress output result_var)
 endfunction()
 
 function(trick_icg_invoke output_root trick_home result_var)
-    cmake_parse_arguments(PARSE_ARGV 3 arg "" "DEPFILE;DEPFILE_TARGET" "")
+    cmake_parse_arguments(PARSE_ARGV 3 arg "" "DEPFILE;DEPFILE_TARGET;TIMEOUT;OUTPUT_VARIABLE" "")
     set(dependency_flags)
     if(DEFINED arg_DEPFILE OR DEFINED arg_DEPFILE_TARGET)
         list(APPEND dependency_flags
             --depfile "${arg_DEPFILE}" --depfile-target "${arg_DEPFILE_TARGET}")
     endif()
+    set(timeout)
+    if(DEFINED arg_TIMEOUT)
+        set(timeout TIMEOUT "${arg_TIMEOUT}")
+    endif()
+    # Run ICG directly so a timeout terminates ICG, not just a cmake -E env
+    # wrapper that could leave it running. This also retains signal results.
+    # Restore the caller's environment; function scope does not restore ENV values.
+    set(environment TRICK_HOME TRICK_CXX
+        TRICK_ICG_EXCLUDE TRICK_ICG_IGNORE_TYPES TRICK_SYSTEM_ICG_EXCLUDE
+        TRICK_ICG_COMPAT15 TRICK_ICG_NOCOMMENT TRICK_EXCLUDE
+        TRICK_EXT_LIB_DIRS TRICK_EXT_LIB_DIRS_OVERRIDES)
+    foreach(variable IN LISTS environment)
+        if(DEFINED ENV{${variable}})
+            set(saved_${variable} "$ENV{${variable}}")
+        endif()
+        unset(ENV{${variable}})
+    endforeach()
+    set(ENV{TRICK_HOME} "${trick_home}")
+    set(ENV{TRICK_CXX} "${icg_compiler}")
     execute_process(
-        COMMAND "${CMAKE_COMMAND}" -E env
-            "TRICK_HOME=${trick_home}" "TRICK_CXX=${icg_compiler}"
-            --unset=TRICK_ICG_EXCLUDE --unset=TRICK_ICG_IGNORE_TYPES
-            --unset=TRICK_SYSTEM_ICG_EXCLUDE --unset=TRICK_ICG_COMPAT15
-            --unset=TRICK_ICG_NOCOMMENT
-            --unset=TRICK_EXCLUDE --unset=TRICK_EXT_LIB_DIRS
-            --unset=TRICK_EXT_LIB_DIRS_OVERRIDES
-            "${ICG}" -sim_services -m --output-root "${output_root}" ${flags} ${dependency_flags}
+        COMMAND "${ICG}" -sim_services -m --output-root "${output_root}" ${flags} ${dependency_flags}
             "${icg_source_dir}/include/trick/files_to_ICG.hh"
         WORKING_DIRECTORY "${icg_binary_dir}"
+        ${timeout}
         RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE output)
+    foreach(variable IN LISTS environment)
+        if(DEFINED saved_${variable})
+            set(ENV{${variable}} "${saved_${variable}}")
+        else()
+            unset(ENV{${variable}})
+        endif()
+    endforeach()
+    if(DEFINED arg_OUTPUT_VARIABLE)
+        set(${arg_OUTPUT_VARIABLE} "${output}" PARENT_SCOPE)
+    endif()
     # Keep warnings and diagnostics visible. Only routine per-file progress is
     # hidden on success; failures and verbose runs retain the complete output.
     # Ninja --verbose only prints commands; use VERBOSE=1 or
