@@ -39,6 +39,7 @@ int Trick::Executive::instrument_job_before( Trick::JobData * instrument_job ) {
         count += unfreeze_queue.instrument_before(instrument_job) ;
         count += time_tic_changed_queue.instrument_before(instrument_job) ;
         count += thread_sync_queue.instrument_before(instrument_job) ;
+        count += input_processor_run_queue.instrument_before(instrument_job) ;
 
         for ( ii = 0 ; ii < other_schedulers.size() ; ii++ ) {
             count += other_schedulers[ii]->instrument_job_before( instrument_job ) ;
@@ -86,6 +87,7 @@ int Trick::Executive::instrument_job_after( Trick::JobData * instrument_job) {
         count += unfreeze_queue.instrument_after(instrument_job) ;
         count += time_tic_changed_queue.instrument_after(instrument_job) ;
         count += thread_sync_queue.instrument_after(instrument_job) ;
+        count += input_processor_run_queue.instrument_after(instrument_job) ;
 
         for ( ii = 0 ; ii < other_schedulers.size() ; ii++ ) {
             count += other_schedulers[ii]->instrument_job_after( instrument_job ) ;
@@ -115,6 +117,7 @@ int Trick::Executive::instrument_job_remove(std::string in_job) {
     unfreeze_queue.instrument_remove(in_job) ;
     time_tic_changed_queue.instrument_remove(in_job) ;
     thread_sync_queue.instrument_remove(in_job) ;
+    input_processor_run_queue.instrument_remove(in_job) ;
 
     for ( ii = 0 ; ii < threads.size() ; ii++ ) {
         threads[ii]->job_queue.instrument_remove(in_job) ;
