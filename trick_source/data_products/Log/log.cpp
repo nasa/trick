@@ -366,7 +366,7 @@ int LogData::countNumBinaryFiles(char *pathToBinaryData)
 /*
  * Used privately to open each subsequent binary file on a the lowest level
  */
-int ::openCurrBinaryFile()
+int LogData::openCurrBinaryFile()
 {
 
         char extension[4];
