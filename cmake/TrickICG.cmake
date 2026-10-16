@@ -3,6 +3,44 @@
 include_guard(GLOBAL)
 include("${CMAKE_CURRENT_LIST_DIR}/TrickICGCommand.cmake")
 
+function(_trick_icg_probe_compiler out_compiler out_has_sysroot)
+    # Probe the same compiler and sysroot used to build Trick, not the caller's SDK.
+    set(compiler_args "${CMAKE_CXX_COMPILER}")
+    if(CMAKE_CXX_COMPILER_ARG1)
+        separate_arguments(compiler_arg1 NATIVE_COMMAND "${CMAKE_CXX_COMPILER_ARG1}")
+        list(APPEND compiler_args ${compiler_arg1})
+    endif()
+    set(sysroot "${CMAKE_SYSROOT}")
+    if(DEFINED CMAKE_SYSROOT_COMPILE)
+        set(sysroot "${CMAKE_SYSROOT_COMPILE}")
+    endif()
+    set(has_sysroot FALSE)
+    if(sysroot)
+        list(APPEND compiler_args "--sysroot=${sysroot}")
+        set(has_sysroot TRUE)
+    endif()
+    if(APPLE AND CMAKE_OSX_SYSROOT)
+        set(sdk "${CMAKE_OSX_SYSROOT}")
+        if(NOT IS_ABSOLUTE "${sdk}")
+            # Xcode can retain an SDK name instead of its path.
+            execute_process(COMMAND xcrun --sdk "${sdk}" --show-sdk-path
+                OUTPUT_VARIABLE sdk OUTPUT_STRIP_TRAILING_WHITESPACE
+                COMMAND_ERROR_IS_FATAL ANY)
+        endif()
+        list(APPEND compiler_args -isysroot "${sdk}")
+        set(has_sysroot TRUE)
+    endif()
+    # ICG runs TRICK_CXX through popen; quote each command argument for the shell.
+    set(compiler "")
+    foreach(part IN LISTS compiler_args)
+        string(REPLACE "'" "'\\''" part "${part}")
+        string(APPEND compiler "'${part}' ")
+    endforeach()
+    string(STRIP "${compiler}" compiler)
+    set(${out_compiler} "${compiler}" PARENT_SCOPE)
+    set(${out_has_sysroot} "${has_sysroot}" PARENT_SCOPE)
+endfunction()
+
 # Keep setup state local. Consumers use trick_add_icg_sources(), not variables
 # inherited from the directory that includes this module.
 function(_trick_setup_icg)
@@ -33,9 +71,7 @@ function(_trick_setup_icg)
     add_library(trick_icg_usage INTERFACE)
     target_link_libraries(trick_icg_usage INTERFACE trick_headers trick_icg_external)
 
-    # ICG discovers standard includes via popen(TRICK_CXX), so shell-quote the path.
-    string(REPLACE "'" "'\\''" compiler "${CMAKE_CXX_COMPILER}")
-    set(compiler "'${compiler}'")
+    _trick_icg_probe_compiler(compiler has_sysroot)
     file(GENERATE OUTPUT "${settings}" CONTENT
 "set(icg_local_includes [==[$<TARGET_PROPERTY:trick_headers,INTERFACE_INCLUDE_DIRECTORIES>]==])
 set(icg_external_includes [==[$<TARGET_PROPERTY:trick_icg_external,INTERFACE_INCLUDE_DIRECTORIES>]==])
@@ -44,6 +80,7 @@ set(icg_implicit_includes [==[${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}]==])
 set(icg_source_dir [==[${PROJECT_SOURCE_DIR}]==])
 set(icg_binary_dir [==[${PROJECT_BINARY_DIR}]==])
 set(icg_compiler [==[${compiler}]==])
+set(icg_has_sysroot ${has_sysroot})
 set(icg_outputs [==[${outputs}]==])
 set(icg_verbose [==[${CMAKE_VERBOSE_MAKEFILE}]==])
 " TARGET trick_icg_usage)

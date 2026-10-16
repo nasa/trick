@@ -276,6 +276,9 @@ ICG's own references.
 `cmake/TrickICG.cmake` defines `trick_generation`. It runs the built ICG on
 `include/trick/files_to_ICG.hh`, with settings derived from CMake targets.
 Consumers attach core or er7 sources with `trick_add_icg_sources(target CORE|ER7)`.
+ICG probes standard headers with CMake's configured compiler and sysroot; on
+macOS, an explicitly configured SDK takes precedence over `SDKROOT` and the
+default SDK selected by an Xcode or Command Line Tools update.
 
 `--output-root` redirects IO, maps, and XML into the build tree; it requires
 `-sim_services -m` and cannot be combined with `-o`. Legacy invocations keep
