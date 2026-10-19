@@ -1,7 +1,7 @@
-
 # Creates a local class. The class is destructed/deleted when the function returns.
 def create_local_alloc_test():
     test = trick.AllocTest()
+
 
 # Creates a class that is controlled by the Memory Manager (MM).  It is not freed when the function returns.
 # TMM_declare_var returns a void *.  We can cast it to the correct type so we can access the class fields
@@ -9,11 +9,13 @@ def create_local_alloc_test():
 def create_tmm_alloc_test():
     return trick.castAsAllocTest(trick.TMM_declare_var_s("AllocTest"))
 
+
 # Creates a class that is controlled by the Memory Manager (MM).  It is not freed when the function returns.
 # This allocation will have a name in the memory manager.
 def create_new_alloc_test():
     # test is known to the memory manager, it must be deleted with TMM_delete_var
     return trick.AllocTest(TMMName="my_alloc_test")
+
 
 # Creates a local class. The class is destructed/deleted when the function returns.
 # Underneath this class declares itself to the memory manager and is controlled by the MM.  The class destructor
@@ -21,22 +23,29 @@ def create_new_alloc_test():
 def create_local_alloc_test_with_mm_interface():
     test = trick.AllocTestWithMMInterface()
 
+
 # Creates a class that is controlled by the Memory Manager (MM).  It is not freed when the function returns.
 # TMM_declare_var returns a void *.  We can cast it to the correct type so we can access the class fields
 # in python.  This allocation will not have a name in the memory manager.
 def create_tmm_alloc_test_with_mm_interface():
-    return trick.castAsAllocTestWithMMInterface(trick.TMM_declare_var_s("AllocTestWithMMInterface"))
+    return trick.castAsAllocTestWithMMInterface(
+        trick.TMM_declare_var_s("AllocTestWithMMInterface")
+    )
+
 
 # Creates a class that is controlled by the Memory Manager (MM).  It is not freed when the function returns.
 # This allocation will have a name in the memory manager.
 def create_new_alloc_test_with_mm_interface():
     return trick.AllocTestWithMMInterface(TMMName="my_alloc_test_with_mm_interface")
 
+
 def create_local_alloc_base_class():
     return trick.BaseClassAllocTest()
 
+
 def create_local_alloc_derived_class():
     return trick.DerivedClassAllocTest()
+
 
 def main():
 
@@ -67,12 +76,12 @@ def main():
     alloc_test.bcat.noop_base()
 
     print("\ncreate local python tracked alloction of derived class and access.")
-    alloc_test.bcat  = create_local_alloc_derived_class()
+    alloc_test.bcat = create_local_alloc_derived_class()
     dcat_ref = trick.castAsDerivedClassAllocTest(alloc_test.bcat)
     dcat_ref.noop_derived()
 
     trick.stop(1.0)
 
+
 if __name__ == "__main__":
     main()
-
