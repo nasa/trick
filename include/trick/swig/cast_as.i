@@ -16,7 +16,7 @@
 static TYPE * castAs##NAME( PyObject * obj1 ) {
     void *argp = NULL ;
     TYPE * ret = (TYPE *)NULL ;
-    swig_type_info *ty = SWIG_TypeQuery("TYPE *");
+    swig_type_info *ty = SWIG_TypeQuery("_p_" "NAME");
 
     if(obj1) {
         SwigPyObject *sobj = SWIG_Python_GetSwigThis(obj1);
@@ -38,7 +38,7 @@ static TYPE * castAs##NAME( PyObject * obj1 ) {
         if ( SWIG_IsOK(SWIG_ConvertPtr(obj1,&argp,ty,SWIG_POINTER_DISOWN)) ) {
             //std::cout << "we can cast to TYPE! " << argp << std::endl ;
             ret = reinterpret_cast< TYPE *>(argp) ;
-        } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp,SWIG_TypeQuery("void *"), 0 ))) {
+        } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp,SWIG_TypeQuery("_p_void"), 0 ))) {
             //std::cout << "we can cast (wrapped void *) to TYPE! " << argp << std::endl ;
             ret = reinterpret_cast< TYPE *>(argp) ;
         } else if ( PyInt_Check(obj1) ) {

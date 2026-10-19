@@ -15,7 +15,6 @@ class AllocTestSimObject : public Trick::SimObject {
         AllocTest at ;
         AllocTestWithMMInterface atwmmi ;
         BaseClassAllocTest * bcat{};
-        DerivedClassAllocTest * dcat{};
 
         AllocTestSimObject() {
         }
