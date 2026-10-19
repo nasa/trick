@@ -104,7 +104,7 @@ int Trick::Executive::instrument_job_remove(std::string in_job) {
 
     /** @par Detailed Design */
     /** @li Remove instrumentation job from initialization, scheduled,
-        integration, end of frame, & shutdown  queues by calling ScheduledJobQueue::instrument_remove(string). */
+        integration, input processor, end of frame, & shutdown queues by calling ScheduledJobQueue::instrument_remove(string). */
     default_data_queue.instrument_remove(in_job) ;
     initialization_queue.instrument_remove(in_job) ;
     top_of_frame_queue.instrument_remove(in_job) ;
