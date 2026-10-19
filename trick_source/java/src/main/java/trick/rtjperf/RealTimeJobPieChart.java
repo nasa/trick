@@ -42,6 +42,13 @@ public class RealTimeJobPieChart extends JPanel {
     }
 
     private List<JobDuration> currentFrameData = new ArrayList<>();
+
+    // Jobs below the percentage threshold are rolled up into a single "Other" slice here so the
+    // pie chart always accounts for the full frame instead of leaving an unfilled gap. Lists/totals
+    // keep using currentFrameData, which does not include this synthetic entry.
+    private List<JobDuration> pieChartData = new ArrayList<>();
+    private static final String OTHER_JOB_LABEL = "Other (below threshold)";
+
     private final Map<String, Color> jobColorMap = new HashMap<>();
 
     // Rolling total of job durations over last 100 frames
@@ -713,6 +720,7 @@ public class RealTimeJobPieChart extends JPanel {
             pinnedJobs.clear();
             jobTotals.clear();
             currentFrameData.clear();
+            pieChartData.clear();
             pendingFrameData = null;
             pendingSimTime = 0.0;
             pendingModeString = "Connecting...";
@@ -818,11 +826,18 @@ public class RealTimeJobPieChart extends JPanel {
         timeLabel.setText(String.format("Time: %.3f", pendingSimTime));
         modeLabel.setText("Mode: " + pendingModeString);
 
-        // Filter jobs by threshold
+        // Filter jobs by threshold. Jobs that don't meet it (and aren't pinned) are rolled up
+        // into a single "Other" total below rather than silently dropped, so the pie chart's
+        // slices still add up to the full frame instead of leaving a gap.
         List<JobDuration> filteredData = new ArrayList<>();
+        double belowThresholdDuration = 0;
+        double belowThresholdPercentage = 0;
         for (JobDuration job : frameData) {
-            if (job.percentage >= percentageThreshold) {
+            if (job.percentage >= percentageThreshold || pinnedJobs.contains(job.jobId)) {
                 filteredData.add(job);
+            } else {
+                belowThresholdDuration += job.duration;
+                belowThresholdPercentage += job.percentage;
             }
         }
 
@@ -851,6 +866,17 @@ public class RealTimeJobPieChart extends JPanel {
         }
 
         this.currentFrameData = filteredData;
+
+        // Build the pie chart's data set separately from currentFrameData: it includes an extra
+        // "Other" slice for everything the threshold filtered out, so lists/totals only ever show
+        // real jobs while the pie still always accounts for 100% of the frame.
+        List<JobDuration> pieData = new ArrayList<>(filteredData);
+        if (belowThresholdDuration > 0 || belowThresholdPercentage > 0) {
+            JobDuration other = new JobDuration(OTHER_JOB_LABEL, belowThresholdDuration);
+            other.percentage = belowThresholdPercentage;
+            pieData.add(other);
+        }
+        this.pieChartData = pieData;
 
         // Mark all existing jobs as not seen this frame
         for (RollingTotal total : jobTotals.values()) {
@@ -986,12 +1012,15 @@ public class RealTimeJobPieChart extends JPanel {
     }
 
     private Color getJobColor(String jobId) {
+        if (OTHER_JOB_LABEL.equals(jobId)) {
+            return Color.LIGHT_GRAY;
+        }
         return jobColorMap.computeIfAbsent(
                 jobId, id -> Color.getHSBColor(Math.abs(id.hashCode() % 360) / 360f, 0.7f, 0.9f));
     }
 
     private void drawPieChart(Graphics g) {
-        if (currentFrameData == null || currentFrameData.isEmpty()) return;
+        if (pieChartData == null || pieChartData.isEmpty()) return;
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int padding = 20;
@@ -999,14 +1028,14 @@ public class RealTimeJobPieChart extends JPanel {
         int pieX = (pieChartPanel.getWidth() - pieSize) / 2;
         int pieY = (pieChartPanel.getHeight() - pieSize) / 2;
         double currentAngle = 0, totalDuration = 0;
-        for (JobDuration job : currentFrameData) {
+        for (JobDuration job : pieChartData) {
             totalDuration += job.duration;
         }
         if (totalDuration == 0) {
             g2d.drawString("No job data available", 10, 20);
             return;
         }
-        for (JobDuration job : currentFrameData) {
+        for (JobDuration job : pieChartData) {
             double extentAngle = (job.percentage / 100.0) * 360.0;
             g2d.setColor(getJobColor(job.jobId));
             g2d.fillArc(pieX, pieY, pieSize, pieSize, (int) Math.round(currentAngle), (int) Math.round(extentAngle));
@@ -1020,7 +1049,7 @@ public class RealTimeJobPieChart extends JPanel {
     }
 
     private String getPieSliceToolTip(MouseEvent e) {
-        if (currentFrameData == null || currentFrameData.isEmpty()) return null;
+        if (pieChartData == null || pieChartData.isEmpty()) return null;
         int padding = 20;
         int pieSize = Math.min(pieChartPanel.getWidth(), pieChartPanel.getHeight()) - (padding * 2);
         int pieX = (pieChartPanel.getWidth() - pieSize) / 2;
@@ -1034,7 +1063,7 @@ public class RealTimeJobPieChart extends JPanel {
         double angle = Math.toDegrees(Math.atan2(centerY - e.getY(), e.getX() - centerX));
         if (angle < 0) angle += 360.0;
         double currentAngle = 0;
-        for (JobDuration job : currentFrameData) {
+        for (JobDuration job : pieChartData) {
             double extentAngle = (job.percentage / 100.0) * 360.0;
             if (angle >= currentAngle && angle <= currentAngle + extentAngle) {
                 return String.format("%s (%.1f%%, %.6fs)", job.jobId, job.percentage, job.duration);
