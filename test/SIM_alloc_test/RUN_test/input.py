@@ -44,7 +44,9 @@ def create_local_alloc_base_class():
 
 
 def create_local_alloc_derived_class():
-    return trick.DerivedClassAllocTest()
+    ref = trick.DerivedClassAllocTest()
+    ref.thisown = 0
+    return ref
 
 
 def main():
@@ -76,7 +78,10 @@ def main():
     alloc_test.bcat.noop_base()
 
     print("\ncreate local python tracked alloction of derived class and access.")
-    alloc_test.bcat = create_local_alloc_derived_class()
+    # alloc_test.dcat = create_local_alloc_derived_class()
+    dcat_ref = create_local_alloc_derived_class()
+    alloc_test.bcat = dcat_ref
+    # dcat_ref = trick.castAsVoidPtr(alloc_test.dcat)
     dcat_ref = trick.castAsDerivedClassAllocTest(alloc_test.bcat)
     dcat_ref.noop_derived()
 

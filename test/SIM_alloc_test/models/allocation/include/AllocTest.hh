@@ -39,8 +39,10 @@ class BaseClassAllocTest
 
 class DerivedClassAllocTest : public BaseClassAllocTest
 {
+        int marker { 424242 };
+
     public:
-        void noop_derived() { std::cout << "DerivedClassAllocTest noop_derived()" << std::endl; };
+        void noop_derived() { std::cout << "DerivedClassAllocTest noop_derived() marker=" << marker << std::endl; };
 };
 
 #endif /* _BALL_HH_ */
