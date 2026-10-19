@@ -85,12 +85,14 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
     }
 
     /* Write thread_sync and input_processor_run job entries to S_job_execution. */
-    fprintf(fp, "\n===================================================================================================\n") ;
-    fprintf(fp, "Thread Sync:\n\n") ;
-    thread_sync_queue.write_sched_queue(fp) ;
-    fprintf(fp, "\n===================================================================================================\n") ;
-    fprintf(fp, "Input Processor Run:\n\n") ;
-    input_processor_run_queue.write_sched_queue(fp) ;
+    fprintf(fp,
+            "\n===================================================================================================\n");
+    fprintf(fp, "Thread Sync:\n\n");
+    thread_sync_queue.write_sched_queue(fp);
+    fprintf(fp,
+            "\n===================================================================================================\n");
+    fprintf(fp, "Input Processor Run:\n\n");
+    input_processor_run_queue.write_sched_queue(fp);
 
     /* Write top_of_frame job entries to S_job_execution. */
     fprintf(fp, "\n===================================================================================================\n") ;
