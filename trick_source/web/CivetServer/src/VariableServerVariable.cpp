@@ -58,6 +58,10 @@ const char* VariableServerVariable::getUnits() {
 }
 
 static void write_quoted_str( std::ostream& os, const char* s) {
+    if (!s) {
+        os << "\"\"";
+        return;
+    }
     int ii;
     int len = strlen(s);
     os << "\"" ;
