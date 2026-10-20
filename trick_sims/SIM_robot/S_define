@@ -15,6 +15,7 @@ LIBRARY DEPENDENCIES:
 
 ##include "include/trick/exec_proto.h"
 ##include "manipulator/manipulator.hh"
+
 class ManipulatorSimObject : public Trick::SimObject
 {
 
@@ -29,7 +30,7 @@ class ManipulatorSimObject : public Trick::SimObject
             ("integration")       trick_ret = robot.updateState();
         }
 
-}
+};
 
 ManipulatorSimObject Manip2D(2);
 
