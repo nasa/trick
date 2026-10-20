@@ -177,4 +177,3 @@ Source Directory Make Options:\n\
 \n\
     make real_clean    - Deletes xml/, io_src/,\n\
                          and object_${TRICK_HOST_CPU}/ directories\n"
-
