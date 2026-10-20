@@ -44,9 +44,7 @@ def create_local_alloc_base_class():
 
 
 def create_local_alloc_derived_class():
-    ref = trick.DerivedClassAllocTest()
-    ref.thisown = 0
-    return ref
+    return trick.DerivedClassAllocTest()
 
 
 def main():
@@ -78,12 +76,14 @@ def main():
     alloc_test.bcat.noop_base()
 
     print("\ncreate local python tracked alloction of derived class and access.")
-    # alloc_test.dcat = create_local_alloc_derived_class()
+    # The bcat setter only copies the raw C++ pointer out of dcat_ref; it does not
+    # keep a Python reference to it.  dcat_ref (not alloc_test.bcat) is the only
+    # thing keeping the wrapper -- and the C++ object it owns (thisown=1) -- alive,
+    # so we must keep that reference around rather than reassign it.
     dcat_ref = create_local_alloc_derived_class()
     alloc_test.bcat = dcat_ref
-    # dcat_ref = trick.castAsVoidPtr(alloc_test.dcat)
-    dcat_ref = trick.castAsDerivedClassAllocTest(alloc_test.bcat)
-    dcat_ref.noop_derived()
+    dcat_cast = trick.castAsDerivedClassAllocTest(alloc_test.bcat)
+    dcat_cast.noop_derived()
 
     trick.stop(1.0)
 
