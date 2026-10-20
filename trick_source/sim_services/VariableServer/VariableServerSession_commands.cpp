@@ -197,7 +197,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         _connection->write(buf1, 5);
     } else {
         /* send ascii "1" or "0" */
-        sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
+        snprintf(buf1, sizeof(buf1), "%d\t%d\n", VS_VAR_EXISTS, (error == false));
         if (_debug >= 2) {
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", _connection, _connection->getClientTag().c_str(), buf1) ;
         }
@@ -401,7 +401,7 @@ int Trick::VariableServerSession::transmit_file(std::string filename) {
 
     if ((fp = fopen(filename.c_str() , "r")) == NULL ) {
         message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", filename.c_str()) ;
-        sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
+        snprintf(buffer, sizeof(buffer), "%d\t-1\n", VS_SIE_RESOURCE);
         std::string message(buffer);
         _connection->write(message);
         return(-1) ;
@@ -410,7 +410,7 @@ int Trick::VariableServerSession::transmit_file(std::string filename) {
     fseek(fp , 0L, SEEK_END) ;
     file_size = ftell(fp) ;
 
-    sprintf(buffer, "%d\t%u\n\0" , VS_SIE_RESOURCE, file_size) ;
+    snprintf(buffer, sizeof(buffer), "%d\t%u\n", VS_SIE_RESOURCE, file_size);
     std::string message(buffer);
     _connection->write(message);
     rewind(fp) ;
