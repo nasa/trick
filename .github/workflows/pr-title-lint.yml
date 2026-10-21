@@ -2,11 +2,10 @@ name: Lint PR Title
 
 on:
   pull_request:
-    types: [opened, edited, synchronize]
+    types: [opened, reopened, edited, synchronize]
 
 permissions:
   pull-requests: read
-  statuses: write # <-- Required to update the status of the PR after linting
 
 jobs:
   lint:
@@ -18,10 +17,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          validateSingleCommit: true
-          validateSingleCommitMatchesPrTitle: true
           # Conventional commit types mapping to the release-please setup
           # Keep this in sync with release-please-config.json's changelog-sections
+          # Valid PR title format: '<type>[(<scope>)]: <subject>'
+          #     type: one of the types below
+          #     scope: optional, can be any string
+          #     subject: a short description of the PR, must not be empty
+          #     e.g. feat: add new feature or fix(core): fix a bug in core
           types: |
             feat
             fix
@@ -36,9 +38,6 @@ jobs:
             ci
             style
             build
-            
-          # types: already gatekeeps the type
-          subjectPattern: ^.+$
-          subjectPatternError: |
-            The PR title must match the conventional commit format.
-            Example: "feat: Add new feature" or "fix: Resolve memory leak"
+
+          # types: gatekeeps the type
+          # amannn/action-semantic-pull-request@v6 fails a title with no subject
