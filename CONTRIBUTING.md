@@ -124,9 +124,8 @@ are answered directly by the documentation will be closed with a link.
    `spotless` on changed Java. Run these locally before pushing.
 5. **Use a conventional-commit PR title**, e.g. `fix: correct sleep timer
 overflow on 32-bit` or `feat: add variable server byte-order query`. CI
-   enforces this and release tooling uses it to generate the changelog. If
-   your pull request has a single commit, that commit message must match the
-   title. Allowed types are listed in
+   enforces this and release tooling uses it to generate the changelog.
+   Allowed types are listed in
    [`.github/workflows/pr-title-lint.yml`](.github/workflows/pr-title-lint.yml).
 6. **Complete the pull request template.** Every checklist item is an
    attestation. Do not check a box that is not true.
