@@ -41,3 +41,11 @@ jobs:
 
           # types: gatekeeps the type
           # amannn/action-semantic-pull-request@v6 fails a title with no subject
+
+      - name: Show expected PR title format
+        # Runs if any earlier step failed; currently only the lint step.
+        # If steps are added, give the lint step an id and use:
+        #   failure() && steps.<lint_id>.outcome == 'failure'
+        if: failure()
+        run: |
+          echo "::error::PR title must follow '<type>[(<scope>)]: <subject>'. Examples: 'feat: add new feature' or 'fix(core): fix a bug in core'."
