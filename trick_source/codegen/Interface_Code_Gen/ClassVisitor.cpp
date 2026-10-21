@@ -215,8 +215,30 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
         rec->dump() ; std::cout << std::endl ;
     }
 
-    // Return false to stop processing if there is no definition of this class
-    if ( rec->getDefinition() == NULL ) {
+    // Suppressed system-header diagnostics can leave invalid records in the AST.
+    // Stop this record before querying its layout or populating class metadata.
+    // Check the definition too, since rec may be a redeclaration.
+    clang::CXXRecordDecl * definition = rec->getDefinition() ;
+    if ( rec->isInvalidDecl() || (definition != NULL && definition->isInvalidDecl()) ) {
+        const clang::CXXRecordDecl * invalid = definition != NULL ? definition : rec ;
+        std::string name = invalid->getQualifiedNameAsString() ;
+        clang::SourceLocation location = ci.getSourceManager().getSpellingLoc(invalid->getLocation()) ;
+        if ( isInUserCode(ci, location, hsd) ) {
+            unsigned int diagnostic = ci.getDiagnostics().getCustomDiagID(
+              clang::DiagnosticsEngine::Error, "cannot generate attributes for invalid user record '%0'") ;
+            ci.getDiagnostics().Report(location, diagnostic) << (name.empty() ? "<anonymous>" : name) ;
+            return false ;
+        }
+        // Keep system-record warnings on one line so file:line remains clickable.
+        std::cerr << bold(color(WARNING,"Warning")) << "    " <<
+          ci.getSourceManager().getFilename(location).str() << ":" <<
+          ci.getSourceManager().getSpellingLineNumber(location) <<
+          ": skipping invalid record '" << (name.empty() ? "<anonymous>" : name) <<
+          "'; no attributes generated" << std::endl ;
+        return false ;
+    }
+    // Ordinary forward declarations have no layout and are not errors.
+    if ( definition == NULL ) {
         return false ;
     }
 
@@ -348,7 +370,9 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
-                    inherit_cvis.TraverseCXXRecordDecl(rd) ;
+                    if ( !inherit_cvis.TraverseCXXRecordDecl(rd) ) {
+                        continue ;
+                    }
                     cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, true) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;

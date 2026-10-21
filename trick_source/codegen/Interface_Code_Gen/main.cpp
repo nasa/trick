@@ -1,9 +1,11 @@
 #include <iostream>
-#include <sstream>
 #include <libgen.h>
-#include <string.h>
+#include <memory>
+#include <sstream>
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
+#include <system_error>
 #include <unistd.h>
 
 // `llvm/Support/Host.h` is deprecated in favour of `llvm/TargetParser/Host.h` since clang 17
@@ -19,24 +21,26 @@
 #include "llvm/Support/VirtualFileSystem.h"
 #endif
 
+#include "CommentSaver.hh"
+#include "FindTrickICG.hh"
+#include "HeaderSearchDirs.hh"
+#include "ICGASTConsumer.hh"
+#include "ICGDiagnosticConsumer.hh"
+#include "PrintAttributes.hh"
+#include "TranslationUnitVisitor.hh"
+#include "Utilities.hh"
+
 #include "clang/Basic/Builtins.h"
-#include "clang/Frontend/CompilerInstance.h"
-#include "clang/Basic/TargetOptions.h"
-#include "clang/Basic/TargetInfo.h"
+#include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/FileManager.h"
+#include "clang/Basic/TargetInfo.h"
+#include "clang/Basic/TargetOptions.h"
+#include "clang/Frontend/CompilerInstance.h"
+#include "clang/Frontend/DependencyOutputOptions.h"
+#include "clang/Frontend/Utils.h"
 #include "clang/Lex/Preprocessor.h"
 #include "clang/Lex/PreprocessorOptions.h"
-#include "clang/Basic/Diagnostic.h"
 #include "clang/Parse/ParseAST.h"
-
-#include "ICGDiagnosticConsumer.hh"
-#include "ICGASTConsumer.hh"
-#include "HeaderSearchDirs.hh"
-#include "CommentSaver.hh"
-#include "TranslationUnitVisitor.hh"
-#include "PrintAttributes.hh"
-#include "Utilities.hh"
-#include "FindTrickICG.hh"
 
 /* Command line arguments.  These work better as globals, as suggested in llvm/CommandLine documentation */
 llvm::cl::list<std::string> include_dirs("I", llvm::cl::Prefix, llvm::cl::desc("Include directory"), llvm::cl::value_desc("directory"));
@@ -52,6 +56,13 @@ llvm::cl::opt<std::string> standard_version("icg-std", llvm::cl::desc("Set the C
 llvm::cl::opt<int> debug_level("d", llvm::cl::desc("Set debug level"), llvm::cl::init(0), llvm::cl::ZeroOrMore);
 llvm::cl::opt<bool> create_map("m", llvm::cl::desc("Create map files"), llvm::cl::init(false));
 llvm::cl::opt<std::string> output_dir("o", llvm::cl::desc("Output directory"));
+llvm::cl::opt<std::string>
+    output_root("output-root",
+                llvm::cl::desc("Write core outputs under sim_services/io_src, er7 outputs under "
+                               "er7_utils/<dir>/io_src, and sim_services_classes.resource below this "
+                               "directory (requires -sim_services -m; incompatible with -o)"));
+llvm::cl::opt<std::string> depfile("depfile", llvm::cl::desc("Write Make dependencies after successful generation"));
+llvm::cl::opt<std::string> depfile_target("depfile-target", llvm::cl::desc("Target path for --depfile"));
 llvm::cl::list<std::string> input_file_names(llvm::cl::Positional, llvm::cl::desc("<input_file>"), llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> sink(llvm::cl::Sink, llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> pre_compiled_headers("include", llvm::cl::Prefix, llvm::cl::desc("pre-compiled headers"), llvm::cl::value_desc("pre_compiled_headers"));
@@ -61,6 +72,70 @@ llvm::cl::opt<llvm::cl::boolOrDefault> print_trick_icg("print-TRICK-ICG", llvm::
 llvm::cl::alias compat15_alias ("compat15" , llvm::cl::desc("Alias for -c") , llvm::cl::aliasopt(global_compat15)) ;
 llvm::cl::opt<bool> m32("m32", llvm::cl::desc("Generate io code for use with 32bit mode"), llvm::cl::init(false), llvm::cl::ZeroOrMore) ;
 
+namespace
+{
+
+    // DependencyFileGenerator escapes prerequisites, but expects pre-escaped targets.
+    // Keep backslashes literal except before Make delimiters, where they must also
+    // be escaped. No public quoting helper covers all supported LLVM versions.
+    std::string quoteDepfileTarget(const std::string& target)
+    {
+        std::string quoted;
+        size_t backslashes = 0;
+        for (char ch : target)
+        {
+            if (ch == ' ' || ch == '#' || ch == ':')
+            {
+                quoted.append(backslashes, '\\');
+                quoted += '\\';
+            }
+            else if (ch == '$')
+            {
+                quoted += '$';
+            }
+            quoted      += ch;
+            backslashes  = ch == '\\' ? backslashes + 1 : 0;
+        }
+        // The generator appends ':' directly after the target.
+        quoted.append(backslashes, '\\');
+        return quoted;
+    }
+
+    class DeferredDependencyFileGenerator : public clang::DependencyFileGenerator
+    {
+        public:
+            explicit DeferredDependencyFileGenerator(const clang::DependencyOutputOptions& options)
+                : clang::DependencyFileGenerator(options)
+            {
+            }
+
+            // Do not let Clang write during parsing: generation may still fail, and
+            // ICG's diagnostic consumer deliberately suppresses non-user diagnostics.
+            void finishedMainFile(clang::DiagnosticsEngine&) override { }
+
+            bool write(const std::string& path)
+            {
+                std::error_code error;
+                llvm::raw_fd_ostream output(path, error);
+                if (!error)
+                {
+                    outputDependencyFile(output);
+                    output.close();
+                    error = output.error();
+                    // We report errors ourselves, including buffered writes and close,
+                    // rather than letting raw_fd_ostream's destructor abort the process.
+                    output.clear_error();
+                }
+                if (error)
+                {
+                    llvm::errs() << "Could not write depfile '" << path << "': " << error.message() << '\n';
+                    return false;
+                }
+                return true;
+            }
+    };
+
+} // namespace
 
 void set_lang_opts(clang::CompilerInstance & ci) {
     ci.getLangOpts().CXXExceptions = true ;
@@ -147,11 +222,31 @@ int main(int argc, char * argv[]) {
 
     llvm::cl::ParseCommandLineOptions(filtered_args.size(), filtered_args.data());
 
+    if ((depfile.getNumOccurrences() || depfile_target.getNumOccurrences())
+        && (depfile.empty() || depfile_target.empty()))
+    {
+        std::cerr << "--depfile and --depfile-target must be supplied together with nonempty paths" << std::endl;
+        return 1;
+    }
+    if (depfile_target.find_first_of("\t\r\n") != std::string::npos)
+    {
+        std::cerr << "--depfile-target cannot contain a tab or newline" << std::endl;
+        return 1;
+    }
+
+    if (!output_root.empty() && (!sim_services_flag || !create_map || !output_dir.empty()))
+    {
+        std::cerr << "--output-root requires -sim_services -m and cannot be combined with -o" << std::endl;
+        return 1;
+    }
+
     if (input_file_names.empty())
     {
         std::cerr << "No header file specified" << std::endl;
         return 1;
     }
+    // Outlive CompilerInstance and its preprocessor callbacks.
+    std::unique_ptr<DeferredDependencyFileGenerator> dependencies;
     clang::CompilerInstance ci;
 
 #if (LIBCLANG_MAJOR >= 22)
@@ -218,6 +313,16 @@ int main(int argc, char * argv[]) {
 
     clang::Preprocessor& pp = ci.getPreprocessor();
 
+    if (!depfile.empty())
+    {
+        clang::DependencyOutputOptions options;
+        options.IncludeSystemHeaders = true;
+        options.OutputFormat         = clang::DependencyOutputFormat::Make;
+        options.Targets.push_back(quoteDepfileTarget(depfile_target));
+        dependencies = std::make_unique<DeferredDependencyFileGenerator>(options);
+        dependencies->attachToPreprocessor(pp);
+    }
+
 #if (LIBCLANG_MAJOR < 18)
     clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts());
 #else
@@ -246,7 +351,7 @@ int main(int argc, char * argv[]) {
     CommentSaver cs(ci, hsd);
     pp.addCommentHandler(&cs);
 
-    PrintAttributes printAttributes(attr_version, hsd, cs, ci, force, sim_services_flag, output_dir);
+    PrintAttributes printAttributes(attr_version, hsd, cs, ci, force, sim_services_flag, output_dir, output_root);
 
     printAttributes.addIgnoreTypes() ;
     // Create new class and enum map files
@@ -255,7 +360,8 @@ int main(int argc, char * argv[]) {
     }
 
     // Tell the compiler to use our ICGASTconsumer
-    ICGASTConsumer* astConsumer = new ICGASTConsumer(ci, hsd, cs, printAttributes);
+    ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
+    ICGASTConsumer* astConsumer = new ICGASTConsumer(ci, hsd, cs, printAttributes, *icgDiagConsumer);
     ci.setASTConsumer(std::move(std::unique_ptr<clang::ASTConsumer>(astConsumer)));
     ci.createASTContext();
     ci.createSema(clang::TU_Complete, NULL);
@@ -288,7 +394,6 @@ int main(int argc, char * argv[]) {
     ci.getSourceManager().setMainFileID(
         ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #endif
-    ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
     ci.getDiagnostics().setClient(icgDiagConsumer);
     ci.getDiagnosticClient().BeginSourceFile(ci.getLangOpts(), &ci.getPreprocessor());
     clang::ParseAST(ci.getSema());
@@ -307,6 +412,11 @@ int main(int argc, char * argv[]) {
     if (icgDiagConsumer->error_in_user_code) {
         std::cout << color(ERROR, "Trick build was terminated due to error in user code!") << std::endl;
         exit(-1);
+    }
+
+    if (dependencies && !dependencies->write(depfile))
+    {
+        return 1;
     }
 
     return 0;

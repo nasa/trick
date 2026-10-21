@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.26)
+project(ICGDepfileFixture NONE)
+include("${ICG_SETTINGS}")
+set(root "${CMAKE_CURRENT_BINARY_DIR}/generated core")
+set(byproducts ${icg_outputs})
+list(TRANSFORM byproducts PREPEND "${root}/")
+add_executable(fixture_icg IMPORTED)
+set_target_properties(fixture_icg PROPERTIES IMPORTED_LOCATION "${ICG}")
+include("${ICG_SCRIPTS}/TrickICGCommand.cmake")
+_trick_icg_command("${root}" "${ICG_SETTINGS}" fixture_icg
+    "${icg_source_dir}/include/trick/files_to_ICG.hh" ${byproducts})
+add_custom_target(generate ALL DEPENDS "${root}.complete")

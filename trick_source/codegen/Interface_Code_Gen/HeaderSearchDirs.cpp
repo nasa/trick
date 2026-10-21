@@ -50,7 +50,7 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     }
 #endif
 
-    fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CXX" , "r") ;
+    fp = popen("\"${TRICK_HOME}/bin/trick-gte\" TRICK_CXX", "r");
     fgets(line , sizeof(line) , fp) ;
     pclose(fp) ;
     std::string trick_cppc = std::string(line) ;
@@ -152,7 +152,8 @@ void HeaderSearchDirs::AddTrickSearchDirs () {
 }
 
 void HeaderSearchDirs::AddDirsAndFiles(std::string env_var, std::vector<std::string> & var_list) {
-
+    // When adding ICG environment settings, update the CMake build's isolation
+    // list in cmake/TrickICGInvoke.cmake; output placement does not change policy.
     char * env_var_contents = getenv(env_var.c_str()) ;
 
     if( env_var_contents != NULL ) {
