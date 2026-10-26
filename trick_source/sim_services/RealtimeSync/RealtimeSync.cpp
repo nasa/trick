@@ -332,7 +332,7 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
     static Run_Ratio<100> run_ratio ;
 
     /* calculate the current underrun/overrun */
-    curr_clock_time = rt_clock->clock_time() ;
+    curr_clock_time = rt_clock->clock_time();
 
     /* determine if the state of real-time has changed this frame */
     if ( ! active ) {
@@ -419,11 +419,11 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
     /* Get the actual frame-to-frame time, measured after spinning so that frame_time
        reflects this frame's job execution AND its own spin time, rather than mixing
        in the previous frame's spin time. */
-    frame_sched_time = curr_clock_time - last_clock_time ;
-    frame_time = frame_sched_time * (1.0/tics_per_sec);
+    frame_sched_time = curr_clock_time - last_clock_time;
+    frame_time       = frame_sched_time * (1.0 / tics_per_sec);
 
     /* Set the next frame overrun/underrun reference time to the current time */
-    last_clock_time = curr_clock_time ;
+    last_clock_time = curr_clock_time;
 
     return(0) ;
 }
