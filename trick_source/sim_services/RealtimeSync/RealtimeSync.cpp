@@ -307,7 +307,6 @@ class Run_Ratio {
    -# If real-time synchronization has been disabled:
       -# Set the active flag to false.
 -# Get the current real-time.
--# Calculate the real-time taken for the last frame of execution.
 -# if the frame has overrun
    -# Increment the number of consecutive overruns
    -# If the maximum number of consecutive overrun frames has
@@ -322,6 +321,8 @@ class Run_Ratio {
    -# Pause for the sleep timer to expire
    -# Spin for the real-time clock to match the simulation time
    -# Reset the sleep timer for the next frame
+-# Calculate the real-time taken for this frame of execution, including
+   any time spent spinning/sleeping above.
 -# Save the current real-time as the start of the frame reference
 */
 int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
@@ -332,11 +333,6 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
 
     /* calculate the current underrun/overrun */
     curr_clock_time = rt_clock->clock_time() ;
-    frame_sched_time = curr_clock_time - last_clock_time ;
-    frame_time = frame_sched_time * (1.0/tics_per_sec);
-
-    /* Set the next frame overrun/underrun reference time to the current time */
-    last_clock_time = curr_clock_time ;
 
     /* determine if the state of real-time has changed this frame */
     if ( ! active ) {
@@ -419,6 +415,15 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
         /* Calculate the run ratio after sleeping */
         actual_run_ratio = run_ratio(curr_clock_time, rt_clock->get_rt_clock_ratio());
     }
+
+    /* Get the actual frame-to-frame time, measured after spinning so that frame_time
+       reflects this frame's job execution AND its own spin time, rather than mixing
+       in the previous frame's spin time. */
+    frame_sched_time = curr_clock_time - last_clock_time ;
+    frame_time = frame_sched_time * (1.0/tics_per_sec);
+
+    /* Set the next frame overrun/underrun reference time to the current time */
+    last_clock_time = curr_clock_time ;
 
     return(0) ;
 }
