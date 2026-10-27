@@ -2,8 +2,8 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../share/trick/makefiles/Makefi
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
 # suppress warnings in lex and yacc files.
-$(L_OBJS) : TRICK_CXXFLAGS += -Wno-unused-parameter -Wno-unused-function -Wno-sign-compare -x c++
-$(Y_OBJS) : TRICK_CXXFLAGS += -Wno-unused-parameter -Wno-unused -x c++
+$(L_OBJS) : TRICK_CXXFLAGS += -Wno-unused-parameter -Wno-unused-function -Wno-sign-compare
+$(Y_OBJS) : TRICK_CXXFLAGS += -Wno-unused-parameter -Wno-unused
 
 ifeq ($(IS_CC_CLANG), 1)
 $(Y_OBJS) : TRICK_CXXFLAGS += -Wno-parentheses-equality
