@@ -5,7 +5,6 @@ All functions listed in Table 1, can be started at the UNIX command prompt by en
 Name                         | Description
 ----                         | -----------
 trick-CP                     | Configuration Processor - builds simulation executable
-trick-fxplot                 | Data Products plots, tables, and displays generation
 trick-dp                     | Data Products user interface
 trick-ICG                    | Interface Code Generator - parses header files and builds I/O code
 trick-killsim                | Kills runaways simulations
