@@ -319,8 +319,10 @@ define make_trick_ext_lib_links
 
 link-\$(1):
 \tmkdir -p \"build\$(dir \$(1))\"
+\trm -rf \"build\$(1)\"
 \tln -sfn \"\$(1)/build\$(2)\" \"build\$(1)\"
 \tmkdir -p \"build\$(dir \$(2))\"
+\trm -rf \"build\$(2)\"
 \tln -sfn \"\$(1)/build\$(2)\" \"build\$(2)\"
 endef
 

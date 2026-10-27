@@ -90,28 +90,26 @@
 
 MY_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
 
--include $(TRICKIFY_MAKE_DUMP)
+#-include $(TRICKIFY_MAKE_DUMP)
 
 ifndef TRICKIFY_ORIG_DIR
     $(error TRICKIFY_ORIG_DIR must be set to the home directory of the package being trickified)
 endif
 
-ifndef TRICKIFY_CXX_FLAGS
-    $(error TRICKIFY_CXX_FLAGS must be set)
-endif
+#ifndef TRICKIFY_CXX_FLAGS
+#    $(error TRICKIFY_CXX_FLAGS must be set)
+#endif
 
-TRICKIFY_BUILD_TYPE ?= PLO
+#TRICKIFY_BUILD_TYPE ?= PLO
 TRICKIFY_OBJECT_NAME ?= trickified.o
-
 TRICKIFY_OBJECT_BASE = $(basename $(TRICKIFY_OBJECT_NAME))
-
 TRICKIFY_PLO = $(TRICKIFY_OBJECT_BASE).o
 TRICKIFY_SHARED = $(TRICKIFY_OBJECT_BASE).so
 TRICKIFY_STATIC = $(TRICKIFY_OBJECT_BASE).a
 
 # We started zipping the Python modules, and this variable is now misnamed :(
 # python.zip would be a better default value, but leave it as python for backward compatibility.
-TRICKIFY_PYTHON_DIR ?= python
+TRICKIFY_PYTHON_DIR ?= python.zip
 TRICKIFY_PYTHON_DIR := $(abspath $(TRICKIFY_PYTHON_DIR))
 
 include $(MY_HOME)Makefile.common
@@ -125,8 +123,8 @@ ifneq ($(wildcard $(BUILD_DIR)),)
 	IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
 endif
 
-TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
-TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
+#TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
+#TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
