@@ -37,7 +37,7 @@ jobs:
       - name: Configure Trick
         run: |
           echo "MAKEFLAGS=-j$(nproc)" >> "$GITHUB_ENV"
-          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> "$GITHUB_ENV"
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))" >> "$GITHUB_ENV"
           ./configure
       - name: Build Trick
         run: make

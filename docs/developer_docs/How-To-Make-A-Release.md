@@ -43,7 +43,6 @@ Go through recently updated issues/pull requests and make sure that any open iss
 
 - In share/trick/trick_ver.txt change the "current_version" string to match the new version number and remove any suffixes (like: "-beta").
 - In trick_source/java/pom.xml change the \<version\> tag to the new version and remove any suffixes.
-- In CMakeLists.txt change TRICK_MAJOR TRICK_MINOR TRICK_TINY to match the current version, and set TRICK_PRERELEASE to an empty string
 
 ## Create a commit, tag, and push to github.com
 

@@ -19,6 +19,9 @@
 #include "trick/RefParseContext.hh"
 #include "ref_parser.tab.hpp"
 
+#define YYSTYPE REF_STYPE
+#define YYLTYPE REF_LTYPE
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-function"
@@ -151,4 +154,3 @@ void RefParseContext::destroy_scanner() {
     yylex_destroy(scanner);
 
 }
-
