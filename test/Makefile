@@ -18,7 +18,12 @@ clean_trickify:
 		fi \
 	done
 
-clean: clean_trickify
+# SIM_build_dir is built with "trick-CP -b Trick_Build_Dir" (see test_sims.yml),
+# so all of its build output lives in Trick_Build_Dir/.
+clean_build_dir:
+	rm -rf SIM_build_dir/Trick_Build_Dir
+
+clean: clean_trickify clean_build_dir
 	rm -f $(UNIT_TEST_RESULTS)
 	- for i in $(SIM_DIRECTORIES) ; do \
 		if [ -f "$$i/"[Mm]"akefile" ] ; then \
