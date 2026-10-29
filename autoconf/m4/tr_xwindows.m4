@@ -11,7 +11,6 @@ AC_DEFUN([TR_XWINDOWS], [
 	    AS_IF([test "x$x_includes" = "x"],[],[X_INCLUDE_DIR=-I$x_includes])
 	    AS_IF([test "x$x_libraries" = "x"],[],[X_LIB_DIR=-L$x_libraries])
 	    AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
-	    TR_JSC_DIRS([])
 	  ]
 	)
 	AC_SUBST([USE_X_WINDOWS])
