@@ -1,4 +1,3 @@
-
 /*
   PURPOSE:                     (Remote shell selection for Monte Carlo slave processes)
   REFERENCE:                   (Trick Users Guide)

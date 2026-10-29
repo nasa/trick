@@ -1017,7 +1017,8 @@ namespace Trick {
 
             /**
              * @brief Calls shutdown jobs, prints simulation time information, cancels all threads of execution.
-             * @return the exception return code; 0 if no exception occurred during shutdown, otherwise the non-zero code set by the caught exception
+             * @return the exception return code; 0 if no exception occurred during shutdown, otherwise the non-zero
+             * code set by the caught exception
              */
             virtual int shutdown() ;
 
@@ -1050,8 +1051,8 @@ namespace Trick {
             virtual int add_jobs_to_queue(Trick::SimObject * sim_object, bool restart = false ) ;
 
             /**
-             * @brief Adds JobData pointer to assigned thread queue if scheduled class job.  For non-scheduled jobs i.e. "initialization",
-             * all jobs added to main thread queues.
+             * @brief Adds JobData pointer to assigned thread queue if scheduled class job.  For non-scheduled jobs i.e.
+             * "initialization", all jobs added to main thread queues.
              * @param job_data - pointer to current job to be added to queue.
              * @return 0 if the job was added to a queue, -1 if the job's class name is not recognized
              */
@@ -1090,7 +1091,8 @@ namespace Trick {
 
             /**
              * Check to see all jobs are scheduled with exact frequencies
-             * @return 0 if all job cycle times are valid, -1 if a cycle time is invalid or an AMF thread has no cycle time set
+             * @return 0 if all job cycle times are valid, -1 if a cycle time is invalid or an AMF thread has no cycle
+             * time set
              */
             virtual int check_all_job_cycle_times() ;
 
@@ -1124,7 +1126,8 @@ namespace Trick {
             virtual void usr1_handler() ;
 
             /**
-             * Handles the SIGFPE signal, printing the type of floating point error and attempting a debugger attach/stack trace before exiting.
+             * Handles the SIGFPE signal, printing the type of floating point error and attempting a debugger
+             * attach/stack trace before exiting.
              */
             virtual void fpe_handler(siginfo_t * sip) ;
 
@@ -1302,7 +1305,8 @@ namespace Trick {
             virtual int instrument_job_remove(std::string in_job) ;
 
             /**
-             @brief Writes the S_job_execution file which details the jobs known to the scheduler at the end of initialization.
+             @brief Writes the S_job_execution file which details the jobs known to the scheduler at the end of
+             initialization.
              @param fp - either an open file pointer or NULL.  If NULL write_s_job_execution will open a new file.
              @return -1 if the output directory could not be created, 0 otherwise
             */
@@ -1318,8 +1322,8 @@ namespace Trick {
             virtual int register_scheduler(Trick::Scheduler * scheduler ) ;
 
             /**
-             @userdesc Transition to Shutdown mode.  This matches the calling arguments of the legacy exec_terminate call.
-             Same as calling exec_terminate_with_return() with ret_code=-1 and line=0.
+             @userdesc Transition to Shutdown mode.  This matches the calling arguments of the legacy exec_terminate
+             call. Same as calling exec_terminate_with_return() with ret_code=-1 and line=0.
              @param file_name - file name where exception occurred
              @param error - error message to print
              This function always throws Trick::ExecutiveException and does not return.

@@ -272,13 +272,13 @@ namespace Trick {
              */
              void set_reduced_checkpoint( bool flag);
 
-            /**
-             Indicate whether a checkpoint should represent floating point values as "hexfloat" values.
-             Hexfloat format preserves the precision of floating point values, but isn't readable by
-             sane human beings.
-             @param flag - true: Floating point values are written in hexfloat format.
-                           false: (default) Floating point values are written in normal decimal format.
-             */
+             /**
+              Indicate whether a checkpoint should represent floating point values as "hexfloat" values.
+              Hexfloat format preserves the precision of floating point values, but isn't readable by
+              sane human beings.
+              @param flag - true: Floating point values are written in hexfloat format.
+                            false: (default) Floating point values are written in normal decimal format.
+              */
              void set_hexfloat_checkpoint( bool flag);
 
              /**

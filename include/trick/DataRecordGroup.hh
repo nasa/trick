@@ -331,7 +331,8 @@ namespace Trick {
             virtual int format_specific_init() = 0 ;
 
             /**
-             @brief Transfer data in recording buffer to disk, implemented in derived group classes DRAscii, DRBinary, DRHDF5.
+             @brief Transfer data in recording buffer to disk, implemented in derived group classes DRAscii, DRBinary,
+             DRHDF5.
              @returns the number of bytes written to disk
             */
             virtual int format_specific_write_data(unsigned int writer_offset) = 0 ;

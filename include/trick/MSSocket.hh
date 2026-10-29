@@ -31,10 +31,9 @@ namespace Trick {
     class MSSocket : public MSConnect {
 
         public:
-
             /**
-             @brief @userdesc Construct a new master/slave connection that will communicate via Trickcommm TCP/IP socket.
-             Initializes the TCDevice and sets default sync wait limit to 5.0 seconds.
+             @brief @userdesc Construct a new master/slave connection that will communicate via Trickcommm TCP/IP
+             socket. Initializes the TCDevice and sets default sync wait limit to 5.0 seconds.
              @par Python Usage:
              @code <socket_object> = trick.MSSocket() @endcode
              @return the new MSSocket object

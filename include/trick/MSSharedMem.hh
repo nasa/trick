@@ -75,7 +75,6 @@ namespace Trick {
     class MSSharedMem : public MSConnect {
 
         public:
-
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via shared memory.
              Initializes the shared memory address and sets default sync wait limit to 5.0 seconds.

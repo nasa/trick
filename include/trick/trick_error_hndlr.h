@@ -112,12 +112,11 @@ void trick_error_copy_streams(
         TrickErrorHndlr * dest_error_hndlr,  /* OUT: -- Err hdler data*/
         TrickErrorHndlr * src_error_hndlr);  /* IN:  -- Err hdler data*/
 
-void trick_error_set_send_hs_flag(
-        TrickErrorHndlr * error_hndlr, /* INOUT: -- Err handler data */
-        TrickErrorLevel level,         /* IN: -- Error reporting level
-                                                 stream to set. */
-        int use_send_hs);              /* IN: -- vestigial; no longer supported,
-                                                 all printouts use fprintf regardless */
+void trick_error_set_send_hs_flag(TrickErrorHndlr* error_hndlr, /* INOUT: -- Err handler data */
+                                  TrickErrorLevel level,        /* IN: -- Error reporting level
+                                                                          stream to set. */
+                                  int use_send_hs);             /* IN: -- vestigial; no longer supported,
+                                                                          all printouts use fprintf regardless */
 
 void trick_error_set_all_send_hs_flags(
         TrickErrorHndlr * error_hndlr,  /* INOUT: -- Err handler data */
