@@ -28,7 +28,8 @@ namespace Trick {
      *
      */
 
-    class MSSocket : public MSConnect {
+    class MSSocket : public MSConnect
+    {
         public:
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via Trickcommm TCP/IP
@@ -137,8 +138,7 @@ namespace Trick {
             /** An identification tag unique to the master that tc_multiconnect will use to
                 connect master and slaves.\n */
             std::string sync_port_tag ;   /**< trick_units(--) */
-    } ;
-
+    };
 }
 
 #endif

@@ -72,7 +72,8 @@ namespace Trick {
         char chkpnt_name[256];                  /**< trick_units(--) checkpoint dir/filename */
     } MSSharedMemData;
 
-    class MSSharedMem : public MSConnect {
+    class MSSharedMem : public MSConnect
+    {
         public:
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via shared memory.
@@ -183,7 +184,7 @@ namespace Trick {
 
             /** Address of data to read/write between the master and slave in shared memory.\n */
             MSSharedMemData * shm_addr ;    /**< trick_units(--) */
-    } ;
+    };
 }
 
 #endif
