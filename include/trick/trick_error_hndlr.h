@@ -62,7 +62,7 @@ typedef struct _TrickErrorHndlr {
     TrickErrorFuncPtr error_func;   /* ** Err handling function */
     TrickErrorDataPtr data_ptr;     /* ** Err handling data     */
     TrickErrorLevel report_level;   /* -- Err reporting level   */
-    int use_send_hs[9];             /* -- 1=send_hs; else fprintf */
+    int use_send_hs[9];             /* -- vestigial; all reporting uses fprintf regardless of this value */
     FILE *report_stream[9];         /* -- Err reporting streams */
 
 } TrickErrorHndlr;
@@ -116,8 +116,8 @@ void trick_error_set_send_hs_flag(
         TrickErrorHndlr * error_hndlr, /* INOUT: -- Err handler data */
         TrickErrorLevel level,         /* IN: -- Error reporting level
                                                  stream to set. */
-        int use_send_hs);              /* IN: -- 1=use send_hs;
-                                                 else use fprintf */
+        int use_send_hs);              /* IN: -- vestigial; no longer supported,
+                                                 all printouts use fprintf regardless */
 
 void trick_error_set_all_send_hs_flags(
         TrickErrorHndlr * error_hndlr,  /* INOUT: -- Err handler data */

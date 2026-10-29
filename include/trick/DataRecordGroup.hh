@@ -309,7 +309,6 @@ namespace Trick {
 
             /**
              @brief Delete memory allocated in the checkpoint job.
-             @returns always 0
             */
             virtual void clear_checkpoint_vars() ;
 
@@ -327,13 +326,13 @@ namespace Trick {
 
             /**
              @brief Create and write initial info to log file, implemented in derived groups
-             @returns always 0
+             @returns 0 on success, -1 if the log file could not be opened
             */
             virtual int format_specific_init() = 0 ;
 
             /**
              @brief Transfer data in recording buffer to disk, implemented in derived group classes DRAscii, DRBinary, DRHDF5.
-             @returns always 0
+             @returns the number of bytes written to disk
             */
             virtual int format_specific_write_data(unsigned int writer_offset) = 0 ;
 
@@ -345,7 +344,7 @@ namespace Trick {
 
             /**
              @brief Create and write out variable data to the log header file needed by data products.
-             @returns always 0
+             @returns 0 on success, -1 if the log header file could not be opened
             */
             virtual int write_header() ;
 
@@ -377,7 +376,7 @@ namespace Trick {
             /**
              @brief This routine allows users to add variables through an already created REF2 structure.
              @param ref2 - variable reference of the variable to record
-             @returns always 0
+             @returns 0 if successful, -1 if ref2 or ref2->attr is NULL
             */
             virtual int add_variable(REF2 * ref2) ;
 
@@ -411,7 +410,7 @@ namespace Trick {
 
             /**
              @brief The executive scheduler's interface to data_record job.
-             @returns always 0
+             @returns 0 on success, -1 if curr_job->id does not match a known job id
             */
             virtual int call_function( Trick::JobData * curr_job ) ;
 
@@ -423,7 +422,7 @@ namespace Trick {
 
             /**
              @brief Utility function to convert the variables type to a string.
-             @returns always 0
+             @returns the string name of the variable's type
             */
             std::string type_string(int item_type, int item_size) ;
 

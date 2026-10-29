@@ -69,7 +69,7 @@ namespace Trick {
             /** Requested variable server port number.\n */
             unsigned short _requested_port ;       /**<  trick_units(--) */
 
-            /** User requested specific port number\n */
+            /** User requested a specific port number or source address\n */
             bool _user_requested_address ;  /**<  trick_units(--) */
 
             /** User defined unique tag to easily identify this variable server port.\n */

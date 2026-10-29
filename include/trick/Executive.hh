@@ -1017,7 +1017,7 @@ namespace Trick {
 
             /**
              * @brief Calls shutdown jobs, prints simulation time information, cancels all threads of execution.
-             * @return always 0
+             * @return the exception return code; 0 if no exception occurred during shutdown, otherwise the non-zero code set by the caught exception
              */
             virtual int shutdown() ;
 
@@ -1053,7 +1053,7 @@ namespace Trick {
              * @brief Adds JobData pointer to assigned thread queue if scheduled class job.  For non-scheduled jobs i.e. "initialization",
              * all jobs added to main thread queues.
              * @param job_data - pointer to current job to be added to queue.
-             * @return always 0
+             * @return 0 if the job was added to a queue, -1 if the job's class name is not recognized
              */
             virtual int add_job_to_queue( Trick::JobData * job_data ) ;
 
@@ -1084,13 +1084,13 @@ namespace Trick {
 
             /**
              * Check to see all jobs in the simulation are handled .
-             * @return always 0
+             * @return the number of jobs found that are not handled by any scheduler (0 if all jobs are handled)
              */
             virtual int check_all_jobs_handled( ) ;
 
             /**
              * Check to see all jobs are scheduled with exact frequencies
-             * @return always 0
+             * @return 0 if all job cycle times are valid, -1 if a cycle time is invalid or an AMF thread has no cycle time set
              */
             virtual int check_all_job_cycle_times() ;
 
@@ -1105,31 +1105,26 @@ namespace Trick {
 
             /**
              * @brief Handles signals SIGSEGV and SIGBUS if directed so in initialization jobs.
-             * @return always 0
              */
             virtual void signal_handler(int sig) ;
 
             /**
              * @brief Handles signal SIGINT if directed so in initialization jobs.
-             * @return always 0
              */
             virtual void ctrl_c_handler() ;
 
             /**
              * @brief Handles signal SIGTERM
-             * @return always 0
              */
             virtual void term_handler() ;
 
             /**
-             * @brief Handles signal SIGTERM
-             * @return always 0
+             * @brief Handles signal SIGUSR1
              */
             virtual void usr1_handler() ;
 
             /**
-             * Handles signal handlers for SIGSEGV, SIGBUS, and SIGINT if directed so in initialization jobs.
-             * @return always 0
+             * Handles the SIGFPE signal, printing the type of floating point error and attempting a debugger attach/stack trace before exiting.
              */
             virtual void fpe_handler(siginfo_t * sip) ;
 
@@ -1309,7 +1304,7 @@ namespace Trick {
             /**
              @brief Writes the S_job_execution file which details the jobs known to the scheduler at the end of initialization.
              @param fp - either an open file pointer or NULL.  If NULL write_s_job_execution will open a new file.
-             @return always 0
+             @return -1 if the output directory could not be created, 0 otherwise
             */
             virtual int write_s_job_execution( FILE * fp ) ;
 
@@ -1327,7 +1322,7 @@ namespace Trick {
              Same as calling exec_terminate_with_return() with ret_code=-1 and line=0.
              @param file_name - file name where exception occurred
              @param error - error message to print
-             @return always 0
+             This function always throws Trick::ExecutiveException and does not return.
             */
             virtual int exec_terminate(const char *file_name, const char *error);
             

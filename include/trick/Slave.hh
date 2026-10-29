@@ -56,7 +56,7 @@ namespace Trick {
 
             /** The time period (in seconds) that the slave's connection will wait to read sync data
               from the master (and vice versa); this value is set by reading it from the master.\n
-              The default is 0.0, which to an MSSocket connection means infinite (non-blocking).\n */
+              The default is 0.0, which to an MSSocket connection means infinite (fully blocking).\n */
             double sync_wait_limit ;         /**< trick_units(s) */
 
             /** Connection to the master.\n */

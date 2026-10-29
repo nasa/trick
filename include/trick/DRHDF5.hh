@@ -119,7 +119,7 @@ GROUP "/" {
             virtual int format_specific_write_data(unsigned int writer_offset) ;
 
             /**
-             @copybrief Trick::DataRecordGroup::shutdown
+             @copybrief Trick::DataRecordGroup::format_specific_shutdown
              */
             virtual int format_specific_shutdown() ;
 

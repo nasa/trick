@@ -24,7 +24,7 @@ namespace Trick {
   @li On a lower priority thread, a request is made to change the value of an item at a certain time.
   @li This item (event) gets placed in a list
   @li A higher piority thread gets the information and changes the value of the data
-  @li memory operation (creation and deletion) take place in the lower priority threads.
+  @li event creation takes place on the lower priority thread; event deletion takes place on the higher priority thread after execution.
 
 */
 
@@ -54,7 +54,7 @@ class RtiStager {
      /**
         Move stored up injections belonging to the current thread to the firing line.
         @param thread_id - the thread to use to fire the event, defaults to main thread.
-        @return - always returns zero (should probably be void then)
+        @return - 0 on success, -1 if thread_id is out of range
      */
      virtual int Fire( unsigned int thread_id = 0 );
 

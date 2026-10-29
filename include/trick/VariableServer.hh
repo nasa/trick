@@ -55,7 +55,7 @@ class VariableServer
     int default_data();
 
     /**
-     @brief Start up var_serve_init thread if the variable server is enabled.
+     @brief Start up the listen thread if the variable server is enabled, or if broadcasting is enabled.
     */
     int init();
 
@@ -158,7 +158,6 @@ class VariableServer
      @code trick.var_server_set_enabled(<on_off>) @endcode
      @param on_off - 1 to enable variable server, 0 to disable
      @note Disabling the variable server will disable the simulation control panel, TV, MTV, and stripchartting.
-     @return always 0
     */
     void set_enabled(bool on_off);
 
@@ -193,7 +192,6 @@ class VariableServer
       send "trick.var_debug(1);" from that client.
      @par Python Usage:
      @code trick.set_var_server_info_msg_on() @endcode
-     @return always 0
     */
     void set_var_server_info_msg_on();
 
@@ -202,7 +200,6 @@ class VariableServer
      No Variable Server info messages will be published using the Trick status message system.
      @par Python Usage:
      @code trick.set_var_server_info_msg_off() @endcode
-     @return always 0
     */
     void set_var_server_info_msg_off();
 
@@ -211,7 +208,6 @@ class VariableServer
      Variable Server log messages will be saved to a varserver_log file in the RUN directory.
      @par Python Usage:
      @code trick.set_var_server_log_on() @endcode
-     @return always 0
     */
     void set_var_server_log_on();
 
@@ -220,7 +216,6 @@ class VariableServer
      No Variable Server log messages will be saved to a varserver_log file in the RUN directory.
      @par Python Usage:
      @code trick.set_var_server_log_off() @endcode
-     @return always 0
     */
     void set_var_server_log_off();
 
@@ -229,8 +224,7 @@ class VariableServer
 Each new session will create a file under RUN_<>/session_logs/ containg the client's IP and port and all messages
 received.
 @par Python Usage:
-@code trick.set_var_server_log_on() @endcode
-@return always 0
+@code trick.set_var_server_session_log_on() @endcode
 */
     void set_var_server_session_log_on();
 
@@ -238,8 +232,7 @@ received.
      @brief @userdesc Command to turn off variable server session logging for all clients.
      No session log will be creeated.
      @par Python Usage:
-     @code trick.set_var_server_log_off() @endcode
-     @return always 0
+     @code trick.set_var_server_session_log_off() @endcode
     */
     void set_var_server_session_log_off();
 
@@ -272,7 +265,7 @@ received.
                              string will default to default name of machine
      @param port - the port.
      @par Python Usage:
-     @code trick.var_server_create_multicast_socket(source_address, port) @endcode
+     @code trick.var_server_create_multicast_socket(mcast_address, source_address, port) @endcode
      @return 0 if successful
     */
     int create_multicast_socket(const char* mcast_address, const char* source_address, unsigned short port);

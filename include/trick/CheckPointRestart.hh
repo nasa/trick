@@ -249,7 +249,6 @@ namespace Trick {
              @par Python Usage:
              @code trick.load_checkpoint("<file_name>") @endcode
              @param file_name - file to read checkpoint data from
-             @return always 0
              */
             virtual void load_checkpoint(std::string file_name) ;
 
@@ -261,7 +260,6 @@ namespace Trick {
              @code trick.load_checkpoint("<file_name>") @endcode
              @param file_name - file to read checkpoint data from
              @param stl_restore_on - toggle whether to restore STLs
-             @return always 0
              */
             virtual void load_checkpoint(std::string file_name, bool stl_restore_on) ;
 

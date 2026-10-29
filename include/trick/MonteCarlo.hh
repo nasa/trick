@@ -161,7 +161,7 @@ namespace Trick {
 
         /**
          * User defined shell command with which to start this slave when the #remote_shell is
-         * Trick::TRICK_USER_REMOTE_SHELL.
+         * Trick::TRICK_USER_REMOTE_SH.
          */
         std::string user_remote_shell;        /**< \n trick_units(--) */
 
@@ -907,7 +907,7 @@ namespace Trick {
         /**
          * Begins Monte Carlo simulation as a slave.
          *
-         * @return 0 on success
+         * @return 1 when the forked child process should return to let the slave sim complete
          */
         int execute_as_slave();
 

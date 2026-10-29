@@ -10,7 +10,7 @@ extern "C" {
 * @brief Generate a transformation matrix for rotation about a given line by a given
 * angle, using Rodrigues’ formula.
 *
-* @param C_out - Transformation matrix for final to initial state.
+* @param C_out - Transformation matrix for initial to final state.
 * @param k - Vector in the direction of the rotation Axis.
 * @param theta - Angle of rotation in radians.
 */

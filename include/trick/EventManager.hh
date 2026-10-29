@@ -55,7 +55,7 @@ namespace Trick {
              @par Python Usage:
              @code trick.add_event(<in_event>) @endcode
              @param in_event - the event object previously created by new_event()
-             @return always 0
+             @return 0 on success, -1 if the event's thread number is out of range
             */
             int add_event(Trick::Event * in_event) ;
 

@@ -34,7 +34,7 @@ namespace Trick {
 
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via Trickcommm TCP/IP socket.
-             Initializes the TCDevice and sets default sync wait limit as infinite.
+             Initializes the TCDevice and sets default sync wait limit to 5.0 seconds.
              @par Python Usage:
              @code <socket_object> = trick.MSSocket() @endcode
              @return the new MSSocket object
@@ -44,7 +44,7 @@ namespace Trick {
 
             /**
              @brief Sets the wait time limit for communications between the master and slaves.
-             Any @c in_limit <= 0.0 means an infinite wait limit, i.e. regular non-blocking.
+             Any @c in_limit <= 0.0 means an infinite (fully blocking) wait limit.
              Calls tc_blockio (and tc_set_blockio_timeout_limit when @c in_limit > 0).
              @param in_limit - the desired wait limit.
              @return always 0

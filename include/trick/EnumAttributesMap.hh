@@ -20,8 +20,8 @@ namespace Trick {
 
         public:
             /**
-             * Returns a pointer to the singleton Trick::AttributesMap instance.
-             * @return    A pointer to Trick::AttributesMap.
+             * Returns a pointer to the singleton Trick::EnumAttributesMap instance.
+             * @return    A pointer to Trick::EnumAttributesMap.
              */
             static EnumAttributesMap * attributes_map() {
                 if ( pInstance == NULL ) {

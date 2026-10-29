@@ -221,8 +221,8 @@ namespace Trick {
             virtual int set_system_job_class(bool yes_no) ;
 
             /**
-             * Adds another job as a dependency to this job
-             * @param in_tag - JobData instance of depends_on job
+             * Adds a tag name to this job's set of tags
+             * @param in_tag - tag name to add
              * @return always 0
              */
             virtual int add_tag( std::string in_tag) ;
@@ -242,7 +242,7 @@ namespace Trick {
             virtual int add_inst_before( InstrumentBase * in_job ) ;
 
             /**
-             * Adds an instrumentation job to the before list
+             * Adds an instrumentation job to the after list
              * @param in_job - JobData instance of instrumentation job
              * @return always 0
              */
@@ -257,7 +257,7 @@ namespace Trick {
 
             /**
              * Calls the instumentation jobs and the job itself.
-             * @return always 0
+             * @return the return value of the job function call
              */
             virtual int call() ;
 

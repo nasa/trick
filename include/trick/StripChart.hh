@@ -36,7 +36,7 @@ namespace Trick {
 
         /**
          @userdesc Command to get the stripchart input filename.
-         @return The stripchart input filename string, or Null.
+         @return The stripchart input filename string, or an empty string if none was set.
          */
         std::string get_input_file();
 
