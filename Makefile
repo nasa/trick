@@ -412,9 +412,10 @@ extra-coverage-builds:
 	@ $(MAKE) test -C trick_source/trick_utils/SAIntegrator
 
 code-coverage: test extra-coverage-builds
-	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info --ignore-errors mismatch,inconsistent --rc geninfo_unexecuted_blocks=1
-	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info --ignore-errors unused
-	rm coverage_large.info
+	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) \
+	     --exclude '/Library/*' --exclude '/usr/*' --exclude '*/io_src/*' \
+	     --exclude '*/test/*' --exclude '*/unittest/*' \
+	     --output-file coverage.info --ignore-errors unused
 	lcov --list coverage.info
 
 #requirements:
