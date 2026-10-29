@@ -29,7 +29,6 @@ namespace Trick {
      */
 
     class MSSocket : public MSConnect {
-
         public:
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via Trickcommm TCP/IP

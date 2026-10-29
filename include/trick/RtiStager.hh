@@ -104,7 +104,6 @@ namespace Trick {
             */
             virtual int AddtoList(Trick::RtiEventBase* rei);
     };
-
 }
 
 #endif

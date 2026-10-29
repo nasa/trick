@@ -73,7 +73,6 @@ namespace Trick {
     } MSSharedMemData;
 
     class MSSharedMem : public MSConnect {
-
         public:
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via shared memory.
