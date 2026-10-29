@@ -11,7 +11,7 @@ permissions:
 jobs:
   code-coverage:
     name: lcov + Coveralls
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       CFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
       CXXFLAGS: "-fprofile-arcs -ftest-coverage -fprofile-update=atomic -O0"
