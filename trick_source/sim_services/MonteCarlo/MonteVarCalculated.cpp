@@ -76,5 +76,5 @@ std::string Trick::MonteVarCalculated::get_next_value() {
             return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ") + value + std::string(")");
         }
     }
-    return NULL;
+    return "";
 }

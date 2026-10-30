@@ -29,3 +29,4 @@ S_sie.json
 MonteCarlo_Meta_data_output
 *.xml
 SIM_mtv/models/test_client/test_client
+SIM_build_dir/Trick_Build_Dir/

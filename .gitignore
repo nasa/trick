@@ -15,6 +15,7 @@ lib64
 lib_Linux_*
 lib_Darwin_*
 *.lex.c
+*.lex.cpp
 *.tab.cpp
 *.tab.hpp
 *.gcda
