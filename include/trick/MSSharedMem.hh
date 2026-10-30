@@ -72,13 +72,12 @@ namespace Trick {
         char chkpnt_name[256];                  /**< trick_units(--) checkpoint dir/filename */
     } MSSharedMemData;
 
-    class MSSharedMem : public MSConnect {
-
+    class MSSharedMem : public MSConnect
+    {
         public:
-
             /**
              @brief @userdesc Construct a new master/slave connection that will communicate via shared memory.
-             Initializes the shared memory address and sets default sync wait limit as infinite.
+             Initializes the shared memory address and sets default sync wait limit to 5.0 seconds.
              @par Python Usage:
              @code <sharedmem_object> = trick.MSSharedMem() @endcode
              @return the new MSSharedMem object
@@ -149,7 +148,7 @@ namespace Trick {
 
             /**
              @brief Read a character array (i.e. chkpnt name) into read_data from the other simulation.
-             @return the 1st character read or MS_ERROR_NAME if the read failed
+             @return 0 if data was read successfully, or MS_ERROR_NAME if the read failed
              */
             virtual char read_name(char * read_data, size_t size) ;
 
@@ -185,7 +184,7 @@ namespace Trick {
 
             /** Address of data to read/write between the master and slave in shared memory.\n */
             MSSharedMemData * shm_addr ;    /**< trick_units(--) */
-    } ;
+    };
 }
 
 #endif

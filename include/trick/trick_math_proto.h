@@ -212,7 +212,7 @@ void dm_scale(double prod[3][3], double mat[3][3], double scalar);
 
 /**
  * @ingroup TRICK_MATH
- * Subtract mat2 from mat2 and put the result in diff.
+ * Subtract mat2 from mat1 and put the result in diff.
  */
 void dm_sub(double diff[3][3], double mat1[3][3], double mat2[3][3]);
 

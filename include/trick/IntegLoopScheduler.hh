@@ -161,7 +161,7 @@ namespace Trick {
             /**
                Overload of Scheduler::add_sim_object(Trick::SimObject *) routine.
                This class does not add sim_objects with this routine.  Sim_objects
-               are added to the integrator through the add_integ_sim_object call.
+               are added to the integrator through the add_sim_object(Trick::SimObject &) call.
              */
             virtual int add_sim_object (Trick::SimObject * sim_obj);
 

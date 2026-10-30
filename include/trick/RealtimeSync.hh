@@ -176,19 +176,16 @@ namespace Trick {
 
             /**
              @brief Starts the actual elapsed timer used on the default clock
-             @return always 0
              */
             virtual void get_sim_start_time() ;
 
             /**
              @brief Ends the actual elapsed timer for initalization
-             @return always 0
              */
             virtual void get_sim_end_init_time() ;
 
             /**
              @brief Ends the actual elapsed timer at shutdown.
-             @return always 0
              */
             virtual void get_sim_end_time() ;
 

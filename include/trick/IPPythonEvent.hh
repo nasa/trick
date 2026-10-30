@@ -171,7 +171,6 @@ namespace Trick {
              Event info messages will be published using the Trick status message system.
              @par Python Usage:
              @code trick.set_event_info_msg_on() @endcode
-             @return always 0
             */
             static void set_event_info_msg_on() ;
 
@@ -180,7 +179,6 @@ namespace Trick {
              No event info messages will be published using the Trick status message system.
              @par Python Usage:
              @code trick.set_event_info_msg_off() @endcode
-             @return always 0
             */
             static void set_event_info_msg_off() ;
 
@@ -189,7 +187,6 @@ namespace Trick {
              Python parsing and terminate if an error is detected. Set to false by default
              @par Python Usage:
              @code trick.terminate_on_event_parse_error(True|False) @endcode
-             @return always 0
             */
             static void terminate_on_event_parse_error(bool on_off);
 

@@ -178,9 +178,9 @@ p_i = \sum_{j=0}^{2} m_{j,i} \cdot v_j: i\in 0..2
 @page MATRIX_MACROS Matrix Macros
 \b MxSCALAR(P, M, S)
 
-Assign the product of the matrix M and scalar S to vector P.
+Assign the product of the matrix M and scalar S to matrix P.
 \f[
-p_i = m_{i,j} \cdot S: i\in 0..2
+p_{i,j} = m_{i,j} \cdot S: i,j\in 0..2
 \f]
 */
 #define MxSCALAR( prod , mat , scalar ) { \

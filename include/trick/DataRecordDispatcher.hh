@@ -102,7 +102,7 @@ namespace Trick {
             /** @brief Disable a group or all groups */
             int disable( const char * in_name = NULL ) ;
 
-            /** @brief Disable a group or all groups */
+            /** @brief Record data immediately for a group */
             int record_now_group( const char * in_name ) ;
 
             /** @brief set max file size for group */

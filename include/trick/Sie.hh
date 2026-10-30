@@ -27,14 +27,14 @@ namespace Trick {
             Sie() ;
 
             /**
-             * Currently process_sim_args is an empty function
+             * Looks for the "sie", "--read-only-sim", "-O", and "-OO" command line
+             * arguments and generates or relocates the sie resource files accordingly.
              * @return always 0
              */
             int process_sim_args() ;
 
             /**
              * Writes the S_sie.resource file using MemoryManager information
-             * @return always 0
              */
             void sie_print_xml() ;
             void class_attr_map_print_xml() ;
