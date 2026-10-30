@@ -120,16 +120,17 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
         /** @li only makes sense to record frame time for scheduled, integ, and end_of_frame jobs */
         /** @li exclude system jobs because they are excluded in instrument_before/after */
         /** @li exclude frame_log jobs */
-        if ( (all_jobs_vector[ii]->job_class >= exec_get_scheduled_start_index() ||
-             (! all_jobs_vector[ii]->job_class_name.compare("integration")) ||
-             (! all_jobs_vector[ii]->job_class_name.compare("derivative")) ||
-             (! all_jobs_vector[ii]->job_class_name.compare("dynamic_event")) ||
-             (! all_jobs_vector[ii]->job_class_name.compare("pre_integration")) ||
-             (! all_jobs_vector[ii]->job_class_name.compare("post_integration")) ||
-             (! all_jobs_vector[ii]->job_class_name.compare("system_thread_sync")) ||
-             (! all_jobs_vector[ii]->job_class_name.compare("top_of_frame")) ||
-             (! all_jobs_vector[ii]->job_class_name.compare("end_of_frame")))
-           ) {
+        if ((all_jobs_vector[ii]->job_class >= exec_get_scheduled_start_index()
+             || (!all_jobs_vector[ii]->job_class_name.compare("integration"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("derivative"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("dynamic_event"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("pre_integration"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("post_integration"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("system_thread_sync"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("input_processor_run"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("top_of_frame"))
+             || (!all_jobs_vector[ii]->job_class_name.compare("end_of_frame"))))
+        {
             dot = all_jobs_vector[ii]->name.find_first_of(".");
             if (!all_jobs_vector[ii]->name.compare(dot,11,".frame_log.")) {
                 continue;

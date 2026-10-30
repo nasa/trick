@@ -323,7 +323,9 @@ public class JobPerf {
                 }
                 double start = Double.parseDouble(field[1]);
                 double stop = Double.parseDouble(field[2]);
-                if (start < stop) {
+                // The frame log clock has 1 us resolution, so fast jobs log start == stop.
+                // Keep them so every executed job (especially EOF jobs) appears in its frame.
+                if (start <= stop) {
                     JobExecutionEvent evt = new JobExecutionEvent(id, isTOF, isEOF, start, stop);
                     jobExecEvtList.add(evt);
                 }
