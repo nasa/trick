@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.25...4.4)
+# RHEL 8 installs 3.26
+cmake_minimum_required(VERSION 3.26...4.4)
 
 # Building in the source tree would overwrite Trick's autotools Makefile and
 # mix generated files into the checkout.

@@ -12,6 +12,8 @@
 #include "clang/Basic/FileManager.h"
 #include "clang/Frontend/CompilerInstance.h"
 
+#include <cerrno>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <libgen.h>
@@ -35,17 +37,46 @@ std::string get_working_directory()
 
 std::string trick_build_dir;
 
-PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd ,
-  CommentSaver & in_cs , clang::CompilerInstance & in_ci, bool in_force , bool in_sim_services_flag ,
-  std::string in_output_dir ) :
-   hsd(in_hsd) ,
-   cs(in_cs) ,
-   ci(in_ci) ,
-   force(in_force) ,
-   sim_services_flag( in_sim_services_flag ) ,
-   output_dir( in_output_dir )
+PrintAttributes::PrintAttributes(int in_attr_version, HeaderSearchDirs& in_hsd, CommentSaver& in_cs,
+                                 clang::CompilerInstance& in_ci, bool in_force, bool in_sim_services_flag,
+                                 std::string in_output_dir, std::string in_output_root)
+    : hsd(in_hsd)
+    , cs(in_cs)
+    , ci(in_ci)
+    // Build-tree mode always emits a complete inventory rather than skipping individual headers.
+    , force(in_force || !in_output_root.empty())
+    , sim_services_flag(in_sim_services_flag)
+    , output_dir(in_output_dir)
+    , output_root(in_output_root)
 {
+    if (!output_root.empty())
+    {
+        const char* home = getenv("TRICK_HOME");
+        if (home == NULL || *home == '\0')
+        {
+            std::cerr << "--output-root requires TRICK_HOME to name the Trick source directory" << std::endl;
+            exit(1);
+        }
+        // Match the canonical header paths from openIOFile, including symlinked checkouts.
+        char* resolved_home = realpath(home, NULL);
+        if (resolved_home == NULL)
+        {
+            std::cerr << "Unable to resolve TRICK_HOME " << home << ": " << strerror(errno) << std::endl;
+            exit(1);
+        }
+        er7_source_dir = std::string(resolved_home) + "/trick_source/er7_utils/";
+        free(resolved_home);
+    }
     printer = new PrintFileContents10() ;
+}
+
+void PrintAttributes::checkStream(const std::ios& stream, const std::string& path) const
+{
+    if (!output_root.empty() && !stream)
+    {
+        std::cerr << "Unable to write " << path << std::endl;
+        exit(1);
+    }
 }
 
 void PrintAttributes::addIgnoreTypes() {
@@ -138,6 +169,7 @@ bool PrintAttributes::openIOFile(const std::string& header_file)
         // We have visited this header before. If there is a valid name, append to the existing IO file.
         if (out_of_date_io_files.find(header_file_name) != out_of_date_io_files.end()) {
             outfile.open(out_of_date_io_files[header_file_name].c_str(), std::fstream::app);
+            checkStream(outfile, out_of_date_io_files[header_file_name]);
             return true ;
         }
         return false;
@@ -172,6 +204,7 @@ bool PrintAttributes::openIOFile(const std::string& header_file)
     // write header information
     std::cout << color(INFO, "Writing    ") << out_of_date_io_files[header_file_name] << std::endl;
     outfile.open(out_of_date_io_files[header_file_name].c_str());
+    checkStream(outfile, io_file_name);
     printer->printIOHeader(outfile, header_file_name);
     if (!cs.hasTrickHeader(header_file_name) ) {
         std::cout << bold(color(WARNING, "Warning    ") + header_file_name) << std::endl
@@ -204,9 +237,25 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
     free(temp_str) ;
 
     if ( hsd.isPathInUserDir( dir_name ) ) {
-        if ( ! output_dir.empty() ) {
+        if (!output_root.empty())
+        {
+            if (dir_name.compare(0, er7_source_dir.size(), er7_source_dir) == 0)
+            {
+                // Preserve directories: er7_utils has duplicate header basenames.
+                io_file_name
+                    = output_root + "/er7_utils/" + dir_name.substr(er7_source_dir.size()) + "/io_src/" + base_name;
+            }
+            else
+            {
+                io_file_name = output_root + "/sim_services/io_src/" + base_name;
+            }
+        }
+        else if (!output_dir.empty())
+        {
             io_file_name = output_dir + "/" + base_name ;
-        } else {
+        }
+        else
+        {
             // Put all of the sim_services io_files in ${TRICK_HOME}/trick_source/sim_services/include/io_src unless
             // it is in er7_utils.  The er7_utils io_files have duplicate file names so the overwrite each other
             // leave those in their respective directories.
@@ -252,6 +301,7 @@ void PrintAttributes::printClass( ClassValues * cv ) {
     if (openIOFile(fileName)) {
         printer->printClass(outfile, cv);
         outfile.close();
+        checkStream(outfile, out_of_date_io_files.at(fileName));
         printSieClass(cv);
     }
 
@@ -280,6 +330,7 @@ void PrintAttributes::printEnum(EnumValues* ev) {
     if (openIOFile(fileName)) {
         printer->printEnum(outfile, ev) ;
         outfile.close() ;
+        checkStream(outfile, out_of_date_io_files.at(fileName));
         printSieEnum(&enumValues) ;
     }
 
@@ -291,13 +342,20 @@ void PrintAttributes::printEnum(EnumValues* ev) {
 
 void PrintAttributes::printSieClass( ClassValues * cv ) {
     std::string xmlFileName;
-    if(sim_services_flag) {
-    #ifdef EXTERNAL_BUILD
+    if (!output_root.empty())
+    {
+        xmlFileName = resource_file;
+    }
+    else if (sim_services_flag)
+    {
+#ifdef EXTERNAL_BUILD
         xmlFileName = output_dir + "/sim_services_classes.resource";
-    #else
+#else
         xmlFileName = std::string(getenv("TRICK_HOME")) + "/share/trick/xml/sim_services_classes.resource";
-    #endif
-    } else {
+#endif
+    }
+    else
+    {
         xmlFileName = trick_build_dir + "build/classes.resource";
     }
     std::ofstream ostream(xmlFileName, std::ofstream::app);
@@ -328,18 +386,25 @@ void PrintAttributes::printSieClass( ClassValues * cv ) {
     }
     ostream << "  </class>\n" << std::endl;
     ostream.close();
+    checkStream(ostream, xmlFileName);
 }
 
 void PrintAttributes::printSieEnum( EnumValues * ev ) {
     std::string xmlFileName;
-    if(sim_services_flag) {
-    #ifdef EXTERNAL_BUILD
+    if (!output_root.empty())
+    {
+        xmlFileName = resource_file;
+    }
+    else if (sim_services_flag)
+    {
+#ifdef EXTERNAL_BUILD
         xmlFileName = output_dir + "/sim_services_classes.resource";
-    #else
+#else
         xmlFileName = std::string(getenv("TRICK_HOME")) + "/share/trick/xml/include/sim_services_classes.resource";
-    #endif
-
-    } else {
+#endif
+    }
+    else
+    {
         xmlFileName = "build/classes.resource";
     }
     std::ofstream ostream(xmlFileName, std::ofstream::app);
@@ -349,6 +414,7 @@ void PrintAttributes::printSieEnum( EnumValues * ev ) {
     }
     ostream << "  </enumeration>\n" << std::endl;
     ostream.close();
+    checkStream(ostream, xmlFileName);
 }
 
 void PrintAttributes::createMapFiles() {
@@ -356,7 +422,18 @@ void PrintAttributes::createMapFiles() {
     std::string class_map_function_name ;
     std::string enum_map_function_name ;
 
-    if ( sim_services_flag ) {
+    if (!output_root.empty())
+    {
+        map_dir = output_root + "/sim_services/io_src";
+        _mkdir(map_dir.c_str());
+        resource_file = output_root + "/sim_services_classes.resource";
+        std::ofstream resource(resource_file);
+        checkStream(resource, resource_file);
+        class_map_function_name = "populate_sim_services_class_map";
+        enum_map_function_name  = "populate_sim_services_enum_map";
+    }
+    else if (sim_services_flag)
+    {
 #ifdef EXTERNAL_BUILD
         map_dir = output_dir ;
 #else
@@ -364,7 +441,9 @@ void PrintAttributes::createMapFiles() {
 #endif
         class_map_function_name = "populate_sim_services_class_map" ;
         enum_map_function_name = "populate_sim_services_enum_map" ;
-    } else {
+    }
+    else
+    {
         map_dir                 = trick_build_dir + "build";
         class_map_function_name = "populate_class_map" ;
         enum_map_function_name = "populate_enum_map" ;
@@ -384,6 +463,9 @@ void PrintAttributes::createMapFiles() {
     printer->printClassMapHeader(class_map_outfile, class_map_function_name ) ;
     enum_map_outfile.open(std::string(map_dir + "/.enum_map.cpp").c_str()) ;
     printer->printEnumMapHeader(enum_map_outfile, enum_map_function_name ) ;
+    checkStream(extern_init_attr_outfile, map_dir + "/.extern_init_attr.h");
+    checkStream(class_map_outfile, map_dir + "/.class_map.cpp");
+    checkStream(enum_map_outfile, map_dir + "/.enum_map.cpp");
 }
 
 void PrintAttributes::closeMapFiles() {
@@ -396,15 +478,34 @@ void PrintAttributes::closeMapFiles() {
     printer->printEnumMapFooter(enum_map_outfile) ;
     enum_map_outfile.close() ;
 
+    checkStream(extern_init_attr_outfile, map_dir + "/.extern_init_attr.h");
+    checkStream(class_map_outfile, map_dir + "/.class_map.cpp");
+    checkStream(enum_map_outfile, map_dir + "/.enum_map.cpp");
+
     // If we wrote any new io_src files, move the temporary class and enum map files to new location
-    if ( out_of_date_io_files.size() > 0 ) {
-        std::rename(std::string(map_dir + "/.extern_init_attr.h").c_str(),
-                    std::string(map_dir + "/extern_init_attr.h").c_str());
+    if (out_of_date_io_files.size() > 0 || !output_root.empty())
+    {
+        const int rename_result = std::rename(std::string(map_dir + "/.extern_init_attr.h").c_str(),
+                                              std::string(map_dir + "/extern_init_attr.h").c_str());
+        if (!output_root.empty() && rename_result != 0)
+        {
+            std::cerr << "Unable to finalize extern_init_attr.h in " << map_dir << std::endl;
+            exit(1);
+        }
         std::ifstream class_map(std::string(map_dir + "/.class_map.cpp").c_str()) ;
         std::ifstream enum_map(std::string(map_dir + "/.enum_map.cpp").c_str()) ;
         std::ofstream combined_map(std::string(map_dir + "/class_map.cpp").c_str()) ;
         combined_map << class_map.rdbuf() << enum_map.rdbuf() ;
-    } else {
+        combined_map.close();
+        checkStream(combined_map, map_dir + "/class_map.cpp");
+        if (!output_root.empty())
+        {
+            remove(std::string(map_dir + "/.class_map.cpp").c_str());
+            remove(std::string(map_dir + "/.enum_map.cpp").c_str());
+        }
+    }
+    else
+    {
         remove(std::string(map_dir + "/.extern_init_attr.h").c_str());
         remove( std::string(map_dir + "/.class_map.cpp").c_str() ) ;
         remove( std::string(map_dir + "/.enum_map.cpp").c_str() ) ;

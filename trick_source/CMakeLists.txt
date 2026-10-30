@@ -5,3 +5,4 @@ if(TRICK_ENABLE_ER7_UTILS)
 endif()
 
 add_subdirectory(codegen/Interface_Code_Gen)
+include(TrickICG)
