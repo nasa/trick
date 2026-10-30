@@ -5,17 +5,20 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-#include <stdio.h>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <cmath>
 #include "trick/RealtimeSync.hh"
+
+#include "trick/TrickConstant.hh"
 #include "trick/exec_proto.h"
-#include "trick/sim_mode.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
-#include "trick/TrickConstant.hh"
+#include "trick/sim_mode.h"
+
+#include <array>
+#include <cmath>
+#include <cstdio>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 Trick::RealtimeSync * the_rts = NULL ;
 
@@ -298,129 +301,95 @@ class Run_Ratio {
 
 /**
 @details
--# If real-time is not active:
-   -# If real-time synchronization has been enabled:
-      -# Set the active flag to true.
-      -# Start real-time setting the real-time clock to the current simulation time.
-   -# exit end of frame routine
--# If real-time is active:
-   -# If real-time synchronization has been disabled:
-      -# Set the active flag to false.
 -# Get the current real-time.
--# Calculate the real-time taken for the last frame of execution.
--# if the frame has overrun
-   -# Increment the number of consecutive overruns
-   -# If the maximum number of consecutive overrun frames has
-      been reached or the maximum single overrun time has been exceeded
-      -# If the freeze/terminate action was set
-         -# set the freeze_terminate flag
-         -# freeze the simulation
-      -# Else terminate the simulation
-   -# Stop the sleep timer.
--# Else the frame has underrun
-   -# Reset the number of consecutive overruns to 0.
-   -# Pause for the sleep timer to expire
-   -# Spin for the real-time clock to match the simulation time
-   -# Reset the sleep timer for the next frame
--# Save the current real-time as the start of the frame reference
+-# If real-time is active:
+   -# Calculate the overrun/underrun before waiting.
+   -# If the frame has overrun:
+      -# Update the overrun counters and enforce the freeze/shutdown limits.
+      -# Stop the sleep timer and service the clock.
+   -# Otherwise:
+      -# Reset the consecutive overrun count.
+      -# Sleep/spin until the frame deadline and reset the sleep timer.
+-# Calculate the real-time taken for this frame of execution, including
+   any time spent spinning/sleeping above, and update the run ratio.
+-# Save the current real-time as the start of the next frame.
+-# Apply enable/disable requests for the next frame, after measuring this frame
+   and before any clock reference reset.
 */
 int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
+    long long curr_clock_time = rt_clock->clock_time();
 
-    long long curr_clock_time ;
-    char buf[512];
-    static Run_Ratio<100> run_ratio ;
+    if (active)
+    {
+        /* Measure lateness before waiting, not at the synchronized frame boundary. */
+        frame_overrun_time = curr_clock_time - sim_time_tics;
+        frame_overrun      = static_cast<double>(frame_overrun_time) / tics_per_sec;
 
-    /* calculate the current underrun/overrun */
-    curr_clock_time = rt_clock->clock_time() ;
-    frame_sched_time = curr_clock_time - last_clock_time ;
-    frame_time = frame_sched_time * (1.0/tics_per_sec);
+        if (frame_overrun_time > 0)
+        {
+            frame_overrun_cnt++;
+            total_overrun++;
 
-    /* Set the next frame overrun/underrun reference time to the current time */
-    last_clock_time = curr_clock_time ;
+            /* If the number overruns surpass the maximum allowed freeze or shutdown. */
+            if (frame_overrun_cnt >= rt_max_overrun_cnt || frame_overrun_time >= rt_max_overrun_time_tics)
+            {
+                std::array<char, 512> overrun_message {};
+                std::snprintf(overrun_message.data(), overrun_message.size(),
+                              "\nMaximum overrun condition exceeded:\n"
+                              "consecutive overruns/allowed overruns: %u/%u\n"
+                              "total overrun time/allowed time: %f/%g\n",
+                              frame_overrun_cnt, rt_max_overrun_cnt, frame_overrun, rt_max_overrun_time);
 
-    /* determine if the state of real-time has changed this frame */
-    if ( ! active ) {
-        if ( enable_flag ) {
-            active = true ;
-            enable_flag = false ;
-            start_realtime(exec_get_software_frame() , sim_time_tics) ;
-        }
-        if ( disable_flag ) {
-            disable_flag = false ;
-        }
-        /* calculate run ratio in non-realtime mode */
-        actual_run_ratio = run_ratio(curr_clock_time, 1.0);
-        return(0) ;
-    }
-    if ( enable_flag ) {
-        enable_flag = false ;
-    }
-    if ( disable_flag ) {
-        active = false ;
-        disable_flag = false ;
-    }
-
-    frame_overrun_time = curr_clock_time - sim_time_tics ;
-
-    frame_overrun = frame_overrun_time * (1.0/tics_per_sec);
-
-    /* If the wall clock time is greater than the sim time an overrun occurred. */
-    if (curr_clock_time > sim_time_tics) {
-
-        /* Update the overrun counter and current overrun time */
-        frame_overrun_cnt++;
-        total_overrun++;
-
-        /* If the number overruns surpass the maximum allowed freeze or shutdown. */
-        if (frame_overrun_cnt >= rt_max_overrun_cnt || frame_overrun_time >= rt_max_overrun_time_tics) {
-
-            /* If the rt_overrun_freeze flag is set, enter freeze mode else terminate the simulation. */
-            if (rt_overrun_freeze == true) {
-                freeze_shutdown = true ;
-                message_publish(MSG_ERROR, "\nMaximum overrun condition exceeded:\n"
-                    "consecutive overruns/allowed overruns: %d/%d\n"
-                    "total overrun time/allowed time: %f/%g\n"
-                    "Entering Freeze-Shutdown Mode\n" ,
-                    frame_overrun_cnt, rt_max_overrun_cnt,
-                    (double)(frame_overrun_time/tics_per_sec), rt_max_overrun_time);
-                exec_freeze() ;
-            } else {
-                snprintf(buf, sizeof(buf), "\nMaximum overrun condition exceeded:\n"
-                    "consecutive overruns/allowed overruns: %d/%d\n"
-                    "total overrun time/allowed time: %f/%g\n",
-                    frame_overrun_cnt, rt_max_overrun_cnt,
-                    (double)(frame_overrun_time/tics_per_sec), rt_max_overrun_time);
-                exec_terminate_with_return(-1 , __FILE__ , __LINE__ , buf);
+                /* If the rt_overrun_freeze flag is set, enter freeze mode else terminate the simulation. */
+                if (rt_overrun_freeze)
+                {
+                    freeze_shutdown = true;
+                    message_publish(MSG_ERROR, "%sEntering Freeze-Shutdown Mode\n", overrun_message.data());
+                    exec_freeze();
+                }
+                else
+                {
+                    exec_terminate_with_return(-1, __FILE__, __LINE__, overrun_message.data());
+                }
             }
+
+            sleep_timer->stop();
+
+            /* Allow interrupt driven clocks to service their interrupts even on overruns. */
+            curr_clock_time = rt_clock->clock_spin(sim_time_tics);
         }
+        else
+        {
+            frame_overrun_cnt = 0;
+            sleep_timer->pause();
+            curr_clock_time = rt_clock->clock_spin(sim_time_tics);
 
-        /* stop the sleep timer in an overrun condition */
-        sleep_timer->stop() ;
-
-        /* Call clock_spin to allow interrupt driven clocks to service their interrupts */
-        curr_clock_time = rt_clock->clock_spin(sim_time_tics) ;
-
-    } else {
-
-        /* Else an underrun condition occurred. */
-
-        /* Reset consecutive overrun counter frame_overrun_cnt */
-        frame_overrun_cnt = 0;
-
-        /* pause for the timer to signal the end of frame */
-        sleep_timer->pause() ;
-
-        /* Spin to make sure that we are at the top of the frame */
-        curr_clock_time = rt_clock->clock_spin(sim_time_tics) ;
-
-        /* If the timer requires to be reset at the end of each frame, reset it here. */
-        sleep_timer->reset(exec_get_software_frame() / rt_clock->get_rt_clock_ratio()) ;
-
-        /* Calculate the run ratio after sleeping */
-        actual_run_ratio = run_ratio(curr_clock_time, rt_clock->get_rt_clock_ratio());
+            /* If the timer requires to be reset at the end of each frame, reset it here. */
+            sleep_timer->reset(exec_get_software_frame() / rt_clock->get_rt_clock_ratio());
+        }
     }
 
-    return(0) ;
+    /* Account for every frame, including its own sleep/spin when real-time is active. */
+    frame_sched_time = curr_clock_time - last_clock_time;
+    frame_time       = static_cast<double>(frame_sched_time) / tics_per_sec;
+    last_clock_time  = curr_clock_time;
+
+    static Run_Ratio<100> run_ratio;
+    actual_run_ratio = run_ratio(curr_clock_time, active ? rt_clock->get_rt_clock_ratio() : 1.0);
+
+    /* Preserve request precedence: enable when inactive, disable when active.
+       Clear requests before start_realtime(), which may re-request enable at negative sim time. */
+    const bool start_rt = !active && enable_flag;
+    active              = active ? !disable_flag : enable_flag;
+    enable_flag         = false;
+    disable_flag        = false;
+    if (start_rt)
+    {
+        /* Reset the clock only after accounting for the completed non-real-time frame. */
+        start_realtime(exec_get_software_frame(), sim_time_tics);
+    }
+
+    return 0;
 }
 
 /**
