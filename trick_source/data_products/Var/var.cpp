@@ -642,7 +642,7 @@ int Var::calcNumDimensions() {
        char* dim1;
        char* dim2;
        int  d1, d2;
-       int  numDims;
+       int numDims;
 
        // Dims can't be longer than varName
        stringLen = varName_.size();
