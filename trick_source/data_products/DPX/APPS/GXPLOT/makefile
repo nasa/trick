@@ -7,7 +7,7 @@ CPP = c++
 
 DPX_DIR = ../..
 
-INCDIRS = -I${DPX_DIR} -I../../.. -I${TRICK_HOME}/include -I/usr/include/libxml2 $(MOTIF_INCDIR)
+INCDIRS = -I${DPX_DIR} -I../../.. -I${TRICK_HOME}/include -I/usr/include/libxml2
 
 CFLAGS = -g -Wall $(UDUNITS_INCLUDES)
 
@@ -22,7 +22,6 @@ endif
 
 ifeq ($(TRICK_HOST_TYPE), Darwin)
      INCDIRS += -I/usr/X11/include
-     MOTIF_INCDIR = -I/sw/include
      XLIBS = -L/usr/X11R6/lib -L/usr/X11/lib -lXt -lX11 ${LIBXML} -lc++abi
      SDK_DIR = $(shell xcrun --show-sdk-path)
      INCDIRS += -I${SDK_DIR}/usr/include/libxml2

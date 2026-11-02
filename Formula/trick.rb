@@ -27,7 +27,6 @@ class Trick < Formula
   depends_on :macos
   depends_on "maven"
   depends_on "openjdk"
-  depends_on "openmotif"
   depends_on "perl"
   depends_on "python"
   depends_on "swig"

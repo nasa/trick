@@ -15,8 +15,7 @@ INCDIRS = -I/usr/include/libxml2 \
           -I/usr/X11R6/include \
           -I${TRICK_HOME}/trick_source \
           -I${TRICK_HOME}/trick_source/data_products/Apps/FPlot \
-          -I${TRICK_HOME}/trick_source/data_products/DPX \
-	   ${MOTIF_INCDIR}
+          -I${TRICK_HOME}/trick_source/data_products/DPX
 
 CFLAGS = -g -Wall ${INCDIRS}
 
@@ -29,10 +28,10 @@ ifeq ($(TRICK_HOST_TYPE), Darwin)
       -I/usr/include/gcc/darwin/${GCC_VERSION}/g++-v3/ppc-darwin \
       -I/usr/include/gcc/darwin/default/g++-v3/backward \
       -I/usr/include/gcc/darwin/${GCC_VERSION}
-     XLIBS = -L/sw/lib -lXm -L/usr/X11R6/lib -lXt -lX11
+     XLIBS = -L/usr/X11R6/lib -lXt -lX11
 else
      MAKEDEP_CPP_INC = -Iinclude ${INCDIRS} -I/usr/include/g++-3
-     XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXm -lXt -lX11
+     XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXt -lX11
 endif
 TRICK_UNIT_LIBS = -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_units
 MODEL_LIBS      = -lxml2 \

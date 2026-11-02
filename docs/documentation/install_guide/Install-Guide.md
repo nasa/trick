@@ -19,7 +19,6 @@ Trick requires various free third party utilities in order to function. All the 
 |          [swig] | 3.x-4.x |  Language Interfacing   | Connects the python input processor with Trick's C code. | 3.0+ is now required for Trick. SWIG 4.x is compatible with Trick, but has some [issues](https://github.com/nasa/trick/issues/1288). Please open an issue if you encounter a problem related to SWIG 4. |
 |          [make] |  3.78+  |    Build Automation     |      Automates the building and cleaning of Trick.       |                                                                                                                                                                                                         |
 |         [bison] |  3.0+   |    Parser Generator     |  Generates the Memory Manager and checkpoint parsers.    | macOS ships bison 2.3; install a newer one with Homebrew (`brew install bison`). configure finds Homebrew's keg-only bison automatically.                                                               |
-|         [motif] | 2.2.0+  |       GUI Toolkit       |          Covers Trick GUIs not made with Java.           | The package name varies by platform. See [Motif](#motif-package-names).                                                                                                                                 |
 |       [udunits] |  2.x+   | C Unit Library/Database |    Provides support for units of physical quantities.    |                                                                                                                                                                                                         |
 |         [maven] |   x.x   |  Java package manager   |    Downloads Java dependencies and builds Trick GUIs.    |                                                                                                                                                                                                         |
 
@@ -32,7 +31,6 @@ Trick requires various free third party utilities in order to function. All the 
 [swig]: http://www.swig.org/
 [make]: https://www.gnu.org/software/make/
 [bison]: https://www.gnu.org/software/bison/
-[motif]: https://motif.ics.com/motif
 [udunits]: https://www.unidata.ucar.edu/software/udunits/
 [maven]: https://maven.apache.org/
 
@@ -48,22 +46,13 @@ Trick needs the `javac` compiler included in the Java Development Kit (JDK). Tri
 
 **Installing both the Oracle JDK and OpenJDK may lead to problems and confusion.**
 
-<a name="motif-package-names"></a>
+### X11 and Xt
 
-### Motif
+`trick-gxplot` requires X11 and Xt libraries and development headers:
 
-Motif is packaged under different names depending on your platform:
-
-| Platform                                   | Packages                          |
-| ------------------------------------------ | --------------------------------- |
-| RHEL 8+, Oracle Linux, Rocky, Alma, Fedora | `motif`, `motif-devel`            |
-| RHEL 7 and older                           | `openmotif`, `openmotif-devel`    |
-| Debian, Ubuntu                             | `libmotif-common`, `libmotif-dev` |
-| macOS ([Homebrew])                         | `openmotif`                       |
-
-On RHEL-based distributions, the packages were renamed from `openmotif` to `motif` in RHEL 8. The current `motif` packages still declare `Provides: openmotif`, so `dnf install openmotif-devel` continues to work, but `dnf search motif` will only list the `motif` names.
-
-[Homebrew]: https://brew.sh/
+- RHEL, Oracle Linux, Rocky, Alma, Fedora: `libX11-devel`, `libXt-devel`.
+- Debian, Ubuntu: `libx11-dev`, `libxt-dev`.
+- macOS: [XQuartz](https://www.xquartz.org/).
 
 # Operating Systems
 
@@ -148,7 +137,7 @@ dnf install -y \
     bison clang clang-devel cmake diffutils flex gcc \
     gcc-c++ git java-17-openjdk-devel \
     libxml2-devel llvm-devel llvm-static maven ncurses-devel \
-    motif motif-devel perl perl-Digest-MD5 python3-devel \
+    libX11-devel libXt-devel perl perl-Digest-MD5 python3-devel \
     swig udunits2 udunits2-devel which zlib-devel
 ```
 
@@ -175,7 +164,7 @@ dnf install epel-release
 dnf update
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
-ncurses-devel motif motif-devel perl perl-Digest-MD5 udunits2 \
+ncurses-devel perl perl-Digest-MD5 udunits2 \
 udunits2-devel which zlib-devel libX11-devel libXt-devel \
 python3-devel diffutils
 ```
@@ -212,7 +201,7 @@ Trick requires development packages from the base repositories.
 ```bash
 dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
-ncurses-devel motif motif-devel perl perl-Digest-MD5 udunits2 udunits2-devel \
+ncurses-devel libX11-devel libXt-devel perl perl-Digest-MD5 udunits2 udunits2-devel \
 which zlib-devel perl-Text-Balanced python-devel diffutils zip
 ```
 
@@ -238,7 +227,7 @@ apt-get update
 
 # install packages
 apt-get install -y bison clang flex git llvm make maven swig cmake \
-curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
+curl g++ libx11-dev libxml2-dev libxt-dev \
 python3-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
 default-jdk zip
 
@@ -279,7 +268,7 @@ xcode-select --install
 4. Install the following dependencies using brew (See step 5 if `brew install llvm` doesn't work for your Trick build).
 
 ```bash
-brew install python java xquartz swig maven udunits openmotif llvm bison
+brew install python java xquartz swig maven udunits llvm bison
 
 ```
 
@@ -352,7 +341,7 @@ proceed to [Install Trick](#install) section of the install guide
 
 2. Install Homebrew
    a. Install the Homebrew package manager (https://brew.sh)
-   b. brew install swig maven udunits openmotif llvm bison
+   b. brew install swig maven udunits llvm bison
    c. brew install cmake
    d. Optional: brew install gsl hdf5 googletest
 
