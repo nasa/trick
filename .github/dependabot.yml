@@ -19,3 +19,19 @@ updates:
       npm-dependencies:
         patterns:
           - "*"
+
+  # VS Code extension: one grouped version-bump PR per quarter, and security
+  # fixes grouped into a single PR instead of one per vulnerable package.
+  - package-ecosystem: "npm"
+    directory: "/vscode-trick"
+    schedule:
+      interval: "quarterly"
+    groups:
+      vscode-trick-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      vscode-trick-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
