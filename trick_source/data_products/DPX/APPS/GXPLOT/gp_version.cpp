@@ -1,11 +1,11 @@
+#include "gp_version.hh"
 
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <set>
 #include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
-#include "gp_version.hh"
 
 using namespace std;
 
@@ -16,12 +16,12 @@ using namespace std;
 static void RequireGnuplot()
 {
     static bool checked = false;
-    if ( checked )
+    if (checked)
     {
         return;
     }
     checked = true;
-    if ( system("command -v gnuplot > /dev/null 2>&1") != 0 )
+    if (system("command -v gnuplot > /dev/null 2>&1") != 0)
     {
         cerr << "ERROR: gnuplot not found. Please install gnuplot "
              << "and make sure it is on your PATH." << endl;
@@ -30,38 +30,42 @@ static void RequireGnuplot()
 }
 
 double GnuplotVersion() {
-        FILE* pipe;
-        char buf[256];
-        double version = -1.0;
-        int ret;
+    FILE* pipe;
+    char buf[256];
+    double version = -1.0;
+    int ret;
 
-        buf[0] = '\0';
+    buf[0] = '\0';
 
-        RequireGnuplot();
+    RequireGnuplot();
 
-        if ( (pipe = popen("gnuplot --version 2> /dev/null", "r")) != NULL ) {
-                fgets( buf, 255, pipe ) ;
+    if ((pipe = popen("gnuplot --version 2> /dev/null", "r")) != NULL)
+    {
+        fgets(buf, 255, pipe);
 
-                // In gnuplot 3.x, the gnuplot --version command
-                // causes an error, so return 3.0 if buf[0] != 'g'
-                if ( buf[0] != 'g' ) {
-                        pclose(pipe);
-                        return(3.0);
-                }
-                // Okay in 4.0
-                // %> gnuplot --version
-                // %> gnuplot 4.0 patchlevel 0
-                // For now assume it will stay like this
-                ret = sscanf(buf, "%*s %lf", &version);
-                if ( ret == 1 ) {
-                        pclose(pipe);
-                        return(version);
-                } else {
-                        cerr << "ERROR: getGnuplotVersion() : Died while "
-                             << "\" scanning gnuplot --version\".  Aborting."
-                             << endl ;
-                        exit(-1);
-                }
+        // In gnuplot 3.x, the gnuplot --version command
+        // causes an error, so return 3.0 if buf[0] != 'g'
+        if (buf[0] != 'g')
+        {
+            pclose(pipe);
+            return (3.0);
+        }
+        // Okay in 4.0
+        // %> gnuplot --version
+        // %> gnuplot 4.0 patchlevel 0
+        // For now assume it will stay like this
+        ret = sscanf(buf, "%*s %lf", &version);
+        if (ret == 1)
+        {
+            pclose(pipe);
+            return (version);
+        }
+        else
+        {
+            cerr << "ERROR: getGnuplotVersion() : Died while "
+                 << "\" scanning gnuplot --version\".  Aborting." << endl;
+            exit(-1);
+        }
         } else {
                 cerr << "ERROR: getGnuplotVersion() : Died while running "
                      << "\"gnuplot --version\".  Aborting."
@@ -79,7 +83,7 @@ static const std::set<std::string>& GnuplotTerminals()
     static std::set<std::string> terminals;
     static bool initialized = false;
 
-    if ( ! initialized )
+    if (!initialized)
     {
         initialized = true;
         RequireGnuplot();
@@ -87,7 +91,7 @@ static const std::set<std::string>& GnuplotTerminals()
         char buf[512];
         if ((pipe = popen("gnuplot -e 'set terminal' 2>&1 < /dev/null", "r")) != NULL)
         {
-            while (fgets( buf, sizeof(buf), pipe ) != NULL)
+            while (fgets(buf, sizeof(buf), pipe) != NULL)
             {
                 // Terminal lines look like: "             x11  X11 Window System ..."
                 if (buf[0] != ' ' && buf[0] != '\t')
@@ -131,14 +135,15 @@ std::string GnuplotInteractiveTerminal()
     }
 #if defined(__APPLE__)
     // On macOS prefer qt/wxt, which need no extra app; x11 requires XQuartz, aqua requires AquaTerm.
-    static const char* candidates[] = {"qt", "wxt", "x11", "aqua"};
+    static const char* candidates[] = { "qt", "wxt", "x11", "aqua" };
 #else
     // x11 first preserves -geometry and -xrm color support.
-    static const char* candidates[] = {"x11", "qt", "wxt"};
+    static const char* candidates[] = { "x11", "qt", "wxt" };
 #endif
-    for (size_t ii = 0 ; ii < sizeof(candidates)/sizeof(candidates[0]) ; ii++)
+    for (size_t ii = 0; ii < sizeof(candidates) / sizeof(candidates[0]); ii++)
     {
-        if (GnuplotHasTerminal(candidates[ii])) {
+        if (GnuplotHasTerminal(candidates[ii]))
+        {
             return candidates[ii];
         }
     }
@@ -149,7 +154,7 @@ std::string GnuplotInteractiveTerminal()
     {
         warned = true;
         cerr << "WARNING: gnuplot has no interactive terminal (";
-        for (size_t ii = 0 ; ii < sizeof(candidates)/sizeof(candidates[0]) ; ii++)
+        for (size_t ii = 0; ii < sizeof(candidates) / sizeof(candidates[0]); ii++)
         {
             cerr << (ii ? ", " : "") << candidates[ii];
         }

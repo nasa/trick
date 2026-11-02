@@ -52,7 +52,7 @@ int filterPostScriptColor( const char *psName, GPViewPageNode* gp_view_page_node
     string page_fg_color = "";
     string page_bg_color = "";
     int i;
-    unsigned int red , blue , green ;
+    unsigned int red, blue, green;
 
     //! Populate buf with file content.
     buf.readFile( psName );
