@@ -766,7 +766,7 @@ int Var::calcNumDimensions() {
                        // Calculate number of dimensions
                        d1 = atoi(dim1);
                        d2 = atoi(dim2);
-                       numDims = numDims * ( d2 - d1 + 1 ) ;
+                       numDims = numDims * (d2 - d1 + 1);
                }
        }
 
