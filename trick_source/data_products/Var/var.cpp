@@ -643,14 +643,12 @@ int Var::calcNumDimensions() {
        char* dim2;
        int  d1, d2;
        int  numDims;
-       int  numDimSpecs;
 
        // Dims can't be longer than varName
        stringLen = varName_.size();
        dim1 = new char[stringLen+1] ;
        dim2 = new char[stringLen+1] ;
 
-       numDimSpecs = 0 ;
        numDims = 1 ;
        for ( i = 0; i < stringLen; i++ ) {
 
@@ -769,9 +767,6 @@ int Var::calcNumDimensions() {
                        d1 = atoi(dim1);
                        d2 = atoi(dim2);
                        numDims = numDims * ( d2 - d1 + 1 ) ;
-
-                       // Increment number of dimension specs
-                       numDimSpecs++ ;
                }
        }
 
