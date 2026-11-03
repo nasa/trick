@@ -423,7 +423,9 @@ namespace Trick {
  * The integrator currently being integrated.
  * This global is used by the C language interface to the integration functions.
  */
+#ifndef SWIG
 extern Trick::Integrator* trick_curr_integ; //!< trick_io(**)
+#endif
 
 #endif
 

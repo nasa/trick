@@ -22,7 +22,7 @@
 #endif
 
 /* strings to match ExitStatus enum in MonteRun */
-static const char* MC_exit_status_string[] = {
+static const char* const MC_exit_status_string[] = {
             "Incomplete", 
             "Complete",
             "Failed", 
