@@ -18,6 +18,7 @@
 #include "trick/message_type.h"
 
 #include <atomic>
+#include <climits>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -25,6 +26,7 @@
 #include <pthread.h>
 #include <sstream>
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 
 Trick::IPPython * the_pip ;
@@ -100,6 +102,67 @@ namespace
             int old_cancel_state;
     };
 
+    static bool path_exists(const std::string & path) {
+        struct stat sb ;
+        return stat(path.c_str(), &sb) == 0 ;
+    }
+
+    /**
+     * If a requirements.txt file exists in the simulation's run directory (the process's
+     * current working directory), make sure a python virtual environment built from it
+     * exists alongside it, then "activate" that environment for the embedded interpreter
+     * by setting VIRTUAL_ENV and prepending <venv>/bin to PATH. Must run before
+     * Py_Initialize(): the sys.path setup later in init() already appends
+     * $VIRTUAL_ENV/lib/pythonX.Y/site-packages whenever VIRTUAL_ENV is set, which is the
+     * only hook this needs.
+     *
+     * The venv is created once and reused on later runs; delete it to force a rebuild
+     * after editing requirements.txt.
+     */
+    void setup_virtual_env() {
+        char cwd_buf[PATH_MAX] ;
+        if ( getcwd(cwd_buf, sizeof(cwd_buf)) == NULL ) {
+            return ;
+        }
+        std::string cwd(cwd_buf) ;
+        std::string requirements_file = cwd + "/requirements.txt" ;
+        if ( !path_exists(requirements_file) ) {
+            return ;
+        }
+
+        std::string venv_dir = cwd + "/venv" ;
+        if ( !path_exists(venv_dir + "/bin/python3") ) {
+            message_publish(MSG_INFO, "Found %s, creating python virtual environment in %s\n",
+                requirements_file.c_str(), venv_dir.c_str()) ;
+
+            // Prefer a python matching the version this interpreter is embedding, so that
+            // compiled packages installed into the venv are ABI-compatible with it. Fall
+            // back to plain python3 if that exact version isn't on the PATH.
+            std::stringstream venv_cmd ;
+            venv_cmd << "python" << PY_MAJOR_VERSION << "." << PY_MINOR_VERSION << " -m venv "
+                      << venv_dir << " 2>/dev/null || python3 -m venv " << venv_dir ;
+            if ( system(venv_cmd.str().c_str()) != 0 ) {
+                message_publish(MSG_WARNING, "Failed to create python virtual environment in %s\n",
+                    venv_dir.c_str()) ;
+                return ;
+            }
+
+            std::stringstream pip_cmd ;
+            pip_cmd << venv_dir << "/bin/pip install -r " << requirements_file ;
+            if ( system(pip_cmd.str().c_str()) != 0 ) {
+                message_publish(MSG_WARNING, "Failed to install requirements from %s\n",
+                    requirements_file.c_str()) ;
+                return ;
+            }
+        }
+
+        // Mirror what the venv's activate script does: point VIRTUAL_ENV at it, and put
+        // its bin/ first on PATH so any subprocess the interpreter spawns sees it too.
+        setenv("VIRTUAL_ENV", venv_dir.c_str(), 1) ;
+        const char * old_path = getenv("PATH") ;
+        std::string new_path = venv_dir + "/bin" + (old_path ? std::string(":") + old_path : "") ;
+        setenv("PATH", new_path.c_str(), 1) ;
+    }
 }
 
 /**
@@ -146,6 +209,10 @@ int Trick::IPPython::init() {
     FILE *input_fp ;
     int ret ;
     std::string error_message ;
+
+    // Build and activate a virtual environment from requirements.txt, if present, before
+    // any Python state exists for this process.
+    setup_virtual_env() ;
 
     // Run Py_Initialze first for python 2.x
 #if PY_VERSION_HEX < 0x03000000
