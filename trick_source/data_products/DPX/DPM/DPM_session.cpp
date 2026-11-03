@@ -54,7 +54,9 @@ int DPM_session::Initialize( xmlNode *SessionNode ) {
                 DPM_run *run;
                 try {
                     run = new DPM_run( this, current_node);
-                } catch (const std::invalid_argument&) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     run = NULL;
                     std::cerr << "ERROR: one of this <session>s <run>s is invalid." << std::endl;
                 }

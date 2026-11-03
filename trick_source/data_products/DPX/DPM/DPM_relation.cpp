@@ -47,21 +47,27 @@ int DPM_relation::Initialize(xmlNode *base_node) {
             } else if ( strcmp( (const char *)current_node->name, "xaxis") == 0) {
                 try {
                     xaxis = new DPM_axis( this, current_node);
-                } catch (const std::invalid_argument&) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     xaxis = NULL;
                     std::cerr << "ERROR: <plot> specification contains an invalid <xaxis> specification." << std::endl;
                 }
             } else if ( strcmp( (const char *)current_node->name, "yaxis") == 0) {
                 try {
                     yaxis = new DPM_axis( this, current_node);
-                } catch (const std::invalid_argument&) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     yaxis = NULL;
                     std::cerr << "ERROR: <plot> specification contains an invalid <yaxis> specification." << std::endl;
                 }
             } else if ( strcmp( (const char *)current_node->name, "zaxis") == 0) {
                 try {
                     zaxis = new DPM_axis( this, current_node);
-                } catch (const std::invalid_argument&) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     zaxis = NULL;
                     std::cerr << "ERROR: <plot> specification contains an invalid <zaxis> specification." << std::endl;
                 }
@@ -69,7 +75,9 @@ int DPM_relation::Initialize(xmlNode *base_node) {
                 DPM_curve *curve;
                 try {
                     curve = new DPM_curve( this, current_node);
-                } catch (const std::invalid_argument&) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     curve = NULL;
                     std::cerr << "ERROR: " << std::endl;
                 }
