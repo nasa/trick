@@ -22,16 +22,10 @@
 #endif
 
 /* strings to match ExitStatus enum in MonteRun */
-static const char* const MC_exit_status_string[] = {
-            "Incomplete", 
-            "Complete",
-            "Failed", 
-            "Core Dumped", 
-            "Timed Out",
-            "No Permission to Output Directory", 
-            "Bad Input",
-            "Unrecognized Return Code" 
-} ;
+static const char* const MC_exit_status_string[] = { "Incomplete", "Complete",
+                                                     "Failed",     "Core Dumped",
+                                                     "Timed Out",  "No Permission to Output Directory",
+                                                     "Bad Input",  "Unrecognized Return Code" };
 
 namespace Trick {
 
