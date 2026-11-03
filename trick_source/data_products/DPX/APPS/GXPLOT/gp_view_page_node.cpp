@@ -317,7 +317,7 @@ static void layout_page (GPViewPageNode* gp_view_page_node ) {
 
     for (plot_ix=0; plot_ix< number_of_plots; plot_ix++) {
         float x,y;
-        char key_text[20];
+        char key_text[32];
 
         snprintf(key_text, sizeof(key_text), "<PLOT_ORIGIN_X_%d>", plot_ix);
         x = (float)((plot_ix % n_horizontal_cells) * cell_width);
