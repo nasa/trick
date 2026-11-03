@@ -66,13 +66,14 @@ double GnuplotVersion() {
                  << "\" scanning gnuplot --version\".  Aborting." << endl;
             exit(-1);
         }
-        } else {
-                cerr << "ERROR: getGnuplotVersion() : Died while running "
-                     << "\"gnuplot --version\".  Aborting."
-                     << endl ;
-                pclose(pipe);
-                exit(-1);
-        }
+    }
+    else
+    {
+        cerr << "ERROR: getGnuplotVersion() : Died while running "
+             << "\"gnuplot --version\".  Aborting." << endl;
+        pclose(pipe);
+        exit(-1);
+    }
         // This just makes the compiler happy,
         // it will not be executed
         return( version ) ;
