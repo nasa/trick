@@ -62,8 +62,6 @@ g++ \
 libx11-dev \
 libxml2-dev \
 libxt-dev \
-libmotif-common \
-libmotif-dev \
 python3-dev \
 zlib1g-dev \
 llvm-dev \

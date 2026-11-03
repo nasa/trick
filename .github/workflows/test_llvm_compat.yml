@@ -99,7 +99,6 @@ jobs:
             bison flex git make maven cmake zip gdb \
             swig curl g++ \
             libx11-dev libxml2-dev libxt-dev \
-            libmotif-common libmotif-dev \
             zlib1g-dev libudunits2-dev \
             default-jdk \
             python3-dev python3-pip python3-venv \

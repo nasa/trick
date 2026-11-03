@@ -14,8 +14,7 @@ INCDIRS = -I$(GTEST_HOME)/include \
           -I${TRICK_HOME}/include \
           -I${TRICK_HOME}/trick_source/data_products \
           -I${TRICK_HOME}/trick_source/data_products/Apps/FPlot \
-          -I${TRICK_HOME}/trick_source/data_products/DPX \
-          ${MOTIF_INCDIR}
+          -I${TRICK_HOME}/trick_source/data_products/DPX
 
 CFLAGS = -g -Wall -Wextra ${INCDIRS} $(UDUNITS_INCLUDES)
 
@@ -31,13 +30,11 @@ endif
 
 ifeq ($(TRICK_HOST_TYPE), Darwin)
     CFLAGS += -std=c++17
-    MOTIF_INCDIR = -I/sw/include
-    XLIBS = -L/sw/lib -lXm -L/usr/X11R6/lib -L/usr/X11/lib
+    XLIBS = -L/usr/X11R6/lib -L/usr/X11/lib
     SDK_DIR = $(shell xcrun --show-sdk-path)
     INCDIRS += -I${SDK_DIR}/usr/include/libxml2
 else
-    MOTIF_INCDIR = -I/usr/X11R6/lib64 -I/usr/X11R6/lib
-    XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXm -lXt -lX11 -ldl
+    XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXt -lX11 -ldl
 endif
 
 GTEST_LIBS = -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
