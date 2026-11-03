@@ -41,7 +41,7 @@ int DPM_page::Initialize( xmlNode *base_node) {
                 DPM_relation *relation;
                 try {
                     relation = new DPM_relation(this, current_node);
-                } catch (std::invalid_argument) {
+                } catch (const std::invalid_argument&) {
                     relation = NULL;
                     std::cerr << "ERROR: <page> specification contains an invalid <plot> specification." << std::endl;
                 }

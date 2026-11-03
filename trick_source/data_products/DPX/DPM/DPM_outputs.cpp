@@ -24,7 +24,7 @@ int DPM_outputs::Initialize( xmlNode *base_node) {
             if ( strcmp( (const char *)current_node->name, "measurement") == 0) {
                 try {
                     measurement = new DPM_measurement(this, current_node);
-                } catch (std::invalid_argument) {
+                } catch (const std::invalid_argument&) {
                     measurement = NULL;
                     std::cerr << "ERROR: <measurement> is invalid." << std::endl;
                 }
