@@ -131,7 +131,17 @@ void FieldDescription::parseComment(std::string comment) {
     }
 
     // remove open comment chars
-    comment = get_regex_field(comment , "^(//|/\\*)(.*)" , 2) ;
+    comment = get_regex_field(comment , "^(//|/\\*)(.*)" , 2);
+
+    // remove the c comment end marker before parsing so it is not mistaken for a units spec
+    {
+        std::size_t end_pos = comment.rfind("*/");
+        if ( end_pos != std::string::npos )
+        {
+            comment.erase(end_pos);
+        }
+    }
+
     if(debug_level >= 4) std::cout << "1. " << comment << std::endl ;
 
     // remove optional doxygen comment chars
@@ -295,18 +305,6 @@ void FieldDescription::parseComment(std::string comment) {
     }
 
     // The rest of the comment is the description of the variable.
-
-    // remove the c comment end marker if present.
-    // don't overwrite the comment with an empty string
-    // when there is no "*/" (e.g. // (var_unit) var description)
-    // to preserve the description of the variable.
-    // get_regex_field returns an empty string on no match.
-    {
-        std::string tmp = get_regex_field(comment , "(.*)\\*/" , 1) ;
-        if ( ! tmp.empty() ) {
-            comment = tmp ;
-        }
-    }
 
     // posix c regular expressions are terrible. the regexes above will leave "@" signs because
     // the regular expressions are so greedy.
