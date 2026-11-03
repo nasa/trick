@@ -131,12 +131,12 @@ void FieldDescription::parseComment(std::string comment) {
     }
 
     // remove open comment chars
-    comment = get_regex_field(comment , "^(//|/\\*)(.*)" , 2);
+    comment = get_regex_field(comment, "^(//|/\\*)(.*)", 2);
 
     // remove the c comment end marker before parsing so it is not mistaken for a units spec
     {
         std::size_t end_pos = comment.rfind("*/");
-        if ( end_pos != std::string::npos )
+        if (end_pos != std::string::npos)
         {
             comment.erase(end_pos);
         }
