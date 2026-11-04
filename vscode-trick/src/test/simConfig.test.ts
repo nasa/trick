@@ -45,6 +45,54 @@ function makeProvider() {
 }
 
 describe('SimConfigProvider regex fallback', () => {
+  it('falls back to a default compilerPath/cCompilerPath so cpptools can still resolve <> system headers', async () => {
+    const provider = makeProvider();
+    const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_rocket');
+    const savedCxx = process.env.CXX;
+    const savedCc = process.env.CC;
+    delete process.env.CXX;
+    delete process.env.CC;
+    try {
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.ok(config.compilerPath, 'expected a fallback compilerPath, not undefined');
+      assert.ok(fs.existsSync(config.compilerPath));
+      assert.ok(config.cCompilerPath, 'expected a fallback cCompilerPath, not undefined');
+      assert.ok(fs.existsSync(config.cCompilerPath));
+    } finally {
+      if (savedCxx !== undefined) {
+        process.env.CXX = savedCxx;
+      }
+      if (savedCc !== undefined) {
+        process.env.CC = savedCc;
+      }
+    }
+  });
+
+  it('trusts an explicit $CXX/$CC over the built-in candidate list', async () => {
+    const provider = makeProvider();
+    const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_rocket');
+    const savedCxx = process.env.CXX;
+    const savedCc = process.env.CC;
+    process.env.CXX = '/opt/my-toolchain/bin/g++';
+    process.env.CC = '/opt/my-toolchain/bin/gcc';
+    try {
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.strictEqual(config.compilerPath, '/opt/my-toolchain/bin/g++');
+      assert.strictEqual(config.cCompilerPath, '/opt/my-toolchain/bin/gcc');
+    } finally {
+      if (savedCxx === undefined) {
+        delete process.env.CXX;
+      } else {
+        process.env.CXX = savedCxx;
+      }
+      if (savedCc === undefined) {
+        delete process.env.CC;
+      } else {
+        process.env.CC = savedCc;
+      }
+    }
+  });
+
   it('parses a simple -I./models style S_overrides.mk (SIM_rocket)', async () => {
     const provider = makeProvider();
     const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_rocket');

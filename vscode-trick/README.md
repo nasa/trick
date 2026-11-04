@@ -255,6 +255,16 @@ one of two ways, in order:
      isn't set) is silently dropped rather than guessed at - so missing headers from
      a path like that show up as an unresolved-include diagnostic with no further
      explanation of why.
+   - `TRICK_CXX`/`TRICK_CC` (the actual compiler Trick would build with) aren't
+     tracked either, since they're rarely assigned in `S_overrides.mk` itself. A
+     compilerPath is still reported to the C/C++ extension - `$CXX`/`$CC` if set, else
+     the first of `/usr/bin/g++`/`/usr/bin/c++`/`/usr/bin/clang++` (and the C
+     equivalents) that exists - since without *some* compiler on record, cpptools has
+     nothing to query for the C++ standard library's own include paths, and every
+     `<...>` system header in that sim's C/C++ files (`<ostream>`, `<queue>`, not
+     just ones from a wrapped package like TrickHLA) would otherwise show as
+     unresolved, independent of anything this extension's own `S_define`/`.sm`
+     include resolution does.
 
 ### Shared `.sm` files outside any sim
 

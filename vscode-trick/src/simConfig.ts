@@ -496,8 +496,8 @@ export class SimConfigProvider implements vscode.Disposable {
         overrideStandard ||
         extractStandard(`${raw.TRICK_CXXFLAGS} ${raw.TRICK_SYSTEM_CXXFLAGS}`) ||
         'c++14',
-      compilerPath: raw.TRICK_CXX || undefined,
-      cCompilerPath: raw.TRICK_CC || undefined,
+      compilerPath: raw.TRICK_CXX || findDefaultCompiler('CXX', ['/usr/bin/g++', '/usr/bin/c++', '/usr/bin/clang++']),
+      cCompilerPath: raw.TRICK_CC || findDefaultCompiler('CC', ['/usr/bin/gcc', '/usr/bin/cc', '/usr/bin/clang']),
       pythonPaths: buildPythonPaths(simRoot, trickHome, raw.TRICK_PYTHON_PATH ?? ''),
       raw,
     };
@@ -569,6 +569,31 @@ export function isInNestedRepo(simRoot: string, workspaceRoot: string | undefine
     dir = parent;
   }
   return false;
+}
+
+/**
+ * Best-effort compiler path for a sim whose flags came from the regex
+ * fallback, which - unlike resolveViaMake, which gets TRICK_CXX/TRICK_CC for
+ * real from Makefile.common (itself defaulting to ${CXX:-g++}/${CC:-gcc}
+ * when not overridden) - never sets TRICK_CXX/TRICK_CC at all, since it only
+ * scans S_overrides.mk text for the three flag variables.
+ *
+ * Without *some* compilerPath, cpptools has nothing to query for the C++
+ * standard library's own include paths, so every `<...>` system header -
+ * not just ones from whatever package a sim wraps - shows up as "cannot
+ * open source file" in a header cpptools otherwise parses correctly. An
+ * explicit `$CXX`/`$CC` environment variable is trusted as-is (it may be a
+ * bare command name resolved via PATH); otherwise the first of a handful of
+ * common absolute locations that actually exists on disk is used. Returns
+ * undefined (rather than guessing wrong) if none of those apply either, same
+ * as before this fallback existed.
+ */
+function findDefaultCompiler(envVar: 'CXX' | 'CC', candidates: string[]): string | undefined {
+  const fromEnv = process.env[envVar];
+  if (fromEnv) {
+    return fromEnv;
+  }
+  return candidates.find((c) => fs.existsSync(c));
 }
 
 /** True if `fsPath` is `dir` itself or strictly inside it. */
