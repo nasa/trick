@@ -329,21 +329,8 @@ export class SimConfigProvider implements vscode.Disposable {
     }
 
     if (fs.existsSync(overridesPath)) {
-      const text = fs.readFileSync(overridesPath, 'utf8');
       const values: Record<string, string> = {};
-      // Join line-continuations, then scan assignment lines for the three flag vars.
-      const joined = text.replace(/\\\r?\n/g, ' ');
-      const assignRe = /^\s*(TRICK_C(?:XX)?FLAGS|TRICK_SFLAGS|TRICK_PYTHON_PATH)\s*(\+?=|:=)\s*(.*)$/gm;
-      let m: RegExpExecArray | null;
-      while ((m = assignRe.exec(joined))) {
-        const [, varName, op, rawValue] = m;
-        const expanded = this.expandMakeVars(rawValue.trim(), simRoot, trickHome, values);
-        if (op === '+=' && values[varName]) {
-          values[varName] = `${values[varName]} ${expanded}`;
-        } else {
-          values[varName] = expanded;
-        }
-      }
+      this.parseMakeFragment(overridesPath, simRoot, trickHome, values, new Set());
       for (const key of ['TRICK_CFLAGS', 'TRICK_CXXFLAGS', 'TRICK_SFLAGS', 'TRICK_PYTHON_PATH']) {
         if (values[key] !== undefined) {
           raw[key] = values[key];
@@ -352,6 +339,67 @@ export class SimConfigProvider implements vscode.Disposable {
     }
 
     return this.buildConfig(simRoot, 'regex', raw, trickHome);
+  }
+
+  /**
+   * Scans one makefile fragment for the three flag-var assignments (same as
+   * before), but also follows `include`/`-include` directives into whatever
+   * they point at - e.g. a sim's S_overrides.mk commonly does little more
+   * than `include ${SOME_PACKAGE_HOME}/makefiles/S_foo.mk`, with the actual
+   * `-I`/`-D` flags (and any env-gated $(error) guards) living in that
+   * included file. `make` itself would just run those guards and abort if an
+   * env var required by the real build (e.g. an RTI install) is missing, but
+   * this is a best-effort text scan for IntelliSense, not a build - so
+   * conditionals are ignored the same way they already are for the top-level
+   * file, and an unresolvable/missing include is just skipped rather than
+   * failing the whole parse.
+   *
+   * `visited` guards against include cycles and against reprocessing a file
+   * reached two different ways; depth is implicitly bounded by `visited`
+   * since every real file can only be visited once.
+   */
+  private parseMakeFragment(
+    file: string,
+    simRoot: string,
+    trickHome: string | undefined,
+    values: Record<string, string>,
+    visited: Set<string>
+  ): void {
+    const resolved = path.resolve(file);
+    if (visited.has(resolved)) {
+      return;
+    }
+    visited.add(resolved);
+    let text: string;
+    try {
+      text = fs.readFileSync(resolved, 'utf8');
+    } catch {
+      return;
+    }
+    // Join line-continuations, then scan assignment and include lines.
+    const joined = text.replace(/\\\r?\n/g, ' ');
+    const lineRe =
+      /^\s*(?:(TRICK_C(?:XX)?FLAGS|TRICK_SFLAGS|TRICK_PYTHON_PATH)\s*(\+?=|:=)\s*(.*)|-?include\s+(.*))$/gm;
+    let m: RegExpExecArray | null;
+    while ((m = lineRe.exec(joined))) {
+      const [, varName, op, rawValue, includeTargets] = m;
+      if (varName) {
+        const expanded = this.expandMakeVars(rawValue.trim(), simRoot, trickHome, values);
+        if (op === '+=' && values[varName]) {
+          values[varName] = `${values[varName]} ${expanded}`;
+        } else {
+          values[varName] = expanded;
+        }
+        continue;
+      }
+      for (const target of this.expandMakeVars(includeTargets.trim(), simRoot, trickHome, values).split(/\s+/)) {
+        if (!target) {
+          continue;
+        }
+        const includePath = path.isAbsolute(target) ? target : path.resolve(path.dirname(resolved), target);
+        this.parseMakeFragment(includePath, simRoot, trickHome, values, visited);
+      }
+    }
   }
 
   private expandMakeVars(

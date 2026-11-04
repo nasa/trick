@@ -114,6 +114,52 @@ describe('SimConfigProvider regex fallback', () => {
     }
   });
 
+  it('follows include/-include directives in S_overrides.mk (TrickHLA-style S_hla.mk pattern)', async () => {
+    const provider = makeProvider();
+    const simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-include-'));
+    const packageHome = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-pkghome-'));
+    const savedPackageEnv = process.env.MY_PACKAGE_HOME;
+    try {
+      process.env.MY_PACKAGE_HOME = packageHome;
+      fs.mkdirSync(path.join(packageHome, 'include'));
+      fs.mkdirSync(path.join(packageHome, 'makefiles'));
+      fs.writeFileSync(
+        path.join(packageHome, 'makefiles', 'S_pkg.mk'),
+        'TRICK_CXXFLAGS += -I${MY_PACKAGE_HOME}/include\n'
+      );
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        'include ${MY_PACKAGE_HOME}/makefiles/S_pkg.mk\nTRICK_CFLAGS += -I.\n'
+      );
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.ok(config.cxxIncludes.includes(path.join(packageHome, 'include')));
+    } finally {
+      if (savedPackageEnv === undefined) {
+        delete process.env.MY_PACKAGE_HOME;
+      } else {
+        process.env.MY_PACKAGE_HOME = savedPackageEnv;
+      }
+      fs.rmSync(simRoot, { recursive: true, force: true });
+      fs.rmSync(packageHome, { recursive: true, force: true });
+    }
+  });
+
+  it('skips a missing/unresolvable include rather than failing the whole parse', async () => {
+    const provider = makeProvider();
+    const simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-badinclude-'));
+    try {
+      fs.mkdirSync(path.join(simRoot, 'models'));
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        '-include ${HOME}/.doesnotexist/S_user_env.mk\nTRICK_CXXFLAGS += -I./models\n'
+      );
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.ok(config.cxxIncludes.includes(path.join(simRoot, 'models')));
+    } finally {
+      fs.rmSync(simRoot, { recursive: true, force: true });
+    }
+  });
+
   it('falls back to a trick/bin directory on PATH when walk-up and env fail', () => {
     const provider = makeProvider();
     const savedPath = process.env.PATH;
