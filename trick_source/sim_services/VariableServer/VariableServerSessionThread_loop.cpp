@@ -52,8 +52,9 @@ void * Trick::VariableServerSessionThread::thread_body() {
         _connection_status = CONNECTION_FAIL;
         pthread_cond_signal(&_connection_status_cv);
         pthread_mutex_unlock(&_connection_status_mutex);
-        // No return from this, but thread_shutdown() isn't marked noreturn,
-        // add return NULL to be safe and match the code at end of function.
+        // No return from this, but thread_shutdown() is virtual and intentionally
+        // not marked [[noreturn]] (not guaranteed across overrides).
+        // Add return NULL to be safe and match the end of the function.
         thread_shutdown();
         return NULL;
     }
@@ -153,7 +154,9 @@ void * Trick::VariableServerSessionThread::thread_body() {
     }
 
     thread_shutdown(exit_var_thread, this);
-    // No return from this, but thread_shutdown() isn't marked noreturn, add return NULL to satisfy the compiler.
+    // No return from this, but thread_shutdown() is virtual and intentionally
+    // not marked [[noreturn]] (not guaranteed across overrides).
+    // Return NULL to satisfy the compiler and stay safe.
     return NULL;
 }
 

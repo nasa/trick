@@ -35,7 +35,7 @@ extern "C" void sie_append_runtime_objs(void) {
     }
 }
 
-extern "C" std::string sie_get_runtime_sie_dir(void)
+std::string sie_get_runtime_sie_dir(void)
 {
     if (the_sie != NULL)
     {
