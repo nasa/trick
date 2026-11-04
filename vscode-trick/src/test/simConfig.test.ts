@@ -180,6 +180,55 @@ describe('SimConfigProvider regex fallback', () => {
   });
 });
 
+describe('SimConfigProvider.getConfigForFile', () => {
+  it('resolves a shared .sm file outside any sim via an already-cached sim whose sIncludes reaches it', async () => {
+    const provider = makeProvider();
+    const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-shared-sm-'));
+    try {
+      const simRoot = path.join(workDir, 'SIM_test');
+      const sharedModules = path.join(workDir, 'pkg', 'S_modules');
+      fs.mkdirSync(simRoot, { recursive: true });
+      fs.mkdirSync(path.join(sharedModules, 'sub'), { recursive: true });
+      fs.writeFileSync(path.join(simRoot, 'S_define'), '');
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        `TRICK_SFLAGS += -I${sharedModules}\n`
+      );
+      // A file reachable only via that -I search path, not under simRoot at all -
+      // e.g. TrickHLA's S_modules/JEOD/JEODRefFrameTree.sm including
+      // "SpaceFOM/RefFrameTreeBase.sm" relative to S_modules, not to JEOD/.
+      const sharedFile = path.join(sharedModules, 'sub', 'shared.sm');
+      fs.writeFileSync(sharedFile, '');
+
+      assert.strictEqual(provider.findSimRoot(sharedFile), undefined);
+      // Warm the sim's config into the cache first, same as warmPrimarySimRoots
+      // would on activation - getConfigForFile only reuses already-resolved configs.
+      await provider.getConfig(simRoot);
+
+      const config = await provider.getConfigForFile(sharedFile);
+      assert.ok(config, 'expected a config reused from the sim that reaches this file');
+      assert.strictEqual(config!.simRoot, simRoot);
+      assert.ok(config!.sIncludes.includes(sharedModules));
+    } finally {
+      fs.rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
+  it('falls through to the TRICK_HOME fallback for a file no cached sim reaches', async () => {
+    const provider = makeProvider();
+    const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-unreached-'));
+    try {
+      const orphanFile = path.join(workDir, 'orphan.sm');
+      fs.writeFileSync(orphanFile, '');
+      const config = await provider.getConfigForFile(orphanFile);
+      assert.ok(config);
+      assert.strictEqual(config!.simRoot, TRICK_HOME);
+    } finally {
+      fs.rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('isInNestedRepo', () => {
   let workspaceRoot: string;
 

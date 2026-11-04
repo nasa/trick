@@ -113,16 +113,39 @@ export class SimConfigProvider implements vscode.Disposable {
 
   /**
    * Resolves the SimConfig that applies to an arbitrary file: its owning
-   * sim (nearest ancestor S_define) if there is one, otherwise a global
-   * fallback keyed on TRICK_HOME itself. The fallback covers Trick-shipped
-   * files like share/trick/sim_objects/default_trick_sys.sm that live
-   * outside any sim directory but still resolve ##include/#include lines
-   * against TRICK_HOME's system include paths.
+   * sim (nearest ancestor S_define) if there is one; failing that, an
+   * already-resolved sim whose sInclude/include search path reaches this
+   * file; failing that, a global fallback keyed on TRICK_HOME itself.
+   *
+   * The second case covers shared `.sm` trees that live outside every sim's
+   * own directory but are reached only via a `-I`/`TRICK_SFLAGS` search path
+   * set up by the sims that use them - e.g. TrickHLA's S_modules/, added via
+   * `TRICK_SFLAGS += -I${TRICKHLA_HOME}/S_modules` in S_overrides.mk. A file
+   * in there has no owning sim of its own, so an `#include`/`##include` line
+   * inside it (e.g. S_modules/JEOD/JEODRefFrameTree.sm including
+   * "SpaceFOM/RefFrameTreeBase.sm" relative to S_modules, not to JEOD/) needs
+   * the *including* sim's sIncludes to resolve - any cached sim that reaches
+   * this file works, since they all share the same S_modules root. This
+   * relies on that sim's config already being cached (warmed up front for
+   * primary sims, or resolved lazily the first time one of its own files was
+   * opened) - a shared file opened before any sim that uses it still falls
+   * through to the TRICK_HOME-only fallback below.
+   *
+   * The final fallback covers Trick-shipped files like
+   * share/trick/sim_objects/default_trick_sys.sm that live outside any sim
+   * directory but still resolve ##include/#include lines against
+   * TRICK_HOME's system include paths.
    */
   async getConfigForFile(fsPath: string): Promise<SimConfig | undefined> {
     const simRoot = this.findSimRoot(fsPath);
     if (simRoot) {
       return this.getConfig(simRoot);
+    }
+    for (const config of this.getAllCached()) {
+      const searchDirs = [...config.sIncludes, ...config.cIncludes, ...config.cxxIncludes];
+      if (searchDirs.some((dir) => isAncestorDir(dir, fsPath))) {
+        return config;
+      }
     }
     const trickHome = this.resolveTrickHome(path.dirname(fsPath));
     if (trickHome) {
@@ -546,4 +569,10 @@ export function isInNestedRepo(simRoot: string, workspaceRoot: string | undefine
     dir = parent;
   }
   return false;
+}
+
+/** True if `fsPath` is `dir` itself or strictly inside it. */
+function isAncestorDir(dir: string, fsPath: string): boolean {
+  const relative = path.relative(dir, fsPath);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
