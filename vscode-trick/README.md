@@ -215,3 +215,73 @@ npm test          # unit tests for sim config resolution, Python stubs/links, an
 ```
 
 Press F5 in this directory to launch an Extension Development Host for manual testing.
+
+## Known limitations
+
+### Resolving a sim's include paths
+
+Each sim's `TRICK_CFLAGS`/`TRICK_CXXFLAGS`/`TRICK_SFLAGS` (used for C/C++ IntelliSense,
+and for resolving `#include`/`##include` lines in `S_define`/`.sm` files) are resolved
+one of two ways, in order:
+
+1. **Invoking `make`** against the sim (`trick.useMakeForFlags`, default on) - exact,
+   but requires `TRICK_HOME` to be resolvable (see Requirements above) *and* every
+   environment variable the sim's own `S_overrides.mk`/included makefiles need to
+   build at all. For a sim that wraps a separate package (e.g.
+   [TrickHLA](https://github.com/nasa/TrickHLA), which requires `TRICKHLA_HOME`,
+   `RTI_HOME`, and `RTI_VENDOR`), that means those variables must be set in whatever
+   process launched VS Code itself - not just a terminal opened afterward inside it,
+   since the extension host inherits its environment from the process that started
+   the editor, not from any integrated terminal. If a required variable points at
+   something that isn't actually installed (no RTI on the machine, say), `make` fails
+   outright and resolution falls through to the regex fallback below for that sim.
+2. **A best-effort regex scan of `S_overrides.mk`** (used when `make` fails, or when
+   `trick.useMakeForFlags` is off): looks for `TRICK_C(XX)?FLAGS`/`TRICK_SFLAGS`/
+   `TRICK_PYTHON_PATH` assignments, following `include`/`-include` directives into
+   other makefiles the same way (so a sim whose real flags live in an included
+   package makefile, like TrickHLA's `S_hla.mk`, still picks them up). This is a text
+   scan, not a `make` evaluation, so it has real gaps:
+   - `ifeq`/`ifdef` conditionals aren't evaluated - every assignment is applied
+     regardless of which branch would actually be taken, so a flag gated on a
+     condition that wouldn't hold (e.g. a different RTI vendor's include path) may be
+     picked up anyway. In practice this is harmless for include paths, since a
+     nonexistent directory is filtered out before being added (see below), but a
+     stray `-D` define can still show up.
+   - Only the three flag variables and `include`/`-include` targets are tracked;
+     ordinary make variables (e.g. a locally-defined `RTI_INCLUDE = ...`) are not, so
+     a flag built from one is left with the literal, unexpanded `${VAR}` text.
+   - A `-I`/`-isystem` path that doesn't resolve to a real, existing directory
+     (whether from an unexpanded variable or an environment variable that genuinely
+     isn't set) is silently dropped rather than guessed at - so missing headers from
+     a path like that show up as an unresolved-include diagnostic with no further
+     explanation of why.
+
+### Shared `.sm` files outside any sim
+
+A `.sm` file that lives outside every sim's own directory - reachable only through a
+`TRICK_SFLAGS` search path a sim adds in its `S_overrides.mk` (e.g. TrickHLA's
+`S_modules/`, added via `-I${TRICKHLA_HOME}/S_modules`) - has no owning sim of its
+own. Its own `#include`/`##include` lines (which may themselves be written relative
+to that search root rather than to the file's own directory) are resolved by
+borrowing the include paths of whichever already-resolved sim's search path reaches
+it, since any sim that pulls in the shared tree shares the same search root.
+
+This only works once at least one such sim has already been resolved - true as soon
+as the workspace has finished its initial warm-up for any sim not inside a nested git
+repo (see Warming below), or once you've opened a file inside one. Opening a shared
+file *before* that - e.g. as the very first file in a brand-new window, before
+warm-up finishes - falls through to the generic `TRICK_HOME`-only fallback instead,
+and its includes won't resolve until a sim that reaches it has been opened or
+finishes warming.
+
+### Warming on activation
+
+On activation, every sim not inside a nested git repo (a submodule, or any other
+nested clone - checked by looking for a `.git` strictly between the workspace root
+and the sim) has its config resolved concurrently up front, so C/C++ IntelliSense and
+`S_define`/`.sm` navigation work as soon as the workspace loads. A sim inside a nested
+git repo is skipped here on purpose - a workspace with many vendored submodules, each
+shipping its own demo sims, could mean hundreds of `make` subprocesses at once, which
+would slow activation and flood cpptools' browse path with directories from packages
+nobody's actively working in. Those sims are still fully supported; they're just
+resolved lazily instead, the first time a file inside one is opened.
