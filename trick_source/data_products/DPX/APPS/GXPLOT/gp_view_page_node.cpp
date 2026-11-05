@@ -317,7 +317,7 @@ static void layout_page (GPViewPageNode* gp_view_page_node ) {
 
     for (plot_ix=0; plot_ix< number_of_plots; plot_ix++) {
         float x,y;
-        char key_text[20];
+        char key_text[32];
 
         snprintf(key_text, sizeof(key_text), "<PLOT_ORIGIN_X_%d>", plot_ix);
         x = (float)((plot_ix % n_horizontal_cells) * cell_width);
@@ -465,6 +465,18 @@ void GPViewPageNode::finalize() {
         device = GPViewPageNode::TERMINAL;
     }
 
+    /*!
+     * Many gnuplot builds (e.g. Homebrew on macOS) do not include the x11
+     * terminal. Fall back to an available interactive terminal (qt, wxt, aqua).
+     */
+    bool use_x11 = false;
+    if (terminalType_txt == "x11")
+    {
+        terminalType_txt = GnuplotInteractiveTerminal();
+        use_x11          = (terminalType_txt == "x11" && GnuplotHasTerminal("x11"));
+    }
+    bool interactive_term = (terminalType_txt == "x11" || terminalType_txt == "qt" || terminalType_txt == "wxt"
+                             || terminalType_txt == "aqua");
 
     // ==================================================
     //                POPULATE THE TEMPLATE
@@ -482,11 +494,25 @@ void GPViewPageNode::finalize() {
     tmp_stream.str("");
     tmp_stream << "size " << xx_geom << "," << yy_geom ;
     textbuf.subst_g("<CANVAS_SIZE>", tmp_stream.str().c_str() );
-    if ( strcasecmp(terminalType_txt.c_str(), "x11") == 0 ) {
+    if (use_x11)
+    {
         if ( GnuplotVersion() >= 4.0 ) {
             textbuf.subst_g("<TERM_OPTIONS>", "persist");
         }
-    } else {
+    }
+    else if (interactive_term)
+    { // interactive terminal other than an available x11
+        tmp_stream.str("");
+        tmp_stream << "persist";
+        if (terminalType_txt == "wxt" && GnuplotVersion() >= 5.0 && !page_bg_color.empty()
+            && color_is_valid(&page_bg_color))
+        {
+            tmp_stream << " background rgb \"" << page_bg_color << "\"";
+        }
+        textbuf.subst_g("<TERM_OPTIONS>", tmp_stream.str().c_str());
+    }
+    else
+    {
         textbuf.subst_g("<TERM_OPTIONS>", "");
     }
 
@@ -720,12 +746,19 @@ void GPViewPageNode::finalize() {
 
 
     cmd << "gnuplot";
-    if ( ! page_fg_color.empty()  &&  color_is_valid(&page_fg_color) ) {
+    /*!
+     * -xrm options are X11 resources; gnuplot without the x11 terminal
+     * rejects them and tries to load their values as script files.
+     */
+    bool use_xrm = GnuplotHasTerminal("x11");
+    if (use_xrm && !page_fg_color.empty() && color_is_valid(&page_fg_color))
+    {
         cmd << " -xrm 'gnuplot*textColor:" << page_fg_color << "'" ;
         cmd << " -xrm 'gnuplot*borderColor:" << page_fg_color << "'" ;
         cmd << " -xrm 'gnuplot*axisColor:" << page_fg_color << "'" ;
     }
-    if ( ! page_bg_color.empty()  &&  color_is_valid(&page_bg_color) ) {
+    if (use_xrm && !page_bg_color.empty() && color_is_valid(&page_bg_color))
+    {
         cmd << " -xrm 'gnuplot*background:" << page_bg_color << "'" ;
     }
     /*!
@@ -733,7 +766,8 @@ void GPViewPageNode::finalize() {
      * Line colors are global per page in gnuplot.
      * And there are at max 8 default colors. (%man gnuplot)
      */
-    for (ii = 0;  ii < n_CustomColors;   ii++) {
+    for (ii = 0; use_xrm && ii < n_CustomColors; ii++)
+    {
         cmd << " -xrm 'gnuplot*line" << ii+1 << "Color:" << plotColors[ii] << "'" ;
     }
 
@@ -858,7 +892,10 @@ void GPViewPageNode::finalize() {
         default:
 
             cmd << " -persist";
-            cmd << " -geometry " << xx_geom << "x" << yy_geom ; //e.g. 850x657
+            if (use_x11)
+            {
+                cmd << " -geometry " << xx_geom << "x" << yy_geom; // e.g. 850x657
+            }
 
             //! Complete the command by providing the gnuplot file name.
             cmd << " " << gp_template_file_name ;

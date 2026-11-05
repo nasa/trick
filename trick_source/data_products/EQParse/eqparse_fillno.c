@@ -57,7 +57,11 @@ stack fillno(stack1 * no, stack stk, double value)
                         tmp_no = revers_stk(tmp_no);
                         for (j = 0; j < i; j++) {
                                 tmp_no = pop(tmp_no, &ch);
-                                snprintf(num, sizeof(numstr), "%s%c", num, ch);
+                                if (j < (int)sizeof(numstr) - 1)
+                                {
+                                    num[j]     = ch;
+                                    num[j + 1] = '\0';
+                                }
                         }
                         x = atof(num);
 #ifdef DEBUG

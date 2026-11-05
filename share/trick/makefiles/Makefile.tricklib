@@ -22,7 +22,7 @@ TRICK_DEPFLAGS = -MD -MP -MF $(@:.o=.d) -MQ $@
 #############################################################################
 
 L_SRC  = $(wildcard $(SRC_DIR)*.l)
-L_C    = $(subst .l,.lex.c,$(L_SRC))
+L_C    = $(subst .l,.lex.cpp,$(L_SRC))
 L_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .l,.lex.o,$(L_SRC))))
 
 Y_SRC  = $(wildcard $(SRC_DIR)*.y)
@@ -129,7 +129,7 @@ $(CPP_CPLUS_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c++ | $(OBJ_DIR)
 # LEX/YACC SOURCE
 #
 
-$(L_C) : $(SRC_DIR)%.lex.c : $(SRC_DIR)%.l
+$(L_C) : $(SRC_DIR)%.lex.cpp : $(SRC_DIR)%.l
 	$(LEX) -o $@ $<
 
 $(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
@@ -137,7 +137,7 @@ $(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
 $(Y_C) : $(SRC_DIR)%.tab.cpp : $(SRC_DIR)%.y
 	$(YACC) -d -o $@ $<
 
-$(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
+$(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.cpp $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_DEPFLAGS) -c $< -o $@
 
 $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.cpp  | $(OBJ_DIR)
@@ -166,7 +166,7 @@ real_clean: clean io_clean
 	@ echo "Directory is really clean!"
 
 clean: 
-	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
+	$(RM) -rf $(OBJ_DIR) $(L_C) $(subst .l,.lex.c,$(L_SRC)) $(Y_C) $(Y_H)
 
 help :
 	@ echo -e "\n\

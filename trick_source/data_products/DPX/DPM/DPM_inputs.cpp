@@ -23,7 +23,9 @@ int DPM_inputs::Initialize( xmlNode *base_node) {
             if ( strcmp( (const char *)current_node->name, "var") == 0) {
                 try {
                     var = new DPM_var(this, current_node);
-                } catch (std::invalid_argument) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     var = NULL;
                     std::cerr <<"ERROR: <input> specification contains an invalid <var> specification." << std::endl;
                     std::cerr <<":::::: Therefore the entire <inputs> specification is invalid." << std::endl;

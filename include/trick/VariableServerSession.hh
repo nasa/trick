@@ -5,17 +5,23 @@ PURPOSE: (Represent the state of a variable server connection.)
 #ifndef VSSESSION_HH
 #define VSSESSION_HH
 
-#include <vector>
-#include <string>
-
-#include "trick/VariableReference.hh"
 #include "trick/ClientConnection.hh"
-#include "trick/variable_server_sync_types.h"
+#include "trick/VariableReference.hh"
 #include "trick/tc.h"
 #include "trick/variable_server_message_types.h"
+#include "trick/variable_server_sync_types.h"
 
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace Trick {
+    class VariableServerSession;
+
+#ifndef SWIG
+    std::ostream& operator<<(std::ostream& s, const Trick::VariableServerSession& session);
+#endif
+
     class VariableServerSession {
     public:
         VariableServerSession();

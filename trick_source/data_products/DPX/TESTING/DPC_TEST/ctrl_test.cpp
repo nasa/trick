@@ -36,7 +36,9 @@ int main(int argc, char * argv[] ) {
 
     try {
         session_parse_tree = new DPM_parse_tree(session_file_name);
-    } catch (std::invalid_argument) {
+    }
+    catch (const std::invalid_argument&)
+    {
         cerr << "ERROR: <session> specification is invalid and un-usable. Quitting." << endl;
         exit(1);
     }
@@ -45,7 +47,9 @@ int main(int argc, char * argv[] ) {
 
     try {
         session = new DPM_session( NULL, root_node);
-    } catch (std::invalid_argument) {
+    }
+    catch (const std::invalid_argument&)
+    {
         cerr << "ERROR: <session> specification is invalid and un-usable. Quitting." << endl;
         exit(1);
     }
@@ -62,7 +66,9 @@ int main(int argc, char * argv[] ) {
             cout << "NEW DPC_PRODUCT" << endl;
             cout.flush();
             product = new DPC_product( session, product_file_name);
-        } catch  (std::invalid_argument) {
+        }
+        catch (const std::invalid_argument&)
+        {
             cerr << "ERROR: Unable to create the product specified by file: \"" <<
                 product_file_name << "\"" << endl;
             product = NULL;

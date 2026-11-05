@@ -261,13 +261,16 @@ int main(int argc, char * argv[]) {
     ci.createSema(clang::TU_Complete, NULL);
 
     // Get the full path of the file to be read
-    char buffer[input_file_names[0].size() + 1];
+    /*char buffer[input_file_names[0].size() + 1];
     strcpy(buffer, input_file_names[0].c_str());
     std::string path(dirname(buffer));
     path += "/";
     strcpy(buffer, input_file_names[0].c_str());
     path += basename(buffer);
-    char* inputFilePath = almostRealPath(path);
+    char* inputFilePath = almostRealPath(path);*/
+    // The function almostRealPath does above commented code internally.
+    // Keep the above commented code as a reference.
+    char* inputFilePath = almostRealPath(input_file_names[0]);
 
     struct stat dummy;
     if (stat(inputFilePath, &dummy)) {

@@ -48,7 +48,9 @@ int DPM_table::Initialize( xmlNode *base_node) {
             } else if ( strcmp( (const char *)current_node->name, "column") == 0) {
                 try {
                     column = new DPM_column( this, current_node);
-                } catch (std::invalid_argument) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     column = NULL;
                     std::cerr << "ERROR: <table> will be incomplete because one of it\'s <column>s is invalid." << std::endl;
                 }

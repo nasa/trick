@@ -29,23 +29,29 @@ int DPM_extfn::Initialize( xmlNode *base_node) {
 
          try {
              inputs = new DPM_inputs(this, current_node);
-         } catch (std::invalid_argument) {
+         }
+         catch (const std::invalid_argument&)
+         {
              inputs = NULL;
              std::cerr << "ERROR: <inputs> specification is invalid." << std::endl;
          }
-
-	} else if ( strcmp( (const char *)current_node->name, "outputs") == 0) {
-
-         try {
-	      outputs = new DPM_outputs(this, current_node);
-         } catch (std::invalid_argument) {
-             inputs = NULL;
-             std::cerr << "ERROR: <outputs> specification is invalid." << std::endl;
-         }
-
-	} else {
-         std::cerr << "WARNING: Unknown element \"" << current_node->name << "\". Skipping." << std::endl;
-	}
+        }
+        else if (strcmp((const char*)current_node->name, "outputs") == 0)
+        {
+            try
+            {
+                outputs = new DPM_outputs(this, current_node);
+            }
+            catch (const std::invalid_argument&)
+            {
+                inputs = NULL;
+                std::cerr << "ERROR: <outputs> specification is invalid." << std::endl;
+            }
+        }
+        else
+        {
+            std::cerr << "WARNING: Unknown element \"" << current_node->name << "\". Skipping." << std::endl;
+        }
       }
       current_node = current_node->next;
     }

@@ -108,7 +108,7 @@ std::string Trick::MonteVarFile::get_next_value() {
     snprintf(string, sizeof(string), "Trick:MonteVarFile the input file \"%s\" is not open for reading", file_name.c_str());
     exec_terminate_with_return(-1, __FILE__, __LINE__, string);
 
-    return NULL;
+    return "";
 }
 
 void Trick::MonteVarFile::set_file_name(std::string in_file_name) {

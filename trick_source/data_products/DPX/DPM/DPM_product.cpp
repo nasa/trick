@@ -33,7 +33,9 @@ int DPM_product::Initialize( xmlNode *base_node) {
             if ( strcmp( (char *)current_node->name, "page") == 0) {
                 try {
                     page = new DPM_page( this, current_node);
-                } catch (std::invalid_argument) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     page = NULL;
                     std::cerr << "ERROR: <product> specification contains an invalid <page> specification." << std::endl;
                 }
@@ -43,7 +45,9 @@ int DPM_product::Initialize( xmlNode *base_node) {
             } else if ( strcmp( (char*)current_node->name, "table") == 0) {
                 try {
                     table = new DPM_table( this, current_node);
-                } catch (std::invalid_argument) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     table = NULL;
                     std::cerr << "ERROR: <product> specification contains an invalid <table> specification." << std::endl;
                 }
@@ -53,7 +57,9 @@ int DPM_product::Initialize( xmlNode *base_node) {
             } else if ( strcmp( (char*)current_node->name, "extfn") == 0) {
                 try {
                     ext_prog = new DPM_extfn( this, current_node);
-                } catch (std::invalid_argument) {
+                }
+                catch (const std::invalid_argument&)
+                {
                     ext_prog = NULL;
                     std::cerr << "ERROR: <product> specification contains an invalid <extfn> specification." << std::endl;
                 }

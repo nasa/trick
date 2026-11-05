@@ -441,7 +441,7 @@ int LogData::getNumRecords()
 
         FILE *fpTmp;
         char *file;
-        char extension[4];
+        char extension[12];
 
         int fileOffset;
         int numRecs;
@@ -919,8 +919,8 @@ std::string LogData::getUnit(char *param)
                 }
         }
 
-        // Not found, return NULL
-        return (0);
+        // Not found, return empty string
+        return {};
 }
 
 /** Set scale factor for parameter with given factor */

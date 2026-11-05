@@ -54,6 +54,7 @@ namespace Trick {
             // After sim shutdown print immediately.
             bool print_immediate ;
 
+#ifndef SWIG
             struct StringNode {
                 std::string buffer ;
                 size_t max_len ;
@@ -69,6 +70,7 @@ namespace Trick {
 
             StringNode * copy_ptr ; /* trick_io(**) pointer to next buffer to copy data */
             StringNode * write_ptr ; /* trick_io(**) pointer to next buffer to write to screen */
+#endif
             pthread_mutex_t write_mutex ; /* trick_io(**) mutex for writing */
     } ;
 

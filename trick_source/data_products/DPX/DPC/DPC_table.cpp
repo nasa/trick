@@ -1,8 +1,10 @@
-
-#include <udunits2.h>
 #include "DPC/DPC_table.hh"
-#include "DPM/DPM_var.hh"
+
 #include "DPM/DPM_column.hh"
+#include "DPM/DPM_var.hh"
+
+#include <string>
+#include <udunits2.h>
 
 extern ut_system * u_system ;
 
@@ -61,7 +63,7 @@ DPC_table::DPC_table( DPC_datastream_supplier *DS_Supplier,
         DataStream * ds;
         DPC_column_info * column_info;
         DPM_column * column = Table_spec->getColumn( colix );
-		const char * actual_units;
+        std::string actual_units;
 
         column_var = column->getVar();
         const char * column_var_name = column_var->getName();
@@ -119,11 +121,11 @@ DPC_table::DPC_table( DPC_datastream_supplier *DS_Supplier,
                 throw std::invalid_argument("ERROR: Bogus Table.");
             }
             datastream_list.push_back( ds );
-            actual_units = ds->getUnit().c_str();
-			dsix = datastream_list.size() - 1;
+            actual_units = ds->getUnit();
+            dsix         = datastream_list.size() - 1;
         }
-        column_info = new DPC_column_info( column_var, actual_units, dsix, time_conversion);
-		column_info_list.push_back( column_info );
+        column_info = new DPC_column_info(column_var, actual_units.c_str(), dsix, time_conversion);
+        column_info_list.push_back(column_info);
     }
 
     n_datastreams = (int)datastream_list.size();

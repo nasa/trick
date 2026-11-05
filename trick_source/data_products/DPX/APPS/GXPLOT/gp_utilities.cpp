@@ -48,17 +48,11 @@ int filterPostScriptColor( const char *psName, GPViewPageNode* gp_view_page_node
     DPV_TextBuffer newBuf;
     string tmp_string;
     stringstream tmp_stream;
-    stringstream begin_stream;
     string directive;
     string page_fg_color = "";
     string page_bg_color = "";
     int i;
-    int total_num_curves = 0 ;
-    string next_lt ;
-    string new_buf_ptr ;
-    string line_color ;
-    unsigned int red , blue , green ;
-    int number_of_plots = (int)gp_view_page_node->plot_node_list.size();
+    unsigned int red, blue, green;
 
     //! Populate buf with file content.
     buf.readFile( psName );
@@ -180,83 +174,6 @@ int filterPostScriptColor( const char *psName, GPViewPageNode* gp_view_page_node
             }
         }
     }
-
-    //! Change the line colors
-    tmp_stream.str("");
-    tmp_stream << buf.getText();
-    begin_stream.str("");
-    begin_stream << buf.getText();
-
-    for ( i = 0;  i < number_of_plots;  i++ ) {
-
-        GPViewPlotNode* gp_view_plot_node;
-
-        gp_view_plot_node = gp_view_page_node->plot_node_list[i];
-        total_num_curves += gp_view_plot_node->plot->getNumCurves();
-
-/*        for ( j = 0;  j < total_num_curves;  j++ ) {
-
-            //! find the next "^LT[0-8]" token
-            do {
-                next_lt = strstr(tmp_stream.str().c_str() , "Rshow\nLT") ;
-                if ( next_lt != NULL ) {
-                    //! move the tmp_stream past
-                    //! the found token for next check
-                    tmp_stream.str().c_str() = next_lt + 10 ;
-                }
-            } while ( next_lt != NULL && !isdigit(next_lt[8]) ) ;
-
-            if ( ! next_lt.empty() ) {
-
-                //! get the length of the crrent output string
-                old_len = strlen(new_buf_ptr) ;
-
-                //! copy the string from the beginning
-                //! of this string to just past the LT string
-                strncpy(&new_buf_ptr[old_len] ,
-                        begin_ptr , next_lt - begin_ptr + 10) ;
-
-                //! NULL terminate the string
-                //! and move the pointer
-                tmpInt = old_len + next_lt - begin_ptr + 10 ;
-                new_buf_ptr[tmpInt] = '\0' ;
-                new_buf_ptr += tmpInt ;
-
-                //! add a line color if there is one defined
-                line_color = plot->curves[j]->getLineColor() ;
-                line_color = gp_view_plot_node->plot->getNumCurves() ;
-                if ( ! line_color.empty() ) {
-                    if ( line_color[0] == '#' ) {
-                        sscanf( line_color, "#%02x%02x%02x",
-                                &red , &green , &blue ) ;
-
-                                new_buf.str("");
-                                new_buf << (float)red / 255 << " " ;
-                                new_buf << (float)green / 255 << " " ;
-                                new_buf << (float)blue / 255 << " " ;
-                                new_buf << "setrgbcolor" << endl;
-                    } else {
-                        for ( k = 0;  k < num_colors;  k++ ) {
-                            if ( strcasecmp(line_color,
-                                 color_trans[k].color) == 0 ) {
-
-                                new_buf.str("");
-                                new_buf << color_trans[k].red << " " ;
-                                new_buf << color_trans[k].green << " " ;
-                                new_buf << color_trans[k].blue << " " ;
-                                new_buf << "setrgbcolor" << endl;
-
-                                break ;
-                            }
-                        }
-                    }
-                }
-
-            }
-        }*/
-    }
-    //! Add the rest of the original file to new buffer
-//     new_buf << tmp_stream ;
 
     //! Write buffer back out to file
     return ( buf.writeFile(psName) );
