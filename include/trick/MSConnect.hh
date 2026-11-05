@@ -87,7 +87,8 @@ namespace Trick {
 
             /**
              @brief Read a character array from the other simulation.
-             @return the 1st character read or MS_ERROR_NAME if the read failed
+             @return 0 if data was read successfully, or MS_ERROR_NAME if the read failed
+             (Trick::MSSocket's implementation returns the 1st character read on success instead.)
              */
             virtual char read_name(char * read_data, size_t size) = 0 ;
 

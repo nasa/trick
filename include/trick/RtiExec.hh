@@ -19,8 +19,7 @@ class RtiExec {
      virtual ~RtiExec() ;
 
      /**
-        Executes all events on the firing line.
-        @return - always returns zero (should probably be void then)
+        Appends the given RtiList to the fire_list (under lock) so it will be executed later by Exec().
      */
      void AddToFireList ( RtiList * rti_list ) ;
 

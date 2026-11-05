@@ -60,13 +60,13 @@ namespace Trick {
 
             /**
              * Adds a CPU affinity to a single CPU
-             * @return always 0
+             * @return 0 if successful, -1 if cpu is out of range
              */
             int cpu_set(unsigned int cpu) ;
 
             /**
              * Clears a CPU to the affinity mask.
-             * @return always 0
+             * @return 0 if successful, -1 if cpu is out of range
              */
             int cpu_clr(unsigned int cpu ) ;
 
@@ -74,13 +74,12 @@ namespace Trick {
 #ifndef SWIG
             /**
              * Gets the cpu set for this thread
-             * @return always 0
+             * @return the cpu set for this thread
              */
             cpu_set_t * get_cpus() ;
 
             /**
              * Copys the cpu set from the incoming set to this thread
-             * @return always 0
              */
             void copy_cpus(cpu_set_t * in_cpus) ;
 #endif
@@ -88,13 +87,12 @@ namespace Trick {
 #if __APPLE__
             /**
              * Gets the cpu set for this thread
-             * @return always 0
+             * @return NULL, not supported on Darwin
              */
             void * get_cpus() ;
 
             /**
-             * Copys the cpu set from the incoming set to this thread
-             * @return always 0
+             * Copys the cpu set from the incoming set to this thread.  Not supported on Darwin.
              */
             void copy_cpus(void * in_cpus) ;
 #endif
@@ -106,14 +104,14 @@ namespace Trick {
             int execute_cpu_affinity() ;
 
             /**
-             * Executes the CPU affinity settings
+             * Sets the priority to run this thread with.
+             * @param req_priority - the requested Trick priority (1 is highest)
              * @return always 0
              */
             int set_priority(unsigned int req_priority) ;
 
             /**
-             * Sets the priority to run this thread with.
-             * @param yes_no - do we wait for the thread at shutdown or not?
+             * Applies the previously set thread priority via the OS scheduler.
              * @return always 0
              */
             int execute_priority() ;
@@ -161,18 +159,17 @@ namespace Trick {
 
             /**
              * The thread body.
-             * @return always 0
              */
             virtual void * thread_body() = 0 ;
 
             /**
              * pthread_create compatible function to start new thread
-             * @return always 0
+             * @return the return value of the thread's thread_body()
              */
             static void * thread_helper( void * context ) ;
 
             /**
-             * Prints thread information to the incoming file pointer
+             * Prints thread information to the incoming output stream
              */
             virtual void dump( std::ostream & oss = std::cout ) ;
 

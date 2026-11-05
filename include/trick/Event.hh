@@ -65,7 +65,6 @@ class Event {
          @brief @userdesc Command to turn on processing of event (can be overridden by manual mode).
          @par Python Usage:
          @code <event_object>.activate() @endcode
-         @return always 0
         */
         void activate() { active = true ; } ;
 
@@ -73,7 +72,6 @@ class Event {
          @brief @userdesc Command to turn off processing of event (can be overriden by manual mode).
          @par Python Usage:
          @code <event_object>.deactivate() @endcode
-         @return always 0
         */
         void deactivate() { active = false ; } ;
 
@@ -101,7 +99,6 @@ class Event {
          @brief @userdesc Command to set rate at which event's conditions are evaluated
          @par Python Usage:
          @code <event_object>.set_cycle(<rate>) @endcode
-         @return always 0
         */
         void set_cycle(double rate) { cycle = rate ; cycle_tics = (long long)(cycle * exec_get_time_tic_value()) ; } ;
 

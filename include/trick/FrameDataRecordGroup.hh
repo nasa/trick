@@ -47,7 +47,7 @@ namespace Trick {
 
             /**
              @brief The executive scheduler's interface to data_record job.
-             @returns always 0
+             @returns 0 on success, -1 if curr_job->id does not match a known job id
             */
             virtual int call_function( Trick::JobData * curr_job ) ;
 

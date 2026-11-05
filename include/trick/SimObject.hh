@@ -116,16 +116,18 @@ namespace Trick {
             void disable();
 
             /**
-             * Calls all jobs that are not "dynamic_event" class
+             * Dispatches curr_job to the job's generated implementation, for jobs that
+             * are not "dynamic_event" class
              * @param curr_job - the current job instance
-             * @return always 0
+             * @return the job's return code; 0 indicates success, non-zero indicates failure
              */
             virtual int call_function( Trick::JobData * curr_job ) = 0 ;
 
             /**
-             * Calls all jobs that are "dynamic_event" class
+             * Dispatches curr_job to the job's generated implementation, for jobs that
+             * are "dynamic_event" class
              * @param curr_job - the current job instance
-             * @return always 0
+             * @return the time-to-go value used by the dynamic event scheduler
              */
             virtual double call_function_double( Trick::JobData * curr_job ) = 0 ;
 

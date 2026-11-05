@@ -62,10 +62,9 @@ int Array_GetRecordSize(RecordArray* pArray);
    /* returns a pointer to the start of the buffer */
 void* Array_GetBuffer(RecordArray* pArray);
 
-
-   /* returns a pointer to the buffer prefixed with an INT32 value which holds the
-      record count
-    */
+/* returns a pointer to the buffer prefixed with an INT32 value which holds the
+   total buffer size in bytes
+ */
 
 void* Array_GetBufferWithSize(RecordArray* pArray);
 

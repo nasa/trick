@@ -94,7 +94,7 @@ typedef struct ATTRIBUTES_tag {
     TRICK_TYPE type;    /**< -- TRICK data type. */
     int size;           /**< -- Data type size in bytes */
     double range_min;   /**< -- Minimum allowable value for parameter */
-    double range_max;   /**< -- Minimum allowable value for parameter */
+    double range_max;   /**< -- Maximum allowable value for parameter */
     Language language;  /**< -- Native language of parameter. */
     int mods;           /**< -- Modification bits.
                                 bit 0 = c++ reference var

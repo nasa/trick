@@ -45,7 +45,7 @@ namespace Trick {
              @brief @userdesc Get the status of the Timer
              @par Python Usage:
              @code trick.get_enabled() @endcode
-             @return always 0
+             @return true if the timer is enabled, false otherwise
             */
             bool get_enabled() ;
 
@@ -53,13 +53,11 @@ namespace Trick {
              @brief @userdesc Sets the active flag
              @par Python Usage:
              @code trick.set_active(<on_off>) @endcode
-             @return always 0
             */
             void set_active( bool in_active) ;
 
             /**
              @brief Initializes the timer.  Timer hardware (if any) should be initialized here.
-             the timer's frequency is set to the incoming in_frame_time.
              @return 0 if successful, otherwise an error code.
              */
             virtual int init() = 0 ;

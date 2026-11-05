@@ -78,7 +78,7 @@ namespace Trick {
 
             /**
              @brief Initializes this subscriber.
-             @return always 0
+             @return 0 on success, -1 if the listen port for the message server could not be created
              */
             int default_data() ;
 

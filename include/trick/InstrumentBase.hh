@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-    ( The job class that the executive schedules and runs )
+    ( The abstract base class for instrumentation routines called before/after jobs )
 
 PROGRAMMERS:
     ((Alex Lin) (NASA) (May 2009) (OO))

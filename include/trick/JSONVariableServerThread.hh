@@ -29,7 +29,7 @@ namespace Trick {
 
             /**
              @brief The main loop of the variable server thread that reads and processes client commands.
-             @return always 0
+             @return always NULL
             */
             virtual void * thread_body() ;
 

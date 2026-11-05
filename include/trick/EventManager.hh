@@ -48,14 +48,13 @@ namespace Trick {
             */
             Trick::Event * get_event(std::string event_name) ;
 
-
             /**
-             @brief @userdesc Command to insert a user's input file event into the input processor's list of events to process.
-             The event will be processed at the top of each execution frame.
+             @brief @userdesc Command to insert a user's input file event into the input processor's list of events to
+             process. The event will be processed at the top of each execution frame.
              @par Python Usage:
              @code trick.add_event(<in_event>) @endcode
              @param in_event - the event object previously created by new_event()
-             @return always 0
+             @return 0 on success, -1 if the event's thread number is out of range
             */
             int add_event(Trick::Event * in_event) ;
 

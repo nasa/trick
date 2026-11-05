@@ -105,7 +105,6 @@ namespace Trick {
 
             /**
              * @brief Initializes the clock.  Clock hardware (if any) should be initialized here.
-             * @param ref - the simulation time in tics
              * @return return 0 if successful. Otherwise return error code.
              */
             virtual int clock_init() = 0 ;

@@ -113,7 +113,7 @@ namespace Trick {
 
             /** @userdesc The time period (in seconds) that the master's connection will wait to read sync data
               from the slave and vice versa.\n
-              The default is 0.0, which to an MSSocket connection means infinite (non-blocking).\n */
+              The default is 0.0, which to an MSSocket connection means infinite (fully blocking).\n */
             double sync_wait_limit ;         /**< trick_units(s) */
 
             /** @userdesc How long the master will wait for this slave to reconnect if it has exited.\n */

@@ -48,7 +48,7 @@ namespace Trick {
 
             /**
              * Calls the instumentation jobs only
-             * @return always 0
+             * @return the return value of the instrumentation job function call
              */
             virtual int call() ;
     } ;

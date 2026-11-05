@@ -75,14 +75,14 @@ namespace Trick {
             /**
              * Sets amf_cycle and calculates amf_cycle_tics
              * @param in_cycle - the incoming tics value
-             * @return 0 if successful, -1 if process_type does not exist
+             * @return always 0
              */
             int set_amf_cycle(double in_cycle , long long time_tic_value) ;
 
             /**
              * Adjusts amf_cycle_tics if the time tic changed
              * @param in_cycle - the incoming tics value
-             * @return 0 if successful, -1 if process_type does not exist
+             * @return always 0
              */
             int time_tic_changed(long long old_time_tic_value, long long time_tic_value) ;
 
@@ -95,7 +95,6 @@ namespace Trick {
 
             /**
              * This job resets the scheduler queues during a checkpoint restart.
-             * @return error code or 0 for no errors.
              */
             void clear_scheduled_queues() ;
 

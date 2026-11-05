@@ -212,10 +212,10 @@ int delete_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
 
 /* =================================================================================================*/
 
-/* Find the arrays the map data was stored in the checkpoint using ref_attributes
+/* Find the array the queue data was stored in the checkpoint using ref_attributes
    From the address of the resulting ref_attributes, we can figure out the number of
    items that were stored in the checkpoint.  Knowing the size, we can restore
-   the map from the 2 arrays.
+   the queue from the array.
  */
 
 // queue: intrinsic

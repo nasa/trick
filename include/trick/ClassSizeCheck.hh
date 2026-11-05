@@ -48,9 +48,9 @@ namespace Trick {
             ~ClassSizeCheck() {} ;
 
             /**
-             * Adds a type and the corresponding attributes
-             * @param type    The name of the type.
-             * @param attr    Pointer to the attributes.
+             * Adds a type and its calculated size-difference info
+             * @param type       The name of the type.
+             * @param diff_info  The size difference and file name for this type.
              */
             void add_diff( std::string type , ClassSizeDiffInfo diff_info ) {
                 name_to_diff.insert(std::pair<std::string,ClassSizeDiffInfo>(type,diff_info)) ;

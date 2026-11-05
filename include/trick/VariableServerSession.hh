@@ -158,7 +158,7 @@ namespace Trick {
             @code trick.var_units("<var_name>", "<units_name>") @endcode
             @param var_name - the variable name previously registered with var_add
             @param units_name - the desired units, specified within curly braces
-            @return always 0
+            @return 0 on success, -1 if var_name was not previously registered with var_add
             @note trick.var_add("my_object.my_variable"); trick.var_units("my_object.my_variable","{m}")
             is the same as trick.var_add("my_object.my_variable","{m}")
         */
@@ -184,7 +184,7 @@ namespace Trick {
             @code trick.var_send_once("<in_name_list>", <number of variables in list>) @endcode
             @param in_name_list - the variables name to retrieve, comma separated
             @param num_vars - number of vars in in_name_list
-            @return always 0
+            @return 0 on success, -1 if the number of names in in_name_list does not match num_vars
         */
         virtual int var_send_once(std::string in_name_list, int num_vars);
 

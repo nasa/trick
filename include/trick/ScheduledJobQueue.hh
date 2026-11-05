@@ -90,7 +90,7 @@ namespace Trick {
 
             /**
              * @brief Tests if the list is empty or not.
-             * @return 0 if the list is empty or 1 if the list has at least one job.
+             * @return 1 if the list is empty or 0 if the list has at least one job.
              */
             bool empty() ;
 
@@ -101,8 +101,8 @@ namespace Trick {
             int clear() ;
 
             /**
-             * @brief Clears the list of jobs.
-             * @return 0
+             * @brief Calls every enabled job in the list, in order.
+             * @return the return code of the first job that returns non-zero, or 0 if all jobs succeeded.
              */
             int execute_all_jobs() ;
 
@@ -119,24 +119,24 @@ namespace Trick {
             int write_non_sched_queue( FILE * fp ) ;
 
             /**
-             * @brief Adds the incoming instrumentation job before target job if specified, or all jobs in list.
-             * Will reallocate list to accommodate additional instrumentation jobs.
-             * @param instrumentation_job  - name of the instrument job
-             * @return number of insertions made
+             * @brief Creates an instrumentation job for every job in the list, and
+             * adds each one to that job's "before" instrumentation job list.
+             * @param instrumentation_job  - the instrumentation base job to add
+             * @return always 0
              */
             int instrument_before(JobData * instrumentation_job) ;
 
             /**
-             * @brief Adds the incoming instrumentation job after target job if specified, or all jobs in the list.
-             * Will reallocate list to accommodate additional instrumentation jobs.
-             * @param instrumentation_job - name of the instrument job
-             * @return number of insertions made
+             * @brief Creates an instrumentation job for every job in the list, and
+             * adds each one to that job's "after" instrumentation job list.
+             * @param instrumentation_job - the instrumentation base job to add
+             * @return always 0
              */
             int instrument_after(JobData * instrumentation_job) ;
 
             /**
-             * @brief Removes all jobs in the list that match the name job_name.
-             * If in_event is specified, only remove this event's instrument job.
+             * @brief Removes the instrumentation job matching job_name from the
+             * "before" and "after" instrumentation job lists of every job in the list.
              * @param job_name - name of the instrument job
              * @return always 0
              */

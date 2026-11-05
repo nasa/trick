@@ -1,6 +1,5 @@
-
 /*
-  PURPOSE:                     (Monte carlo structures)
+  PURPOSE:                     (Remote shell selection for Monte Carlo slave processes)
   REFERENCE:                   (Trick Users Guide)
   ASSUMPTIONS AND LIMITATIONS: (None)
   PROGRAMMERS:                 ((Keith Vetter) (LinCom) (7/2003))

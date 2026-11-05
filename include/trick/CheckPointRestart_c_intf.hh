@@ -19,13 +19,13 @@ int checkpoint_post_init(int yes_no) ;
 /* set end_checkpoint flag */
 int checkpoint_end(int yes_no) ;
 
-/* set pre_init_checkpoint flag */
+/* get pre_init_checkpoint flag */
 int get_checkpoint_pre_init() ;
 
-/* set post_init_checkpoint flag */
+/* get post_init_checkpoint flag */
 int get_checkpoint_post_init() ;
 
-/* set end_checkpoint flag */
+/* get end_checkpoint flag */
 int get_checkpoint_end() ;
 
 /* set safestore_enabled flag */

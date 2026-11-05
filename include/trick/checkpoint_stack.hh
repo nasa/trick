@@ -116,10 +116,10 @@ int delete_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_nam
 
 /* =================================================================================================*/
 
-/* Find the arrays the map data was stored in the checkpoint using ref_attributes
+/* Find the array the stack data was stored in the checkpoint using ref_attributes
    From the address of the resulting ref_attributes, we can figure out the number of
    items that were stored in the checkpoint.  Knowing the size, we can restore
-   the map from the 2 arrays.
+   the stack from the array.
  */
 template <typename ITEM_TYPE, typename _Sequence,
           typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >

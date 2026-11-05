@@ -55,7 +55,6 @@ namespace Trick {
 
             /**
              @brief top_of_frame job that moves pending events to the process_event queue.
-             @return always 0
             */
             void add_pending_events(long long curr_time, bool is_restart = false ) ;
 

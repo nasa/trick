@@ -128,7 +128,7 @@ typedef struct {
     int client_id;                     /* -- client id, other side.         Set by tc_accept. */
     char client_tag[TC_TAG_LENGTH];    /* -- client tag, other side.        User specified.
                                                                               Defaults if unspecified.*/
-    struct in_addr client_addr;        /* ** client tag, other side.        Set by tc_connect. */
+    struct in_addr client_addr;        /* ** client's IP address.        Set by tc_accept. */
     TrickErrorHndlr *error_handler;    /* ** error handler.                 User specified.
                                                                               Defaults if unspecified.*/
     char *hostname;                    /* -- Hostname of server/client.     User specified. */

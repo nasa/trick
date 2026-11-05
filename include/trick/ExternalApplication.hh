@@ -214,7 +214,8 @@ namespace Trick {
         virtual int get_y();
 
         /**
-         * Launches this application if the Variable Server is enabled.
+         * Launches this application, passing a different set of command-line
+         * arguments depending on whether the Variable Server is enabled.
          * This is automatically called by %Trick during simulation initialization.
          */
         virtual void launch();

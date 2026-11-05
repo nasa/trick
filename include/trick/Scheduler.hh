@@ -81,20 +81,20 @@ namespace Trick {
             virtual int write_s_job_execution(FILE * fp) = 0 ;
 
             /**
-             * Adds an instrumentation job with the name in_job before target_job (if specified),
-             * otherwise adds in_job before each job in the initialization and scheduled queues.
+             * Adds an instrumentation job with the name in_job before each job in the
+             * initialization and scheduled queues.
              * Requirement [@ref r_exec_instrument_0]
              * @param instrument_job - the instrument job
-             * @return always 0
+             * @return the number of insertions made
              */
             virtual int instrument_job_before(Trick::JobData * instrument_job ) = 0 ;
 
             /**
-             * Adds an instrumentation job with the name in_job after target_job (if specified),
-             * otherwise adds in_job after each job in the initialization and scheduled queues.
+             * Adds an instrumentation job with the name in_job after each job in the
+             * initialization and scheduled queues.
              * Requirement [@ref r_exec_instrument_2]
              * @param instrument_job - the instrument job
-             * @return always 0
+             * @return the number of insertions made
              */
             virtual int instrument_job_after(Trick::JobData * instrument_job ) = 0 ;
 
