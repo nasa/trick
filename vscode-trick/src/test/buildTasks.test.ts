@@ -85,6 +85,8 @@ describe('buildTasks', () => {
 
       assert.strictEqual(task.execution.commandLine, TRICK_BUILD_COMMAND);
       assert.strictEqual(task.execution.options.cwd, '/ws/trick_sims/SIM_robot');
+      assert.strictEqual(task.execution.options.executable, '/bin/bash');
+      assert.deepStrictEqual(task.execution.options.shellArgs, ['-c']);
       assert.deepStrictEqual(task.definition, { type: 'trick', simRoot: '/ws/trick_sims/SIM_robot' });
       assert.deepStrictEqual(task.problemMatchers, ['$trick']);
       assert.strictEqual(task.group, 'build');
@@ -117,6 +119,8 @@ describe('buildTasks', () => {
       assert.deepStrictEqual(task.execution.args, ['RUN_test/input.py']);
       assert.strictEqual(task.execution.options.cwd, '/ws/trick_sims/SIM_robot');
       assert.strictEqual(task.execution.options.env.TRICK_HOME, '/opt/trick');
+      assert.strictEqual(task.execution.options.executable, '/bin/bash');
+      assert.deepStrictEqual(task.execution.options.shellArgs, ['-c']);
       assert.deepStrictEqual(task.definition, {
         type: 'trick',
         simRoot: '/ws/trick_sims/SIM_robot',

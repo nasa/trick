@@ -113,16 +113,39 @@ export class SimConfigProvider implements vscode.Disposable {
 
   /**
    * Resolves the SimConfig that applies to an arbitrary file: its owning
-   * sim (nearest ancestor S_define) if there is one, otherwise a global
-   * fallback keyed on TRICK_HOME itself. The fallback covers Trick-shipped
-   * files like share/trick/sim_objects/default_trick_sys.sm that live
-   * outside any sim directory but still resolve ##include/#include lines
-   * against TRICK_HOME's system include paths.
+   * sim (nearest ancestor S_define) if there is one; failing that, an
+   * already-resolved sim whose sInclude/include search path reaches this
+   * file; failing that, a global fallback keyed on TRICK_HOME itself.
+   *
+   * The second case covers shared `.sm` trees that live outside every sim's
+   * own directory but are reached only via a `-I`/`TRICK_SFLAGS` search path
+   * set up by the sims that use them - e.g. TrickHLA's S_modules/, added via
+   * `TRICK_SFLAGS += -I${TRICKHLA_HOME}/S_modules` in S_overrides.mk. A file
+   * in there has no owning sim of its own, so an `#include`/`##include` line
+   * inside it (e.g. S_modules/JEOD/JEODRefFrameTree.sm including
+   * "SpaceFOM/RefFrameTreeBase.sm" relative to S_modules, not to JEOD/) needs
+   * the *including* sim's sIncludes to resolve - any cached sim that reaches
+   * this file works, since they all share the same S_modules root. This
+   * relies on that sim's config already being cached (warmed up front for
+   * primary sims, or resolved lazily the first time one of its own files was
+   * opened) - a shared file opened before any sim that uses it still falls
+   * through to the TRICK_HOME-only fallback below.
+   *
+   * The final fallback covers Trick-shipped files like
+   * share/trick/sim_objects/default_trick_sys.sm that live outside any sim
+   * directory but still resolve ##include/#include lines against
+   * TRICK_HOME's system include paths.
    */
   async getConfigForFile(fsPath: string): Promise<SimConfig | undefined> {
     const simRoot = this.findSimRoot(fsPath);
     if (simRoot) {
       return this.getConfig(simRoot);
+    }
+    for (const config of this.getAllCached()) {
+      const searchDirs = [...config.sIncludes, ...config.cIncludes, ...config.cxxIncludes];
+      if (searchDirs.some((dir) => isAncestorDir(dir, fsPath))) {
+        return config;
+      }
     }
     const trickHome = this.resolveTrickHome(path.dirname(fsPath));
     if (trickHome) {
@@ -329,21 +352,8 @@ export class SimConfigProvider implements vscode.Disposable {
     }
 
     if (fs.existsSync(overridesPath)) {
-      const text = fs.readFileSync(overridesPath, 'utf8');
       const values: Record<string, string> = {};
-      // Join line-continuations, then scan assignment lines for the three flag vars.
-      const joined = text.replace(/\\\r?\n/g, ' ');
-      const assignRe = /^\s*(TRICK_C(?:XX)?FLAGS|TRICK_SFLAGS|TRICK_PYTHON_PATH)\s*(\+?=|:=)\s*(.*)$/gm;
-      let m: RegExpExecArray | null;
-      while ((m = assignRe.exec(joined))) {
-        const [, varName, op, rawValue] = m;
-        const expanded = this.expandMakeVars(rawValue.trim(), simRoot, trickHome, values);
-        if (op === '+=' && values[varName]) {
-          values[varName] = `${values[varName]} ${expanded}`;
-        } else {
-          values[varName] = expanded;
-        }
-      }
+      this.parseMakeFragment(overridesPath, simRoot, trickHome, values, new Set());
       for (const key of ['TRICK_CFLAGS', 'TRICK_CXXFLAGS', 'TRICK_SFLAGS', 'TRICK_PYTHON_PATH']) {
         if (values[key] !== undefined) {
           raw[key] = values[key];
@@ -352,6 +362,67 @@ export class SimConfigProvider implements vscode.Disposable {
     }
 
     return this.buildConfig(simRoot, 'regex', raw, trickHome);
+  }
+
+  /**
+   * Scans one makefile fragment for the three flag-var assignments (same as
+   * before), but also follows `include`/`-include` directives into whatever
+   * they point at - e.g. a sim's S_overrides.mk commonly does little more
+   * than `include ${SOME_PACKAGE_HOME}/makefiles/S_foo.mk`, with the actual
+   * `-I`/`-D` flags (and any env-gated $(error) guards) living in that
+   * included file. `make` itself would just run those guards and abort if an
+   * env var required by the real build (e.g. an RTI install) is missing, but
+   * this is a best-effort text scan for IntelliSense, not a build - so
+   * conditionals are ignored the same way they already are for the top-level
+   * file, and an unresolvable/missing include is just skipped rather than
+   * failing the whole parse.
+   *
+   * `visited` guards against include cycles and against reprocessing a file
+   * reached two different ways; depth is implicitly bounded by `visited`
+   * since every real file can only be visited once.
+   */
+  private parseMakeFragment(
+    file: string,
+    simRoot: string,
+    trickHome: string | undefined,
+    values: Record<string, string>,
+    visited: Set<string>
+  ): void {
+    const resolved = path.resolve(file);
+    if (visited.has(resolved)) {
+      return;
+    }
+    visited.add(resolved);
+    let text: string;
+    try {
+      text = fs.readFileSync(resolved, 'utf8');
+    } catch {
+      return;
+    }
+    // Join line-continuations, then scan assignment and include lines.
+    const joined = text.replace(/\\\r?\n/g, ' ');
+    const lineRe =
+      /^\s*(?:(TRICK_C(?:XX)?FLAGS|TRICK_SFLAGS|TRICK_PYTHON_PATH)\s*(\+?=|:=)\s*(.*)|-?include\s+(.*))$/gm;
+    let m: RegExpExecArray | null;
+    while ((m = lineRe.exec(joined))) {
+      const [, varName, op, rawValue, includeTargets] = m;
+      if (varName) {
+        const expanded = this.expandMakeVars(rawValue.trim(), simRoot, trickHome, values);
+        if (op === '+=' && values[varName]) {
+          values[varName] = `${values[varName]} ${expanded}`;
+        } else {
+          values[varName] = expanded;
+        }
+        continue;
+      }
+      for (const target of this.expandMakeVars(includeTargets.trim(), simRoot, trickHome, values).split(/\s+/)) {
+        if (!target) {
+          continue;
+        }
+        const includePath = path.isAbsolute(target) ? target : path.resolve(path.dirname(resolved), target);
+        this.parseMakeFragment(includePath, simRoot, trickHome, values, visited);
+      }
+    }
   }
 
   private expandMakeVars(
@@ -425,8 +496,8 @@ export class SimConfigProvider implements vscode.Disposable {
         overrideStandard ||
         extractStandard(`${raw.TRICK_CXXFLAGS} ${raw.TRICK_SYSTEM_CXXFLAGS}`) ||
         'c++14',
-      compilerPath: raw.TRICK_CXX || undefined,
-      cCompilerPath: raw.TRICK_CC || undefined,
+      compilerPath: raw.TRICK_CXX || findDefaultCompiler('CXX', ['/usr/bin/g++', '/usr/bin/c++', '/usr/bin/clang++']),
+      cCompilerPath: raw.TRICK_CC || findDefaultCompiler('CC', ['/usr/bin/gcc', '/usr/bin/cc', '/usr/bin/clang']),
       pythonPaths: buildPythonPaths(simRoot, trickHome, raw.TRICK_PYTHON_PATH ?? ''),
       raw,
     };
@@ -498,4 +569,35 @@ export function isInNestedRepo(simRoot: string, workspaceRoot: string | undefine
     dir = parent;
   }
   return false;
+}
+
+/**
+ * Best-effort compiler path for a sim whose flags came from the regex
+ * fallback, which - unlike resolveViaMake, which gets TRICK_CXX/TRICK_CC for
+ * real from Makefile.common (itself defaulting to ${CXX:-g++}/${CC:-gcc}
+ * when not overridden) - never sets TRICK_CXX/TRICK_CC at all, since it only
+ * scans S_overrides.mk text for the three flag variables.
+ *
+ * Without *some* compilerPath, cpptools has nothing to query for the C++
+ * standard library's own include paths, so every `<...>` system header -
+ * not just ones from whatever package a sim wraps - shows up as "cannot
+ * open source file" in a header cpptools otherwise parses correctly. An
+ * explicit `$CXX`/`$CC` environment variable is trusted as-is (it may be a
+ * bare command name resolved via PATH); otherwise the first of a handful of
+ * common absolute locations that actually exists on disk is used. Returns
+ * undefined (rather than guessing wrong) if none of those apply either, same
+ * as before this fallback existed.
+ */
+function findDefaultCompiler(envVar: 'CXX' | 'CC', candidates: string[]): string | undefined {
+  const fromEnv = process.env[envVar];
+  if (fromEnv) {
+    return fromEnv;
+  }
+  return candidates.find((c) => fs.existsSync(c));
+}
+
+/** True if `fsPath` is `dir` itself or strictly inside it. */
+function isAncestorDir(dir: string, fsPath: string): boolean {
+  const relative = path.relative(dir, fsPath);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }

@@ -45,6 +45,54 @@ function makeProvider() {
 }
 
 describe('SimConfigProvider regex fallback', () => {
+  it('falls back to a default compilerPath/cCompilerPath so cpptools can still resolve <> system headers', async () => {
+    const provider = makeProvider();
+    const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_rocket');
+    const savedCxx = process.env.CXX;
+    const savedCc = process.env.CC;
+    delete process.env.CXX;
+    delete process.env.CC;
+    try {
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.ok(config.compilerPath, 'expected a fallback compilerPath, not undefined');
+      assert.ok(fs.existsSync(config.compilerPath));
+      assert.ok(config.cCompilerPath, 'expected a fallback cCompilerPath, not undefined');
+      assert.ok(fs.existsSync(config.cCompilerPath));
+    } finally {
+      if (savedCxx !== undefined) {
+        process.env.CXX = savedCxx;
+      }
+      if (savedCc !== undefined) {
+        process.env.CC = savedCc;
+      }
+    }
+  });
+
+  it('trusts an explicit $CXX/$CC over the built-in candidate list', async () => {
+    const provider = makeProvider();
+    const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_rocket');
+    const savedCxx = process.env.CXX;
+    const savedCc = process.env.CC;
+    process.env.CXX = '/opt/my-toolchain/bin/g++';
+    process.env.CC = '/opt/my-toolchain/bin/gcc';
+    try {
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.strictEqual(config.compilerPath, '/opt/my-toolchain/bin/g++');
+      assert.strictEqual(config.cCompilerPath, '/opt/my-toolchain/bin/gcc');
+    } finally {
+      if (savedCxx === undefined) {
+        delete process.env.CXX;
+      } else {
+        process.env.CXX = savedCxx;
+      }
+      if (savedCc === undefined) {
+        delete process.env.CC;
+      } else {
+        process.env.CC = savedCc;
+      }
+    }
+  });
+
   it('parses a simple -I./models style S_overrides.mk (SIM_rocket)', async () => {
     const provider = makeProvider();
     const simRoot = path.join(REPO_ROOT, 'trick_sims', 'SIM_rocket');
@@ -114,6 +162,52 @@ describe('SimConfigProvider regex fallback', () => {
     }
   });
 
+  it('follows include/-include directives in S_overrides.mk (TrickHLA-style S_hla.mk pattern)', async () => {
+    const provider = makeProvider();
+    const simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-include-'));
+    const packageHome = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-pkghome-'));
+    const savedPackageEnv = process.env.MY_PACKAGE_HOME;
+    try {
+      process.env.MY_PACKAGE_HOME = packageHome;
+      fs.mkdirSync(path.join(packageHome, 'include'));
+      fs.mkdirSync(path.join(packageHome, 'makefiles'));
+      fs.writeFileSync(
+        path.join(packageHome, 'makefiles', 'S_pkg.mk'),
+        'TRICK_CXXFLAGS += -I${MY_PACKAGE_HOME}/include\n'
+      );
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        'include ${MY_PACKAGE_HOME}/makefiles/S_pkg.mk\nTRICK_CFLAGS += -I.\n'
+      );
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.ok(config.cxxIncludes.includes(path.join(packageHome, 'include')));
+    } finally {
+      if (savedPackageEnv === undefined) {
+        delete process.env.MY_PACKAGE_HOME;
+      } else {
+        process.env.MY_PACKAGE_HOME = savedPackageEnv;
+      }
+      fs.rmSync(simRoot, { recursive: true, force: true });
+      fs.rmSync(packageHome, { recursive: true, force: true });
+    }
+  });
+
+  it('skips a missing/unresolvable include rather than failing the whole parse', async () => {
+    const provider = makeProvider();
+    const simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-badinclude-'));
+    try {
+      fs.mkdirSync(path.join(simRoot, 'models'));
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        '-include ${HOME}/.doesnotexist/S_user_env.mk\nTRICK_CXXFLAGS += -I./models\n'
+      );
+      const config = await (provider as any).resolveViaRegex(simRoot, TRICK_HOME);
+      assert.ok(config.cxxIncludes.includes(path.join(simRoot, 'models')));
+    } finally {
+      fs.rmSync(simRoot, { recursive: true, force: true });
+    }
+  });
+
   it('falls back to a trick/bin directory on PATH when walk-up and env fail', () => {
     const provider = makeProvider();
     const savedPath = process.env.PATH;
@@ -130,6 +224,55 @@ describe('SimConfigProvider regex fallback', () => {
       if (savedHome !== undefined) {
         process.env.TRICK_HOME = savedHome;
       }
+    }
+  });
+});
+
+describe('SimConfigProvider.getConfigForFile', () => {
+  it('resolves a shared .sm file outside any sim via an already-cached sim whose sIncludes reaches it', async () => {
+    const provider = makeProvider();
+    const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-shared-sm-'));
+    try {
+      const simRoot = path.join(workDir, 'SIM_test');
+      const sharedModules = path.join(workDir, 'pkg', 'S_modules');
+      fs.mkdirSync(simRoot, { recursive: true });
+      fs.mkdirSync(path.join(sharedModules, 'sub'), { recursive: true });
+      fs.writeFileSync(path.join(simRoot, 'S_define'), '');
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        `TRICK_SFLAGS += -I${sharedModules}\n`
+      );
+      // A file reachable only via that -I search path, not under simRoot at all -
+      // e.g. TrickHLA's S_modules/JEOD/JEODRefFrameTree.sm including
+      // "SpaceFOM/RefFrameTreeBase.sm" relative to S_modules, not to JEOD/.
+      const sharedFile = path.join(sharedModules, 'sub', 'shared.sm');
+      fs.writeFileSync(sharedFile, '');
+
+      assert.strictEqual(provider.findSimRoot(sharedFile), undefined);
+      // Warm the sim's config into the cache first, same as warmPrimarySimRoots
+      // would on activation - getConfigForFile only reuses already-resolved configs.
+      await provider.getConfig(simRoot);
+
+      const config = await provider.getConfigForFile(sharedFile);
+      assert.ok(config, 'expected a config reused from the sim that reaches this file');
+      assert.strictEqual(config!.simRoot, simRoot);
+      assert.ok(config!.sIncludes.includes(sharedModules));
+    } finally {
+      fs.rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
+  it('falls through to the TRICK_HOME fallback for a file no cached sim reaches', async () => {
+    const provider = makeProvider();
+    const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-unreached-'));
+    try {
+      const orphanFile = path.join(workDir, 'orphan.sm');
+      fs.writeFileSync(orphanFile, '');
+      const config = await provider.getConfigForFile(orphanFile);
+      assert.ok(config);
+      assert.strictEqual(config!.simRoot, TRICK_HOME);
+    } finally {
+      fs.rmSync(workDir, { recursive: true, force: true });
     }
   });
 });

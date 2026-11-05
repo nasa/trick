@@ -51,8 +51,6 @@ jobs:
               libx11-dev
               libxml2-dev
               libxt-dev
-              libmotif-common
-              libmotif-dev
               zlib1g-dev
               llvm-dev
               libclang-dev
@@ -84,8 +82,8 @@ jobs:
               llvm-static
               maven-openjdk21
               ncurses-devel
-              motif
-              motif-devel
+              libX11-devel
+              libXt-devel
               perl
               perl-Digest-MD5
               udunits2

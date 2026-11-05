@@ -22,6 +22,16 @@ export interface TrickTaskDefinition extends vscode.TaskDefinition {
 // codes the problem matcher can't parse.
 export const TRICK_BUILD_COMMAND = 'trick-CP 2>&1 | cat';
 
+// TRICK_BUILD_COMMAND's `2>&1` is bash/sh redirection syntax; tcsh rejects it
+// with "Ambiguous output redirect" (tcsh needs `>&` instead). ShellExecution
+// otherwise runs under whatever shell VS Code's task system picks - the
+// user's terminal.integrated.defaultProfile/automationProfile, which has no
+// reason to be bash - so pin both of this extension's tasks to bash
+// explicitly rather than depending on that being configured correctly.
+// Mirrors Trick's own `SHELL := /bin/bash` in Makefile.common, for the same
+// reason.
+const BASH_SHELL_OPTIONS = { executable: '/bin/bash', shellArgs: ['-c'] };
+
 // TRICK_HOME/bin isn't guaranteed to be on PATH just because VS Code can find
 // TRICK_HOME (trick.home / auto-detection don't touch the shell's PATH), so
 // this is added explicitly rather than assuming the user's shell profile has it.
@@ -43,6 +53,7 @@ export function createTrickBuildTask(
 ): vscode.Task {
   const definition: TrickTaskDefinition = { type: TRICK_TASK_TYPE, simRoot };
   const execution = new vscode.ShellExecution(TRICK_BUILD_COMMAND, {
+    ...BASH_SHELL_OPTIONS,
     cwd: simRoot,
     env: buildTrickEnv(trickHome, process.env.PATH),
   });
@@ -151,6 +162,7 @@ export function createTrickRunTask(
 ): vscode.Task {
   const definition: TrickTaskDefinition = { type: TRICK_TASK_TYPE, simRoot, inputFile };
   const execution = new vscode.ShellExecution(`./${executable}`, [inputFile], {
+    ...BASH_SHELL_OPTIONS,
     cwd: simRoot,
     env: buildTrickRunEnv(trickHome, process.env.PATH),
   });
