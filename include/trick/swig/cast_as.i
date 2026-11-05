@@ -16,19 +16,37 @@
 static TYPE * castAs##NAME( PyObject * obj1 ) {
     void *argp = NULL ;
     TYPE * ret = (TYPE *)NULL ;
+    swig_type_info *ty = SWIG_TypeQuery("_p_" "NAME");
 
-    //std::cout << "calling __cast_as" << std::endl ;
-    if ( SWIG_IsOK(SWIG_ConvertPtr(obj1,&argp,SWIG_TypeQuery("TYPE *"),SWIG_POINTER_DISOWN)) ) {
-        //std::cout << "we can cast to TYPE! " << argp << std::endl ;
-        ret = reinterpret_cast< TYPE *>(argp) ;
-    } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp,SWIG_TypeQuery("void *"), 0 ))) {
-        //std::cout << "we can cast (wrapped void *) to TYPE! " << argp << std::endl ;
-        ret = reinterpret_cast< TYPE *>(argp) ;
-    } else if ( PyInt_Check(obj1) ) {
-        ret = reinterpret_cast< TYPE *>( PyInt_AsLong(obj1) ) ;
-        //std::cout << "we are using incoming value as address " << PyInt_AsLong(obj1) << std::endl ;
-    } else {
-        std::cout << "Cast to TYPE failed." << std::endl ;
+    if(obj1) {
+        SwigPyObject *sobj = SWIG_Python_GetSwigThis(obj1);
+        while(sobj && sobj->ptr && ty && ty->name) {
+            swig_type_info *to = sobj->ty;
+            swig_cast_info *tc = SWIG_TypeCheck(ty->name, to);
+            if(!tc)
+            {
+                sobj = (SwigPyObject *)sobj->next;
+            } else {
+                ret = reinterpret_cast< TYPE *>(sobj->ptr) ;
+                break;
+            }
+        }
+    }
+
+    if(ret == (TYPE *)NULL) {
+        //std::cout << "calling __cast_as" << std::endl ;
+        if ( SWIG_IsOK(SWIG_ConvertPtr(obj1,&argp,ty,SWIG_POINTER_DISOWN)) ) {
+            //std::cout << "we can cast to TYPE! " << argp << std::endl ;
+            ret = reinterpret_cast< TYPE *>(argp) ;
+        } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp,SWIG_TypeQuery("_p_void"), 0 ))) {
+            //std::cout << "we can cast (wrapped void *) to TYPE! " << argp << std::endl ;
+            ret = reinterpret_cast< TYPE *>(argp) ;
+        } else if ( PyInt_Check(obj1) ) {
+            ret = reinterpret_cast< TYPE *>( PyInt_AsLong(obj1) ) ;
+            //std::cout << "we are using incoming value as address " << PyInt_AsLong(obj1) << std::endl ;
+        } else {
+            std::cout << "Cast to TYPE failed." << std::endl ;
+        }
     }
     return ret ;
 }
