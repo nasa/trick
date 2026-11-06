@@ -11,6 +11,10 @@ import java.util.*;
 public class JobSpecificationMap {
     private Map<String, JobSpecification> jobSpecMap;
 
+    // Negative value means the S_job_execution file did not contain a software
+    // frame entry (e.g., it was written before this field was added).
+    private double softwareFrame = -1.0;
+
     /**
      * Constructor
      */
@@ -21,7 +25,14 @@ public class JobSpecificationMap {
         String field[];
 
         while ((line = in.readLine()) != null) {
-            if (line.matches("\\s+1 [|].*$")) {
+            if (line.trim().startsWith("software frame")) {
+                String value = line.substring(line.indexOf('=') + 1).trim();
+                try {
+                    softwareFrame = Double.parseDouble(value);
+                } catch (NumberFormatException e) {
+                    // Leave softwareFrame at its "unknown" sentinel value.
+                }
+            } else if (line.matches("\\s+1 [|].*$")) {
                 field = line.split("[|]");
                 if (field.length == 9) {
                     String jobclass = field[2].trim();
@@ -61,5 +72,14 @@ public class JobSpecificationMap {
      */
     public JobSpecification getJobSpecification(String identifier) {
         return jobSpecMap.get(identifier);
+    }
+
+    /**
+     * Return the executive software frame time (seconds), as recorded in the
+     * S_job_execution file, or a negative value if it was not present
+     * (e.g., the file predates this field).
+     */
+    public double getSoftwareFrame() {
+        return softwareFrame;
     }
 } // class JobSpecificationMap
