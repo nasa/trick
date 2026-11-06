@@ -100,6 +100,7 @@ std::string Trick::ClassicCheckPointAgent::left_side_name() {
 
             default: {
                 message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Left side name-stack appears to be corrupted.\n") ;
+                mem_mgr->set_checkpoint_write_state(false);
             }
         }
     }
@@ -326,6 +327,7 @@ std::string Trick::ClassicCheckPointAgent::get_var_name( void* addr,
           ss << "Checkpoint Agent ERROR: Unable to create a subreference of variable \"" << name << "\"."
              << std::endl;
           message_publish(MSG_ERROR, ss.str().c_str() );
+          mem_mgr->set_checkpoint_write_state(false);
     }
     return (var_name);
 }
@@ -451,6 +453,7 @@ int Trick::ClassicCheckPointAgent::is_nil_valued( void* address,
                } else {
                    message_publish(MSG_ERROR, "Checkpoint Agent INTERNAL ERROR:\n"
                                               "Unhandled bitfield struct size (%d) in bitfield assignment.\n", attr->size) ;
+                   mem_mgr->set_checkpoint_write_state(false);
                    return(-1);
                }
                break;
@@ -472,6 +475,7 @@ int Trick::ClassicCheckPointAgent::is_nil_valued( void* address,
                break;
            default :
                message_publish(MSG_ERROR, "Checkpoint Agent file %s: Unhandled Type (%d).\n", __FILE__, attr->type) ;
+               mem_mgr->set_checkpoint_write_state(false);
                return(-1);
                break;
         }
@@ -541,7 +545,8 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
         case TRICK_VOID:
             chkpnt_os << std::endl << "// ERROR - VOID data type cannot be checkpointed." << std::endl;
             message_publish(MSG_ERROR, "Checkpoint Agent ERROR: VOID data type cannot be checkpointed.\n") ;
-        break;
+            mem_mgr->set_checkpoint_write_state(false);
+            break;
         case TRICK_UNSIGNED_CHARACTER:
             src_addr = (char*)address + offset * sizeof(unsigned char);
             chkpnt_os << std::dec << (int)*(unsigned char*)src_addr ;
@@ -600,6 +605,7 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
                     }
                 } else {
                     std::cerr << __FUNCTION__ << ": enumeration size error." << std::endl;
+                    mem_mgr->set_checkpoint_write_state(false);
                     std::cerr.flush();
                     value = -1;
                 }
@@ -680,6 +686,7 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
                 } else {
                      message_publish(MSG_ERROR, "Checkpoint Agent INTERNAL ERROR:\n"
                                                 "Unsupported bitfield size (%d) bytes.\n", attr->size) ;
+                     mem_mgr->set_checkpoint_write_state(false);
                 }
                 chkpnt_os << std::dec << sbf;
             } break;
@@ -695,6 +702,7 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
                 } else {
                      message_publish(MSG_ERROR, "Checkpoint Agent INTERNAL ERROR:\n"
                                                 "Unsupported bitfield size (%d) bytes.\n", attr->size) ;
+                     mem_mgr->set_checkpoint_write_state(false);
                 }
                 chkpnt_os << std::dec << bf;
             } break;
@@ -727,10 +735,12 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
         case TRICK_OPAQUE_TYPE:
             chkpnt_os << std::endl << "// ERROR - OPAQUE data type (" << attr->type_name << ") cannot be checkpointed." << std::endl;
             message_publish(MSG_ERROR, "Checkpoint Agent ERROR: OPAQUE data type (%s) cannot be checkpointed.\n", attr->type_name) ;
-        break;
+            mem_mgr->set_checkpoint_write_state(false);
+            break;
         default:
             chkpnt_os << "0";
             message_publish(MSG_ERROR, "Checkpoint Agent file %s: Unhandled Type (%d).\n", __FILE__, attr->type) ;
+            mem_mgr->set_checkpoint_write_state(false);
             break;
     }
 }
@@ -750,6 +760,7 @@ std::string Trick::ClassicCheckPointAgent::
 
     if ((attr != NULL) && ((curr_dim >= attr->num_index) || (attr->index[curr_dim].size != 0))) {
         message_publish(MSG_ERROR, "Checkpoint Agent ERROR: ref_string_from_ptr called with a non-pointer type.\n") ;
+        mem_mgr->set_checkpoint_write_state(false);
     }
 
     if (pointer == NULL) {
@@ -821,6 +832,7 @@ std::string Trick::ClassicCheckPointAgent::
                                << "Therefore, Trick::ClassicCheckPointAgent::ref_string_from_ptr() can't generate a textual reference to it."
                                << std::endl;
                             message_publish(MSG_ERROR, ss.str().c_str() );
+                            mem_mgr->set_checkpoint_write_state(false);
                             reference_string = "ERROR - Allocation name is NULL";
                         }
 
@@ -828,6 +840,7 @@ std::string Trick::ClassicCheckPointAgent::
                         message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Badly aligned pointer.\n"
                                                    "   It is not aligned with the data object\n"
                                                    "   (of the same type) into which it is pointing.\n") ;
+                        mem_mgr->set_checkpoint_write_state(false);
                         reference_string = "ERROR - Badly aligned pointer";
                     }
                 }
@@ -855,6 +868,7 @@ std::string Trick::ClassicCheckPointAgent::
                        << "Therefore, Trick::ClassicCheckPointAgent::ref_string_from_ptr() can't generate a textual reference to it."
                        << std::endl;
                     message_publish(MSG_ERROR, ss.str().c_str() );
+                    mem_mgr->set_checkpoint_write_state(false);
                     reference_string = "ERROR - Allocation name is NULL";
                 }
             } else { // The type specifications don't match, and the right hand side is not structured
@@ -865,6 +879,7 @@ std::string Trick::ClassicCheckPointAgent::
                     message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Type mismatch. Type specifications disagree.\n"
                                                "   The left side type specifier is \"%s\" but the right side is \"%s\".\n",
                                     left_type_spec, right_type_spec) ;
+                    mem_mgr->set_checkpoint_write_state(false);
                     reference_string = "ERROR - Type specifications disagree";
                 } else {
 
@@ -883,6 +898,7 @@ std::string Trick::ClassicCheckPointAgent::
                                << "Therefore, Trick::ClassicCheckPointAgent::ref_string_from_ptr() can't generate a textual reference to it."
                                << std::endl;
                             message_publish(MSG_ERROR, ss.str().c_str() );
+                            mem_mgr->set_checkpoint_write_state(false);
                             reference_string = "ERROR - Allocation name is NULL";
                         }
 
@@ -890,6 +906,7 @@ std::string Trick::ClassicCheckPointAgent::
                         message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Badly aligned pointer.\n"
                                                    "   It is not aligned with the data object\n"
                                                    "   (of the same type) into which it is pointing.\n") ;
+                        mem_mgr->set_checkpoint_write_state(false);
                         reference_string = "ERROR - Badly Aligned Pointer";
                     }
                 }
@@ -904,11 +921,13 @@ std::string Trick::ClassicCheckPointAgent::
                 reference_string = ss.str();
             } else if (attr->type == TRICK_WCHAR) {
                 message_publish(MSG_ERROR, "Checkpoint Agent ERROR: TRICK_WCHAR not fully supported yet.\n") ;
+                mem_mgr->set_checkpoint_write_state(false);
                 reference_string = "ERROR: TRICK_WCHAR not fully supported yet.";
             } else {
                 std::string lname = left_side_name();
                 message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Pointer <%p> in \"%s\" is not in Trick managed memory\n"
                                            "nor is it a character pointer.\n", pointer, lname.c_str()) ;
+                mem_mgr->set_checkpoint_write_state(false);
                 reference_string = "ERROR - Pointer not in Trick managed memory";
             }
 
@@ -916,6 +935,7 @@ std::string Trick::ClassicCheckPointAgent::
             std::string lname = left_side_name();
             message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Pointer <%p> in \"%s\" is not in Trick managed memory\n"
                                        "nor is it a character pointer.\n", pointer, lname.c_str()) ;
+            mem_mgr->set_checkpoint_write_state(false);
             reference_string = "ERROR - Pointer not in Trick managed memory";
         }
     }
@@ -1057,6 +1077,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
 
         message_publish(MSG_ERROR, "Checkpoint Agent ERROR: The specified current dimension \"%d\" is greater\n"
                                    "than the number of dimensions specified in the type ATTRIBUTES.\n", curr_dim) ;
+        mem_mgr->set_checkpoint_write_state(false);
 
         return;
     }

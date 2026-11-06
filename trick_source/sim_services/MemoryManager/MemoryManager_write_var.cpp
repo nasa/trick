@@ -16,6 +16,7 @@ void Trick::MemoryManager::write_composite_var( std::ostream& out_s,
 
     if (attr_list == NULL) {
         emitError("write_composite_var: attr_list = NULL.") ;
+        checkpoint_write_success = false;
         return;
     }
 
@@ -52,6 +53,7 @@ void Trick::MemoryManager::write_array_var( std::ostream& out_s,
 
     if (attr == NULL) {
         emitError("write_array_var: attr_list = NULL.") ;
+        checkpoint_write_success = false;
         return;
     }
 
