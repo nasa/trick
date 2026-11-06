@@ -114,11 +114,13 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
     }
 
     out_s.flush();
-    if (out_s.fail()) {
+    if (out_s.fail())
+    {
         emitError("write_checkpoint: An error occurred while writing to the checkpoint output stream.\n");
         checkpoint_write_success = false;
     }
-    if (!checkpoint_write_success) {
+    if (!checkpoint_write_success)
+    {
         std::stringstream message;
         message << "write_checkpoint: Checkpoint was written with errors and may not restore correctly."
                 << " See get_checkpoint_write_state() / TMM_get_checkpoint_write_state().";
@@ -127,9 +129,7 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
 }
 
 // Reset the checkpoint write error state before starting a new checkpoint.
-void Trick::MemoryManager::begin_checkpoint_write() {
-    checkpoint_write_success = true;
-}
+void Trick::MemoryManager::begin_checkpoint_write() { checkpoint_write_success = true; }
 
 // MEMBER FUNCTION
 bool Trick::MemoryManager::get_checkpoint_write_state() { return checkpoint_write_success; }
@@ -180,7 +180,6 @@ void Trick::MemoryManager::write_checkpoint(const char* filename) {
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, const char* var_name) {
-
     begin_checkpoint_write();
     dependencies.clear();
     stl_dependencies.clear();

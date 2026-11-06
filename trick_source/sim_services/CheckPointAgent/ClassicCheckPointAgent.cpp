@@ -546,7 +546,7 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
             chkpnt_os << std::endl << "// ERROR - VOID data type cannot be checkpointed." << std::endl;
             message_publish(MSG_ERROR, "Checkpoint Agent ERROR: VOID data type cannot be checkpointed.\n") ;
             mem_mgr->set_checkpoint_write_state(false);
-        break;
+            break;
         case TRICK_UNSIGNED_CHARACTER:
             src_addr = (char*)address + offset * sizeof(unsigned char);
             chkpnt_os << std::dec << (int)*(unsigned char*)src_addr ;
@@ -736,7 +736,7 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
             chkpnt_os << std::endl << "// ERROR - OPAQUE data type (" << attr->type_name << ") cannot be checkpointed." << std::endl;
             message_publish(MSG_ERROR, "Checkpoint Agent ERROR: OPAQUE data type (%s) cannot be checkpointed.\n", attr->type_name) ;
             mem_mgr->set_checkpoint_write_state(false);
-        break;
+            break;
         default:
             chkpnt_os << "0";
             message_publish(MSG_ERROR, "Checkpoint Agent file %s: Unhandled Type (%d).\n", __FILE__, attr->type) ;

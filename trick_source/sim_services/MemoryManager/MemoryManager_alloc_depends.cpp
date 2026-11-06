@@ -96,7 +96,7 @@ void Trick::MemoryManager::get_alloc_deps_in_allocation( const char* var_name ) 
                   <<"\") failed because the given name is'nt known by the MemoryManager."
                   << std::endl;
         std::cerr.flush();
-                  checkpoint_write_success = false;
+        checkpoint_write_success = false;
     }
 }
 
