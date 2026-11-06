@@ -54,6 +54,7 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
                     anonymous variables, because we should not reload them.*/
             } else {
                 emitError("write_checkpoint: This is bad. ALLOC_INFO object is messed up.\n") ;
+                checkpoint_write_success = false;
             }
         }
         get_stl_dependencies(alloc_info);
@@ -111,7 +112,30 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
     for ( it = stl_dependencies.rbegin() ; it != stl_dependencies.rend() ; it++ ) {
         delete_var((*it)->start) ;
     }
+
+    out_s.flush();
+    if (out_s.fail()) {
+        emitError("write_checkpoint: An error occurred while writing to the checkpoint output stream.\n");
+        checkpoint_write_success = false;
+    }
+    if (!checkpoint_write_success) {
+        std::stringstream message;
+        message << "write_checkpoint: Checkpoint was written with errors and may not restore correctly."
+                << " See get_checkpoint_write_state() / TMM_get_checkpoint_write_state().";
+        emitWarning(message.str());
+    }
 }
+
+// Reset the checkpoint write error state before starting a new checkpoint.
+void Trick::MemoryManager::begin_checkpoint_write() {
+    checkpoint_write_success = true;
+}
+
+// MEMBER FUNCTION
+bool Trick::MemoryManager::get_checkpoint_write_state() { return checkpoint_write_success; }
+
+// MEMBER FUNCTION
+void Trick::MemoryManager::set_checkpoint_write_state(bool state) { checkpoint_write_success = state; }
 
 // Local sort function used in write_checkpoint.
 static bool alloc_info_id_compare(ALLOC_INFO * lhs, ALLOC_INFO * rhs) { return ( lhs->id < rhs->id ) ; }
@@ -121,6 +145,7 @@ void Trick::MemoryManager::write_checkpoint( std::ostream& out_s) {
 
     ALLOC_INFO_MAP::iterator pos;
     ALLOC_INFO* alloc_info;
+    begin_checkpoint_write();
     dependencies.clear();
     stl_dependencies.clear();
 
@@ -149,12 +174,14 @@ void Trick::MemoryManager::write_checkpoint(const char* filename) {
         std::stringstream message;
         message << "Couldn't open \"" << filename << "\".";
         emitError(message.str());
+        checkpoint_write_success = false;
     }
 }
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, const char* var_name) {
 
+    begin_checkpoint_write();
     dependencies.clear();
     stl_dependencies.clear();
 
@@ -175,6 +202,7 @@ void Trick::MemoryManager::write_checkpoint(const char* filename, const char* va
         std::stringstream message;
         message << "Couldn't open \"" << filename << "\".";
         emitError(message.str());
+        checkpoint_write_success = false;
     }
 }
 
@@ -184,6 +212,7 @@ void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, std::vector<co
     const char* var_name;
     int n_names;
 
+    begin_checkpoint_write();
     dependencies.clear();
     stl_dependencies.clear();
 
@@ -208,5 +237,6 @@ void Trick::MemoryManager::write_checkpoint(const char* filename, std::vector<co
     } else {
         std::cerr << "ERROR: Couldn't open \""<< filename <<"\"." << std::endl;
         std::cerr.flush();
+        checkpoint_write_success = false;
     }
 }

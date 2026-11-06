@@ -3,7 +3,10 @@
 #define private public
 #include "MM_test.hh"
 #include "MM_write_checkpoint.hh"
+#include "trick/memorymanager_c_intf.h"
+#include <fstream>
 #include <iostream>
+#include <unistd.h>
 
 
 /*
@@ -1275,3 +1278,103 @@ TEST_F(MM_write_checkpoint, enum_s8_singleton) {
 }
 
 
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_success) {
+
+    std::stringstream ss;
+
+    double *dbl_p = (double*)memmgr->declare_var("double dbl_write_ok");
+    *dbl_p = 3.0;
+
+    memmgr->write_checkpoint( ss, "dbl_write_ok");
+
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_unmanaged_pointer) {
+
+    std::stringstream ss;
+    std::string s;
+    static double unmanaged_dbl = 1.0;
+
+    double **dbl_pp = (double**)memmgr->declare_var("double *dbl_unmanaged_ptr");
+    *dbl_pp = &unmanaged_dbl;
+
+    memmgr->write_checkpoint( ss, "dbl_unmanaged_ptr");
+    s = ss.str();
+
+    // The checkpoint is still written, but the write state reports the error.
+    EXPECT_NE(s.find("dbl_unmanaged_ptr"), std::string::npos);
+    EXPECT_NE(s.find("ERROR"), std::string::npos);
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+
+    // A subsequent clean checkpoint resets the write state.
+    std::stringstream ss2;
+    *dbl_pp = NULL;
+    memmgr->write_checkpoint( ss2, "dbl_unmanaged_ptr");
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_unknown_variable) {
+
+    std::stringstream ss;
+
+    memmgr->write_checkpoint( ss, "no_such_variable");
+
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_bad_file) {
+
+    memmgr->write_checkpoint( "/nonexistent_dir/should_not_exist.chkpnt");
+
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, TMM_write_state_false_on_checkpoint_error) {
+
+    std::stringstream ss;
+    static double unmanaged_dbl = 2.0;
+
+    double **dbl_pp = (double**)memmgr->declare_var("double *tmm_unmanaged_ptr");
+    *dbl_pp = &unmanaged_dbl;
+
+    memmgr->write_checkpoint( ss, "tmm_unmanaged_ptr");
+
+    EXPECT_NE(ss.str().find("ERROR"), std::string::npos);
+    EXPECT_FALSE(TMM_get_checkpoint_write_state());
+
+    std::stringstream ss2;
+    *dbl_pp = NULL;
+    memmgr->write_checkpoint( ss2, "tmm_unmanaged_ptr");
+    EXPECT_TRUE(TMM_get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, TMM_write_checkpoint_file_with_error) {
+
+    static double unmanaged_dbl = 4.0;
+    const char* filename = "MM_write_checkpoint_tmm_error.chkpnt";
+
+    double **dbl_pp = (double**)memmgr->declare_var("double *tmm_file_unmanaged_ptr");
+    *dbl_pp = &unmanaged_dbl;
+
+    TMM_write_checkpoint(filename);
+
+    // The checkpoint file is still written, including the inline error text.
+    std::ifstream in(filename);
+    ASSERT_TRUE(in.is_open());
+    std::stringstream contents;
+    contents << in.rdbuf();
+    in.close();
+    unlink(filename);
+
+    EXPECT_NE(contents.str().find("tmm_file_unmanaged_ptr"), std::string::npos);
+    EXPECT_NE(contents.str().find("ERROR"), std::string::npos);
+    EXPECT_FALSE(TMM_get_checkpoint_write_state());
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}

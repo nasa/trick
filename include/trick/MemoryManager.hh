@@ -427,6 +427,20 @@ namespace Trick {
             bool get_checkpoint_restore_state();
 
             /**
+             * Sets the checkpoint write state.
+             * @param state - true if the last checkpoint write completed without errors, false otherwise.
+             */
+            void set_checkpoint_write_state(bool state);
+
+            /**
+             * Gets the checkpoint write state. The state is reset to true at the start of each
+             * write_checkpoint() call and set to false if any error is reported while writing,
+             * even if a checkpoint file was still produced.
+             * @return true if the last checkpoint write completed without errors, false otherwise.
+             */
+            bool get_checkpoint_write_state();
+
+            /**
              Deallocate the memory for all TRICK_LOCAL variables and then forget about them.
              Clear the memory for all TRICK_EXTERN variables.
              Does not attempt to deallocate external memory.
@@ -718,6 +732,8 @@ namespace Trick {
             bool expanded_arrays;                       /**< -- true = array element values are set in separate assignments. */
             bool checkpoint_restore_success; /**< -- true = If the checkpoint restore process is successful. false =
                                                 otherwise. */
+            bool checkpoint_write_success;   /**< -- true = If the last checkpoint write had no errors. false =
+                                                otherwise. */
 
             ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
             VARIABLE_MAP    variable_map;    /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */
@@ -733,6 +749,7 @@ namespace Trick {
 	    std::list<void*> deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
 
             void execute_checkpoint( std::ostream& out_s );
+            void begin_checkpoint_write();
 
             /**
              Walks through allocation and allocates space for STLs

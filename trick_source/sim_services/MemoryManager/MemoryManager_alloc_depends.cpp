@@ -15,6 +15,7 @@ void Trick::MemoryManager::get_alloc_deps_in_allocation(ALLOC_INFO* alloc_info )
 
     if (alloc_info == NULL) {
         std::cerr << "ERROR: Trick::MemoryManager::get_alloc_deps_in_allocation called with alloc_info == NULL." << std::endl;
+        checkpoint_write_success = false;
         std::cout.flush();
         return;
     }
@@ -95,6 +96,7 @@ void Trick::MemoryManager::get_alloc_deps_in_allocation( const char* var_name ) 
                   <<"\") failed because the given name is'nt known by the MemoryManager."
                   << std::endl;
         std::cerr.flush();
+                  checkpoint_write_success = false;
     }
 }
 
@@ -109,6 +111,7 @@ void Trick::MemoryManager::get_alloc_deps_in_class( char* address, ATTRIBUTES* a
 
     if (attr == NULL) {
         std::cerr << "ERROR: Trick::MemoryManager::get_alloc_deps_in_class called with attr = NULL." << std::endl;
+        checkpoint_write_success = false;
         return;
     }
 
@@ -148,6 +151,7 @@ void Trick::MemoryManager::get_alloc_deps_in_arrayed_class(
 
     if (attr == NULL) {
         std::cerr << "Trick::MemoryManager::get_alloc_deps_in_arrayed_class: ERROR: attr = NULL." << std::endl;
+        checkpoint_write_success = false;
         return;
     }
 
