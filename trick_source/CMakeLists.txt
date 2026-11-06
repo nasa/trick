@@ -6,3 +6,4 @@ endif()
 
 add_subdirectory(codegen/Interface_Code_Gen)
 include(TrickICG)
+add_subdirectory(sim_services)
