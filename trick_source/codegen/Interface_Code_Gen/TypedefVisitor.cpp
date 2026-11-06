@@ -80,7 +80,9 @@ bool TypedefVisitor::VisitRecordType(clang::RecordType *rt) {
             return true ;
         }
         CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
-        cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(rd)) ;
+        if ( !cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(rd)) ) {
+            return true ;
+        }
         /* Test to see if the typedef name and the struct/union have the same name.
            If they do, we won't add the typedeffed record */
         if ( typedef_name.compare(cvis.get_class_data()->getName()) ) {
@@ -114,7 +116,9 @@ bool TypedefVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializati
             td->dump() ; std::cout << std::endl ;
         }
         CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
-        cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ;
+        if ( !cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ) {
+            return true ;
+        }
         cval = cvis.get_class_data() ;
 
         if (cval->isInStandardNamespace()) {

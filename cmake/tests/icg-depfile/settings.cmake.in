@@ -1,0 +1,12 @@
+include([==[@ICG_SETTINGS@]==])
+# Retain the configured compiler, definitions and implicit include settings.
+set(icg_source_dir [==[@home@]==])
+set(icg_binary_dir [==[@build@]==])
+set(icg_local_includes [==[@home@/include]==])
+set(icg_external_includes [==[@external@]==])
+set(icg_outputs
+    sim_services/io_src/io_files_to_ICG.cpp
+    sim_services/io_src/io_Local.cpp
+    sim_services/io_src/class_map.cpp
+    sim_services/io_src/extern_init_attr.h
+    sim_services_classes.resource)

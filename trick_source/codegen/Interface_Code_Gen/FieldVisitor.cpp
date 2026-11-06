@@ -294,7 +294,12 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
         // Traverse the template declaration
         CXXRecordVisitor template_spec_cvis(ci , cs, hsd , pa, true) ;
         template_spec_cvis.get_class_data()->setMangledTypeName(processed_templates[in_name]) ;
-        template_spec_cvis.TraverseCXXRecordDecl(crd) ;
+        if ( !template_spec_cvis.TraverseCXXRecordDecl(crd) ) {
+            // Do not cache or emit attributes for a record that was skipped.
+            processed_templates.erase(in_name) ;
+            fdes->setIO(0) ;
+            return false ;
+        }
 
         // Set the actual type name and file name. Print the attributes for this template type
         template_spec_cvis.get_class_data()->setName(in_name) ;
