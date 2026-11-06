@@ -57,6 +57,7 @@ public class TraceViewCanvas extends JPanel {
     //   viewStart  = seconds offset from frame.start shown at the left edge.
     // -----------------------------------------------------------------------
     private double frameSize;
+    private double averageFrameSize;
     private double viewStart;
     private double totalDuration;
     private FrameRange frameRenderRange;
@@ -161,7 +162,15 @@ public class TraceViewCanvas extends JPanel {
         for (int n = 1; n < frameArray.length; n++) {
             totalDuration += frameArray[n].getDuration();
         }
-        frameSize = totalDuration / (frameArray.length - 1);
+        averageFrameSize = totalDuration / (frameArray.length - 1);
+
+        // Prefer the executive's configured software frame time so that the
+        // rendered row/bar length reflects the actual frame period, rather than
+        // the average measured (and potentially jittery) frame duration. Fall
+        // back to the average when an older S_job_execution file doesn't have
+        // the software frame recorded.
+        double softwareFrame = jobSpecificationMap.getSoftwareFrame();
+        frameSize = (softwareFrame > 0.0) ? softwareFrame : averageFrameSize;
 
         int last_frame_to_render = Math.min(frameArray.length - 1, DEFAULT_FRAMES_TO_RENDER - 1);
         frameRenderRange = new FrameRange(0, last_frame_to_render);
@@ -189,6 +198,10 @@ public class TraceViewCanvas extends JPanel {
 
     public double getFrameSize() {
         return frameSize;
+    }
+
+    public double getAverageFrameSize() {
+        return averageFrameSize;
     }
 
     public boolean isZoomed() {
@@ -461,6 +474,15 @@ public class TraceViewCanvas extends JPanel {
         String EOF_text = "End of Frame";
         g2d.drawString(EOF_text, LEFT_MARGIN + traceRectWidth - fm.stringWidth(EOF_text), TY);
 
+        // Small label showing the average measured frame duration, for comparison
+        // against the software frame time used to size the rows above.
+        g2d.setFont(frameFont12);
+        FontMetrics smallFm = g2d.getFontMetrics();
+        g2d.setColor(Color.GRAY);
+        g2d.drawString(
+                String.format("avg frame: %.6f s", averageFrameSize), 10, TY - smallFm.getHeight());
+
+        g2d.setFont(traceWidth >= DEFAULT_TRACE_WIDTH ? frameFont18 : frameFont12);
         g2d.setColor(Color.RED);
         String ORZ1 = "OVER-RUN", ORZ2 = "ZONE";
         int orzX = LEFT_MARGIN + traceRectWidth + (RIGHT_MARGIN - fm.stringWidth(ORZ1)) / 2;
