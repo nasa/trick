@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -518,38 +519,30 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout);
         
-        if (enums != null && enums.size() > 0) {
-                // sort
-                ArrayList<SieEnumeration> sortedEnums = new ArrayList<SieEnumeration>(enums);
-                Collections.sort(sortedEnums);
-                SieEnumeration item = null;
-                         
-                for (Object obj : sortedEnums) {
-                    if (obj instanceof SieEnumeration) {
-                        item = (SieEnumeration)obj;
-                        String firstLetter = (item.name.substring(0,1));
-                        
-                        // Only adds the section name if it is not created. 
-                        // The section name is "_" + first letter of the type.
-                        if (sectionLetterSet.contains(firstLetter)) {
-                            out.println("<H3>" + item.name + "</H3>");                           
-                        } else {    
-                            out.println("<H3><A NAME=\"_" + firstLetter + "\">" + item.name + "</A></H3>");
-                            sectionLetterSet.add(firstLetter);
-                        }
-        
-                        //int valSize = item.pairs.keySet().size();
-                        // Lists all the values of this enumerated type.
-                        if (item.pairs != null && item.pairs.keySet().size() > 0) {
-                            out.println("<DL>");
-                            for (Object eachLabel : item.pairs.keySet()) {
-                                out.println("<DD>" + eachLabel.toString());
-                            }
-                            out.println("</DL>");
-                            out.println("<HR");
-                        }
-                    }
+        if (enums != null && !enums.isEmpty()) {
+            ArrayList<SieEnumeration> sortedEnums = new ArrayList<SieEnumeration>(enums);
+            Collections.sort(sortedEnums);
+
+            for (SieEnumeration item : sortedEnums) {
+                String firstLetter = item.name.substring(0, 1);
+
+                // Only adds the section anchor ("_" + first letter) for the first type with that letter.
+                if (sectionLetterSet.add(firstLetter)) {
+                    out.println("<H3><A NAME=\"_" + firstLetter + "\">" + item.name + "</A></H3>");
+                } else {
+                    out.println("<H3>" + item.name + "</H3>");
                 }
+
+                if (!item.pairs.isEmpty()) {
+                    out.println("<TABLE BORDER=\"1\" CELLPADDING=\"4\" CELLSPACING=\"0\">");
+                    out.println("<TR><TH ALIGN=\"LEFT\">Label</TH><TH ALIGN=\"LEFT\">Value</TH></TR>");
+                    for (Map.Entry<String, String> pair : item.pairs.entrySet()) {
+                        out.println("<TR><TD>" + pair.getKey() + "</TD><TD>" + pair.getValue() + "</TD></TR>");
+                    }
+                    out.println("</TABLE>");
+                    out.println("<HR>");
+                }
+            }
         }
         out.close();
         
@@ -572,16 +565,11 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
         
         // Set up the letterSet without duplicate letters.
         // All letters are case senstive. e.g. the links could have both "R" and "r".
-        if (enums != null && enums.size() > 0) {
-            SieEnumeration item = null;
-            for (Object obj : enums) {
-                item = (SieEnumeration)obj;
-                String firstLetter = (item.name.substring(0, 1));
-                if (!letterSet.contains(firstLetter)) {
-                    letterSet.add(firstLetter);
-                }
+        if (enums != null) {
+            for (SieEnumeration item : enums) {
+                letterSet.add(item.name.substring(0, 1));
             }
-        } 
+        }
 
         if (!letterSet.isEmpty()) {
             Object[] letters = letterSet.toArray();
