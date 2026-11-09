@@ -479,8 +479,7 @@ public class TraceViewCanvas extends JPanel {
         g2d.setFont(frameFont12);
         FontMetrics smallFm = g2d.getFontMetrics();
         g2d.setColor(Color.GRAY);
-        g2d.drawString(
-                String.format("avg frame: %.6f s", averageFrameSize), 10, TY - smallFm.getHeight());
+        g2d.drawString(String.format("avg frame: %.6f s", averageFrameSize), 10, TY - smallFm.getHeight());
 
         g2d.setFont(traceWidth >= DEFAULT_TRACE_WIDTH ? frameFont18 : frameFont12);
         g2d.setColor(Color.RED);
