@@ -57,6 +57,9 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
     fprintf(fp, "Executive time tic value (tics/second) information\n");
     fprintf(fp, "    time tic value = %d\n\n", time_tic_value);
 
+    fprintf(fp, "Executive software frame (seconds) information\n");
+    fprintf(fp, "    software frame = %.9g\n\n", software_frame);
+
     fprintf(fp, "Thread information\n");
     for ( ii = 0 ; ii < threads.size() ; ii++ ) {
         std::stringstream oss ;
