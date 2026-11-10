@@ -514,9 +514,9 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
 
                 // Only adds the section anchor ("_" + first letter) for the first type with that letter.
                 if (sectionLetterSet.add(firstLetter)) {
-                    out.println("<H3><A NAME=\"_" + firstLetter + "\">" + item.name + "</A></H3>");
+                    out.println("<H2><A NAME=\"_" + firstLetter + "\">" + item.name + "</A></H2>");
                 } else {
-                    out.println("<H3>" + item.name + "</H3>");
+                    out.println("<H2>" + item.name + "</H2>");
                 }
 
                 if (!item.pairs.isEmpty()) {
@@ -547,7 +547,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
         HashSet<String> letterSet = new HashSet<String>();
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout);
-        out.println("<H2>" + "All Enumerated Types" + "</H2>");
+        out.println("<H1>All Enumerated Types</H1>");
 
         // Set up the letterSet without duplicate letters.
         // All letters are case senstive. e.g. the links could have both "R" and "r".
@@ -561,9 +561,11 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
             Object[] letters = letterSet.toArray();
             // All links are in alphabet order and case senstive.
             Arrays.sort(letters);
+            out.println("<H2>");
             for (int i = 0; i < letters.length; i++) {
                 out.println("<A HREF=\"_" + letters[i].toString() + "\">" + letters[i].toString() + "</A>");
             }
+            out.println("</H2>");
         }
         out.close();
         return sout.toString();
