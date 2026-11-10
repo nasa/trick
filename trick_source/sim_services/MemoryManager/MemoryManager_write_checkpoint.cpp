@@ -121,10 +121,8 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
     }
     if (!checkpoint_write_success)
     {
-        std::stringstream message;
-        message << "write_checkpoint: Checkpoint was written with errors and may not restore correctly."
-                << " See get_checkpoint_write_state() / TMM_get_checkpoint_write_state().";
-        emitWarning(message.str());
+        emitWarning("write_checkpoint: Checkpoint was written with errors and may not restore correctly."
+                    " See get_checkpoint_write_state() / TMM_get_checkpoint_write_state().");
     }
 }
 

@@ -149,6 +149,7 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
 
     } else {
         // ERROR - num_index cant be negative.
+        mem_mgr->set_checkpoint_write_state(false);
     }
 }
 
@@ -817,6 +818,7 @@ std::string Trick::ClassicCheckPointAgent::
 
                 if (n_l_ptrs != (n_r_ptrs + 1)) {
                     reference_string = "NULL /*ERROR: # asterisks disagree.*/";
+                    mem_mgr->set_checkpoint_write_state(false);
                 } else {
                     if (misalignment == 0) {
                         std::stringstream workss;
