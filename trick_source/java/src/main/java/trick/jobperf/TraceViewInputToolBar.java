@@ -16,8 +16,9 @@ import javax.swing.*;
  *
  * TraceViewInputToolBar [this]
  *     isa JToolBar
- *     JLabel ("Frame Size (Avg):")
+ *     JLabel ("Frame Size:")
  *     JTextField [frameSizeField]
+ *     JLabel ("Avg: ...")
  *     JButton [frameDetailsButton]
  *     JButton [zoomResetButton]
  *     JLabel ("Frames : [..]")
@@ -48,7 +49,7 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
     public TraceViewInputToolBar(TraceViewCanvas tvc) {
         traceView = tvc;
 
-        add(new JLabel("           Frame Size (Avg): "));
+        add(new JLabel("           Frame Size: "));
         frameSizeField = new JTextField(10);
         frameSizeField.setText(String.format("%8.4f", traceView.getFrameSize()));
         add(frameSizeField);
@@ -58,6 +59,8 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) setFrameSize();
             }
         });
+
+        add(new JLabel(String.format("   (avg: %8.4f)   ", traceView.getAverageFrameSize())));
 
         frameDetailsButton = new JButton("Frame Details");
         frameDetailsButton.addActionListener(this);
