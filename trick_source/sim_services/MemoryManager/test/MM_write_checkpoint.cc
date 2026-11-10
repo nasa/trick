@@ -1380,15 +1380,15 @@ TEST_F(MM_write_checkpoint, TMM_write_checkpoint_file_with_error)
 }
 
 // ================================================================================
-TEST_F(MM_write_checkpoint, write_state_unaffected_by_errors_outside_checkpoint) 
+TEST_F(MM_write_checkpoint, write_state_unaffected_by_errors_outside_checkpoint)
 {
     std::stringstream ss;
     static double unmanaged_dbl = 5.0;
 
-    double *dbl_p = (double*)memmgr->declare_var("double dbl_outside_ok");
-    *dbl_p = 1.0;
+    double* dbl_p = (double*)memmgr->declare_var("double dbl_outside_ok");
+    *dbl_p        = 1.0;
 
-    memmgr->write_checkpoint( ss, "dbl_outside_ok");
+    memmgr->write_checkpoint(ss, "dbl_outside_ok");
     EXPECT_TRUE(memmgr->get_checkpoint_write_state());
 
     // Same checkpoint agent code path, but not part of a checkpoint write.
