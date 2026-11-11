@@ -14,6 +14,8 @@
 #ifdef SWIG
 // SWIG macros are not normally run on classes in sim_services.  We can add the the processed code manually
 %trick_swig_class_typemap(MultiDtIntegLoopSimObject, MultiDtIntegLoopSimObject)
+// Keep access to the embedded scheduler, but do not generate a copy-assignment setter.
+%immutable MultiDtIntegLoopSimObject::integ_sched;
 #endif
 
 class MultiDtIntegLoopSimObject : public Trick::SimObject
