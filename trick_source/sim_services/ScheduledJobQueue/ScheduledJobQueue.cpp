@@ -152,7 +152,8 @@ int Trick::ScheduledJobQueue::remove( JobData * delete_job ) {
                 new_list[jj-1] = list[jj] ;
             }
             // Only removal before the next unread job shifts its index left.
-            if ( ii < curr_index ) {
+            if (ii < curr_index)
+            {
                 curr_index-- ;
             }
             /* Decrement the size of the queue */
@@ -180,8 +181,8 @@ unsigned int Trick::ScheduledJobQueue::get_curr_index() {
 -# Sets #curr_index to the incoming value.
 */
 int Trick::ScheduledJobQueue::set_curr_index(unsigned int value ) {
-
-    if ( value <= list_size ) {
+    if (value <= list_size)
+    {
         curr_index = value ;
     }
     return 0 ;
@@ -242,7 +243,8 @@ int Trick::ScheduledJobQueue::clear() {
 */
 Trick::JobData * Trick::ScheduledJobQueue::top() {
     /* return NULL if the cursor is at the end of the list */
-    if ( curr_index >= list_size ) {
+    if (curr_index >= list_size)
+    {
         return(NULL) ;
     }
     /* else return current list item  */

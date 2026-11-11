@@ -108,7 +108,8 @@ void Trick::Integrator::state_in (double* arg1, va_list argp) {
     double* next_arg = arg1;
     if (verbosity) message_publish(MSG_DEBUG, "LOAD STATE: ");
     while (next_arg != (double*) NULL) {
-        if (i >= num_state) {
+        if (i >= num_state)
+        {
             message_publish(MSG_ERROR, "Integrator::state_in: too many states (capacity %d).\n", num_state);
             return;
         }
@@ -126,7 +127,8 @@ void Trick::Integrator::state_in (double* arg1, va_list argp) {
         double* next_arg = arg1;
         if (verbosity) std::cout << "LOAD STATE: \n";
         while (next_arg != (double*) NULL) {
-            if (i >= num_state) {
+            if (i >= num_state)
+            {
                 message_publish(MSG_ERROR, "Integrator::state_in: too many states (capacity %d).\n", num_state);
                 return;
             }
