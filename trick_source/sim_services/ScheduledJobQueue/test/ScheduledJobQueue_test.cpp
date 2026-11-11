@@ -1,10 +1,11 @@
+#include "trick/ScheduledJobQueue.hh"
 
 #include <iostream>
-#include <sys/types.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <type_traits>
 
 #include "gtest/gtest.h"
-#include "trick/ScheduledJobQueue.hh"
 //#include "trick/RequirementScribe.hh"
 
 namespace Trick {
@@ -393,6 +394,128 @@ TEST_F( ScheduledJobQueueTest , TopJob ) {
     sjq.reset_curr_index() ;
     job_ptr = sjq.top() ;
     EXPECT_STREQ( job_ptr->name.c_str() , "job_1") ;
+}
+
+TEST_F(ScheduledJobQueueTest, QueueCannotShareItsOwnedStorageByCopying)
+{
+    EXPECT_FALSE(std::is_copy_constructible<Trick::ScheduledJobQueue>::value);
+    EXPECT_FALSE(std::is_copy_assignable<Trick::ScheduledJobQueue>::value);
+    EXPECT_FALSE(std::is_move_constructible<Trick::ScheduledJobQueue>::value);
+    EXPECT_FALSE(std::is_move_assignable<Trick::ScheduledJobQueue>::value);
+}
+
+TEST_F(ScheduledJobQueueTest, TopAtEndOfIteration)
+{
+    Trick::JobData job;
+    ASSERT_EQ(0, sjq.push(&job));
+    ASSERT_EQ(&job, sjq.get_next_job());
+    EXPECT_EQ(nullptr, sjq.top());
+    EXPECT_EQ(nullptr, sjq.get_next_job());
+    EXPECT_EQ(nullptr, sjq.top());
+}
+
+TEST_F(ScheduledJobQueueTest, RestoreEndCursor)
+{
+    Trick::JobData job;
+    ASSERT_EQ(0, sjq.push(&job));
+    ASSERT_EQ(&job, sjq.get_next_job());
+    const auto end = sjq.get_curr_index();
+    sjq.reset_curr_index();
+    sjq.set_curr_index(end);
+    EXPECT_EQ(end, sjq.get_curr_index());
+    EXPECT_EQ(nullptr, sjq.get_next_job());
+
+    sjq.set_curr_index(end + 1);
+    EXPECT_EQ(end, sjq.get_curr_index());
+}
+
+TEST_F(ScheduledJobQueueTest, RemoveFirstJobBeforeIteration)
+{
+    Trick::JobData first, second;
+    first.id  = 0;
+    second.id = 1;
+    sjq.push(&first);
+    sjq.push(&second);
+
+    ASSERT_EQ(0, sjq.remove(&first));
+    EXPECT_EQ(0u, sjq.get_curr_index());
+    EXPECT_EQ(&second, sjq.get_next_job());
+    EXPECT_EQ(nullptr, sjq.get_next_job());
+}
+
+TEST_F(ScheduledJobQueueTest, RemoveNextUnreadJobDoesNotRepeatPreviousJob)
+{
+    Trick::JobData first, second, third;
+    first.id  = 0;
+    second.id = 1;
+    third.id  = 2;
+    sjq.push(&first);
+    sjq.push(&second);
+    sjq.push(&third);
+    ASSERT_EQ(&first, sjq.get_next_job());
+
+    ASSERT_EQ(0, sjq.remove(&second));
+    EXPECT_EQ(1u, sjq.get_curr_index());
+    EXPECT_EQ(&third, sjq.get_next_job());
+    EXPECT_EQ(nullptr, sjq.get_next_job());
+}
+
+TEST_F(ScheduledJobQueueTest, RemovePreviouslyReadJobPreservesNextJob)
+{
+    Trick::JobData first, second;
+    first.id  = 0;
+    second.id = 1;
+    sjq.push(&first);
+    sjq.push(&second);
+    ASSERT_EQ(&first, sjq.get_next_job());
+
+    ASSERT_EQ(0, sjq.remove(&first));
+    EXPECT_EQ(0u, sjq.get_curr_index());
+    EXPECT_EQ(&second, sjq.get_next_job());
+}
+
+TEST_F(ScheduledJobQueueTest, RemoveAfterCursorPreservesNextJob)
+{
+    Trick::JobData first, second;
+    first.id  = 0;
+    second.id = 1;
+    sjq.push(&first);
+    sjq.push(&second);
+
+    ASSERT_EQ(0, sjq.remove(&second));
+    EXPECT_EQ(0u, sjq.get_curr_index());
+    EXPECT_EQ(&first, sjq.get_next_job());
+}
+
+TEST_F(ScheduledJobQueueTest, RemoveAtEndPreservesEndCursor)
+{
+    Trick::JobData first, second;
+    first.id  = 0;
+    second.id = 1;
+    sjq.push(&first);
+    sjq.push(&second);
+    ASSERT_EQ(&first, sjq.get_next_job());
+    ASSERT_EQ(&second, sjq.get_next_job());
+
+    ASSERT_EQ(0, sjq.remove(&first));
+    EXPECT_EQ(sjq.size(), sjq.get_curr_index());
+    EXPECT_EQ(nullptr, sjq.top());
+    ASSERT_EQ(0, sjq.remove(&second));
+    EXPECT_EQ(0u, sjq.get_curr_index());
+    EXPECT_EQ(nullptr, sjq.top());
+}
+
+TEST_F(ScheduledJobQueueTest, RemoveOnlyJobBeforeIteration)
+{
+    Trick::JobData job;
+    sjq.push(&job);
+    ASSERT_EQ(0, sjq.remove(&job));
+    EXPECT_TRUE(sjq.empty());
+    EXPECT_EQ(0u, sjq.get_curr_index());
+    EXPECT_EQ(nullptr, sjq.top());
+
+    sjq.push(&job);
+    EXPECT_EQ(&job, sjq.get_next_job());
 }
 
 TEST_F( ScheduledJobQueueTest , FindNextJob ) {
