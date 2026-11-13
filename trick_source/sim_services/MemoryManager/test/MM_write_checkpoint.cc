@@ -3,8 +3,18 @@
 #define private public
 #include "MM_test.hh"
 #include "MM_write_checkpoint.hh"
-#include <iostream>
 
+#include "trick/memorymanager_c_intf.h"
+
+#include <atomic>
+#include <errno.h>
+#include <fstream>
+#include <iostream>
+#include <signal.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <thread>
+#include <unistd.h>
 
 /*
  This tests the allocation of user-defined types using MemoryManager::declare_var().
@@ -1274,4 +1284,416 @@ TEST_F(MM_write_checkpoint, enum_s8_singleton) {
     EXPECT_EQ(result, 0);
 }
 
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_success)
+{
+    std::stringstream ss;
 
+    double* dbl_p = (double*)memmgr->declare_var("double dbl_write_ok");
+    *dbl_p        = 3.0;
+
+    memmgr->write_checkpoint(ss, "dbl_write_ok");
+
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_unmanaged_pointer)
+{
+    std::stringstream ss;
+    std::string s;
+    static double unmanaged_dbl = 1.0;
+
+    double** dbl_pp = (double**)memmgr->declare_var("double *dbl_unmanaged_ptr");
+    *dbl_pp         = &unmanaged_dbl;
+
+    memmgr->write_checkpoint(ss, "dbl_unmanaged_ptr");
+    s = ss.str();
+
+    // The checkpoint is still written, but the write state reports the error.
+    EXPECT_NE(s.find("dbl_unmanaged_ptr"), std::string::npos);
+    EXPECT_NE(s.find("ERROR"), std::string::npos);
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+
+    // A subsequent clean checkpoint resets the write state.
+    std::stringstream ss2;
+    *dbl_pp = NULL;
+    memmgr->write_checkpoint(ss2, "dbl_unmanaged_ptr");
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_unknown_variable)
+{
+    std::stringstream ss;
+
+    memmgr->write_checkpoint(ss, "no_such_variable");
+
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_bad_file)
+{
+    memmgr->write_checkpoint("/nonexistent_dir/should_not_exist.chkpnt");
+
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, TMM_write_state_false_on_checkpoint_error)
+{
+    std::stringstream ss;
+    static double unmanaged_dbl = 2.0;
+
+    double** dbl_pp = (double**)memmgr->declare_var("double *tmm_unmanaged_ptr");
+    *dbl_pp         = &unmanaged_dbl;
+
+    memmgr->write_checkpoint(ss, "tmm_unmanaged_ptr");
+
+    EXPECT_NE(ss.str().find("ERROR"), std::string::npos);
+    EXPECT_FALSE(TMM_get_checkpoint_write_state());
+
+    std::stringstream ss2;
+    *dbl_pp = NULL;
+    memmgr->write_checkpoint(ss2, "tmm_unmanaged_ptr");
+    EXPECT_TRUE(TMM_get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, TMM_write_checkpoint_file_with_error)
+{
+    static double unmanaged_dbl = 4.0;
+    const char* filename        = "MM_write_checkpoint_tmm_error.chkpnt";
+
+    double** dbl_pp = (double**)memmgr->declare_var("double *tmm_file_unmanaged_ptr");
+    *dbl_pp         = &unmanaged_dbl;
+
+    TMM_write_checkpoint(filename);
+
+    // The checkpoint file is still written, including the inline error text.
+    std::ifstream in(filename);
+    ASSERT_TRUE(in.is_open());
+    std::stringstream contents;
+    contents << in.rdbuf();
+    in.close();
+    unlink(filename);
+
+    EXPECT_NE(contents.str().find("tmm_file_unmanaged_ptr"), std::string::npos);
+    EXPECT_NE(contents.str().find("ERROR"), std::string::npos);
+    EXPECT_FALSE(TMM_get_checkpoint_write_state());
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_unaffected_by_errors_outside_checkpoint)
+{
+    std::stringstream ss;
+    static double unmanaged_dbl = 5.0;
+
+    double* dbl_p = (double*)memmgr->declare_var("double dbl_outside_ok");
+    *dbl_p        = 1.0;
+
+    memmgr->write_checkpoint(ss, "dbl_outside_ok");
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+
+    // Same checkpoint agent code path, but not part of a checkpoint write.
+    std::string ref_name = memmgr->ref_name_from_address(&unmanaged_dbl);
+    EXPECT_NE(ref_name.find("ERROR"), std::string::npos);
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+    EXPECT_TRUE(TMM_get_checkpoint_write_state());
+}
+
+// ================================================================================
+// Child side of a forked checkpoint, as done by CheckPointRestart::do_checkpoint().
+static void forked_child_write(Trick::MemoryManager* memmgr, const char* var_name)
+{
+    alarm(10); // Fail instead of hanging if the child deadlocks.
+    std::stringstream ss;
+    memmgr->write_checkpoint(ss, var_name);
+    memmgr->report_forked_checkpoint_write();
+    _Exit(memmgr->get_checkpoint_write_state() ? 0 : 1);
+}
+
+TEST_F(MM_write_checkpoint, write_state_from_forked_checkpoint)
+{
+    static double unmanaged_dbl = 6.0;
+    double* dbl_p               = (double*)memmgr->declare_var("double dbl_fork_ok");
+    *dbl_p                      = 1.0;
+    double** dbl_pp             = (double**)memmgr->declare_var("double *dbl_fork_bad_ptr");
+    *dbl_pp                     = &unmanaged_dbl;
+
+    // Forked checkpoint with errors: the parent collects the child's result.
+    int pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        forked_child_write(memmgr, "dbl_fork_bad_ptr");
+    }
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+    EXPECT_EQ(memmgr->checkpoint_write_pid, -1);
+
+    // Forked clean checkpoint.
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        forked_child_write(memmgr, "dbl_fork_ok");
+    }
+    EXPECT_TRUE(TMM_get_checkpoint_write_state());
+
+    // A pending forked result is collected before a new checkpoint starts,
+    // so it can't overwrite the newer result.
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        memmgr->set_checkpoint_write_state(false);
+        memmgr->report_forked_checkpoint_write();
+        _Exit(1);
+    }
+    std::stringstream ss;
+    memmgr->write_checkpoint(ss, "dbl_fork_ok");
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+TEST_F(MM_write_checkpoint, write_state_from_abnormal_forked_checkpoint)
+{
+    // Forked checkpoint process killed by a signal.
+    int pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        raise(SIGKILL);
+        _Exit(0);
+    }
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+
+    // Forked checkpoint process ending with an unexpected exit code.
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        _Exit(255);
+    }
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+
+    // A stray exit(0) or exit(1) without a reported result is not trusted.
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        _Exit(0);
+    }
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        _Exit(1);
+    }
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+
+    // Exit code 0 doesn't override a reported failure.
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        memmgr->set_checkpoint_write_state(false);
+        memmgr->report_forked_checkpoint_write();
+        _Exit(0);
+    }
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+// Simulates Trick's SIGCHLD trap (exec_set_trap_sigchld(1)), which reaps children
+// before the MemoryManager can collect their exit status.
+static volatile sig_atomic_t test_children_reaped = 0;
+static void test_reaping_child_handler(int)
+{
+    int status;
+    if (wait(&status) > 0)
+    {
+        test_children_reaped = test_children_reaped + 1;
+    }
+}
+
+static void wait_until_reaped(sig_atomic_t count)
+{
+    for (int ii = 0; ii < 5000 && test_children_reaped < count; ii++)
+    {
+        usleep(1000);
+    }
+}
+
+// Installs the reaping handler and restores the previous one on every exit path,
+// including an early return from a failed ASSERT.
+struct ScopedSigchldHandler
+{
+        struct sigaction old_sigact;
+        explicit ScopedSigchldHandler(void (*handler)(int))
+        {
+            struct sigaction sigact;
+            memset(&sigact, 0, sizeof(sigact));
+            sigact.sa_handler = handler;
+            sigaction(SIGCHLD, &sigact, &old_sigact);
+        }
+        ~ScopedSigchldHandler() { sigaction(SIGCHLD, &old_sigact, NULL); }
+};
+
+TEST_F(MM_write_checkpoint, write_state_from_forked_checkpoint_with_sigchld_trap)
+{
+    static double unmanaged_dbl = 7.0;
+    double* dbl_p               = (double*)memmgr->declare_var("double dbl_trap_ok");
+    *dbl_p                      = 1.0;
+    double** dbl_pp             = (double**)memmgr->declare_var("double *dbl_trap_bad_ptr");
+    *dbl_pp                     = &unmanaged_dbl;
+
+    ScopedSigchldHandler reaping_handler(test_reaping_child_handler);
+    test_children_reaped = 0;
+
+    // Forked checkpoint with errors, reaped by the handler.
+    int pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        forked_child_write(memmgr, "dbl_trap_bad_ptr");
+    }
+    wait_until_reaped(1);
+    EXPECT_EQ(test_children_reaped, 1);
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+
+    // Forked clean checkpoint, reaped by the handler.
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        forked_child_write(memmgr, "dbl_trap_ok");
+    }
+    wait_until_reaped(2);
+    EXPECT_EQ(test_children_reaped, 2);
+    EXPECT_TRUE(TMM_get_checkpoint_write_state());
+
+    // Forked checkpoint process that ends before reporting its result.
+    pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        raise(SIGKILL);
+        _Exit(0);
+    }
+    wait_until_reaped(3);
+    EXPECT_EQ(test_children_reaped, 3);
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+// Another thread holds mm_mutex when the checkpoint is forked. The child must not
+// inherit it locked, otherwise its write_checkpoint() would deadlock.
+// If this thread is delayed past the holder's 200 ms, the fork happens after the release
+// and the test passes without exercising the race. That can only cause a false pass, never
+// a false failure. On a regression, the child's 10 s alarm turns the deadlock into a failure.
+TEST_F(MM_write_checkpoint, forked_checkpoint_while_mm_mutex_held_by_other_thread)
+{
+    double* dbl_p = (double*)memmgr->declare_var("double dbl_mutex_ok");
+    *dbl_p        = 1.0;
+
+    std::atomic<bool> holding(false);
+    std::thread holder(
+        [&]()
+        {
+            pthread_mutex_lock(&memmgr->mm_mutex);
+            holding = true;
+            usleep(200000);
+            pthread_mutex_unlock(&memmgr->mm_mutex);
+        });
+    while (!holding)
+    {
+        usleep(1000);
+    }
+
+    int pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        forked_child_write(memmgr, "dbl_mutex_ok");
+    }
+    holder.join();
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+// Two threads collect the same forked checkpoint at once; both must get the same result.
+// The child reports success through shared memory but is then killed, so its exit status
+// (false) and its shared result (true) disagree: without serialization, the thread that
+// loses the waitpid() race would fall back to shared memory and return true.
+TEST_F(MM_write_checkpoint, forked_checkpoint_result_collected_by_two_threads)
+{
+    int pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        usleep(100000);
+        memmgr->set_checkpoint_write_state(true);
+        memmgr->report_forked_checkpoint_write();
+        raise(SIGKILL);
+        _Exit(0);
+    }
+
+    bool result1 = true;
+    bool result2 = true;
+    std::thread t1([&]() { result1 = memmgr->get_checkpoint_write_state(); });
+    std::thread t2([&]() { result2 = memmgr->get_checkpoint_write_state(); });
+    t1.join();
+    t2.join();
+    EXPECT_FALSE(result1);
+    EXPECT_FALSE(result2);
+}
+
+// ================================================================================
+// Destroying the MemoryManager waits for a pending forked checkpoint writer and reaps it,
+// so no zombie child is left behind.
+TEST_F(MM_write_checkpoint, destructor_reaps_pending_forked_checkpoint)
+{
+    double* dbl_p = (double*)memmgr->declare_var("double dbl_destructor_ok");
+    *dbl_p        = 1.0;
+
+    int pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        usleep(200000);
+        forked_child_write(memmgr, "dbl_destructor_ok");
+    }
+
+    delete memmgr;
+    memmgr = NULL;
+
+    // -1 with ECHILD: the destructor already reaped this child.
+    // Without the destructor's wait, this returns 0 (still running) or the pid (zombie).
+    errno = 0;
+    EXPECT_EQ(waitpid(pid, NULL, WNOHANG), -1);
+    EXPECT_EQ(errno, ECHILD);
+}
+
+// ================================================================================
+// A checkpoint file that can't be opened must not be overwritten by the result of a
+// still-pending forked checkpoint.
+TEST_F(MM_write_checkpoint, open_failure_not_overwritten_by_pending_forked_checkpoint)
+{
+    int pid = memmgr->fork_checkpoint_writer();
+    ASSERT_GE(pid, 0);
+    if (pid == 0)
+    {
+        usleep(100000);
+        memmgr->set_checkpoint_write_state(true);
+        memmgr->report_forked_checkpoint_write();
+        _Exit(0);
+    }
+
+    memmgr->write_checkpoint("/nonexistent_dir/should_not_exist.chkpnt");
+    EXPECT_FALSE(memmgr->get_checkpoint_write_state());
+}

@@ -1,7 +1,10 @@
+#include "trick/MemoryManager.hh"
+
+#include "trick/ClassicCheckPointAgent.hh"
+
 #include <dlfcn.h>
 #include <stdlib.h>
-#include "trick/MemoryManager.hh"
-#include "trick/ClassicCheckPointAgent.hh"
+#include <sys/mman.h>
 // Global pointer to the (singleton) MemoryManager for the C language interface.
 Trick::MemoryManager * trick_MM = NULL;
 
@@ -22,16 +25,21 @@ Trick::MemoryManager::MemoryManager()
 
     debug_level = 0;
     hexfloat_checkpoint = 0;
+    hexfloat_decimal_comment_checkpoint = false;
     reduced_checkpoint  = 1;
     resetting_memory = false;
     expanded_arrays  = 0;
     checkpoint_restore_success = true;
+    checkpoint_write_success            = true;
+    checkpoint_write_pid                = -1;
+    checkpoint_write_shared             = nullptr;
 
     // start counter at 100mil.  This (hopefully) ensures all alloc'ed ids are after external variables.
     alloc_info_map_counter = 100000000 ;
     // start counter at 0.  This forces extern vars to appear in front of actual allocations in checkpoint.
     extern_alloc_info_map_counter = 0 ;
     pthread_mutex_init(&mm_mutex, NULL);
+    pthread_mutex_init(&checkpoint_write_mutex, nullptr);
 
     defaultCheckPointAgent = new ClassicCheckPointAgent( this);
     defaultCheckPointAgent->set_reduced_checkpoint( reduced_checkpoint);
@@ -77,11 +85,21 @@ Trick::MemoryManager::~MemoryManager() {
 
     ALLOC_INFO_MAP::iterator ait ;
 
+    // Let a forked checkpoint writer finish and collect it before tearing down. No other
+    // thread may still be using the MemoryManager (e.g. waiting on that writer) at this point.
+    wait_for_checkpoint_write();
+
     if (instance_count > 0) {
         instance_count --;
     }
 
     delete defaultCheckPointAgent ;
+
+    if (checkpoint_write_shared != nullptr)
+    {
+        munmap(checkpoint_write_shared, sizeof(*checkpoint_write_shared));
+        checkpoint_write_shared = nullptr;
+    }
 
     for ( ait = alloc_info_map.begin() ; ait != alloc_info_map.end() ; ++ait ) {
         ALLOC_INFO * ai_ptr = (*ait).second ;
@@ -97,6 +115,8 @@ Trick::MemoryManager::~MemoryManager() {
         free(ai_ptr) ;
     }
     alloc_info_map.clear() ;
+
+    pthread_mutex_destroy(&checkpoint_write_mutex);
 }
 
 #include <sstream>

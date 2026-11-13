@@ -427,6 +427,40 @@ namespace Trick {
             bool get_checkpoint_restore_state();
 
             /**
+             * Sets the checkpoint write state.
+             * @param state - true if the last checkpoint write completed without errors, false otherwise.
+             */
+            void set_checkpoint_write_state(bool state);
+
+            /**
+             * Gets the checkpoint write state. The state is reset to true at the start of each
+             * write_checkpoint() call and set to false if any error is reported while writing,
+             * even if a checkpoint file was still produced.
+             * If the last checkpoint is being written by a forked process (see checkpoint_cpu()),
+             * this call waits for that process to finish before returning its result.
+             * @return true if the last checkpoint write completed without errors, false otherwise.
+             */
+            bool get_checkpoint_write_state();
+
+            /**
+             * Forks a process to write a checkpoint (see checkpoint_cpu()). Collects any earlier
+             * forked checkpoint first, then holds the memory manager mutex across fork() so the
+             * child never inherits it locked by another thread or copies the maps mid-update.
+             * In the parent, records the child so get_checkpoint_write_state() can collect its result.
+             * The child should write the checkpoint, call report_forked_checkpoint_write(), then exit
+             * with 0 if get_checkpoint_write_state() is true and 1 otherwise.
+             * @return the child's process ID in the parent, 0 in the child, -1 if fork() failed.
+             */
+            int fork_checkpoint_writer();
+
+            /**
+             * Called by the forked checkpoint process after writing the checkpoint. Reports the
+             * checkpoint write state to the parent through shared memory, so the result is still
+             * available if the process is reaped by a SIGCHLD handler (exec_set_trap_sigchld).
+             */
+            void report_forked_checkpoint_write();
+
+            /**
              Deallocate the memory for all TRICK_LOCAL variables and then forget about them.
              Clear the memory for all TRICK_EXTERN variables.
              Does not attempt to deallocate external memory.
@@ -718,6 +752,12 @@ namespace Trick {
             bool expanded_arrays;                       /**< -- true = array element values are set in separate assignments. */
             bool checkpoint_restore_success; /**< -- true = If the checkpoint restore process is successful. false =
                                                 otherwise. */
+            bool checkpoint_write_success;   /**< -- true = If the last checkpoint write had no errors. false =
+                                                otherwise. */
+            int checkpoint_write_pid;        /**< ** Pending forked checkpoint writer's pid, -1 = none. */
+            int* checkpoint_write_shared;    /**< ** Shared result from a forked writer: 0 = not reported,
+                                                1 = success, 2 = failed. */
+            pthread_mutex_t checkpoint_write_mutex; /**< ** Serializes forking a writer and collecting its result. */
 
             ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
             VARIABLE_MAP    variable_map;    /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */
@@ -729,10 +769,20 @@ namespace Trick {
 
             std::vector<ALLOC_INFO*> dependencies; /**< ** list of allocations used in a checkpoint. */
             std::vector<ALLOC_INFO*> stl_dependencies; /**< ** list of allocations known to be STL checkpoint allocations */
-	    bool resetting_memory;
-	    std::list<void*> deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
+            bool resetting_memory;
+            std::list<void*>
+                deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
 
             void execute_checkpoint( std::ostream& out_s );
+            void begin_checkpoint_write();
+            void reset_forked_checkpoint_result();
+            /**
+             * Waits for a forked checkpoint process, if any, to finish and sets the checkpoint
+             * write state from its exit status, or from the shared result if the exit status
+             * is not available.
+             */
+            void wait_for_checkpoint_write();
+            void wait_for_checkpoint_write_locked();
 
             /**
              Walks through allocation and allocates space for STLs

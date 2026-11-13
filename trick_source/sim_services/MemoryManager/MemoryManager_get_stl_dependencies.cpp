@@ -15,6 +15,7 @@ void Trick::MemoryManager::get_stl_dependencies( ALLOC_INFO* alloc_info ) {
 
     if (alloc_info == NULL) {
         std::cerr << "ERROR: Trick::MemoryManager::get_stl_dependencies called with alloc_info == NULL." << std::endl;
+        checkpoint_write_success = false;
         std::cout.flush();
         return;
     }
@@ -54,6 +55,7 @@ void Trick::MemoryManager::get_stl_dependencies_in_class( std::string name, char
 
     if (attr == NULL) {
         std::cerr << "ERROR: Trick::MemoryManager::get_stl_dependencies_in_class called with attr = NULL." << std::endl;
+        checkpoint_write_success = false;
         return;
     }
 
@@ -96,6 +98,7 @@ void Trick::MemoryManager::get_stl_dependencies_in_arrayed_class(
 
     if (attr == NULL) {
         std::cerr << "Trick::MemoryManager::get_stl_dependencies_in_arrayed_class: ERROR: attr = NULL." << std::endl;
+        checkpoint_write_success = false;
         return;
     }
 
