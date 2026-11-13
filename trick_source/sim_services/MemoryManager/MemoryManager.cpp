@@ -30,7 +30,7 @@ Trick::MemoryManager::MemoryManager()
     resetting_memory = false;
     expanded_arrays  = 0;
     checkpoint_restore_success = true;
-    checkpoint_write_success   = true;
+    checkpoint_write_success            = true;
     checkpoint_write_pid                = -1;
     checkpoint_write_shared             = nullptr;
 

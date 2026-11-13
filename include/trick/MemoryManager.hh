@@ -769,8 +769,9 @@ namespace Trick {
 
             std::vector<ALLOC_INFO*> dependencies; /**< ** list of allocations used in a checkpoint. */
             std::vector<ALLOC_INFO*> stl_dependencies; /**< ** list of allocations known to be STL checkpoint allocations */
-	        bool resetting_memory;
-	        std::list<void*> deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
+            bool resetting_memory;
+            std::list<void*>
+                deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
 
             void execute_checkpoint( std::ostream& out_s );
             void begin_checkpoint_write();
