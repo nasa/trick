@@ -39,6 +39,16 @@ namespace Trick {
              */
             ~ScheduledJobQueue() ;
 
+            // Non-copyable and non-movable:
+            //  - `list` is a raw malloc'd array freed in the destructor, so a
+            //    member-wise copy would double-free it.
+            //  - Schedulers hold ScheduledJobQueue* (e.g. Scheduler::class_to_queue),
+            //    so a queue must stay at one address for its lifetime.
+            ScheduledJobQueue(const ScheduledJobQueue&)            = delete;
+            ScheduledJobQueue& operator=(const ScheduledJobQueue&) = delete;
+            ScheduledJobQueue(ScheduledJobQueue&&)                 = delete;
+            ScheduledJobQueue& operator=(ScheduledJobQueue&&)      = delete;
+
             /**
              * @brief Adds a new job into list. The exact placement of job is dependent on
              * job_class, phase , sim_object order , and finally job order in sim object.
@@ -70,7 +80,8 @@ namespace Trick {
             unsigned int get_curr_index() ;
 
             /**
-             * @brief Sets the curr_index to value.
+             * @brief Sets the next unread index, including size() for end of queue.
+             * Values greater than size() are ignored.
              * @param ii - Value of index.
              * @return always 0.
              */
@@ -144,7 +155,7 @@ namespace Trick {
 
             /**
              * @brief Gets the job pointed to by current_index, the top of the list.
-             * @return top job in the list, or NULL if the list is empty.
+             * @return current job, or NULL if the list is empty or exhausted.
              */
             JobData * top() ;
 
@@ -198,7 +209,7 @@ namespace Trick {
             /** Simple reallocable list of JobData pointers.  */
             JobData ** list ; /* ** This list is allocated outside of the memory manager. */
 
-            /** current index to top job in list */
+            /** Next unread job index, in [0, list_size]; list_size means exhausted. */
             unsigned int curr_index ;
 
             /** next lowest job call time as tracked by calls to find_next_job(long long) */
