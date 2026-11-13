@@ -5,7 +5,7 @@
 
 Trick's own build (its libraries, `trick-ICG`, the SWIG interface, data
 products, and Java tools) is moving from autoconf and hand-written makefiles to
-CMake 3.25 or newer. Simulation builds are out of scope. `trick-CP` and the
+CMake 3.26 or newer. Simulation builds are out of scope. `trick-CP` and the
 makefiles under `share/trick/makefiles/` keep working as they do today.
 
 The autoconf build stays in place and keeps working until the CMake build
@@ -160,6 +160,15 @@ cmake --workflow --preset dev          # configure, build, and test
 cmake --preset release -DTRICK_ENABLE_HDF5=ON
 ```
 
+For a new development build directory, prefer Ninja if it is installed:
+
+```bash
+CMAKE_GENERATOR=Ninja cmake --workflow --preset dev
+```
+
+This selects the generator only for a new build directory.
+Unix Makefiles users should read the [ICG rebuild and recovery notes](#icg-code-generation).
+
 Put personal presets in `CMakeUserPresets.json`, which git ignores.
 
 Each optional component has an option. When an option is `ON`, its
@@ -261,6 +270,58 @@ library where LLVM is built as one (`LLVM_LINK_LLVM_DYLIB`), otherwise the
 targets to bring LLVM in fails on Enterprise Linux: LLVM reaches the link only
 as a dependency of a shared library, and GNU ld will not use it to resolve
 ICG's own references.
+
+## ICG code generation
+
+`cmake/TrickICG.cmake` defines `trick_generation`. It runs the built ICG on
+`include/trick/files_to_ICG.hh`, with settings derived from CMake targets.
+Consumers attach core or er7 sources with `trick_add_icg_sources(target CORE|ER7)`.
+ICG probes standard headers with CMake's configured compiler and sysroot; on
+macOS, an explicitly configured SDK takes precedence over `SDKROOT` and the
+default SDK selected by an Xcode or Command Line Tools update.
+
+`--output-root` redirects IO, maps, and XML into the build tree; it requires
+`-sim_services -m` and cannot be combined with `-o`. Legacy invocations keep
+their existing paths. Outputs are staged, checked against
+`cmake/TrickICGOutputs.cmake`, then published under `<build>/generated/icg`
+(with a configuration subdirectory for multi-config generators). Unchanged
+files keep their timestamps, obsolete files are removed, and XML is rewritten.
+Adding or removing reflected headers requires updating the explicit inventory.
+
+A completion stamp lets the build tool skip unchanged generation. Ninja
+recovers missing outputs automatically; with Unix Makefiles, manually deleting
+an output also requires removing `<build>/generated/icg.complete` before rebuilding.
+
+ICG writes Make-style header dependencies with `--depfile <path>` and
+`--depfile-target <target>`. CMake uses `<build>/generated/icg.d` (or the
+configuration-specific equivalent) to track the local and system headers Clang
+actually reads, including external libraries. This replaces the broad source-tree
+header glob. The depfile is published with the validated output; it
+does not replace the explicit output inventory.
+
+Two older-CMake limitations remain. With Unix Makefiles and CMake before 4.0,
+removing an included header can leave stale dependencies in CMake's cache,
+causing ICG to run on every build. Reconfigure with `--fresh` and your usual
+preset and options (for example, `cmake --preset dev --fresh`), then rebuild.
+With Ninja and CMake before 4.4, build and header paths must not contain `#` or `$`,
+because CMake loses their escaping when converting depfiles.
+
+`ctest --preset parity -R icg_output_root` checks deterministic output,
+source-tree cleanliness, publication, and diagnostics. It is labeled `codegen;slow`.
+The `icg_depfile_ninja` and `icg_depfile_make` tests exercise actual build-driver
+behavior when those tools are available: local and system header edits, unrelated
+headers, failed generation and retry, and removed-header recovery.
+The separate `icg_depfile_cli` and `icg_depfile_quoting` tests check depfile
+arguments, write failures, and Make target quoting without configuring a nested
+CMake project. Tests that require an unavailable build tool are shown as disabled
+in CTest; CLI argument and write-failure checks still run.
+The presets are single-config; to exercise multi-config:
+
+```bash
+cmake -S . -B out/build/multi -G "Ninja Multi-Config" -DBUILD_TESTING=ON
+cmake --build out/build/multi --config Debug
+ctest --test-dir out/build/multi -C Debug --output-on-failure
+```
 
 ## Existing bugs found during the migration
 

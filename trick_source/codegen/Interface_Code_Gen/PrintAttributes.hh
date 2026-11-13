@@ -38,8 +38,8 @@ extern std::string trick_build_dir;
 
 class PrintAttributes {
     public:
-        PrintAttributes( int attr_version , HeaderSearchDirs & hsd , CommentSaver & cs ,
-         clang::CompilerInstance & in_ci, bool force , bool sim_services, std::string output_dir ) ;
+        PrintAttributes(int attr_version, HeaderSearchDirs& hsd, CommentSaver& cs, clang::CompilerInstance& in_ci,
+                        bool force, bool sim_services, std::string output_dir, std::string output_root = "");
 
         /** Adds construct names to ignore from TRICK_ICG_IGNORE_TYPES environment variable */
         void addIgnoreTypes() ;
@@ -109,6 +109,14 @@ class PrintAttributes {
 
         /** We are specifying an output directory for all files */
         std::string output_dir ;
+
+        /** Explicit build-tree root; empty preserves the legacy output contract. */
+        std::string output_root;
+        std::string resource_file;
+        std::string er7_source_dir;
+
+        /** Fail on output errors in build-tree mode, preserving legacy behavior otherwise. */
+        void checkStream(const std::ios& stream, const std::string& path) const;
 
         bool openIOFile(const std::string& header_file_name) ;
 

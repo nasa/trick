@@ -1,0 +1,35 @@
+# Shared tiny input for the CLI and build-driver tests. Callers supply ICG,
+# ICG_SETTINGS, ICG_TEST_ROOT, and system_name. All writes stay in the test root.
+foreach(required IN ITEMS ICG ICG_SETTINGS ICG_TEST_ROOT system_name)
+    if(NOT DEFINED ${required} OR "${${required}}" STREQUAL "")
+        message(FATAL_ERROR "Missing ${required}")
+    endif()
+endforeach()
+cmake_path(NORMAL_PATH ICG_TEST_ROOT OUTPUT_VARIABLE work)
+if(NOT IS_ABSOLUTE "${work}" OR work STREQUAL "/")
+    message(FATAL_ERROR "ICG_TEST_ROOT must be an absolute disposable build-tree path")
+endif()
+execute_process(COMMAND "${CMAKE_COMMAND}" -E rm -rf "${work}"
+    COMMAND_ERROR_IS_FATAL ANY)
+set(home "${work}/trick home")
+set(build "${work}/build with spaces")
+set(external "${work}/external headers")
+set(root "${build}/generated core")
+file(MAKE_DIRECTORY "${home}/bin" "${home}/include/trick"
+    "${home}/trick_source" "${external}" "${build}")
+file(WRITE "${home}/bin/trick-gte" "#!/bin/sh\nprintf '%s\\n' \"$TRICK_CXX\"\n")
+file(CHMOD "${home}/bin/trick-gte"
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+set(main "${home}/include/trick/files_to_ICG.hh")
+set(local "${home}/include/trick/Local.hh")
+set(nested "${home}/include/trick/Nested.hh")
+set(system "${external}/${system_name}")
+set(valid_main "#include <stddef.h>\n#include \"Local.hh\"\nclass Main { public: size_t size; int values[LOCAL_SIZE]; };\n")
+file(WRITE "${main}" "${valid_main}")
+file(WRITE "${local}"
+    "#include \"Nested.hh\"\n#include <${system_name}>\nclass Local { public: int values[LOCAL_SIZE + SYSTEM_SIZE]; };\n")
+file(WRITE "${nested}" "#define LOCAL_SIZE 2\n")
+set(system_class "class SystemOnly { public: int value; };\n")
+file(WRITE "${system}" "#define SYSTEM_SIZE 3\n${system_class}")
+file(WRITE "${home}/include/trick/Unrelated.hh" "// not included\n")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/settings.cmake.in" "${work}/settings.cmake" @ONLY)

@@ -9,6 +9,7 @@
 class HeaderSearchDirs ;
 class CommentSaver ;
 class PrintAttributes ;
+class ICGDiagnosticConsumer ;
 
 /**
 
@@ -27,7 +28,7 @@ class PrintAttributes ;
 class ICGASTConsumer : public clang::SemaConsumer {
     public:
         ICGASTConsumer( clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd ,
-         CommentSaver & in_cs , PrintAttributes & in_pa ) ;
+         CommentSaver & in_cs , PrintAttributes & in_pa , const ICGDiagnosticConsumer & in_diagnostics ) ;
 
         TranslationUnitVisitor & getTranslationUnitVisitor() ;
 
@@ -41,6 +42,9 @@ class ICGASTConsumer : public clang::SemaConsumer {
 
         /** The header search directories */
         HeaderSearchDirs & hsd ;
+
+        /** The diagnostics that determine whether user code can be traversed. */
+        const ICGDiagnosticConsumer & diagnostics ;
 
         /** The top level AST visitor. Called to parse tree in HandleTranslationUnit */
         TranslationUnitVisitor tuv ;
