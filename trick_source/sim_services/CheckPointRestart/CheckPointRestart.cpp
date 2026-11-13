@@ -174,6 +174,7 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
 
     JobData * curr_job ;
     pid_t pid;
+    bool written = true;
 
     if ( ! file_name.compare("") ) {
         std::stringstream file_name_stream ;
@@ -188,8 +189,10 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
     }
 
     if ( cpu_num != -1 ) {
-    // if the user specified a cpu number for the checkpoint, fork a process to write the checkpoint
-        if ((pid = fork()) == 0) {
+        // if the user specified a cpu number for the checkpoint, fork a process to write the checkpoint
+        // Forks safely and records the child so its checkpoint write state can be collected later.
+        if ((pid = trick_MM->fork_checkpoint_writer()) == 0)
+        {
 #if __linux__
             if ( cpu_num >= 0 ) {
                 unsigned long mask;
@@ -206,7 +209,16 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
             } else {
                 trick_MM->write_checkpoint(output_file.c_str(), obj_list);
             }
-            _Exit(0) ;
+            // Pass the checkpoint write state back to the parent through shared memory and the exit status.
+            trick_MM->report_forked_checkpoint_write();
+            _Exit(trick_MM->get_checkpoint_write_state() ? 0 : 1);
+        }
+        else if (pid < 0)
+        {
+            message_publish(MSG_ERROR, "CheckPointRestart ERROR: fork() failed. Checkpoint %s was not written.\n",
+                            file_name.c_str());
+            trick_MM->set_checkpoint_write_state(false);
+            written = false;
         }
     }
     else {
@@ -223,7 +235,8 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
         curr_job->parent_object->call_function(curr_job) ;
     }
 
-    if ( print_status )
+    // Skip the status message when fork() failed and nothing was written.
+    if (print_status && written)
     {
         if (trick_MM->is_hexfloat_checkpoint())
         {
