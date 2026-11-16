@@ -24,6 +24,21 @@ enum
     FORKED_WRITE_FAILED       = 2 // The forked checkpoint writer reported errors (written with errors, or not written).
 };
 
+// Number of write_checkpoint() calls currently in progress on this thread (more than 1 when a
+// file-name version calls a stream version). Errors reported while it is above 0 count as
+// checkpoint write errors.
+static thread_local int checkpoint_write_depth = 0;
+
+// Marks the current thread as writing a checkpoint for the lifetime of the object.
+struct CheckpointWriteScope
+{
+        CheckpointWriteScope() { ++checkpoint_write_depth; }
+        ~CheckpointWriteScope() { --checkpoint_write_depth; }
+        // A copy wouldn't increment the depth but would still decrement it.
+        CheckpointWriteScope(const CheckpointWriteScope&)            = delete;
+        CheckpointWriteScope& operator=(const CheckpointWriteScope&) = delete;
+};
+
 // GreenHills stuff
 #if ( __ghs )
 #include "ghs_stubs.h"
@@ -308,11 +323,21 @@ void Trick::MemoryManager::wait_for_checkpoint_write_locked()
 // MEMBER FUNCTION
 void Trick::MemoryManager::set_checkpoint_write_state(bool state) { checkpoint_write_success = state; }
 
+// MEMBER FUNCTION
+void Trick::MemoryManager::report_checkpoint_write_error()
+{
+    if (checkpoint_write_depth > 0)
+    {
+        checkpoint_write_success = false;
+    }
+}
+
 // Local sort function used in write_checkpoint.
 static bool alloc_info_id_compare(ALLOC_INFO * lhs, ALLOC_INFO * rhs) { return ( lhs->id < rhs->id ) ; }
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint( std::ostream& out_s) {
+    CheckpointWriteScope write_scope;
 
     ALLOC_INFO_MAP::iterator pos;
     ALLOC_INFO* alloc_info;
@@ -336,6 +361,7 @@ void Trick::MemoryManager::write_checkpoint( std::ostream& out_s) {
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint(const char* filename) {
+    CheckpointWriteScope write_scope;
     // Collect any pending forked checkpoint before opening the file, so its result can't
     // overwrite an open failure below and a child still writing the same file isn't truncated.
     begin_checkpoint_write();
@@ -353,6 +379,7 @@ void Trick::MemoryManager::write_checkpoint(const char* filename) {
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, const char* var_name) {
+    CheckpointWriteScope write_scope;
     begin_checkpoint_write();
     dependencies.clear();
     stl_dependencies.clear();
@@ -366,6 +393,7 @@ void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, const char* va
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint(const char* filename, const char* var_name) {
+    CheckpointWriteScope write_scope;
     // Collect any pending forked checkpoint before opening the file, so its result can't
     // overwrite an open failure below and a child still writing the same file isn't truncated.
     begin_checkpoint_write();
@@ -382,6 +410,7 @@ void Trick::MemoryManager::write_checkpoint(const char* filename, const char* va
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, std::vector<const char*>& var_name_list) {
+    CheckpointWriteScope write_scope;
 
     const char* var_name;
     int n_names;
@@ -403,6 +432,7 @@ void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, std::vector<co
 
 // MEMBER FUNCTION
 void Trick::MemoryManager::write_checkpoint(const char* filename, std::vector<const char*>& var_name_list) {
+    CheckpointWriteScope write_scope;
     // Collect any pending forked checkpoint before opening the file, so its result can't
     // overwrite an open failure below and a child still writing the same file isn't truncated.
     begin_checkpoint_write();
@@ -411,8 +441,9 @@ void Trick::MemoryManager::write_checkpoint(const char* filename, std::vector<co
     if (out_s.is_open()) {
         write_checkpoint( out_s, var_name_list);
     } else {
-        std::cerr << "ERROR: Couldn't open \""<< filename <<"\"." << std::endl;
-        std::cerr.flush();
+        std::stringstream message;
+        message << "Couldn't open \"" << filename << "\".";
+        emitError(message.str());
         checkpoint_write_success = false;
     }
 }

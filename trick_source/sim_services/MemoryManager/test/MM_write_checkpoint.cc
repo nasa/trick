@@ -1402,6 +1402,45 @@ TEST_F(MM_write_checkpoint, write_state_unaffected_by_errors_outside_checkpoint)
     EXPECT_NE(ref_name.find("ERROR"), std::string::npos);
     EXPECT_TRUE(memmgr->get_checkpoint_write_state());
     EXPECT_TRUE(TMM_get_checkpoint_write_state());
+
+    // Writing a single variable directly is not a checkpoint write either.
+    std::stringstream ss2;
+    memmgr->write_var(ss2, "no_such_variable");
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+
+    // Errors reported outside a checkpoint write are ignored.
+    memmgr->report_checkpoint_write_error();
+    EXPECT_TRUE(memmgr->get_checkpoint_write_state());
+}
+
+// ================================================================================
+// Errors reported by another thread while this thread writes checkpoints must not count
+// as errors of those checkpoints: only the writing thread's own errors do.
+TEST_F(MM_write_checkpoint, write_state_unaffected_by_errors_on_other_thread)
+{
+    double* dbl_p = (double*)memmgr->declare_var("double dbl_other_thread_ok");
+    *dbl_p        = 1.0;
+
+    std::atomic<bool> done(false);
+    std::thread reporter(
+        [&]()
+        {
+            while (!done)
+            {
+                memmgr->report_checkpoint_write_error();
+            }
+        });
+
+    bool all_ok = true;
+    for (int ii = 0; ii < 200; ii++)
+    {
+        std::stringstream ss;
+        memmgr->write_checkpoint(ss, "dbl_other_thread_ok");
+        all_ok = all_ok && memmgr->get_checkpoint_write_state();
+    }
+    done = true;
+    reporter.join();
+    EXPECT_TRUE(all_ok);
 }
 
 // ================================================================================
@@ -1542,6 +1581,9 @@ struct ScopedSigchldHandler
             sigaction(SIGCHLD, &sigact, &old_sigact);
         }
         ~ScopedSigchldHandler() { sigaction(SIGCHLD, &old_sigact, NULL); }
+        // A copy would restore the previous handler a second time.
+        ScopedSigchldHandler(const ScopedSigchldHandler&)            = delete;
+        ScopedSigchldHandler& operator=(const ScopedSigchldHandler&) = delete;
 };
 
 TEST_F(MM_write_checkpoint, write_state_from_forked_checkpoint_with_sigchld_trap)

@@ -433,6 +433,14 @@ namespace Trick {
             void set_checkpoint_write_state(bool state);
 
             /**
+             * Reports an error found while writing a checkpoint. Sets the checkpoint write state to
+             * false only if the calling thread is inside write_checkpoint(), so errors from the same
+             * code used for other purposes (e.g. ref_name_from_address(), or a reference lookup on
+             * another thread during a checkpoint) don't affect the checkpoint write state.
+             */
+            void report_checkpoint_write_error();
+
+            /**
              * Gets the checkpoint write state. The state is reset to true at the start of each
              * write_checkpoint() call and set to false if any error is reported while writing,
              * even if a checkpoint file was still produced.
