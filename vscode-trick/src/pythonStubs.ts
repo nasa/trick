@@ -373,19 +373,21 @@ export class PythonStubManager implements vscode.Disposable {
     private readonly output: vscode.OutputChannel,
     private readonly state: vscode.Memento
   ) {
-    this.disposables.push(simConfigs.onDidInvalidate(() => void this.refreshAll()));
-
-    // Sims inside a nested git repo aren't scanned by refreshFolder up front
-    // (see the isInNestedRepo filter there), so if the user opens a file
-    // inside one, its object names need to join __builtins__.pyi the same
-    // way they join cpptools' browse path - see SimConfigProvider.onDidResolve.
-    // Debounced for the same reason as TrickCppConfigurationProvider's.
+    // Debounced so that a burst of invalidations/resolutions (e.g.
+    // invalidateAll() firing onDidInvalidate once per cached sim root after
+    // "Trick: Update Environment from Shell Command") triggers one
+    // regeneration instead of one per root. Sims inside a nested git repo
+    // aren't scanned by refreshFolder up front (see the isInNestedRepo filter
+    // there), so if the user opens a file inside one, its object names need
+    // to join __builtins__.pyi the same way they join cpptools' browse path -
+    // see SimConfigProvider.onDidResolve.
     const scheduleRefresh = () => {
       if (this.sieRefreshTimer) {
         clearTimeout(this.sieRefreshTimer);
       }
       this.sieRefreshTimer = setTimeout(() => void this.refreshAll(), 1000);
     };
+    this.disposables.push(simConfigs.onDidInvalidate(scheduleRefresh));
     this.disposables.push(simConfigs.onDidResolve(scheduleRefresh));
 
     // A separate watcher from SimConfigProvider's: S_sie.resource changes on

@@ -18,6 +18,8 @@ import {
 } from './buildTasks';
 import { SimDiscovery } from './simDiscovery';
 import { ConnectedSimsTreeProvider, TrickSimsTreeProvider, registerSimCommands } from './simTree';
+import { ShellEnvCaptureError, captureShellEnv, diffEnv } from './shellEnv';
+import { TrickCommandsTreeProvider } from './commandsTree';
 
 // Finds the sim's built executable, or - if it hasn't been built yet - offers
 // to build it first and only proceeds to run if that build succeeds.
@@ -54,6 +56,37 @@ async function findBuiltExecutableOrOfferBuild(
   return findSimExecutable(simRoot);
 }
 
+// If the workspace has at least one sim and none of them can resolve
+// TRICK_HOME, nudges the user toward "Trick: Update Environment from Shell
+// Command" rather than leaving them to discover on their own that IntelliSense
+// and builds are silently falling back to guesses - the common cause being VS
+// Code launched from a desktop/file launcher with no TRICK_HOME in its own
+// process.env, with the environment only ever sourced afterward in a terminal
+// tab (which doesn't reach the extension host - see shellEnv.ts). Runs once
+// per activation, not on every file open.
+async function nudgeIfTrickHomeUnresolved(simConfigs: SimConfigProvider): Promise<void> {
+  const sDefineFiles = await vscode.workspace.findFiles('**/S_define', '**/{node_modules,.git}/**');
+  if (sDefineFiles.length === 0) {
+    return;
+  }
+  const anyResolved = sDefineFiles.some(
+    (f) => simConfigs.resolveTrickHome(path.dirname(f.fsPath)) !== undefined
+  );
+  if (anyResolved) {
+    return;
+  }
+  const choice = await vscode.window.showWarningMessage(
+    "Trick: TRICK_HOME couldn't be found. If you set up your environment in a terminal, run it here instead.",
+    'Update Environment…',
+    'Open Settings'
+  );
+  if (choice === 'Update Environment…') {
+    await vscode.commands.executeCommand('trick.updateEnvironmentFromShell');
+  } else if (choice === 'Open Settings') {
+    await vscode.commands.executeCommand('workbench.action.openSettings', 'trick.home');
+  }
+}
+
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const output = vscode.window.createOutputChannel('Trick');
   context.subscriptions.push(output);
@@ -71,7 +104,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // navigation (e.g. header method declaration -> .cpp implementation)
   // without first requiring every file to be opened manually. Sims inside a
   // nested repo join the browse path lazily instead, via onDidResolve.
-  void simConfigs.warmPrimarySimRoots();
+  void simConfigs.warmPrimarySimRoots().then(() => nudgeIfTrickHomeUnresolved(simConfigs));
 
   const pythonStubs = new PythonStubManager(simConfigs, output, context.workspaceState);
   context.subscriptions.push(pythonStubs);
@@ -191,17 +224,44 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     statusBar.tooltip = `Sim root: ${simRoot}\nFlags resolved via: ${config.source}`;
     statusBar.show();
   };
+
+  // Commands sidebar section: quick-access list of every Trick: command,
+  // plus a TRICK_HOME header row (see commandsTree.ts for why it's a row
+  // rather than a tooltip on the "Trick" title text itself). Refreshed on
+  // the same signals as the status bar above, since both report on the same
+  // underlying TRICK_HOME/sim-config resolution.
+  const commandsTreeProvider = new TrickCommandsTreeProvider(simConfigs, context.extension.packageJSON);
+  context.subscriptions.push({ dispose: () => commandsTreeProvider.dispose() });
+  const commandsTreeView = vscode.window.createTreeView('trickCommands', { treeDataProvider: commandsTreeProvider });
+  context.subscriptions.push(commandsTreeView);
   context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor(updateStatusBar),
-    simConfigs.onDidInvalidate(() => updateStatusBar(vscode.window.activeTextEditor))
+    vscode.commands.registerCommand('trick.commands.refreshView', () => commandsTreeProvider.refresh())
+  );
+
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      void updateStatusBar(editor);
+      commandsTreeProvider.refresh();
+    }),
+    simConfigs.onDidInvalidate(() => {
+      void updateStatusBar(vscode.window.activeTextEditor);
+      commandsTreeProvider.refresh();
+    }),
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('trick.home')) {
+        commandsTreeProvider.refresh();
+      }
+    })
   );
   void updateStatusBar(vscode.window.activeTextEditor);
 
   context.subscriptions.push(
     vscode.commands.registerCommand('trick.refreshSimConfiguration', () => {
-      simConfigs.clearAll();
+      simConfigs.invalidateAll();
       vscode.workspace.textDocuments.forEach(refreshDiagnostics);
       void updateStatusBar(vscode.window.activeTextEditor);
+      commandsTreeProvider.refresh();
+      void simConfigs.warmPrimarySimRoots();
       output.appendLine('Cleared all cached sim configurations.');
       output.show(true);
     })
@@ -225,6 +285,83 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         content: JSON.stringify(config, null, 2),
       });
       await vscode.window.showTextDocument(doc, { preview: true });
+    })
+  );
+
+  const LAST_ENV_COMMAND_KEY = 'trick.env.lastCommand';
+  // Values are only worth logging for vars whose contents are inherently
+  // non-secret (TRICK_* flags/paths, PATH itself) - everything else from an
+  // arbitrary sourced script could be a credential, token, etc, so only its
+  // name is ever written to the output channel or shown in a message.
+  const safeToLogValue = (name: string) => name.startsWith('TRICK_') || name === 'PATH';
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('trick.updateEnvironmentFromShell', async () => {
+      const lastCommand = context.workspaceState.get<string>(LAST_ENV_COMMAND_KEY, '');
+      const userCommand = await vscode.window.showInputBox({
+        title: 'Trick: Update Environment from Shell Command',
+        prompt:
+          'Shell command that sets up your Trick environment (an alias, a shell function, or `source ...`)',
+        placeHolder: 'source /path/to/trick_env.sh',
+        value: lastCommand,
+        ignoreFocusOut: true,
+      });
+      if (!userCommand) {
+        return;
+      }
+      void context.workspaceState.update(LAST_ENV_COMMAND_KEY, userCommand);
+
+      const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      let diff: Record<string, string>;
+      try {
+        diff = await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: 'Trick: running shell command to capture environment…',
+            cancellable: false,
+          },
+          async () => {
+            const captured = await captureShellEnv(userCommand, { cwd });
+            return diffEnv(process.env, captured);
+          }
+        );
+      } catch (err) {
+        const message = err instanceof ShellEnvCaptureError ? err.message : String(err);
+        output.appendLine(`[update-environment] ${userCommand}\n${message}`);
+        const choice = await vscode.window.showErrorMessage(
+          `Could not capture the environment from that command: ${message}`,
+          'Show Output'
+        );
+        if (choice === 'Show Output') {
+          output.show(true);
+        }
+        return;
+      }
+
+      const changedNames = Object.keys(diff);
+      if (changedNames.length === 0) {
+        vscode.window.showInformationMessage('Ran the command, but no new or changed environment variables came back.');
+        return;
+      }
+
+      Object.assign(process.env, diff);
+      output.appendLine(
+        `[update-environment] ${userCommand}\nUpdated: ${changedNames
+          .map((name) => (safeToLogValue(name) ? `${name}=${diff[name]}` : name))
+          .join(', ')}`
+      );
+
+      simConfigs.invalidateAll();
+      vscode.workspace.textDocuments.forEach(refreshDiagnostics);
+      void updateStatusBar(vscode.window.activeTextEditor);
+      commandsTreeProvider.refresh();
+      void simConfigs.warmPrimarySimRoots();
+
+      const homeNote = vscode.workspace.getConfiguration('trick').get<string>('home', '')
+        ? ' (the trick.home setting still takes precedence over TRICK_HOME for resolving TRICK_HOME itself)'
+        : '';
+      const summary = diff.TRICK_HOME ? `TRICK_HOME = ${diff.TRICK_HOME}` : `${changedNames.length} variable(s)`;
+      vscode.window.showInformationMessage(`Trick: updated environment. ${summary}.${homeNote}`);
     })
   );
 
