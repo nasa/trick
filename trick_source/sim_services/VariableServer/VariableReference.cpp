@@ -509,9 +509,18 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
             break;
 
         case TRICK_INTEGER:
-        case TRICK_ENUMERATED:
             out << (int)cv_convert_double(_conversion_factor,*(int *)buf_ptr);
             break;
+
+        case TRICK_ENUMERATED:
+        {
+            // Enums are written as numbers in the width and signedness of their underlying type
+            // 32 bytes fits any 64-bit value (at most 20 characters) plus the terminating null
+            char enum_buf[32];
+            Trick::ReferenceUtils::format_enum_value(enum_buf, sizeof(enum_buf), _var_info, buf_ptr);
+            out << enum_buf;
+            break;
+        }
 
         case TRICK_BOOLEAN:
             out << (int)cv_convert_double(_conversion_factor,*(bool *)buf_ptr);

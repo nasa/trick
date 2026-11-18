@@ -344,6 +344,11 @@ SIM_checkpoint_data_recording:
       compare:
         - test/SIM_checkpoint_data_recording/RUN_test11/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11/log_foo.csv
         - test/SIM_checkpoint_data_recording/RUN_test11_redirect/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11_redirect/log_foo.csv
+    RUN_test13/unit_test.py:
+      returns: 0
+      compare:
+        - test/SIM_checkpoint_data_recording/RUN_test13/ref_log_enums.header vs. test/SIM_checkpoint_data_recording/RUN_test13/log_enums.header
+        - test/SIM_checkpoint_data_recording/RUN_test13/ref_log_enums.csv vs. test/SIM_checkpoint_data_recording/RUN_test13/log_enums.csv
 
 SIM_mtv:
   path: test/SIM_mtv

@@ -216,6 +216,10 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
         break;
 
     case TRICK_ENUMERATED:
+        // Enums are written as numbers in the width and signedness of their underlying type
+        Trick::ReferenceUtils::format_enum_value(buf, writer_buf_spare, DI->ref, address);
+        break;
+
     case TRICK_INTEGER:
         snprintf(buf, writer_buf_spare, "%d", *((int*)address));
         break;

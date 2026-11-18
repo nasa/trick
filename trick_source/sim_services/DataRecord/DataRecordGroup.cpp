@@ -685,7 +685,7 @@ int Trick::DataRecordGroup::write_header() {
     for (jj = 0; jj < rec_buffer.size() ; jj++) {
         /*! recording single data item */
         out_stream << "log_" << group_name << "\t"
-                   << type_string((int)Trick::ReferenceUtils::effective_trick_type(rec_buffer[jj]->ref),
+                   << type_string((int)Trick::ReferenceUtils::effective_data_type(rec_buffer[jj]->ref),
                                   (int)Trick::ReferenceUtils::effective_trick_size(rec_buffer[jj]->ref))
                    << "\t" << std::setw(6);
 

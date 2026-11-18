@@ -112,7 +112,7 @@ int Trick::DRBinary::format_specific_init() {
             bytes += write( fd , rec_buffer[jj]->ref->attr->units , write_value ) ;
         }
 
-        write_value  = (int)Trick::ReferenceUtils::effective_trick_type(rec_buffer[jj]->ref);
+        write_value  = (int)Trick::ReferenceUtils::effective_data_type(rec_buffer[jj]->ref);
         bytes += write( fd , &write_value , sizeof(int)) ;
 
         write_value  = (int)Trick::ReferenceUtils::effective_trick_size(rec_buffer[jj]->ref);

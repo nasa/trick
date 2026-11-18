@@ -1,0 +1,22 @@
+global DR_GROUP_ID
+global drg
+try:
+    if DR_GROUP_ID >= 0:
+        DR_GROUP_ID += 1
+except NameError:
+    DR_GROUP_ID = 0
+    drg = []
+
+drg.append(trick.DRAscii("enums"))
+drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+drg[DR_GROUP_ID].set_cycle(1.0)
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.uc")
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.us")
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.ui")
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.ul")
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.sc")
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.ss")
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.si")
+drg[DR_GROUP_ID].add_variable("testSimObject.my_enums.sl")
+trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
+drg[DR_GROUP_ID].enable()
