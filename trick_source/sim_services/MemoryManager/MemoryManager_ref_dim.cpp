@@ -234,8 +234,13 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         // Get allocation information for the address
         ALLOC_INFO *alloc_info = get_alloc_info_of(R->address);
 
+        // The bounds check below parses the name of what the pointer points to, which re-enters ref_dim.
+        // That name can lead back through a pointer to the same allocation, recursing until the stack overflows.
+        // Only do the bounds-check lookup at the outermost level.
+        static thread_local bool in_pointer_bounds_check = false;
+
         // Skip if allocation name is NULL
-        if (alloc_info != NULL && alloc_info->name != NULL) {
+        if (!in_pointer_bounds_check && alloc_info != NULL && alloc_info->name != NULL) {
             // Get the reference name from the address that R points if exists and contains & at front
             // Otherwise, the pointer is not assigned to anything else rather itself is allocated
             std::string ref_name = ref_name_from_address(R->address);
@@ -243,7 +248,9 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
                 ref_name = ref_name.substr(1);
 
                 // Get the reference attributes for what the pointer points to
+                in_pointer_bounds_check = true;
                 REF2 *ref2 = ref_attributes((char*)ref_name.c_str());
+                in_pointer_bounds_check = false;
 
                 // Check if the reference that the pointer points to is valid. Return error if not.
                 if (ref2 == NULL) {
@@ -283,6 +290,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
                         }
                     }
                 }
+                free(ref2);
             } // if (!ref_name.empty() && ref_name.front() == '&') {
         } // if (alloc_info->name != NULL) {
     } // if (R->attr->index[R->num_index].size != 0) {

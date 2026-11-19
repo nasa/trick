@@ -188,3 +188,35 @@ TEST_F(MM_ref_attributes, FailureCases) {
 
 
 }
+
+TEST_F(MM_ref_attributes, CircularPointers) {
+    REF2 *ref;
+
+    // Two named pointers that point to each other's storage (a holds &b, b holds &a).
+    // "a" is user memory (a_storage) registered with declare_extern_var.
+    // "b" is allocated by the MemoryManager with declare_var.
+    //
+    // ref_dim follows a pointer, then bounds-checks the index by looking up the name of the
+    // pointed-to address and parsing it with ref_attributes:
+    //   "a[0]" -> follows a into b's storage -> name "&b[0]" -> parses "b[0]"
+    //          -> follows b into a's storage -> name "&a[0]" -> parses "a[0]" -> ...
+    // Before the fix this recursed until the stack overflowed. Now the lookup is done only at
+    // the outermost level, so each reference resolves to the other pointer's storage.
+    double* a_storage;
+    double** a_p = (double**)memmgr->declare_extern_var(&a_storage, "double* a");
+    double** b_p = (double**)memmgr->declare_var("double* b");
+    ASSERT_TRUE(a_p != NULL);
+    ASSERT_TRUE(b_p != NULL);
+    *a_p = (double*)b_p;
+    *b_p = (double*)a_p;
+
+    ref = memmgr->ref_attributes("a[0]");
+    ASSERT_TRUE(ref != NULL);
+    EXPECT_EQ( (void*)b_p, ref->address);
+    free( ref);
+
+    ref = memmgr->ref_attributes("b[0]");
+    ASSERT_TRUE(ref != NULL);
+    EXPECT_EQ( (void*)a_p, ref->address);
+    free( ref);
+}
