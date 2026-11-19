@@ -146,12 +146,23 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // of a single re-register, re-assert ourselves repeatedly for a few seconds
   // after each open, which re-wins the tie-break once Pylance does show up
   // without needing a "Pylance is ready" signal (none is publicly exposed).
+  // DP_Product/*.xml files (Trick's data-product/plot definitions) embed the
+  // exact same dotted variable paths as input.py/.dr - e.g.
+  // <var units="m">ball.state.output.position[0]</var> - as plain element
+  // text, which parseAccessChain/resolveSimChain (text/position-based, with
+  // no notion of "Python" at all) already parse identically to a .dr string
+  // literal. No separate provider is needed, just this selector alongside
+  // python's; no XML language server competes for Go to Definition here the
+  // way Pylance does for .py, so this doesn't need the re-registration dance
+  // below either - registering once at activation is enough.
+  const DP_PRODUCT_XML_SELECTOR: vscode.DocumentFilter = { pattern: '**/DP_Product/**/*.xml', scheme: 'file' };
+
   const definitionProvider = new TrickPythonDefinitionProvider(simConfigs);
   let pythonDefinitionRegistration: vscode.Disposable | undefined;
   const refreshPythonDefinitionProvider = () => {
     pythonDefinitionRegistration?.dispose();
     pythonDefinitionRegistration = vscode.languages.registerDefinitionProvider(
-      { language: 'python', scheme: 'file' },
+      [{ language: 'python', scheme: 'file' }, DP_PRODUCT_XML_SELECTOR],
       definitionProvider
     );
   };

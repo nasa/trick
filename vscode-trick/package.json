@@ -250,7 +250,7 @@
       "editor/context": [
         {
           "command": "trick.sims.watchFromEditor",
-          "when": "editorLangId == python",
+          "when": "editorLangId == python || resourcePath =~ /DP_Product/",
           "group": "9_trick"
         },
         {
