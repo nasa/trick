@@ -17,5 +17,13 @@ include $(TRICK_HOME)/share/trick/makefiles/Makefile.common
 -include trickify.mk
 -include S_post.mk
 
+# Tagged rather than a bare `@echo '$($*)'`, because a sim's own
+# S_overrides.mk (or something it includes, e.g. a wrapped package's
+# makefile) can perfectly legally emit its own $(info .../$(warning ... text
+# to stdout while make is still parsing - before any print-% target's recipe
+# even runs. The caller (simConfig.ts's resolveViaMake) can no longer assume
+# "line N of stdout is variable N" once that happens, since those extra
+# lines shift everything after them - it instead picks each variable's value
+# out by this marker, wherever it lands.
 print-%:
-	@echo '$($*)'
+	@echo 'TRICK_VSCODE_FLAG:$*:$($*)'

@@ -131,6 +131,52 @@ describe('SimConfigProvider regex fallback', () => {
     assert.deepStrictEqual(new Set(viaRegex.cxxIncludes), new Set(viaMake.cxxIncludes));
   });
 
+  // Regression test for the GROOT/TrickHLA bug: S_hla.mk emits $(info ...)
+  // diagnostics (e.g. "Overriding PRTI6_ROOT = ...") while make is still
+  // parsing S_overrides.mk - before any print-% target's recipe runs. Those
+  // extra stdout lines used to shift every "line N is variable N" assumption
+  // in resolveViaMake, so TRICK_SFLAGS (and everything after it) silently
+  // picked up a neighboring variable's value instead of its own - which is
+  // how a sim wrapping a package like TrickHLA could end up with
+  // TRICK_SYSTEM_SFLAGS (where default_trick_sys.sm actually lives) missing
+  // entirely. The TRICK_VSCODE_FLAG:<var>:<value> marker in trick-vars.mk
+  // fixes this by locating each variable's value directly instead of by
+  // position.
+  it('correctly attributes flags even when an included makefile prints $(info) noise first', async function () {
+    if (process.env.CI_NO_MAKE) {
+      this.skip();
+    }
+    const provider = makeProvider();
+    const simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-infonoise-'));
+    try {
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        [
+          '$(info S_hla.mk:INFO: Overriding PRTI6_ROOT = /fake/rti)',
+          '$(info S_hla.mk:INFO: Overriding PRTI1516E_HOME = /fake/rti)',
+          '$(info S_hla.mk:INFO: Using C++14 for Trick ICG code.)',
+          'TRICK_CFLAGS += -DMARKER_CFLAGS',
+          'TRICK_CXXFLAGS += -DMARKER_CXXFLAGS',
+          'TRICK_SFLAGS += -DMARKER_SFLAGS',
+          '',
+        ].join('\n')
+      );
+      const config = await (provider as any).resolveViaMake(simRoot, TRICK_HOME);
+      assert.ok(config.raw.TRICK_CFLAGS.includes('-DMARKER_CFLAGS'), `TRICK_CFLAGS was: "${config.raw.TRICK_CFLAGS}"`);
+      assert.ok(
+        config.raw.TRICK_CXXFLAGS.includes('-DMARKER_CXXFLAGS'),
+        `TRICK_CXXFLAGS was: "${config.raw.TRICK_CXXFLAGS}"`
+      );
+      assert.ok(config.raw.TRICK_SFLAGS.includes('-DMARKER_SFLAGS'), `TRICK_SFLAGS was: "${config.raw.TRICK_SFLAGS}"`);
+      // The real regression: TRICK_SYSTEM_SFLAGS (where default_trick_sys.sm
+      // lives) must still be Makefile.common's own value, not clobbered by
+      // the $(info) noise shifting things.
+      assert.ok(config.raw.TRICK_SYSTEM_SFLAGS.includes(path.join(TRICK_HOME, 'share')));
+    } finally {
+      fs.rmSync(simRoot, { recursive: true, force: true });
+    }
+  });
+
   it('falls back to TRICK_HOME system includes for files outside any sim (default_trick_sys.sm)', async function () {
     if (process.env.CI_NO_MAKE) {
       this.skip();

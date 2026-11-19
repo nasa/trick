@@ -351,11 +351,32 @@ export class SimConfigProvider implements vscode.Disposable {
             reject(error);
             return;
           }
-          const lines = stdout.split('\n');
+          // Picked out by the TRICK_VSCODE_FLAG:<var>:<value> marker each
+          // print-% target emits (see trick-vars.mk), not by line position -
+          // a sim's S_overrides.mk (or something it includes, e.g. a wrapped
+          // package's makefile) can emit its own $(info .../$(warning ...
+          // output to stdout while make is still parsing, before any
+          // print-% recipe runs. That extra, unpredictable-length output
+          // would otherwise shift every "line N is variable N" assumption
+          // after it - silently handing later variables a neighbor's value
+          // instead of their own.
+          const markerRe = /^TRICK_VSCODE_FLAG:([A-Za-z0-9_]+):(.*)$/;
           const raw: Record<string, string> = {};
-          FLAG_VARS.forEach((v, i) => {
-            raw[v] = (lines[i] ?? '').trim();
-          });
+          for (const line of stdout.split('\n')) {
+            const m = markerRe.exec(line);
+            if (m) {
+              raw[m[1]] = m[2].trim();
+            }
+          }
+          const missing = FLAG_VARS.filter((v) => raw[v] === undefined);
+          if (missing.length > 0) {
+            this.output.appendLine(
+              `[${simRoot}] make didn't report ${missing.join(', ')} - treating as empty. Full output:\n${stdout}`
+            );
+            missing.forEach((v) => {
+              raw[v] = '';
+            });
+          }
           resolve(this.buildConfig(simRoot, 'make', raw, trickHome));
         }
       );
