@@ -366,6 +366,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "22": "^0.0.0",
     "vscode-cpptools": "^6.1.0"
   }
 }

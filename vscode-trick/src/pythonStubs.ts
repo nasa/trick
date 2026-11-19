@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { SimConfigProvider, isInNestedRepo } from './simConfig';
-import { parseSieResource, generateSieStub } from './sieResource';
+import { parseSieResource, generateSieStub, pyStringLiteral } from './sieResource';
 
 const TOP_LEVEL_DEF_RE = /^def\s+(\w+)\(([^)]*)\):\s*$/;
 const TOP_LEVEL_CLASS_RE = /^class\s+(\w+)\(([^)]*)\):\s*$/;
@@ -305,6 +305,12 @@ export interface SimObjectDecl {
   name: string;
   /** Set when a parsed S_sie.resource gives this object a real class to point at. */
   typeRef?: { moduleName: string; className: string };
+  /**
+   * Set when `typeRef` is missing for a reason worth surfacing on hover
+   * (rather than a silent `Any`) - e.g. the owning sim hasn't been built yet.
+   * Ignored if `typeRef` is also set.
+   */
+  note?: string;
 }
 
 /**
@@ -312,10 +318,12 @@ export interface SimObjectDecl {
  * input processor pre-imports (as real `import x as x` re-exports, so
  * Pylance keeps full completions/hover for e.g. `os.path`, not just `Any`)
  * plus every known sim object name - typed against its generated
- * trick_sie.* class when available (see generateSieStub), otherwise `Any`.
- * Callers are expected to pass at most one decl per name already resolved
- * (e.g. conflicting types across sims collapsed to a plain `Any` decl); if
- * duplicates slip through, the first one wins.
+ * trick_sie.* class when available (see generateSieStub), otherwise `Any`
+ * (with `note`, when set, emitted as a doc-comment so hovering over the
+ * `Any` explains why rather than just showing `Any`). Callers are expected
+ * to pass at most one decl per name already resolved (e.g. conflicting types
+ * across sims collapsed to a plain `Any` decl); if duplicates slip through,
+ * the first one wins.
  */
 export function generateBuiltinsStub(objects: SimObjectDecl[]): string {
   const byName = new Map<string, SimObjectDecl>();
@@ -331,6 +339,9 @@ export function generateBuiltinsStub(objects: SimObjectDecl[]): string {
     const decl = byName.get(name)!;
     if (!decl.typeRef) {
       declLines.push(`${name}: Any`);
+      if (decl.note) {
+        declLines.push(pyStringLiteral(decl.note));
+      }
       continue;
     }
     let alias = imports.get(decl.typeRef.moduleName);
@@ -477,12 +488,19 @@ export class PythonStubManager implements vscode.Disposable {
 
     const objectNames = new Set<string>();
     const typeRefsByName = new Map<string, { moduleName: string; className: string }[]>();
+    // Surfaced on hover (via generateBuiltinsStub's `note`) for objects that
+    // end up with no typeRef because their owning sim hasn't been built -
+    // otherwise they'd silently fall back to a bare `Any` with no indication
+    // why, which is easy to mistake for a real bug in the extension rather
+    // than "run trick-CP first".
+    const unbuiltReasonByName = new Map<string, string>();
     const pythonPathDirs = new Set<string>();
     let wroteAnySieStub = false;
     for (const sdefineFile of sDefineFiles) {
       const simRoot = path.dirname(sdefineFile.fsPath);
       const text = fs.readFileSync(sdefineFile.fsPath, 'utf8');
-      for (const name of parseSimObjectNames(text)) {
+      const namesInThisSdefine = parseSimObjectNames(text);
+      for (const name of namesInThisSdefine) {
         objectNames.add(name);
       }
 
@@ -504,6 +522,14 @@ export class PythonStubManager implements vscode.Disposable {
         this.output.appendLine(
           `[python-stubs] ${siePath} not found - ${path.basename(simRoot)} not built; variable completion unavailable until trick-CP runs.`
         );
+        const note = `${path.basename(
+          simRoot
+        )} hasn't been built yet (no S_sie.resource), so real type info isn't available here - run trick-CP, then "Trick: Regenerate Python Stubs".`;
+        for (const name of namesInThisSdefine) {
+          if (!unbuiltReasonByName.has(name)) {
+            unbuiltReasonByName.set(name, note);
+          }
+        }
         continue;
       }
       const model = parseSieResource(fs.readFileSync(siePath, 'utf8'));
@@ -528,7 +554,7 @@ export class PythonStubManager implements vscode.Disposable {
     const decls: SimObjectDecl[] = [...objectNames].sort().map((name) => {
       const refs = typeRefsByName.get(name);
       if (!refs) {
-        return { name };
+        return { name, note: unbuiltReasonByName.get(name) };
       }
       const unique = new Map<string, { moduleName: string; className: string }>();
       for (const ref of refs) {

@@ -235,7 +235,7 @@ function pyType(type: string, dims: number[], model: SieModel, reachable: Set<st
 // single-quoted literal with manual escaping instead. Pyright/Pylance treat
 // any bare string-literal statement right after an attribute as its doc
 // comment, regardless of quote style.
-function pyStringLiteral(text: string): string {
+export function pyStringLiteral(text: string): string {
   const escaped = text
     .replace(/\\/g, '\\\\')
     .replace(/'/g, "\\'")
