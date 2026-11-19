@@ -16,7 +16,7 @@ Module._load = function (request: string, ...rest: unknown[]) {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { findClassDeclLine, symbolMatchesWord } = require('../sdefineDefinitions');
+const { findClassDeclLine, symbolMatchesWord, isUnderTestDirectory } = require('../sdefineDefinitions');
 
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const BALL_SDEFINE = path.join(REPO_ROOT, 'trick_sims/Ball/SIM_ball_L1/S_define');
@@ -65,5 +65,26 @@ describe('symbolMatchesWord', () => {
 
   it('rejects an unrelated name', () => {
     assert.strictEqual(symbolMatchesWord('otherMethod', 'update'), false);
+  });
+});
+
+describe('isUnderTestDirectory', () => {
+  it('flags a path under the repo-root test/ sims directory', () => {
+    assert.ok(isUnderTestDirectory('/home/sharmeye/trick/test/SIM_test_dr/models/foo.cpp'));
+  });
+
+  it('flags a path under a trick_source unit-test directory', () => {
+    assert.ok(isUnderTestDirectory('/home/sharmeye/trick/trick_source/sim_services/Executive/test/foo.cc'));
+  });
+
+  it('does not flag a real sim outside any test directory', () => {
+    assert.strictEqual(
+      isUnderTestDirectory('/home/sharmeye/trick/trick_sims/SIM_robot/models/manip2d.cpp'),
+      false
+    );
+  });
+
+  it('does not flag a directory merely containing "test" as a substring', () => {
+    assert.strictEqual(isUnderTestDirectory('/home/sharmeye/trick/trick_sims/SIM_contact/foo.cpp'), false);
   });
 });
