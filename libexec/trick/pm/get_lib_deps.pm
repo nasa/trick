@@ -299,13 +299,7 @@ sub get_s_source_deps() {
             next if ( $word =~ /^\/usr\/include/ );
             next if ( $word =~ /^\/usr\/local\/include/ );
 
-            # skip Trick headers
-            # $word was already resolved through abs_path() above, which follows
-            # symlinks. TRICK_HOME may be exported as a symlinked path (e.g. when
-            # the user cd's into Trick through a symlink), so it must be resolved
-            # the same way or this prefix match silently fails and Trick's own
-            # core headers leak into the sim's dependency/SWIG processing list.
-            my $trick_home = abs_path( $ENV{'TRICK_HOME'} );
+            my $trick_home = $ENV{'TRICK_HOME'};
             next if ( $word =~ /^\Q$trick_home\/include/ );
             next if ( $word =~ /^\Q$trick_home\/trick_source/ );
 
