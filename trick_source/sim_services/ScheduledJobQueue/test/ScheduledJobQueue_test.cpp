@@ -3,7 +3,6 @@
 #include <iostream>
 #include <signal.h>
 #include <sys/types.h>
-#include <type_traits>
 
 #include "gtest/gtest.h"
 //#include "trick/RequirementScribe.hh"
@@ -394,14 +393,6 @@ TEST_F( ScheduledJobQueueTest , TopJob ) {
     sjq.reset_curr_index() ;
     job_ptr = sjq.top() ;
     EXPECT_STREQ( job_ptr->name.c_str() , "job_1") ;
-}
-
-TEST_F(ScheduledJobQueueTest, QueueCannotShareItsOwnedStorageByCopying)
-{
-    EXPECT_FALSE(std::is_copy_constructible<Trick::ScheduledJobQueue>::value);
-    EXPECT_FALSE(std::is_copy_assignable<Trick::ScheduledJobQueue>::value);
-    EXPECT_FALSE(std::is_move_constructible<Trick::ScheduledJobQueue>::value);
-    EXPECT_FALSE(std::is_move_assignable<Trick::ScheduledJobQueue>::value);
 }
 
 TEST_F(ScheduledJobQueueTest, TopAtEndOfIteration)

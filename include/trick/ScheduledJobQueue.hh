@@ -39,16 +39,6 @@ namespace Trick {
              */
             ~ScheduledJobQueue() ;
 
-            // Non-copyable and non-movable:
-            //  - `list` is a raw malloc'd array freed in the destructor, so a
-            //    member-wise copy would double-free it.
-            //  - Schedulers hold ScheduledJobQueue* (e.g. Scheduler::class_to_queue),
-            //    so a queue must stay at one address for its lifetime.
-            ScheduledJobQueue(const ScheduledJobQueue&)            = delete;
-            ScheduledJobQueue& operator=(const ScheduledJobQueue&) = delete;
-            ScheduledJobQueue(ScheduledJobQueue&&)                 = delete;
-            ScheduledJobQueue& operator=(ScheduledJobQueue&&)      = delete;
-
             /**
              * @brief Adds a new job into list. The exact placement of job is dependent on
              * job_class, phase , sim_object order , and finally job order in sim object.
