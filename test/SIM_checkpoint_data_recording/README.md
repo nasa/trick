@@ -63,3 +63,9 @@ ref_log_foo and log_foo in RUN_test11_redirect should match, showing that the ch
 
 
 Overall: expectation is that what loads in from the checkpoint should take precedence and overwrite the file of the same name - expect for RUN_test11*.
+
+RUN_test13
+Run started with data recording of scoped enums with every underlying integer type (uint8_t through int64_t)
+Expected: log_enums.header lists each 1, 2, and 8-byte enum's underlying type and int for 4-byte enums,
+and log_enums.csv contains the correct values, including unsigned values above the signed max,
+negative values, and 8-byte values beyond 32 bits

@@ -99,7 +99,7 @@ int Trick::DRHDF5::format_specific_init() {
 
         /* Case statements taken from "parameter_types.h."
          *  HDF5 Native types found in "H5Tpublic.h." */
-        switch (Trick::ReferenceUtils::effective_trick_type(rec_buffer[ii]->ref))
+        switch (Trick::ReferenceUtils::effective_data_type(rec_buffer[ii]->ref))
         {
         case TRICK_CHARACTER:
             datatype = H5T_NATIVE_CHAR;
@@ -214,7 +214,7 @@ int Trick::DRHDF5::format_specific_init() {
         buf = "log_" + group_name ;
         H5PTappend( file_names_id, 1, buf.c_str() );
         /* Param Type */
-        buf = type_string((int)Trick::ReferenceUtils::effective_trick_type(rec_buffer[ii]->ref),
+        buf = type_string((int)Trick::ReferenceUtils::effective_data_type(rec_buffer[ii]->ref),
                           (int)Trick::ReferenceUtils::effective_trick_size(rec_buffer[ii]->ref));
         H5PTappend( param_types_id, 1, buf.c_str() );
         /* Param Units */

@@ -27,6 +27,21 @@ namespace Trick
             //   TRICK_STL whose reference ends with ']' -> sizeof(stl_elem_type)
             //   everything else                         -> attr->size
             static size_t effective_trick_size(const REF2* ref);
+
+            // Returns the integer TRICK_TYPE matching an enum's underlying type:
+            //   width from attr->size, signedness from TRICK_ENUM_UNSIGNED in the ENUM_ATTR mods
+            static TRICK_TYPE enum_underlying_type(const ATTRIBUTES* attr);
+
+            // Returns the effective TRICK_TYPE with non-int sized enums resolved to their underlying type:
+            //   TRICK_ENUMERATED in an STL container       -> TRICK_ENUMERATED (read as int)
+            //   TRICK_ENUMERATED of size 4 bytes           -> TRICK_ENUMERATED (read as int)
+            //   TRICK_ENUMERATED of size 1, 2, or 8 bytes  -> enum_underlying_type(attr)
+            //   everything else                            -> effective_trick_type(ref)
+            static TRICK_TYPE effective_data_type(const REF2* ref);
+
+            // Formats the enum value at address into buf as a number in the type from effective_data_type(ref).
+            // Returns the snprintf result.
+            static int format_enum_value(char* buf, size_t buf_size, const REF2* ref, const void* address);
     };
 
 } // namespace Trick

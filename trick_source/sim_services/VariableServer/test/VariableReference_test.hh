@@ -37,6 +37,53 @@ class TestObject {
     NestedObject obj;
 };
 
+class EnumObject
+{
+    public:
+        enum class UC : uint8_t
+        {
+            a
+        };
+        enum class SC : int8_t
+        {
+            a
+        };
+        enum class US : uint16_t
+        {
+            a
+        };
+        enum class SS : int16_t
+        {
+            a
+        };
+        enum class UI : uint32_t
+        {
+            a
+        };
+        enum class SI : int32_t
+        {
+            a
+        };
+        enum class UL : uint64_t
+        {
+            a
+        };
+        enum class SL : int64_t
+        {
+            a
+        };
+
+        UC uc;
+        SC sc;
+        US us;
+        SS ss;
+        UI ui;
+        SI si;
+        UL ul;
+        SL sl;
+        SC sc_arr[3];
+};
+
 /*
  Test Fixture.
  */

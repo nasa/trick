@@ -1,14 +1,18 @@
 #include "sim_objects/default_trick_sys.sm"
 ##include "Foo.hh"
+##include "EnumFoo.hh"
 
 class TestSimObject : public Trick::SimObject {
 
     public:
     Foo my_foo;
+    EnumFoo my_enums;
 
     TestSimObject () {
         ("initialization") my_foo.init ();
+        ("initialization") my_enums.init ();
         (1.0, "scheduled") my_foo.increment () ;
+        (1.0, "scheduled") my_enums.increment () ;
     }
 
 };
