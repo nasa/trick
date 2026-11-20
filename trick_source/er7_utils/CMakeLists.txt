@@ -74,3 +74,6 @@ trick_add_library(er7_utils STATIC
         math/src/ratio128.cc
         math/src/uint128.cc
         trick/integration/src/trick_integrator.cc)
+
+# The Trick adapter and generated attributes call back into the runtime at link time.
+target_link_libraries(er7_utils INTERFACE "$<LINK_ONLY:trick>")

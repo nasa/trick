@@ -4,6 +4,7 @@
 # system can be checked against the autotools/Make build it replaces.
 #
 # Usage:
+#   tools/build-parity.sh configure-cmake [CMake configure args...]
 #   tools/build-parity.sh capture <trick_install_dir> <out_dir>
 #   tools/build-parity.sh archives <build_dir> <out_dir>
 #   tools/build-parity.sh check-cmake <make_lib_dir> <cmake_build_dir> <out_dir>
@@ -50,6 +51,44 @@ set -euo pipefail
 
 die() { echo "build-parity: $*" >&2; exit 2; }
 
+# Baseline parity only: normal CMake configuration keeps its explicit options.
+# Run from the configured Make source tree, regardless of inherited TRICK_HOME.
+configure_cmake() {
+    local home value var option root
+    local -a args=()
+    home=$(pwd -P)
+    [[ -f $home/share/trick/makefiles/config_user.mk ]] \
+        || die "run ./configure first, then configure-cmake from the Trick source tree"
+    command -v make >/dev/null || die "make command not found"
+    command -v cmake >/dev/null || die "cmake command not found"
+    for var in HDF5 GSL_HOME; do
+        value=$(TRICK_HOME="$home" make --no-print-directory -s \
+            -f "$home/share/trick/makefiles/Makefile.trickconfig" "print-$var") \
+            || die "could not resolve $var through Makefile.trickconfig"
+        [[ $value == "$var="* ]] || die "unexpected print-$var output: $value"
+        value=${value#*=}
+        if [[ $var == HDF5 ]]; then
+            option=TRICK_ENABLE_HDF5
+            root=HDF5_ROOT
+        else
+            option=TRICK_ENABLE_GSL
+            root=GSL_ROOT
+        fi
+        # Baseline-derived hints take precedence over caller-supplied hints.
+        args+=("-U$root")
+        if [[ -n $value ]]; then
+            args+=("-D$option:BOOL=ON" "-D$root:PATH=$value")
+        else
+            args+=("-D$option:BOOL=OFF")
+        fi
+    done
+    # Put the baseline-derived settings last so caller options cannot silently
+    # change which libraries are compared. Arrays preserve prefixes with spaces.
+    # ROOT hints alone do not invalidate Find modules' cached library paths.
+    # Parity starts fresh; callers must supply their preset/options each time.
+    cmake --fresh "$@" "${args[@]}"
+}
+
 # Variables sims and trick-config read from Makefile.common / config_user.mk.
 MAKE_VARS=(
     TRICK_HOST_TYPE TRICK_HOST_CPU TRICK_VERSION TRICK_MAJOR TRICK_MINOR
@@ -66,16 +105,15 @@ MAKE_VARS=(
 # builds it.
 CMAKE_ARCHIVES=(
     liber7_utils
+    libtrick
     libtrick_comm
     libtrick_connection_handlers
     libtrick_math
+    libtrick_mm
     libtrick_optimization
     libtrick_units
     libtrick_var_binary_parser
 )
-# Archive members the CMake build does not produce yet: ICG's generated io_*
-# code. Remove once the CMake build runs ICG.
-CMAKE_EXCLUDE_MEMBERS='^io_'
 
 # Defined external symbols of one archive. Member names are omitted on
 # purpose: object file names differ between build systems. If
@@ -172,7 +210,7 @@ check_cmake() {
                 continue
             fi
             mkdir -p "$out/$side"
-            PARITY_EXCLUDE_MEMBERS=$CMAKE_EXCLUDE_MEMBERS archive_symbols "$lib" > "$out/$side/$name.txt"
+            archive_symbols "$lib" > "$out/$side/$name.txt"
         done
     done
     compare "$out/make" "$out/cmake" || rc=1
@@ -291,12 +329,14 @@ compare() {
     return $rc
 }
 
-case $1 in
+case ${1:-} in
+    configure-cmake) ;;
     check-cmake) [[ $# -eq 4 ]] || die "usage: $0 check-cmake <make_lib_dir> <cmake_build_dir> <out_dir>" ;;
     check-icg)   [[ $# -eq 4 ]] || die "usage: $0 check-icg <make_icg> <cmake_build_dir> <out_dir>" ;;
     *)           [[ $# -eq 3 ]] || die "usage: $0 {capture|archives|sim-test|compare} <dir> <dir>" ;;
 esac
 case $1 in
+    configure-cmake) shift; configure_cmake "$@" ;;
     capture)  capture "$2" "$3" ;;
     archives) archives "$2" "$3" ;;
     check-cmake) check_cmake "$2" "$3" "$4" ;;

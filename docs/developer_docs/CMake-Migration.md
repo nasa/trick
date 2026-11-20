@@ -30,6 +30,36 @@ reaches parity with it. The final phase removes it.
   library names, and variables in `config_user.mk` stay the same, so
   simulations build unchanged against a CMake-built Trick.
 
+## Coding guidelines for CMake development
+
+Use **Plain Language** in comments, documentation, and change descriptions.
+Write for people who read and maintain Trick's code: prefer direct wording
+and explain unfamiliar build-system terms.
+
+All new Python code for the CMake build system, its migration tooling, and
+its tests must target **Python 3.11** and pass **Ruff formatting and linting**,
+including import sorting.
+
+Run Ruff's built-in automatic fixers first rather than hand-editing formatting
+or lint issues that Ruff can fix:
+
+```bash
+ruff check --preview --target-version py311 --extend-select I --fix path/to/file.py
+ruff format --preview --target-version py311 path/to/file.py
+```
+
+Manually fix any remaining diagnostics that Ruff cannot fix automatically,
+then rerun both checks:
+
+```bash
+ruff format --preview --target-version py311 --check path/to/file.py
+ruff check --preview --target-version py311 --extend-select I path/to/file.py
+```
+
+Run the relevant tests with Python 3.11 and avoid features introduced in later
+Python versions. These requirements apply only to CMake build-system development;
+they do not change Python support for simulations or other Trick tools.
+
 ## The sim-facing contract
 
 Simulations depend on the following from an installed Trick:
@@ -83,15 +113,17 @@ in the same checkout:
 
 ```bash
 ./configure && make
-cmake --workflow --preset parity
+bash tools/build-parity.sh configure-cmake --preset parity
+cmake --build --preset parity
+ctest --preset parity
 tools/build-parity.sh check-cmake lib out/build/parity out/parity-check
 tools/build-parity.sh check-icg bin/trick-ICG out/build/parity out/icg-check
 ```
 
 `check-cmake` compares the archives the CMake build produces so far, which are
 listed in `CMAKE_ARCHIVES` in the script. Add each archive there as it is
-migrated. It leaves out the Make build's ICG-generated `io_*` members until the
-CMake build runs ICG.
+migrated. The comparison includes ICG-generated `io_*` members, `libtrick`,
+and `libtrick_mm`. Both builds must use the same optional components.
 
 `check-icg` runs both builds' `trick-ICG` on `include/trick/files_to_ICG.hh`
 with the flags the Make build uses, and compares everything they generate: the
@@ -102,7 +134,9 @@ redirects only the `io_*.cpp` files. ICG still writes its maps into
 from the same state, collects what it wrote, and restores the originals. It
 fails if anything else in the tree changed.
 
-CI runs both checks on every Linux and macOS job.
+CI runs both checks on every Linux and macOS job. `configure-cmake` reads
+Make's HDF5/GSL settings and starts a fresh CMake configuration from them.
+Repeat any extra, non-preset CMake options on each invocation.
 
 The `parity` preset leaves the build type empty. The Make build passes no
 optimization or debug flags, and an optimized build inlines functions whose
@@ -141,6 +175,11 @@ they show up as expected differences in `compare`:
 - `make uninstall` does not remove `libtrick_var_binary_parser.a`.
 - The archives depend on each other in a cycle. The unit tests link them inside
   `-Wl,--start-group` on Linux.
+- Make defines `HDF5` only while compiling `DataRecord`, not for simulations.
+  In an HDF5-enabled CMake build, the runtime target propagates the definition
+  and include paths to its CMake consumers so they see the same `DRHDF5` layout.
+  This is an intentional baseline difference; the separate ICG parsing
+  exception described below remains unchanged.
 
 ## Configuring with CMake
 
@@ -235,16 +274,37 @@ simulations link is a `STATIC` library with the same name, and has a
 
 Directories whose code the Make build puts into `libtrick.a`
 (`compareFloatingPoint`, `interpolator`, `shm`, `trick_adt`, `unicode`) are
-`OBJECT` libraries. `libtrick` includes them when it is added.
+`OBJECT` libraries. `libtrick` includes their objects.
 
-Some dependencies point from these libraries back into libraries that don't
-exist yet. They are added along with those libraries:
+`trick_source/sim_services/CMakeLists.txt` builds the runtime archives:
+
+| Target | Archive | Alias |
+|---|---|---|
+| `trick` | `libtrick.a` | `Trick::runtime` |
+| `trick_mm` | `libtrick_mm.a` | `Trick::memory_manager` |
+
+The static libraries have reciprocal dependencies, matching the runtime's
+existing references. CMake records these edges so consumers receive the
+dependent archives. These cycles preserve the existing archive layout,
+not a preferred long-term architecture; breaking them is separate work
+before supporting shared libraries:
 
 - `libtrick_math` calls `message_publish()` in `libtrick`.
 - er7_utils' adapter (`trick/integration`) derives from `Trick::Integrator` and
   uses the memory manager.
-- ICG generates code for er7_utils headers into er7_utils' own directories. It
-  is compiled into `liber7_utils.a` along with ICG's other output.
+- The memory manager uses runtime message and attribute-map services.
+
+The reverse edges are link-only: math and memory-manager compilation does not
+inherit the runtime's compile settings or wait for ICG.
+
+Generated core IO and the class/enum map are compiled into `libtrick`, not
+`libtrick_mm`. Generated er7_utils IO is compiled into `liber7_utils`.
+`libtrick_pyip` and the SWIG interface remain phase 5 work; the CMake archives
+are not yet a complete simulation link environment.
+
+The memory declaration, reference, and checkpoint parsers are generated by
+Flex and Bison in the build directory. There is no `_premade` fallback in
+the CMake build; the legacy Make rules remain unchanged.
 
 ## trick-ICG
 
@@ -342,6 +402,13 @@ still pass, and each should be fixed separately.
   `share/trick/xml/sim_services_classes.resource`.
 - ICG appends to `sim_services_classes.resource` and nothing truncates it, so
   any run that regenerates Trick's `io_src` adds a second copy of every class.
+- ICG parses `DRHDF5` without `HDF5` defined, even in an HDF5-enabled build.
+  The header hides HDF5 includes behind `!TRICK_ICG`, so simply passing
+  `-DHDF5` to ICG fails on the unknown `hid_t` type. Its HDF5-only members
+  are marked `trick_io(**)` and are not reflected. CMake preserves this
+  parsing exception; reconciling the header guards and reflected view needs
+  a separate HDF5-enabled regression test. Archive-symbol parity alone does
+  not establish reflection correctness.
 
 ## Phases
 
