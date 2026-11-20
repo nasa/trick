@@ -25,6 +25,8 @@ const {
   findDeclarationLine,
   findTopLevelObjectLine,
   findTrickDeclaration,
+  isSysExecTimeAliasChain,
+  findSysExecTimeDeclaration,
 } = require('../pythonDefinitions');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { parseSieResource } = require('../sieResource');
@@ -273,6 +275,44 @@ describe('pythonDefinitions', () => {
     it('returns undefined for a name that only exists in Python', () => {
       const files = new Map([['dummy.hh', 'class Something {} ;']]);
       assert.strictEqual(findTrickDeclaration('var_get', files), undefined);
+    });
+  });
+
+  describe('isSysExecTimeAliasChain', () => {
+    it('matches the full chain', () => {
+      assert.ok(isSysExecTimeAliasChain(['sys', 'exec', 'out', 'time']));
+    });
+
+    it('matches any clicked prefix of the chain', () => {
+      assert.ok(isSysExecTimeAliasChain(['sys']));
+      assert.ok(isSysExecTimeAliasChain(['sys', 'exec']));
+      assert.ok(isSysExecTimeAliasChain(['sys', 'exec', 'out']));
+    });
+
+    it('rejects a chain that only coincidentally starts the same way', () => {
+      assert.strictEqual(isSysExecTimeAliasChain(['sys', 'exec', 'out', 'other']), false);
+      assert.strictEqual(isSysExecTimeAliasChain(['sysx']), false);
+    });
+
+    it('rejects an empty chain', () => {
+      assert.strictEqual(isSysExecTimeAliasChain([]), false);
+    });
+  });
+
+  describe('findSysExecTimeDeclaration', () => {
+    it('resolves to the real curr_time field sys.exec.out.time is bound to', function () {
+      if (!fs.existsSync(DATA_RECORD_GROUP_HH)) {
+        this.skip();
+      }
+      const found = findSysExecTimeDeclaration(REPO_ROOT);
+      assert.strictEqual(found?.file, DATA_RECORD_GROUP_HH);
+      assert.ok(
+        fs.readFileSync(DATA_RECORD_GROUP_HH, 'utf8').split('\n')[found.line].includes('curr_time')
+      );
+    });
+
+    it('returns undefined when DataRecordGroup.hh is not found under the given TRICK_HOME', () => {
+      assert.strictEqual(findSysExecTimeDeclaration('/no/such/trick/home'), undefined);
     });
   });
 });

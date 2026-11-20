@@ -260,6 +260,38 @@ export function findTrickDeclaration(
   return undefined;
 }
 
+// "sys.exec.out.time" is a synthetic, hardcoded variable name - not a real
+// member chain through any "sys"/"exec"/"out" class (no such classes exist;
+// the real executive is trick_sys.sched, a Trick::Executive). It's created by
+// DataRecordGroup::add_time_variable (DataRecordGroup.cpp) as a REF2 pointing
+// directly at DataRecordGroup::curr_time, purely so every recording group's
+// first column is named consistently across Trick releases. SIE has no entry
+// for it - there's no class to reflect - so resolveSimChain can never resolve
+// it like a normal sim variable; this chain (or any clicked prefix of it,
+// e.g. just "sys" or "sys.exec") is special-cased to point at that field
+// instead, since it's the closest thing to a real declaration this name has.
+const SYS_EXEC_TIME_ALIAS_CHAIN = ['sys', 'exec', 'out', 'time'];
+
+export function isSysExecTimeAliasChain(chain: string[]): boolean {
+  return (
+    chain.length > 0 &&
+    chain.length <= SYS_EXEC_TIME_ALIAS_CHAIN.length &&
+    chain.every((segment, i) => segment === SYS_EXEC_TIME_ALIAS_CHAIN[i])
+  );
+}
+
+export function findSysExecTimeDeclaration(trickHome: string): TrickDeclaration | undefined {
+  const file = path.join(trickHome, 'include', 'trick', 'DataRecordGroup.hh');
+  let text: string;
+  try {
+    text = fs.readFileSync(file, 'utf8');
+  } catch {
+    return undefined;
+  }
+  const m = /\bcurr_time\s*;/.exec(text);
+  return { file, line: m ? lineOf(text, m.index) : 0 };
+}
+
 interface CacheEntry<T> {
   mtimeMs: number;
   value: T;
@@ -294,6 +326,17 @@ export class TrickPythonDefinitionProvider implements vscode.DefinitionProvider 
         return undefined;
       }
       return this.resolveTrickTarget(simRoot, chain[1]);
+    }
+
+    if (isSysExecTimeAliasChain(chain)) {
+      const trickHome = simRoot ? this.simConfigs.resolveTrickHome(simRoot) : undefined;
+      if (!trickHome) {
+        return undefined;
+      }
+      const found = findSysExecTimeDeclaration(trickHome);
+      return found && fs.existsSync(found.file)
+        ? new vscode.Location(vscode.Uri.file(found.file), new vscode.Position(found.line, 0))
+        : undefined;
     }
 
     if (!simRoot || token.isCancellationRequested) {
