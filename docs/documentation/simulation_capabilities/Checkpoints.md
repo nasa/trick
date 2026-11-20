@@ -31,4 +31,6 @@ trick.load_checkpoint(<filename>, False)
 
 ```
 
+When `trick.checkpoint_cpu(<cpu_num>)` is set to a value greater than 0, checkpoints are written by a forked process, and the simulation continues without waiting for the write to finish. `trick.TMM_get_checkpoint_write_state()` waits for that process if it is still writing and then returns its result. Starting another checkpoint also waits for the previous forked write to finish first. When the simulation shuts down, it also waits for a pending forked checkpoint to finish, so a large final checkpoint can delay exit, but the file is complete once the simulation has exited.
+
 [Continue to Memory Manager](memory_manager/MemoryManager)

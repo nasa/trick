@@ -60,6 +60,13 @@ RUN_test11_redirect loads the checkpoint from RUN_test11 at time = 0.0 and redir
 Expected: ref_log_foo and log_foo in RUN_test11 should match, showing that the checkpoint did not overwrite previous data;
 ref_log_foo and log_foo in RUN_test11_redirect should match, showing that the checkpoint redirected output to the new dir.
 
+RUN_test12
+Checkpoints written by the sim process (checkpoint_cpu(0)) and by a forked process (checkpoint_cpu(1)),
+with and without the SIGCHLD trap (exec_set_trap_sigchld(1)), each to a valid and to an invalid path.
+A forked end checkpoint is written at shutdown.
+Expected: TMM_get_checkpoint_write_state() is true for the valid paths and false for the invalid ones,
+in every mode; chkpnt_end is complete once the simulation has exited (check_end_checkpoint.sh).
+
 
 
 Overall: expectation is that what loads in from the checkpoint should take precedence and overwrite the file of the same name - expect for RUN_test11*.

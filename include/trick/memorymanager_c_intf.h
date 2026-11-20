@@ -59,6 +59,7 @@ int   TMM_read_checkpoint_from_string( const char* str);
 int   TMM_init_from_checkpoint( const char* filename);
 
 bool TMM_get_checkpoint_restore_state(void);
+bool TMM_get_checkpoint_write_state(void);
 
 int   TMM_add_shared_library_symbols( const char* filename);
 

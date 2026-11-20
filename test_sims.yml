@@ -344,6 +344,9 @@ SIM_checkpoint_data_recording:
       compare:
         - test/SIM_checkpoint_data_recording/RUN_test11/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11/log_foo.csv
         - test/SIM_checkpoint_data_recording/RUN_test11_redirect/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11_redirect/log_foo.csv
+    RUN_test12/unit_test.py:
+      returns: 0
+      analyze: "./test/SIM_checkpoint_data_recording/RUN_test12/check_end_checkpoint.sh"
 
 SIM_mtv:
   path: test/SIM_mtv
