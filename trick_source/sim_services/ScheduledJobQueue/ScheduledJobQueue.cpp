@@ -183,6 +183,7 @@ unsigned int Trick::ScheduledJobQueue::get_curr_index() {
 int Trick::ScheduledJobQueue::set_curr_index(unsigned int value ) {
     if (value <= list_size)
     {
+        // curr_index == list_size is valid and means the queue is exhausted
         curr_index = value ;
     }
     return 0 ;
