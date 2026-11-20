@@ -71,8 +71,10 @@ bool VariableVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializat
             td->dump() ; std::cout << std::endl ;
         }
         CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
+        if ( !cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ) {
+            return true ;
+        }
         cval = cvis.get_class_data() ;
-        cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ;
 
         if (cval->isInStandardNamespace()) {
             if ( debug_level >=4 ) {
