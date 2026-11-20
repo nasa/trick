@@ -82,7 +82,9 @@ export class TrickSdefineDefinitionProvider implements vscode.DefinitionProvider
       return undefined;
     }
 
-    const matches = symbols.filter((s) => symbolMatchesWord(s.name, word));
+    const matches = symbols.filter(
+      (s) => symbolMatchesWord(s.name, word) && !isUnderTestDirectory(s.location.uri.fsPath)
+    );
     if (matches.length === 0) {
       return undefined;
     }
@@ -211,4 +213,14 @@ function escapeRegExp(text: string): string {
 export function symbolMatchesWord(symbolName: string, word: string): boolean {
   const baseName = symbolName.split('(')[0].trim();
   return baseName === word || baseName.endsWith(`::${word}`);
+}
+
+// Excludes Trick's own test-suite sims (test/SIM_*) and unit-test sources
+// (trick_source/*/test/) from the workspace-symbol fallback below. Those
+// routinely redeclare common member/method names (e.g. "mass", "update")
+// purely as test fixtures/mocks, with no useful relationship to whatever the
+// user actually clicked - left in, they can out-compete the real framework
+// declaration the fallback exists to find.
+export function isUnderTestDirectory(fsPath: string): boolean {
+  return fsPath.split(path.sep).includes('test');
 }

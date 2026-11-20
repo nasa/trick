@@ -107,19 +107,27 @@ Trick View, and Sim Control Panel).
   otherwise it offers a picker over every `RUN_*/*.py` under the sim, remembering the last
   one you ran. Offers to build first if the sim hasn't been built yet. The launched sim
   shows up automatically in the **Sims** view below.
-- **Trick activity bar icon**, with two panes: discovers running sims automatically (via
-  the same UDP broadcast Sim Sniffer uses), watches variables with live, updating values
-  (replacing Trick View), and runs/freezes/stops a sim (replacing Sim Control Panel).
-  - Connecting to a sim moves it out of the **Sims** list into the **Connected** pane
-    below, so it doesn't move around as other sims come and go on the network. It stays
-    there (shown as "Ended") until you disconnect it, even after the sim process exits.
-    Drag the divider between the two panes to resize them.
-  - **Add Watch** on a connected sim walks you through its sim objects and their members
-    (from the sim's `S_sie.resource`, when it's on your filesystem), or lets you type a
-    path. The sim expands to show the new watch, and invalid paths are rejected up front.
-  - Right-click a variable in `input.py`/`.dr` and choose **Watch in Trick Sims View**
-    to add it without retyping it.
-  - Watch lists are remembered per sim directory, so they come back when you reconnect.
+- **Trick activity bar icon**, with three panes:
+  - **Commands** lists every `Trick:` command for one-click access, without opening the
+    Command Palette. Its top row shows `TRICK_HOME` — hover it for the resolved path and
+    how it was found (or a warning, with a one-click fix, if it wasn't), since VS Code
+    has no API for an extension to put a tooltip on the "Trick" title text at the very
+    top of the sidebar itself.
+  - **Sims**/**Connected** discover running sims automatically (via the same UDP
+    broadcast Sim Sniffer uses), watch variables with live, updating values (replacing
+    Trick View), and run/freeze/stop a sim (replacing Sim Control Panel).
+    - Connecting to a sim moves it out of the **Sims** list into the **Connected** pane
+      below, so it doesn't move around as other sims come and go on the network. It
+      stays there (shown as "Ended") until you disconnect it, even after the sim
+      process exits.
+    - **Add Watch** on a connected sim walks you through its sim objects and their
+      members (from the sim's `S_sie.resource`, when it's on your filesystem), or lets
+      you type a path. The sim expands to show the new watch, and invalid paths are
+      rejected up front.
+    - Right-click a variable in `input.py`/`.dr` and choose **Watch in Trick Sims View**
+      to add it without retyping it.
+    - Watch lists are remembered per sim directory, so they come back when you reconnect.
+  - Drag the dividers between panes to resize them, or collapse any pane entirely.
 
   See [Commands](#commands) below and the how-to guide for details.
 
@@ -151,6 +159,11 @@ watched variable, rather than entries in the Command Palette.
      `share/trick/makefiles/Makefile.common`
   4. auto-detected from a `.../trick/bin` directory on `PATH`
 
+  If none of these apply - most commonly, VS Code was opened from a desktop/file
+  launcher and the Trick environment was only sourced afterward in a terminal tab,
+  which doesn't reach the extension host - run **Trick: Update Environment from Shell
+  Command…** (see [Commands](#commands)).
+
 ## Settings
 
 | Setting | Default | Description |
@@ -167,6 +180,22 @@ above instead of opening a picker between it and the stub.
 
 ## Commands
 
+Every command below also appears, one click away, in the **Commands** pane of the
+Trick activity bar icon's sidebar (see [Features](#features) above) — no need to open
+the Command Palette for any of them.
+
+- **Trick: Update Environment from Shell Command…** — runs a shell command you give it
+  (an alias, a shell function, or `source some_env.sh`) in an interactive instance of
+  your shell, captures the resulting environment, and merges it into the extension's
+  own `process.env` — for when `TRICK_HOME`/`TRICK_*FLAGS` were only ever set up in a
+  terminal *after* VS Code launched (common when VS Code is opened from a desktop/file
+  launcher rather than a shell that already has the environment sourced), since that
+  doesn't otherwise reach the extension host at all. The input box is pre-filled with
+  the last command you ran, so repeating it after a window reload is one Enter press.
+  Runs the shell with `-i` so aliases/functions from `.bashrc`/`.zshrc` are available;
+  stdin is closed immediately and there's a 20-second timeout, so a command that waits
+  on input (a stray `read`, a password prompt from something it shells out to) fails
+  fast instead of hanging.
 - **Trick: Refresh Sim Configuration** — clears cached per-sim include paths and
   re-resolves them (use after editing `S_overrides.mk` if it isn't picked up
   automatically).
@@ -232,9 +261,11 @@ one of two ways, in order:
    `RTI_HOME`, and `RTI_VENDOR`), that means those variables must be set in whatever
    process launched VS Code itself - not just a terminal opened afterward inside it,
    since the extension host inherits its environment from the process that started
-   the editor, not from any integrated terminal. If a required variable points at
-   something that isn't actually installed (no RTI on the machine, say), `make` fails
-   outright and resolution falls through to the regex fallback below for that sim.
+   the editor, not from any integrated terminal (**Trick: Update Environment from
+   Shell Command…**, see [Commands](#commands), is the fix for exactly this case). If
+   a required variable points at something that isn't actually installed (no RTI on
+   the machine, say), `make` fails outright and resolution falls through to the regex
+   fallback below for that sim.
 2. **A best-effort regex scan of `S_overrides.mk`** (used when `make` fails, or when
    `trick.useMakeForFlags` is off): looks for `TRICK_C(XX)?FLAGS`/`TRICK_SFLAGS`/
    `TRICK_PYTHON_PATH` assignments, following `include`/`-include` directives into

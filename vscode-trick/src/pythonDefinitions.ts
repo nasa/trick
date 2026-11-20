@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { symbolMatchesWord } from './sdefineDefinitions';
+import { symbolMatchesWord, isUnderTestDirectory } from './sdefineDefinitions';
 import { SimConfigProvider } from './simConfig';
 import { SieModel, parseSieResource, unwrapContainerElementType } from './sieResource';
 
@@ -400,7 +400,9 @@ export class TrickPythonDefinitionProvider implements vscode.DefinitionProvider 
         'vscode.executeWorkspaceSymbolProvider',
         word
       );
-      const match = symbols?.find((s) => symbolMatchesWord(s.name, word));
+      const match = symbols?.find(
+        (s) => symbolMatchesWord(s.name, word) && !isUnderTestDirectory(s.location.uri.fsPath)
+      );
       return match ? new vscode.Location(match.location.uri, match.location.range) : undefined;
     } catch {
       return undefined;

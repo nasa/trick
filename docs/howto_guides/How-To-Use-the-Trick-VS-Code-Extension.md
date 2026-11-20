@@ -81,10 +81,12 @@ It is not currently published to the VS Code Marketplace, so it's installed from
 * **A run task** for the sim containing the active file, launching its built
   executable with a chosen `RUN_*/*.py` input file, offering to build first if it
   hasn't been built yet.
-* A **Trick activity bar icon**, with **Sims** and **Connected** views, that discovers
-  running sims, watches variables with live values, and runs/freezes/stops a sim —
-  all as native trees inside the VS Code window, replacing the separate Sim Sniffer,
-  Trick View, and Sim Control Panel Java tools.
+* A **Trick activity bar icon**, with **Commands**, **Sims**, and **Connected**
+  views. **Sims**/**Connected** discover running sims, watch variables with live
+  values, and run/freeze/stop a sim — all as native trees inside the VS Code
+  window, replacing the separate Sim Sniffer, Trick View, and Sim Control Panel
+  Java tools. **Commands** lists every `Trick:` command for one-click access, with
+  a `TRICK_HOME` row at the top whose tooltip shows how it was resolved.
 
 Each of these is covered in more detail, with usage examples, in its own section
 below.
@@ -366,11 +368,21 @@ sims the same way regardless of how they were started.
 <a id=trick-sims-view></a>
 ## Trick Sims View
 
-Click the Trick icon in the activity bar to open two stacked views, **Sims** and
-**Connected**. Together they replace three separate Java tools — Sim Sniffer, Trick
-View, and Sim Control Panel — with trees embedded in the VS Code window rather than
-separate pop-up windows. The two views share a resizable divider — drag it to give
-more room to whichever one you're using, or collapse either one entirely.
+Click the Trick icon in the activity bar to open three stacked views, **Commands**,
+**Sims**, and **Connected**. **Sims**/**Connected** replace three separate Java tools —
+Sim Sniffer, Trick View, and Sim Control Panel — with trees embedded in the VS Code
+window rather than separate pop-up windows. All three share resizable dividers — drag
+one to give more room to whichever view you're using, or collapse any of them entirely.
+
+**Commands.** Lists every `Trick:` command (the same ones in the Command Palette) for
+one-click access — Build/Run Current Sim, Update Environment from Shell Command,
+Refresh Sim Configuration, and so on — so they don't have to be typed out via
+`Ctrl+Shift+P`. The top row shows `TRICK_HOME`; since VS Code doesn't let an extension
+put a tooltip on the "Trick" title text at the very top of the sidebar, this row is
+the equivalent — hover it to see the full path and which of the four [Configuration](#configuration)
+steps found it (or a warning, with a one-click fix, if none of them did). It reflects
+whichever sim the active editor belongs to, falling back to the first workspace folder
+if there isn't one.
 
 **Discovery.** A running sim's variable server broadcasts its host, port, and run
 directory over UDP multicast every couple of seconds, and the **Sims** view picks
@@ -418,6 +430,12 @@ without retyping it, as long as you're connected to the sim it belongs to.
 <a id=commands></a>
 ## Commands
 
+* **Trick: Update Environment from Shell Command…** — runs a shell command you give
+  it (an alias, a shell function, or `source some_env.sh`) in an interactive instance
+  of your shell, then merges the resulting environment into the extension. Use this
+  when `TRICK_HOME`/`TRICK_*FLAGS` were only ever set up in a terminal *after* VS Code
+  launched — see [Configuration](#configuration) below. The input box is pre-filled
+  with the last command you used.
 * **Trick: Refresh Sim Configuration** — clears cached per-sim include paths and
   re-resolves them (use after editing `S_overrides.mk` if it isn't picked up
   automatically).
@@ -469,6 +487,24 @@ and to run `trick-CP`. It is discovered automatically, in this order:
 If none of these apply to your setup (for example, a sim developed outside the Trick
 source tree against an installed Trick with VS Code launched from a shell that
 doesn't export `TRICK_HOME`), set the `trick.home` setting explicitly.
+
+**Launched from a desktop/file launcher, with the environment sourced afterward.**
+The extension host inherits its environment from whatever process launched VS Code
+itself — not from any terminal tab opened inside it afterward. So if VS Code was
+opened from a desktop icon or file manager (no shell environment to inherit) and the
+Trick environment is only ever set up by running an alias, a shell function, or
+`source some_env.sh` in VS Code's own integrated terminal, none of the four steps
+above will ever find it — that terminal's environment is private to its own shell
+process. In that case, run **Trick: Update Environment from Shell Command…** (see
+[Commands](#commands)) and give it the same command you'd otherwise run in the
+terminal; it re-runs that command in an interactive instance of your shell (so
+aliases/functions from `.bashrc`/`.zshrc` are available) and merges the resulting
+environment into the extension, the same as if VS Code had inherited it at launch.
+A one-time warning offers this command automatically if no sim in the workspace can
+resolve `TRICK_HOME` at startup. The extension doesn't poll for changes made this way
+on its own, so the command needs to be re-run (its input box is pre-filled with the
+last command, so this is a single Enter press) after each window reload, or any time
+the environment it captured needs to change.
 
 See the extension's own
 [README](https://github.com/nasa/trick/tree/master/vscode-trick#settings) for

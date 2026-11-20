@@ -164,5 +164,18 @@ describe('pythonStubs', () => {
       assert.ok(stub.includes('untyped: Any'));
       assertValidPython(stub);
     });
+
+    it('surfaces a note on hover for an Any-typed object instead of a silent Any', () => {
+      const stub = generateBuiltinsStub([
+        { name: 'Manip2D', note: 'SIM_robot hasn\'t been built yet (no S_sie.resource) - run trick-CP.' },
+      ]);
+      assert.ok(stub.includes('Manip2D: Any'));
+      assert.ok(stub.includes("'SIM_robot hasn\\'t been built yet (no S_sie.resource) - run trick-CP.'"));
+      // The note must land immediately after the declaration - that's what
+      // makes Pylance treat it as Manip2D's doc comment rather than an
+      // unrelated statement.
+      assert.ok(/Manip2D: Any\n'[^\n]*'/.test(stub));
+      assertValidPython(stub);
+    });
   });
 });

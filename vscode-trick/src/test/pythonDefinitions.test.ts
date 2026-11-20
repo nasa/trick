@@ -90,6 +90,19 @@ describe('pythonDefinitions', () => {
       const start = line.indexOf(word);
       assert.deepStrictEqual(parseAccessChain(line, start, start + word.length), ['trick']);
     });
+
+    it('resolves a chain written as a DP_Product <var> element\'s text content', () => {
+      const line =
+        '<var gnuplot_line_style="lines" label="position" units="m">ball.state.output.position[0]</var>';
+      const word = 'position';
+      const start = line.lastIndexOf(word); // the element's text content, not the label="position" attribute
+      assert.deepStrictEqual(parseAccessChain(line, start, start + word.length), [
+        'ball',
+        'state',
+        'output',
+        'position',
+      ]);
+    });
   });
 
   describe('chainTextAt', () => {

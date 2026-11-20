@@ -3,6 +3,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
+/** Which of resolveTrickHomeWithSource's four steps actually found TRICK_HOME. */
+export type TrickHomeSource = 'setting' | 'env' | 'walk-up' | 'path';
+
 export interface SimConfig {
   simRoot: string;
   source: 'make' | 'regex';
@@ -162,6 +165,24 @@ export class SimConfigProvider implements vscode.Disposable {
     this.cache.clear();
   }
 
+  /**
+   * Like clearAll(), but also fires onDidInvalidate for every root that was
+   * cached - which clearAll() alone never did, so nothing downstream
+   * (cpptools' configuration, the Python stub generator, #include
+   * diagnostics, the status bar) actually noticed a plain clearAll().
+   * Used by "Trick: Refresh Sim Configuration" and "Trick: Update
+   * Environment from Shell Command", both of which need every consumer to
+   * re-resolve against a changed TRICK_HOME/TRICK_*FLAGS, not just drop the
+   * cache and wait for something else to ask again.
+   */
+  invalidateAll(): void {
+    const roots = [...this.cache.keys()];
+    this.cache.clear();
+    for (const root of roots) {
+      this.onDidInvalidateEmitter.fire(root);
+    }
+  }
+
   getAllCached(): SimConfig[] {
     return [...this.cache.values()];
   }
@@ -248,13 +269,22 @@ export class SimConfigProvider implements vscode.Disposable {
   }
 
   resolveTrickHome(fromDir: string): string | undefined {
+    return this.resolveTrickHomeWithSource(fromDir)?.path;
+  }
+
+  /**
+   * Same resolution as resolveTrickHome, but also reports which of the four
+   * steps actually found it - used by the Commands sidebar's TRICK_HOME row
+   * to explain itself on hover, rather than just showing a bare path.
+   */
+  resolveTrickHomeWithSource(fromDir: string): { path: string; source: TrickHomeSource } | undefined {
     const settings = vscode.workspace.getConfiguration('trick');
     const configured = settings.get<string>('home', '');
     if (configured) {
-      return configured;
+      return { path: configured, source: 'setting' };
     }
     if (process.env.TRICK_HOME) {
-      return process.env.TRICK_HOME;
+      return { path: process.env.TRICK_HOME, source: 'env' };
     }
     // Walk up from fromDir looking for share/trick/makefiles/Makefile.common,
     // which covers the common case of developing inside the Trick repo itself
@@ -263,7 +293,7 @@ export class SimConfigProvider implements vscode.Disposable {
     const root = path.parse(dir).root;
     while (true) {
       if (fs.existsSync(path.join(dir, 'share/trick/makefiles/Makefile.common'))) {
-        return dir;
+        return { path: dir, source: 'walk-up' };
       }
       if (dir === root) {
         break;
@@ -274,7 +304,8 @@ export class SimConfigProvider implements vscode.Disposable {
       }
       dir = parent;
     }
-    return this.resolveTrickHomeFromPathEnv();
+    const fromPath = this.resolveTrickHomeFromPathEnv();
+    return fromPath ? { path: fromPath, source: 'path' } : undefined;
   }
 
   // Last resort: look for a "trick/bin" directory on $PATH (e.g. from an
@@ -320,11 +351,32 @@ export class SimConfigProvider implements vscode.Disposable {
             reject(error);
             return;
           }
-          const lines = stdout.split('\n');
+          // Picked out by the TRICK_VSCODE_FLAG:<var>:<value> marker each
+          // print-% target emits (see trick-vars.mk), not by line position -
+          // a sim's S_overrides.mk (or something it includes, e.g. a wrapped
+          // package's makefile) can emit its own $(info .../$(warning ...
+          // output to stdout while make is still parsing, before any
+          // print-% recipe runs. That extra, unpredictable-length output
+          // would otherwise shift every "line N is variable N" assumption
+          // after it - silently handing later variables a neighbor's value
+          // instead of their own.
+          const markerRe = /^TRICK_VSCODE_FLAG:([A-Za-z0-9_]+):(.*)$/;
           const raw: Record<string, string> = {};
-          FLAG_VARS.forEach((v, i) => {
-            raw[v] = (lines[i] ?? '').trim();
-          });
+          for (const line of stdout.split('\n')) {
+            const m = markerRe.exec(line);
+            if (m) {
+              raw[m[1]] = m[2].trim();
+            }
+          }
+          const missing = FLAG_VARS.filter((v) => raw[v] === undefined);
+          if (missing.length > 0) {
+            this.output.appendLine(
+              `[${simRoot}] make didn't report ${missing.join(', ')} - treating as empty. Full output:\n${stdout}`
+            );
+            missing.forEach((v) => {
+              raw[v] = '';
+            });
+          }
           resolve(this.buildConfig(simRoot, 'make', raw, trickHome));
         }
       );

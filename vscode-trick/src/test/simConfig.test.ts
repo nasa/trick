@@ -131,6 +131,52 @@ describe('SimConfigProvider regex fallback', () => {
     assert.deepStrictEqual(new Set(viaRegex.cxxIncludes), new Set(viaMake.cxxIncludes));
   });
 
+  // Regression test for the GROOT/TrickHLA bug: S_hla.mk emits $(info ...)
+  // diagnostics (e.g. "Overriding PRTI6_ROOT = ...") while make is still
+  // parsing S_overrides.mk - before any print-% target's recipe runs. Those
+  // extra stdout lines used to shift every "line N is variable N" assumption
+  // in resolveViaMake, so TRICK_SFLAGS (and everything after it) silently
+  // picked up a neighboring variable's value instead of its own - which is
+  // how a sim wrapping a package like TrickHLA could end up with
+  // TRICK_SYSTEM_SFLAGS (where default_trick_sys.sm actually lives) missing
+  // entirely. The TRICK_VSCODE_FLAG:<var>:<value> marker in trick-vars.mk
+  // fixes this by locating each variable's value directly instead of by
+  // position.
+  it('correctly attributes flags even when an included makefile prints $(info) noise first', async function () {
+    if (process.env.CI_NO_MAKE) {
+      this.skip();
+    }
+    const provider = makeProvider();
+    const simRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-trick-infonoise-'));
+    try {
+      fs.writeFileSync(
+        path.join(simRoot, 'S_overrides.mk'),
+        [
+          '$(info S_hla.mk:INFO: Overriding PRTI6_ROOT = /fake/rti)',
+          '$(info S_hla.mk:INFO: Overriding PRTI1516E_HOME = /fake/rti)',
+          '$(info S_hla.mk:INFO: Using C++14 for Trick ICG code.)',
+          'TRICK_CFLAGS += -DMARKER_CFLAGS',
+          'TRICK_CXXFLAGS += -DMARKER_CXXFLAGS',
+          'TRICK_SFLAGS += -DMARKER_SFLAGS',
+          '',
+        ].join('\n')
+      );
+      const config = await (provider as any).resolveViaMake(simRoot, TRICK_HOME);
+      assert.ok(config.raw.TRICK_CFLAGS.includes('-DMARKER_CFLAGS'), `TRICK_CFLAGS was: "${config.raw.TRICK_CFLAGS}"`);
+      assert.ok(
+        config.raw.TRICK_CXXFLAGS.includes('-DMARKER_CXXFLAGS'),
+        `TRICK_CXXFLAGS was: "${config.raw.TRICK_CXXFLAGS}"`
+      );
+      assert.ok(config.raw.TRICK_SFLAGS.includes('-DMARKER_SFLAGS'), `TRICK_SFLAGS was: "${config.raw.TRICK_SFLAGS}"`);
+      // The real regression: TRICK_SYSTEM_SFLAGS (where default_trick_sys.sm
+      // lives) must still be Makefile.common's own value, not clobbered by
+      // the $(info) noise shifting things.
+      assert.ok(config.raw.TRICK_SYSTEM_SFLAGS.includes(path.join(TRICK_HOME, 'share')));
+    } finally {
+      fs.rmSync(simRoot, { recursive: true, force: true });
+    }
+  });
+
   it('falls back to TRICK_HOME system includes for files outside any sim (default_trick_sys.sm)', async function () {
     if (process.env.CI_NO_MAKE) {
       this.skip();
@@ -219,6 +265,132 @@ describe('SimConfigProvider regex fallback', () => {
       // so only the PATH-based fallback can succeed.
       const resolved = provider.resolveTrickHome(path.parse(TRICK_HOME).root);
       assert.strictEqual(resolved, TRICK_HOME);
+    } finally {
+      process.env.PATH = savedPath;
+      if (savedHome !== undefined) {
+        process.env.TRICK_HOME = savedHome;
+      }
+    }
+  });
+});
+
+describe('SimConfigProvider.resolveTrickHomeWithSource', () => {
+  // The Commands sidebar's TRICK_HOME row (commandsTree.ts) explains itself
+  // on hover using this source tag, so each of resolveTrickHome's four steps
+  // needs to report the right one, not just the right path.
+  it('reports "env" when found via the TRICK_HOME environment variable', () => {
+    const provider = makeProvider();
+    const savedHome = process.env.TRICK_HOME;
+    process.env.TRICK_HOME = TRICK_HOME;
+    try {
+      const resolved = provider.resolveTrickHomeWithSource(path.parse(TRICK_HOME).root);
+      assert.deepStrictEqual(resolved, { path: TRICK_HOME, source: 'env' });
+    } finally {
+      if (savedHome === undefined) {
+        delete process.env.TRICK_HOME;
+      } else {
+        process.env.TRICK_HOME = savedHome;
+      }
+    }
+  });
+
+  it('reports "walk-up" when found by walking up to Makefile.common', () => {
+    const provider = makeProvider();
+    const savedHome = process.env.TRICK_HOME;
+    delete process.env.TRICK_HOME;
+    try {
+      const simRoot = path.join(TRICK_HOME, 'trick_sims', 'SIM_rocket');
+      const resolved = provider.resolveTrickHomeWithSource(simRoot);
+      assert.deepStrictEqual(resolved, { path: TRICK_HOME, source: 'walk-up' });
+    } finally {
+      if (savedHome !== undefined) {
+        process.env.TRICK_HOME = savedHome;
+      }
+    }
+  });
+
+  it('reports "path" when found via a trick/bin directory on PATH', () => {
+    const provider = makeProvider();
+    const savedPath = process.env.PATH;
+    const savedHome = process.env.TRICK_HOME;
+    delete process.env.TRICK_HOME;
+    try {
+      process.env.PATH = [path.join(TRICK_HOME, 'bin'), '/usr/bin', '/bin'].join(path.delimiter);
+      const resolved = provider.resolveTrickHomeWithSource(path.parse(TRICK_HOME).root);
+      assert.deepStrictEqual(resolved, { path: TRICK_HOME, source: 'path' });
+    } finally {
+      process.env.PATH = savedPath;
+      if (savedHome !== undefined) {
+        process.env.TRICK_HOME = savedHome;
+      }
+    }
+  });
+
+  it('reports "setting" when trick.home is configured, taking precedence over everything else', () => {
+    // Can't just mutate vscodeStub.workspace.getConfiguration here: by the
+    // time this file's tests run, '../simConfig' may already be cached from
+    // an earlier spec file (e.g. pythonStubs.test.ts, which also requires it
+    // transitively and happens to load first alphabetically) - its `import
+    // vscode from 'vscode'` was resolved once, against whichever stub was
+    // active at that first load, and mutating *this* file's vscodeStub object
+    // afterward doesn't reach it. Forcing a fresh module load under a
+    // purpose-built stub, installed as the active Module._load just for this
+    // require, sidesteps that - it only affects this one freshly-loaded
+    // instance, not the SimConfigProvider other tests in this file import at
+    // the top level.
+    const savedHome = process.env.TRICK_HOME;
+    process.env.TRICK_HOME = '/this/should/be/ignored';
+    const configuredStub = {
+      workspace: {
+        getConfiguration: () => ({
+          get: (key: string, def?: unknown) => (key === 'home' ? '/configured/trick/home' : def),
+        }),
+        createFileSystemWatcher: () => ({
+          onDidChange: () => undefined,
+          onDidCreate: () => undefined,
+          onDidDelete: () => undefined,
+          dispose: () => undefined,
+        }),
+      },
+      EventEmitter: vscodeStub.EventEmitter,
+    };
+    const savedLoad = Module._load;
+    Module._load = function (request: string, ...rest: unknown[]) {
+      if (request === 'vscode') {
+        return configuredStub;
+      }
+      return savedLoad.call(this, request, ...rest);
+    };
+    const modulePath = require.resolve('../simConfig');
+    const savedCacheEntry = require.cache[modulePath];
+    delete require.cache[modulePath];
+    try {
+      const { SimConfigProvider: FreshSimConfigProvider } = require('../simConfig');
+      const provider = new FreshSimConfigProvider({ appendLine: () => undefined });
+      const resolved = provider.resolveTrickHomeWithSource(path.parse(TRICK_HOME).root);
+      assert.deepStrictEqual(resolved, { path: '/configured/trick/home', source: 'setting' });
+    } finally {
+      Module._load = savedLoad;
+      delete require.cache[modulePath];
+      if (savedCacheEntry) {
+        require.cache[modulePath] = savedCacheEntry;
+      }
+      if (savedHome === undefined) {
+        delete process.env.TRICK_HOME;
+      } else {
+        process.env.TRICK_HOME = savedHome;
+      }
+    }
+  });
+
+  it('returns undefined when none of the four steps find anything', () => {
+    const provider = makeProvider();
+    const savedPath = process.env.PATH;
+    const savedHome = process.env.TRICK_HOME;
+    delete process.env.TRICK_HOME;
+    try {
+      process.env.PATH = '/usr/bin:/bin';
+      assert.strictEqual(provider.resolveTrickHomeWithSource('/tmp'), undefined);
     } finally {
       process.env.PATH = savedPath;
       if (savedHome !== undefined) {

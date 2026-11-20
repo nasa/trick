@@ -39,6 +39,10 @@
     "views": {
       "trick": [
         {
+          "id": "trickCommands",
+          "name": "Commands"
+        },
+        {
           "id": "trickSims",
           "name": "Sims"
         },
@@ -104,24 +108,38 @@
     "commands": [
       {
         "command": "trick.refreshSimConfiguration",
-        "title": "Trick: Refresh Sim Configuration"
+        "title": "Trick: Refresh Sim Configuration",
+        "icon": "$(refresh)"
       },
       {
         "command": "trick.showResolvedIncludePaths",
-        "title": "Trick: Show Resolved Include Paths"
+        "title": "Trick: Show Resolved Include Paths",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "trick.updateEnvironmentFromShell",
+        "title": "Trick: Update Environment from Shell Command…",
+        "icon": "$(terminal)"
       },
       {
         "command": "trick.regeneratePythonStubs",
-        "title": "Trick: Regenerate Python Stubs"
+        "title": "Trick: Regenerate Python Stubs",
+        "icon": "$(symbol-namespace)"
       },
       {
         "command": "trick.buildCurrentSim",
-        "title": "Trick: Build Current Sim"
+        "title": "Trick: Build Current Sim",
+        "icon": "$(tools)"
       },
       {
         "command": "trick.runCurrentSim",
         "title": "Trick: Run Current Sim",
         "icon": "$(play)"
+      },
+      {
+        "command": "trick.commands.refreshView",
+        "title": "Refresh",
+        "icon": "$(refresh)"
       },
       {
         "command": "trick.sims.connect",
@@ -164,11 +182,23 @@
       },
       {
         "command": "trick.sims.watchFromEditor",
-        "title": "Trick: Watch in Trick Sims View"
+        "title": "Trick: Watch in Trick Sims View",
+        "icon": "$(eye)"
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "trick.commands.refreshView",
+          "when": "false"
+        }
+      ],
       "view/title": [
+        {
+          "command": "trick.commands.refreshView",
+          "when": "view == trickCommands",
+          "group": "navigation"
+        },
         {
           "command": "trick.sims.connectManual",
           "when": "view == trickSims",
@@ -220,7 +250,7 @@
       "editor/context": [
         {
           "command": "trick.sims.watchFromEditor",
-          "when": "editorLangId == python",
+          "when": "editorLangId == python || resourcePath =~ /DP_Product/",
           "group": "9_trick"
         },
         {
@@ -336,6 +366,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "22": "^0.0.0",
     "vscode-cpptools": "^6.1.0"
   }
 }
