@@ -39,7 +39,6 @@ int Trick::MemoryManager::set_name_at( void* addr , const char * name ) {
             ss << "Call to set_name_at() failed because a variable named \""
                << name << "\" already exists.";
             emitError(ss.str());
-            pthread_mutex_unlock(&mm_mutex);
             ret = -1 ;
         } else {
             variable_map[name] = pos->second ;

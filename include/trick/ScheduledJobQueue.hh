@@ -70,7 +70,8 @@ namespace Trick {
             unsigned int get_curr_index() ;
 
             /**
-             * @brief Sets the curr_index to value.
+             * @brief Sets the next unread index, including size() for end of queue.
+             * Values greater than size() are ignored.
              * @param ii - Value of index.
              * @return always 0.
              */
@@ -144,7 +145,7 @@ namespace Trick {
 
             /**
              * @brief Gets the job pointed to by current_index, the top of the list.
-             * @return top job in the list, or NULL if the list is empty.
+             * @return current job, or NULL if the list is empty or exhausted.
              */
             JobData * top() ;
 
@@ -198,7 +199,7 @@ namespace Trick {
             /** Simple reallocable list of JobData pointers.  */
             JobData ** list ; /* ** This list is allocated outside of the memory manager. */
 
-            /** current index to top job in list */
+            /** Next unread job index, in [0, list_size]; list_size means exhausted. */
             unsigned int curr_index ;
 
             /** next lowest job call time as tracked by calls to find_next_job(long long) */
